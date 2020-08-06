@@ -1,0 +1,15 @@
+[run]
+source = db,scheduler,mb,ops,pycli
+omit =
+    db/migrations/*
+
+[html]
+directory = build/coverage/html
+
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NotImplementedError
+
+[xml]
+output = build/coverage.xml

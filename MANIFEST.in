@@ -1,0 +1,6 @@
+include MANIFEST.in
+include LICENSE
+include readme.md
+graft dev
+graft metablock
+global-exclude *.pyc

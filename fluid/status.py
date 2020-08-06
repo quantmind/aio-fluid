@@ -1,0 +1,28 @@
+from aiohttp import web
+from openapi.spec.server import server_urls
+
+from . import __timestamp__, __version__
+
+status_routes = web.RouteTableDef()
+
+
+@status_routes.get("/status")
+async def status(request):
+    result = dict(ok=True, sha=__version__, timestamp=__timestamp__)
+    return web.json_response(result)
+
+
+@status_routes.get("/headers")
+async def headers(request):
+    result = dict(request.headers.items())
+    return web.json_response(result)
+
+
+@status_routes.get("/")
+async def urls(request):
+    paths = set()
+    for route in request.app.router.routes():
+        route_info = route.get_info()
+        path = route_info.get("path", route_info.get("formatter", None))
+        paths.add(path)
+    return web.json_response(server_urls(request, sorted(paths)))

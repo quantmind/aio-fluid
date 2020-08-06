@@ -1,0 +1,3 @@
+-r ./requirements-base.txt
+-r ./requirements-test.txt
+-r ./requirements-dev.txt
