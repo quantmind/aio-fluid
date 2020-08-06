@@ -5,6 +5,9 @@ on: push
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      PYTHON_ENV: ci
+      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
     steps:
       - name: checkout code
@@ -23,3 +26,5 @@ jobs:
         run: make test-lint
       - name: tests
         run: make test
+      - name: upload coverage
+        run: codecov --file ./build/coverage.xml
