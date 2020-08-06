@@ -1,0 +1,20 @@
+# files
+.env
+.local.env
+.DS_Store
+
+# folders
+build
+venv
+
+# IDEs
+.idea
+*.swp
+
+# python
+__pycache__
+.python-version
+.pytest_cache
+.mypy_cache
+.coverage
+*.pyc

@@ -1,7 +1,5 @@
 [run]
-source = db,scheduler,mb,ops,pycli
-omit =
-    db/migrations/*
+source = fluid
 
 [html]
 directory = build/coverage/html

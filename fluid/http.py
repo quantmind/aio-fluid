@@ -241,7 +241,7 @@ class WsComponent(Component):
     ws_connections = None
 
     async def connect_and_listen(
-        self, ws_url: str, on_text_message: Callable[[str], None] = None, **kw
+        self, ws_url: str, on_text_message: Callable[[str], None] = None, **kw,
     ) -> WsConnection:
         if self.ws_connections is None:
             self.ws_connections = {}

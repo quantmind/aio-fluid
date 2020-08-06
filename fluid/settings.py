@@ -3,7 +3,6 @@ import os
 from openapi import sentry
 from openapi.middleware import json_error
 
-
 PYTHON_ENV = os.environ.get("PYTHON_ENV", "production")
 ENVIRONMENT = os.environ.get("ENVIRONMENT", PYTHON_ENV)
 SENTRY_DSN = os.environ.get("SENTRY_DSN", "")

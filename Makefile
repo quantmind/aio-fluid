@@ -26,9 +26,9 @@ install: 		## install packages in virtualenv
 
 
 lint: 			## run linters
-	flake8
 	isort .
 	./dev/run-black
+	flake8
 
 
 mypy:			## run mypy
@@ -40,9 +40,9 @@ test:			## test with coverage
 
 
 test-lint:		## run linters
-	flake8
 	isort . --check
 	./dev/run-black --check
+	flake8
 
 
 test-version:		## validate version

@@ -2,7 +2,6 @@ import asyncio
 from typing import Any, Coroutine
 
 import click
-
 from openapi.exc import ImproperlyConfigured
 
 

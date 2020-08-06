@@ -15,7 +15,7 @@ async def run(
     result_callback: Optional[KernelCallback] = None,
     error_callback: Optional[KernelCallback] = None,
     env: Optional[Dict[str, str]] = None,
-    stream_output: bool = False
+    stream_output: bool = False,
 ):
     process = await asyncio.create_subprocess_exec(
         executable,

@@ -1,17 +1,7 @@
 import asyncio
 import uuid
 from time import time
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Union,
-    cast,
-)
+from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Union, cast
 
 from inflection import underscore
 from multidict import MultiDict

@@ -1,8 +1,7 @@
+import pycountry
 from openapi.data import fields
 from openapi.data.validate import ValidationError
 from slugify import slugify
-import pycountry
-
 
 a2 = frozenset((c.alpha_2.lower() for c in pycountry.countries))
 
