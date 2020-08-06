@@ -5,6 +5,8 @@ from urllib.parse import urlparse
 
 _brokers = {}
 
+DEFAULT_BROKER_URL = "redis://localhost:6379/3"
+
 
 class Broker(ABC):
     def __init__(self, url: str) -> None:
@@ -20,7 +22,7 @@ class Broker(ABC):
 
     @classmethod
     def from_env(cls) -> "Broker":
-        url = os.getenv("SCHEDULER_BROKER_URL", "")
+        url = os.getenv("SCHEDULER_BROKER_URL", DEFAULT_BROKER_URL)
         p = urlparse(url)
         Factory = _brokers.get(p.scheme)
         if not Factory:

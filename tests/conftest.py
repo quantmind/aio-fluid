@@ -1,8 +1,11 @@
 import asyncio
 
 import pytest
+from openapi.rest import rest
 
 from fluid.redis import RedisPubSub
+from fluid.scheduler import Scheduler
+from fluid.webcli import app_cli
 
 
 @pytest.fixture(scope="session")
@@ -22,3 +25,18 @@ async def redis(loop):
         yield cli
     finally:
         await cli.close()
+
+
+@pytest.fixture(scope="module")
+async def scheduler(loop) -> Scheduler:
+    cli = rest()
+    cli.index = 0
+    app = cli.get_serve_app()
+    scheduler = Scheduler()
+    app.on_startup.append(scheduler.start_app)
+    app.on_shutdown.append(scheduler.close_app)
+    async with app_cli(app) as client:
+        try:
+            yield scheduler
+        finally:
+            await client.close()
