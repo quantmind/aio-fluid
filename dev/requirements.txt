@@ -1,3 +1,68 @@
--r ./requirements-base.txt
--r ./requirements-test.txt
--r ./requirements-dev.txt
+#
+uvloop
+aio-openapi
+aio-kong
+aioredis
+aioconsole
+raven-aiohttp
+cython
+ujson
+prometheus_async
+python-json-logger
+
+# data
+pycountry
+
+# db migration
+alembic_autogenerate_enums
+
+# text & parsing
+inflection
+python-slugify[unidecode]
+
+# cryptography
+pynacl
+
+# terminal
+ipython
+
+# dev
+colorama
+
+# tools
+agile-toolkit
+boto3
+
+# dev environment
+colorlog
+aiohttp-devtools
+
+#
+# code quality
+black
+isort
+flake8
+flake8-blind-except
+flake8-builtins
+flake8-commas
+# flake8-docstrings
+# flake8-rst-docstrings
+# flake8-import-order
+#
+
+# test
+pytest
+pytest-aiohttp
+pytest-mock
+
+# validation
+openapi-spec-validator
+
+# coverage
+codecov
+pytest-cov
+
+
+# mypy
+mypy
+sqlalchemy-stubs

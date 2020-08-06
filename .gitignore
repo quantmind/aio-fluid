@@ -5,6 +5,7 @@
 
 # folders
 build
+dist
 venv
 
 # IDEs
@@ -18,3 +19,4 @@ __pycache__
 .mypy_cache
 .coverage
 *.pyc
+*.egg-info

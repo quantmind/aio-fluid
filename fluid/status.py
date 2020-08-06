@@ -1,7 +1,12 @@
+import os
+
 from aiohttp import web
 from openapi.spec.server import server_urls
+from openapi.tz import utcnow
 
-from . import __timestamp__, __version__
+__version__ = os.environ.get("GIT_SHA", "unknown")
+__timestamp__ = os.environ.get("TIMESTAMP", utcnow().isoformat())
+
 
 status_routes = web.RouteTableDef()
 

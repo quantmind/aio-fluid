@@ -3,6 +3,8 @@ import sys
 
 from setuptools import find_packages, setup
 
+import fluid as pkg
+
 
 def read(name):
     filename = os.path.join(os.path.dirname(__file__), name)
@@ -28,24 +30,16 @@ def requirements(name):
     return install_requires, dependency_links
 
 
-def get_version():
-    for line in read("metablock/__init__.py").split("\n"):
-        if line.startswith("__version__ = "):
-            return line[15:-1]
-    raise RuntimeError("Version not found")
-
-
 install_requires = requirements("dev/requirements.txt")[0]
-tests_require = requirements("dev/requirements-test.txt")[0]
 
 if sys.version_info < (3, 7):
     install_requires.append("dataclasses")
 
 
 meta = dict(
-    version=get_version(),
-    description="A python client for Metablock API",
-    name="metablock",
+    version=pkg.__version__,
+    description=pkg.__doc__,
+    name="fluid",
     packages=find_packages(exclude=["tests", "tests.*"]),
     long_description=read("readme.md"),
     long_description_content_type="text/markdown",
@@ -53,9 +47,8 @@ meta = dict(
     author_email="luca@quantmind.com",
     maintainer_email="luca@quantmind.com",
     url="https://github.com/quantmind/fluid",
-    python_requires=">=3.6.0",
+    python_requires=">=3.8.0",
     install_requires=install_requires,
-    tests_require=tests_require,
     include_package_data=True,
     classifiers=[
         "Development Status :: 3 - Alpha",
