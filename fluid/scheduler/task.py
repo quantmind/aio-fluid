@@ -15,8 +15,9 @@ class TaskRunError(RuntimeError):
 
 class TaskContext(NamedTuple):
     app: Any
+    task: "Task"
     log: LogType
-    params: Dict
+    params: Dict[str, Any]
 
     def raise_error(self, msg: str) -> None:
         raise TaskRunError(msg)
@@ -44,7 +45,9 @@ class Task:
         return await self.executor(context)
 
     def create_context(self, app, log: Optional[LogType] = None, **params):
-        return TaskContext(app=app, log=log or self.logger.info, params=params)
+        return TaskContext(
+            app=app, task=self, log=log or self.logger.info, params=params
+        )
 
 
 def task(executor) -> Task:

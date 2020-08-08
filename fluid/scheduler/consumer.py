@@ -115,9 +115,12 @@ class Consumer(TaskManager):
                 result = await task_run.task(self)
             except Exception as exc:
                 task_run.result.set_exception(exc)
-                self.logger.exception("Critical exception in task %s", task_run.name)
             else:
                 task_run.result.set_result(result)
+            try:
+                await task_run.result
+            except Exception:
+                self.logger.exception("Critical exception in task %s", task_run.name)
             task_run.end = milliseconds()
             self._concurrent_tasks.pop(task_run.id)
             self.dispatch(task_run, "end")
