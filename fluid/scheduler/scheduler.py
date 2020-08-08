@@ -1,31 +1,16 @@
-from functools import cached_property
 from typing import Dict
 
-from ..node import Node, NodeWorkers
+from ..node import Node
 from .broker import Broker
+from .consumer import TaskManager
 from .task import Task
 
 
-class Scheduler(NodeWorkers):
+class Scheduler(TaskManager):
     def __init__(self) -> None:
         super().__init__()
         self.tasks = ScheduledTasks(self.broker)
         self.add_workers(self.tasks)
-
-    @cached_property
-    def broker(self) -> Broker:
-        return Broker.from_env()
-
-    async def teardown(self) -> None:
-        await self.broker.close()
-
-    async def queue(self, message, callback=True):
-        """Queue the ``message``.
-        If callback is True (default) returns a Future
-        called back once the message is delivered,
-        otherwise return a future called back once the messaged is queued
-        """
-        pass
 
 
 class ScheduledTasks(Node):

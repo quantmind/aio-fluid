@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "PyTest",
+            "type": "python",
+            "request": "launch",
+            "stopOnEntry": false,
+            "pythonPath": "${command:python.interpreterPath}",
+            "cwd": "${workspaceFolder}",
+            "console": "integratedTerminal",
+            "module": "pytest",
+            "env": {},
+            "args": [
+                "tests/test_scheduler.py"
+            ],
+            "debugOptions": [
+                "RedirectOutput"
+            ]
+        },
+    ]
+}

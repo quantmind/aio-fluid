@@ -1,11 +1,15 @@
 import asyncio
+import os
 
 import pytest
+from aiohttp.web import Application
 from openapi.rest import rest
 
 from fluid.redis import RedisPubSub
-from fluid.scheduler import Scheduler
+from fluid.scheduler import Consumer, Scheduler, TaskContext, TaskManager, task
 from fluid.webcli import app_cli
+
+os.environ["PYTHON_ENV"] = "test"
 
 
 @pytest.fixture(scope="session")
@@ -32,11 +36,34 @@ async def scheduler(loop) -> Scheduler:
     cli = rest()
     cli.index = 0
     app = cli.get_serve_app()
-    scheduler = Scheduler()
-    app.on_startup.append(scheduler.start_app)
-    app.on_shutdown.append(scheduler.close_app)
+    scheduler = task_manager(app, Scheduler())
     async with app_cli(app) as client:
         try:
             yield scheduler
         finally:
             await client.close()
+
+
+@pytest.fixture(scope="module")
+async def consumer(loop) -> Consumer:
+    cli = rest()
+    cli.index = 0
+    app = cli.get_serve_app()
+    consumer = task_manager(app, Consumer())
+    async with app_cli(app) as client:
+        try:
+            yield consumer
+        finally:
+            await client.close()
+
+
+def task_manager(app: Application, manager: TaskManager) -> TaskManager:
+    manager.register_task(dummy)
+    app.on_startup.append(manager.start_app)
+    app.on_shutdown.append(manager.close_app)
+    return manager
+
+
+@task
+async def dummy(context: TaskContext) -> None:
+    await asyncio.sleep(0.1)
