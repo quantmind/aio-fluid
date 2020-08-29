@@ -85,7 +85,8 @@ class GithubDeployments(GithubRepoComponent):
     async def create(self, ref: str, auto_merge: bool = False, **params) -> Dict:
         """Create a new deployment"""
         return await self.cli.post(
-            self.url, json=dict(ref=ref, auto_merge=auto_merge, **params),
+            self.url,
+            json=dict(ref=ref, auto_merge=auto_merge, **params),
         )
 
     async def update(self, deployment_id: str, **params) -> Dict:

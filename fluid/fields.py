@@ -32,8 +32,7 @@ def slug_field(max_length=None, min_length=None, **kw):
 
 
 def uuid_field_or_slug(format="uuid", **kw):  # noqa
-    """A UUID field with validation
-    """
+    """A UUID field with validation"""
     kw.setdefault("validator", UUIDorSlugValidator())
     return fields.data_field(format=format, **kw)
 

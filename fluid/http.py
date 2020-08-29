@@ -4,10 +4,10 @@ import hashlib
 import hmac
 import os
 from functools import cached_property
-from typing import Any, Callable, Coroutine, Dict, List, Tuple, Union
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
 import aiohttp
-from aiohttp import ClientResponse, ClientSession, WSMsgType
+from aiohttp import ClientResponse, ClientSession, ClientWebSocketResponse, WSMsgType
 from aiohttp.formdata import FormData
 from inflection import underscore
 
@@ -218,13 +218,26 @@ class Component(HttpComponent):
 class WsConnection(NodeWorker):
     """Worker for listening to stream of websocket messages"""
 
-    def __init__(self, ws_connection):
+    def __init__(
+        self,
+        ws_component: "WsComponent",
+        ws_url: str,
+        ws_connection: ClientWebSocketResponse,
+    ):
         super().__init__()
+        self.ws_component = ws_component
+        self.ws_url = ws_url
         self.ws_connection = ws_connection
         self.on_text_message = None
+        ws_component.ws_connections[ws_url] = self
 
     async def write_json(self, data: JsonType) -> None:
         await self.ws_connection.send_str(json.dumps(data))
+
+    async def teardown(self) -> None:
+        self.ws_component.pop(self.ws_url)
+        if self.ws_component.on_disconnect:
+            self.ws_component.on_disconnect(self)
 
     async def work(self) -> None:
         async for msg in self.ws_connection:
@@ -239,17 +252,20 @@ class WsConnection(NodeWorker):
 class WsComponent(Component):
     connection_factory = WsConnection
     ws_connections = None
+    on_disconnect: Optional[Callable[[WsConnection], None]] = None
 
     async def connect_and_listen(
-        self, ws_url: str, on_text_message: Callable[[str], None] = None, **kw,
+        self,
+        ws_url: str,
+        on_text_message: Callable[[str], None] = None,
+        **kw,
     ) -> WsConnection:
         if self.ws_connections is None:
             self.ws_connections = {}
         connection = self.ws_connections.get(ws_url)
         if not connection:
             ws = await self.get_session().ws_connect(ws_url, **kw)
-            connection = self.connection_factory(ws)
-            self.ws_connections[ws_url] = connection
+            connection = self.connection_factory(self, ws_url, ws)
             await connection.start()
         if on_text_message:
             connection.on_text_message = on_text_message

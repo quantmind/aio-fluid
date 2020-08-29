@@ -32,8 +32,7 @@ class Service:
         metrics_path: str = "/metrics",
         sampler: bool = False,
     ) -> Application:
-        """Setup boilerplate for asyncio services
-        """
+        """Setup boilerplate for asyncio services"""
         if app is None:
             app = Application()
         # create service object

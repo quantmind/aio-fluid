@@ -223,7 +223,9 @@ class Node(NodeWorker):
 
 class Worker(NodeWorker):
     def __init__(
-        self, work: Callable[[], None], logger: Optional[Logger] = None,
+        self,
+        work: Callable[[], None],
+        logger: Optional[Logger] = None,
     ) -> None:
         super().__init__(logger=logger)
         self.work = work

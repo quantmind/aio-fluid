@@ -141,7 +141,11 @@ class RedisPubSub:
         return "-".join(str(arg) for arg in (CACHE_KEY_PREFIX, key, *args))
 
     async def from_cache(
-        self, key: str, *args, expire: int = 0, loader: Optional[Callable] = None,
+        self,
+        key: str,
+        *args,
+        expire: int = 0,
+        loader: Optional[Callable] = None,
     ) -> Any:
         """Load JSON data from redis cache"""
         cache_key = self.cache_key(key, *args)

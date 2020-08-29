@@ -21,8 +21,7 @@ def as_uuid(uid: Any) -> Optional[str]:
 def add_api_url(
     request, data: Union[List, Dict], path: Optional[str] = None, key: str = "id"
 ) -> Union[List, Dict]:
-    """Add api_url field to data
-    """
+    """Add api_url field to data"""
     datas = data
     path = path if path is not None else request.path
     if not isinstance(data, list):

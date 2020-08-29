@@ -43,8 +43,7 @@ class TaskManager(NodeWorkers):
         self.broker.register_task(task)
 
     def queue(self, task: Union[str, Task], **params):
-        """Queue a Task for execution
-        """
+        """Queue a Task for execution"""
         self.task_queue.put_nowait((task, params))
 
     def dispatch(self, task_run: TaskRun, event_type: str) -> str:
@@ -88,8 +87,7 @@ class Consumer(TaskManager):
 
     @property
     def num_concurrent_tasks(self) -> int:
-        """The number of concurrent_tasks
-        """
+        """The number of concurrent_tasks"""
         return len(self._concurrent_tasks)
 
     def execute(self, task: Union[Task, str], **params) -> TaskRun:
