@@ -200,7 +200,7 @@ class HttpComponent(HttpBase):
 
 
 class Component(HttpComponent):
-    def __init__(self, root: HttpClient, name: str = None) -> None:
+    def __init__(self, root: HttpClient, name: str = "") -> None:
         self.root = root
         self.path = name or underscore(type(self).__name__)
 
@@ -235,7 +235,7 @@ class WsConnection(NodeWorker):
         await self.ws_connection.send_str(json.dumps(data))
 
     async def teardown(self) -> None:
-        self.ws_component.pop(self.ws_url)
+        self.ws_component.ws_connections.pop(self.ws_url, None)
         if self.ws_component.on_disconnect:
             self.ws_component.on_disconnect(self)
 
@@ -251,8 +251,11 @@ class WsConnection(NodeWorker):
 
 class WsComponent(Component):
     connection_factory = WsConnection
-    ws_connections = None
     on_disconnect: Optional[Callable[[WsConnection], None]] = None
+
+    @cached_property
+    def ws_connections(self) -> Dict[str, WsConnection]:
+        return {}
 
     async def connect_and_listen(
         self,
@@ -260,8 +263,6 @@ class WsComponent(Component):
         on_text_message: Callable[[str], None] = None,
         **kw,
     ) -> WsConnection:
-        if self.ws_connections is None:
-            self.ws_connections = {}
         connection = self.ws_connections.get(ws_url)
         if not connection:
             ws = await self.get_session().ws_connect(ws_url, **kw)
@@ -271,10 +272,10 @@ class WsComponent(Component):
             connection.on_text_message = on_text_message
         return connection
 
-    async def teardown(self) -> None:
+    async def close(self) -> None:
         if self.ws_connections:
-            ws = self.ws_connections
-            self.ws_connections = None
+            ws = self.ws_connections.copy()
+            self.ws_connections.clear()
             await asyncio.gather(*[c.close() for c in ws.values()])
 
     def wrap_json(self, on_message) -> Callable[[JsonType], None]:
