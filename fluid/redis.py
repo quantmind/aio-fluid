@@ -72,8 +72,9 @@ class MessageReceiver(NodeWorker):
         on_message: Callable[[str, str], None],
         channels: Sequence[str] = (),
         patterns: Sequence[str] = (),
+        **kwargs,
     ) -> None:
-        super().__init__()
+        super().__init__(**kwargs)
         self.sub = sub
         self.receiver = Receiver()
         self.on_message = on_message
@@ -132,8 +133,9 @@ class RedisPubSub:
         on_message: Callable[[str, str], None],
         channels: Sequence[str] = None,
         patterns: Sequence[str] = None,
+        **kwargs,
     ) -> MessageReceiver:
-        return MessageReceiver(self._sub, on_message, channels, patterns)
+        return MessageReceiver(self._sub, on_message, channels, patterns, **kwargs)
 
     # CACHE UTILITIES
 
