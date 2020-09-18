@@ -8,6 +8,7 @@ from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple, Union
 
 import aiohttp
 from aiohttp import ClientResponse, ClientSession, ClientWebSocketResponse, WSMsgType
+from aiohttp.client_exceptions import ContentTypeError
 from aiohttp.formdata import FormData
 from inflection import underscore
 
@@ -182,7 +183,10 @@ class HttpClient(HttpBase):
 
     @classmethod
     async def response_error(cls, response: ClientResponse) -> ResponseType:
-        data = await response.json()
+        try:
+            data = await response.json()
+        except ContentTypeError:
+            data = dict(message=await response.text())
         raise cls.ResponseError(response, data)
 
 
