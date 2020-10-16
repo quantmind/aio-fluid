@@ -36,6 +36,7 @@ boto3
 # dev environment
 colorlog
 aiohttp-devtools
+aiohttp_cors
 
 #
 # code quality
