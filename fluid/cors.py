@@ -9,6 +9,7 @@ def setup(app: Application):
         defaults={
             "*": aiohttp_cors.ResourceOptions(
                 allow_credentials=True,
+                allow_methods="*",
                 expose_headers="*",
                 allow_headers="*",
             )
