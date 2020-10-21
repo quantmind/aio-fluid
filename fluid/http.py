@@ -167,7 +167,7 @@ class HttpClient(HttpBase):
         if callback:
             return await callback(response)
         if response.status in self.ok_status:
-            data = await response.json()
+            data = await self.response_data(response)
         elif response.status == 204:
             return
         else:
@@ -184,10 +184,14 @@ class HttpClient(HttpBase):
     @classmethod
     async def response_error(cls, response: ClientResponse) -> ResponseType:
         try:
-            data = await response.json()
+            data = await cls.response_data(response)
         except ContentTypeError:
             data = dict(message=await response.text())
         raise cls.ResponseError(response, data)
+
+    @classmethod
+    async def response_data(cls, response):
+        return await response.json()
 
 
 class HttpComponent(HttpBase):
