@@ -1,12 +1,15 @@
 import logging
-from dataclasses import dataclass
-from functools import cached_property
-from typing import TYPE_CHECKING, Any, Callable, Dict, NamedTuple, Optional
+from datetime import datetime
+from typing import TYPE_CHECKING, Any, Callable, Dict, NamedTuple, Optional, Union
 
 LogType = Callable[[str], None]
 
 if TYPE_CHECKING:  # pragma: no cover
     from .broker import Broker
+
+
+class TaskDecoratorError(RuntimeError):
+    pass
 
 
 class TaskRunError(RuntimeError):
@@ -19,23 +22,30 @@ class TaskContext(NamedTuple):
     log: LogType
     params: Dict[str, Any]
 
+    @property
+    def logger(self) -> logging.Logger:
+        return self.task.logger
+
     def raise_error(self, msg: str) -> None:
         raise TaskRunError(msg)
 
 
 TaskExecutor = Callable[[TaskContext], None]
+ScheduleType = Callable[[datetime], bool]
 
 
-@dataclass
-class Task:
+class Task(NamedTuple):
     """A Task execute any time it is invoked"""
 
     name: str
     executor: TaskExecutor
+    logger: logging.Logger
+    schedule: Optional[ScheduleType] = None
+    overlap: bool = True
 
-    @cached_property
-    def logger(self) -> logging.Logger:
-        return logging.getLogger(f"task.{self.name}")
+    @property
+    def description(self) -> str:
+        return self.executor.__doc__ or ""
 
     async def register(self, broker: "Broker") -> None:
         pass
@@ -50,5 +60,25 @@ class Task:
         )
 
 
-def task(executor) -> Task:
-    return Task(name=executor.__name__, executor=executor)
+def task(*args, **kwargs) -> Union[Task, "TaskConstructor"]:
+    if kwargs and args:
+        raise TaskDecoratorError("cannot use positional parameters")
+    elif kwargs:
+        return TaskConstructor(**kwargs)
+    elif len(args) > 1:
+        raise TaskDecoratorError("cannot use positional parameters")
+    elif not args:
+        raise TaskDecoratorError("this is a decorator cannot be invoked in this way")
+    else:
+        return TaskConstructor()(args[0])
+
+
+class TaskConstructor:
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+
+    def __call__(self, executor: TaskExecutor) -> Task:
+        kwargs = {"name": executor.__name__, **self.kwargs, "executor": executor}
+        name = kwargs["name"]
+        kwargs["logger"] = logging.getLogger(f"task.{name}")
+        return Task(**kwargs)

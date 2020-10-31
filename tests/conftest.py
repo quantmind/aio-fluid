@@ -83,3 +83,5 @@ def task_manager(app: Application, manager: TaskManager) -> TaskManager:
 @task
 async def dummy(context: TaskContext) -> None:
     await asyncio.sleep(0.1)
+    if context.params.get("error"):
+        raise RuntimeError("just an error")

@@ -45,13 +45,13 @@ class Broker(ABC):
 
     @abstractmethod
     async def queue_task(
-        self, task: Union[str, Task], params: Dict[str, Any]
+        self, run_is: str, task: Union[str, Task], params: Dict[str, Any]
     ) -> TaskRun:
         """Queue a task"""
 
     @abstractmethod
     async def get_task_run(self) -> Optional[TaskRun]:
-        """Get a Task from the task queue"""
+        """Get a Task run from the task queue"""
 
     @abstractmethod
     async def get_tasks(self) -> Dict[str, Dict]:
@@ -81,12 +81,10 @@ class Broker(ABC):
         return TaskRun(task=self.task_from_registry(name), **data)
 
     def task_run_data(
-        self, task: Union[str, Task], params: Dict[str, Any]
+        self, run_id: str, task: Union[str, Task], params: Dict[str, Any]
     ) -> Dict[str, Any]:
         task = self.task_from_registry(task)
-        return dict(
-            id=self.new_uuid(), name=task.name, params=params, queued=milliseconds()
-        )
+        return dict(id=run_id, name=task.name, params=params, queued=milliseconds())
 
     @classmethod
     def from_env(cls) -> "Broker":
@@ -127,10 +125,10 @@ class RedisBroker(Broker):
         return {}
 
     async def queue_task(
-        self, task: Union[str, Task], params: Dict[str, Any]
+        self, run_id: str, task: Union[str, Task], params: Dict[str, Any]
     ) -> TaskRun:
         pub = await self.redis.pub()
-        data = self.task_run_data(task, params)
+        data = self.task_run_data(run_id, task, params)
         await pub.lpush(self.task_queue_name, json.dumps(data))
         return self.task_run_from_data(data)
 

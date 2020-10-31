@@ -8,6 +8,7 @@ from fluid.utils import milliseconds
 
 from .broker import Broker, TaskRun
 from .task import Task
+from .utils import WaitFor
 
 ConsumerCallback = Callable[[TaskRun], None]
 
@@ -40,11 +41,17 @@ class TaskManager(NodeWorkers):
         await self.broker.close()
 
     def register_task(self, task: Task) -> None:
+        """Register a task with the task manager
+
+        Only tasks registered can be executed by a task manager
+        """
         self.broker.register_task(task)
 
-    def queue(self, task: Union[str, Task], **params):
-        """Queue a Task for execution"""
-        self.task_queue.put_nowait((task, params))
+    def queue(self, task: Union[str, Task], **params) -> str:
+        """Queue a Task for execution and return the run id"""
+        run_id = self.broker.new_uuid()
+        self.task_queue.put_nowait((run_id, task, params))
+        return run_id
 
     def dispatch(self, task_run: TaskRun, event_type: str) -> str:
         """Dispatch a message to the registered handlers.
@@ -67,8 +74,8 @@ class TaskManager(NodeWorkers):
     # process tasks from the internal queue
     async def _queue_tasks(self) -> None:
         while self.is_running():
-            task, params = await self.task_queue.get()
-            task_run = await self.broker.queue_task(task, params)
+            run_id, task, params = await self.task_queue.get()
+            task_run = await self.broker.queue_task(run_id, task, params)
             self.dispatch(task_run, "queued")
 
 
@@ -90,9 +97,18 @@ class Consumer(TaskManager):
         """The number of concurrent_tasks"""
         return len(self._concurrent_tasks)
 
+    async def queue_and_wait(self, task: Union[str, Task], **params) -> TaskRun:
+        run_id = self.execute(task, **params).id
+        waitfor = WaitFor(run_id=run_id)
+        self.register_handler(f"end.{waitfor.run_id}", waitfor)
+        try:
+            return await waitfor.waiter
+        finally:
+            self.unregister_handler(f"end.{waitfor.run_id}")
+
     def execute(self, task: Union[Task, str], **params) -> TaskRun:
         """Execute a Task by-passing the broker task queue"""
-        data = self.broker.task_run_data(task, params)
+        data = self.broker.task_run_data(self.broker.new_uuid(), task, params)
         task_run = self.broker.task_run_from_data(data)
         self._priority_task_run_queue.appendleft(task_run)
         return task_run
@@ -110,7 +126,7 @@ class Consumer(TaskManager):
             self._concurrent_tasks[task_run.id] = task_run
             self.dispatch(task_run, "start")
             try:
-                result = await task_run.task(self)
+                result = await task_run.task(self, **task_run.params)
             except Exception as exc:
                 task_run.result.set_exception(exc)
             else:

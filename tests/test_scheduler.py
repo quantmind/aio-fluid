@@ -1,6 +1,6 @@
-import asyncio
+import pytest
 
-from fluid.scheduler import Consumer, Scheduler, TaskRun
+from fluid.scheduler import Consumer, Scheduler
 
 
 async def test_scheduler(scheduler: Scheduler):
@@ -23,14 +23,11 @@ async def test_dummy_execution(consumer: Consumer):
 
 
 async def test_dummy_queue(consumer: Consumer):
-    waiter = asyncio.Future()
-
-    def waitfor(task_run: TaskRun):
-        if task_run.name == "dummy":
-            waiter.set_result(task_run)
-
-    consumer.register_handler("end.test", waitfor)
-    consumer.queue("dummy")
-    task_run = await waiter
-    consumer.unregister_handler("end.test")
+    task_run = await consumer.queue_and_wait("dummy")
     assert task_run.end
+
+
+async def test_dummy_error(consumer: Consumer):
+    task_run = await consumer.queue_and_wait("dummy", error=True)
+    with pytest.raises(RuntimeError):
+        await task_run.result

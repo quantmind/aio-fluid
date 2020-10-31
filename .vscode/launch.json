@@ -13,6 +13,7 @@
             "module": "pytest",
             "env": {},
             "args": [
+                "-x",
                 "tests/test_scheduler.py"
             ],
             "debugOptions": [

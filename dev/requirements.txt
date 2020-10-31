@@ -13,6 +13,9 @@ python-json-logger
 # data
 pycountry
 
+# tasks
+huey
+
 # db migration
 alembic_autogenerate_enums
 
