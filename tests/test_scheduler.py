@@ -1,5 +1,3 @@
-import pytest
-
 from fluid.scheduler import Consumer, Scheduler
 
 
@@ -18,7 +16,7 @@ async def test_consumer(consumer: Consumer):
 async def test_dummy_execution(consumer: Consumer):
     task_run = consumer.execute("dummy")
     assert task_run.name == "dummy"
-    await task_run.result
+    await task_run.waiter
     assert task_run.end
 
 
@@ -29,5 +27,4 @@ async def test_dummy_queue(consumer: Consumer):
 
 async def test_dummy_error(consumer: Consumer):
     task_run = await consumer.queue_and_wait("dummy", error=True)
-    with pytest.raises(RuntimeError):
-        await task_run.result
+    assert isinstance(task_run.exception, RuntimeError)

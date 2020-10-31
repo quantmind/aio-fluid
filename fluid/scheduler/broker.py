@@ -31,11 +31,21 @@ class TaskRun:
     params: Dict[str, Any]
     start: int = 0
     end: int = 0
-    result: asyncio.Future = field(default_factory=asyncio.Future)
+    waiter: asyncio.Future = field(default_factory=asyncio.Future)
 
     @property
     def name(self) -> str:
         return self.task.name
+
+    @property
+    def exception(self) -> Optional[Exception]:
+        if self.waiter.done():
+            return self.waiter.exception()
+
+    @property
+    def result(self):
+        if self.waiter.done() and not self.exception:
+            return self.waiter.result()
 
 
 class Broker(ABC):

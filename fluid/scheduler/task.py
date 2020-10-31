@@ -6,6 +6,7 @@ LogType = Callable[[str], None]
 
 if TYPE_CHECKING:  # pragma: no cover
     from .broker import Broker
+    from .consumer import TaskManager
 
 
 class TaskDecoratorError(RuntimeError):
@@ -17,8 +18,9 @@ class TaskRunError(RuntimeError):
 
 
 class TaskContext(NamedTuple):
-    app: Any
+    task_manager: "TaskManager"
     task: "Task"
+    run_id: str
     log: LogType
     params: Dict[str, Any]
 
@@ -50,13 +52,23 @@ class Task(NamedTuple):
     async def register(self, broker: "Broker") -> None:
         pass
 
-    async def __call__(self, app: Any, **kwargs) -> Any:
-        context = self.create_context(app, **kwargs)
+    async def __call__(self, task_manager: "TaskManager", **kwargs) -> Any:
+        context = self.create_context(task_manager, **kwargs)
         return await self.executor(context)
 
-    def create_context(self, app, log: Optional[LogType] = None, **params):
+    def create_context(
+        self,
+        task_manager,
+        log: Optional[LogType] = None,
+        run_id: str = "",
+        **params,
+    ):
         return TaskContext(
-            app=app, task=self, log=log or self.logger.info, params=params
+            task_manager=task_manager,
+            task=self,
+            run_id=run_id,
+            log=log or self.logger.info,
+            params=params,
         )
 
 
