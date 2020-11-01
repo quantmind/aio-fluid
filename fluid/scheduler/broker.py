@@ -63,10 +63,6 @@ class Broker(ABC):
     async def get_task_run(self) -> Optional[TaskRun]:
         """Get a Task run from the task queue"""
 
-    @abstractmethod
-    async def get_tasks(self) -> Dict[str, Dict]:
-        """Load tasks"""
-
     async def close(self) -> None:
         """Close the broker on shutdown"""
 
@@ -130,9 +126,6 @@ class RedisBroker(Broker):
             data_str = data[1].decode("utf-8")
             return self.task_run_from_data(json.loads(data_str))
         return None
-
-    async def get_tasks(self) -> Dict[str, Dict]:
-        return {}
 
     async def queue_task(
         self, run_id: str, task: Union[str, Task], params: Dict[str, Any]

@@ -3,6 +3,7 @@ import uuid
 from time import time
 from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Union, cast
 
+import async_timeout
 from inflection import underscore
 from multidict import MultiDict
 from openapi.spec.server import server_urls
@@ -78,6 +79,15 @@ def multi(data: Dict) -> Iterator:
                 yield key, inner_value
         else:
             yield key, value
+
+
+async def wait_for(assertion: Callable[[], bool], timeout=1) -> None:
+    async with async_timeout.timeout(timeout):
+        while True:
+            if assertion():
+                return
+            await asyncio.sleep(0)
+    assertion()
 
 
 def _query_dict(data: Dict):

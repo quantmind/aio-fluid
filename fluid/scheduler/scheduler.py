@@ -1,31 +1,35 @@
-from typing import Dict
+import asyncio
+from datetime import datetime
 
 from ..node import Node
-from .broker import Broker
 from .consumer import TaskManager
 from .task import Task
 
 
 class Scheduler(TaskManager):
+    """A task manager for scheduling tasks"""
+
     def __init__(self) -> None:
         super().__init__()
-        self.tasks = ScheduledTasks(self.broker)
-        self.add_workers(self.tasks)
+        self.add_workers(ScheduledTasks(self))
 
 
 class ScheduledTasks(Node):
-    heartbeat = 10
+    heartbeat = 0.1
 
-    def __init__(self, broker: Broker) -> None:
+    def __init__(self, task_manager: TaskManager) -> None:
         super().__init__()
-        self.broker: Broker = broker
-        self.loaded_tasks: Dict[str, Task] = {}
+        self.task_manager: TaskManager = task_manager
 
     async def tick(self) -> None:
-        tasks = await self.broker.get_tasks()
-        for name, task in tasks.items():
-            new_task = Task(**task)
-            old_task = self.loaded_tasks.get(name)
-            if old_task != new_task:
-                self.loaded_tasks[name] = new_task
-                self.schedule(new_task, old_task)
+        now = datetime.utcnow()
+        for task in self.task_manager.registry.values():
+            if task.schedule and task.schedule(now):
+                from_now = task.randomize() if task.randomize else 0
+                if from_now:
+                    asyncio.get_event_loop().call_later(from_now, self._queue, task)
+                else:
+                    self._queue(task)
+
+    def _queue(self, task: Task) -> None:
+        self.task_manager.queue(task)

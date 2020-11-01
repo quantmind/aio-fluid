@@ -37,6 +37,11 @@ class TaskManager(NodeWorkers):
     def task_queue(self) -> asyncio.Queue:
         return asyncio.Queue()
 
+    @property
+    def registry(self) -> Dict[str, Task]:
+        """task registry"""
+        return self.broker.registry
+
     async def teardown(self) -> None:
         await self.broker.close()
 

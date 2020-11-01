@@ -34,6 +34,7 @@ class TaskContext(NamedTuple):
 
 TaskExecutor = Callable[[TaskContext], None]
 ScheduleType = Callable[[datetime], bool]
+RandomizeType = Callable[[], Union[float, int]]
 
 
 class Task(NamedTuple):
@@ -43,6 +44,7 @@ class Task(NamedTuple):
     executor: TaskExecutor
     logger: logging.Logger
     schedule: Optional[ScheduleType] = None
+    randomize: Optional[RandomizeType] = None
     overlap: bool = True
 
     @property
