@@ -27,22 +27,25 @@ class TaskManager(NodeWorkers):
     def __init__(self) -> None:
         super().__init__()
         self._msg_handlers: Dict[str, Dict[str, ConsumerCallback]] = defaultdict(dict)
-        self.add_workers(Worker(self._queue_tasks))
+        self._queue_tasks_worker = Worker(self._queue_tasks)
 
     @cached_property
     def broker(self) -> Broker:
         return Broker.from_env()
 
+    @property
+    def registry(self) -> Dict[str, Task]:
+        return self.broker.registry
+
     @cached_property
     def task_queue(self) -> asyncio.Queue:
         return asyncio.Queue()
 
-    @property
-    def registry(self) -> Dict[str, Task]:
-        """task registry"""
-        return self.broker.registry
+    async def setup(self) -> None:
+        await self._queue_tasks_worker.start_app(self.app)
 
     async def teardown(self) -> None:
+        await self._queue_tasks_worker.close()
         await self.broker.close()
 
     def register_task(self, task: Task) -> None:

@@ -11,10 +11,10 @@ class Scheduler(TaskManager):
 
     def __init__(self) -> None:
         super().__init__()
-        self.add_workers(ScheduledTasks(self))
+        self.add_workers(ScheduleTasks(self))
 
 
-class ScheduledTasks(Node):
+class ScheduleTasks(Node):
     heartbeat = 0.1
 
     def __init__(self, task_manager: TaskManager) -> None:

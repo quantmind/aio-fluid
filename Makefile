@@ -36,7 +36,7 @@ mypy:			## run mypy
 
 
 test:			## test with coverage
-	@pytest --log-cli-level error --cov --cov-report xml --cov-report html
+	@pytest -x --log-cli-level error --cov --cov-report xml --cov-report html
 
 
 test-lint:		## run linters

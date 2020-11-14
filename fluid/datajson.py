@@ -5,7 +5,7 @@ from openapi.spec import SchemaParser
 
 
 def validate_config(
-    self, config: Dict, schema: Dict, defaults: bool = False
+    config: Dict, schema: Dict, defaults: bool = False
 ) -> Optional[Dict]:
     if schema:
         additional = schema.get("additionalProperties")
