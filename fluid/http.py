@@ -237,6 +237,7 @@ class WsConnection(NodeWorker):
         self.ws_url = ws_url
         self.ws_connection = ws_connection
         self.on_text_message = None
+        self.on_binary_message = None
         ws_component.ws_connections[ws_url] = self
 
     async def write_json(self, data: JsonType) -> None:
@@ -254,7 +255,17 @@ class WsConnection(NodeWorker):
                     try:
                         self.on_text_message(msg.data)
                     except Exception:
-                        self.logger.exception("Critical failure while broadcasting")
+                        self.logger.exception(
+                            "Critical failure while broadcasting text message"
+                        )
+            elif msg.type == WSMsgType.BINARY:
+                if self.on_binary_message:
+                    try:
+                        self.on_binary_message(msg.data)
+                    except Exception:
+                        self.logger.exception(
+                            "Critical failure while broadcasting binary message"
+                        )
 
 
 class WsComponent(Component):
@@ -269,6 +280,7 @@ class WsComponent(Component):
         self,
         ws_url: str,
         on_text_message: Callable[[str], None] = None,
+        on_binary_message: Callable[[bytes], None] = None,
         **kw,
     ) -> WsConnection:
         connection = self.ws_connections.get(ws_url)
@@ -278,6 +290,8 @@ class WsComponent(Component):
             await connection.start()
         if on_text_message:
             connection.on_text_message = on_text_message
+        if on_binary_message:
+            connection.on_binary_message = on_binary_message
         return connection
 
     async def close(self) -> None:
