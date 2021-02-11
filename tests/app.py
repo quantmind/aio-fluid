@@ -3,6 +3,7 @@ from openapi import ws
 from openapi.rest import rest
 from openapi.spec.path import ApiPath
 from openapi.ws import pubsub
+from openapi.ws.manager import SocketsManager
 
 from fluid import service
 from fluid.http import HttpClient, WsComponent
@@ -21,6 +22,7 @@ def setup_app(app: web.Application) -> None:
         app,
         sampler=True,
     )
+    app["web_sockets"] = SocketsManager()
     app.router.add_routes(ws_routes)
 
 
