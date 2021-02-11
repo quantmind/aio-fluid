@@ -221,6 +221,22 @@ class Node(NodeWorker):
             await asyncio.sleep(max(self.heartbeat - dt, 0))
 
 
+class Consumer(NodeWorker):
+    def __init__(self, process_message, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.process_message = process_message
+        self._message_queue = asyncio.Queue()
+
+    async def work(self):
+        while self.is_running():
+            message = await self._message_queue.get()
+            await self.process_message(message)
+            await asyncio.sleep(0)
+
+    def submit(self, message) -> None:
+        self._message_queue.put_nowait(message)
+
+
 class Worker(NodeWorker):
     def __init__(
         self,
