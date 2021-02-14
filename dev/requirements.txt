@@ -4,7 +4,7 @@ aio-openapi
 aio-kong
 aioredis
 aioconsole
-raven-aiohttp
+sentry-sdk
 cython
 ujson
 prometheus_async
