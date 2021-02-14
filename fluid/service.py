@@ -2,8 +2,7 @@ import logging
 import os
 
 from aiohttp.web import Application
-from openapi import sentry
-from openapi.middleware import json_error
+from openapi.middleware import json_error, sentry_middleware
 from prometheus_async import aio
 
 from . import backdoor, stacksampler, status
@@ -52,7 +51,7 @@ class Service:
         app.middlewares.append(json_error(status_codes=set(range(400, 504))))
         # add sentry handler
         if sentry_dsn:
-            app.middlewares.append(sentry.middleware(app, sentry_dsn, service.env))
+            sentry_middleware(app, sentry_dsn, service.env)
         # add backdoor
         if backdoor_port:
             backdoor.setup(app, backdoor_port)

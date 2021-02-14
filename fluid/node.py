@@ -78,34 +78,22 @@ class NodeBase(ABC, Id):
         """
         pass
 
-    async def capture_exception(self, *, system_exit: bool = False) -> None:
-        """Handle an unexpected exception by a) logging the stack trace,
-        b) posting to sentry and c) gracefully exiting the app.
-        (b) & (c) if used within an aiohtpp web Application.
-        """
-        if self.app and "sentry" in self.app:
-            self.app["sentry"].captureException()
-        if system_exit:
-            if self.is_running():
-                await self.done()
-            self.logger.exception("bailing out!")
-            asyncio.get_event_loop().call_later(self.exit_lag, self._exit)
-
     async def done(self) -> None:
         try:
             await self.teardown()
         except Exception:
             self.logger.exception("unhandled exception while tear down worker")
-            await self.capture_exception()
 
-    def system_exit(self) -> None:
-        """Handle an unexpected exception by a) logging the stack trace,
-        b) posting to sentry and c) gracefully exiting the app.
-        (b) & (c) if used within an aiohtpp web Application.
-        """
-        if self.app and "sentry" in self.app:
-            self.app["sentry"].captureException()
-        asyncio.get_event_loop().call_soon(self._exit)
+    async def system_exit(self) -> None:
+        """Gracefully exiting the app if possible"""
+        if self.is_running():
+            await self.done()
+        self.system_exit_sync()
+
+    def system_exit_sync(self) -> None:
+        """Exit the app"""
+        self.logger.warning("bailing out!")
+        asyncio.get_event_loop().call_later(self.exit_lag, self._exit)
 
     def _exit(self) -> None:  # pragma: no cover
         if os.getenv("PYTHON_ENV") != "test":
@@ -159,7 +147,7 @@ class NodeWorker(NodeBase):
             pass
         except Exception:
             self.logger.exception("unhandled exception in worker")
-            await self.capture_exception(system_exit=True)
+            await self.system_exit()
         else:
             await self.close(close_worker=False)
 
@@ -300,7 +288,7 @@ def on_error_exit(
             method(node, *args)
         except Exception:
             node.logger.exception("unhandled exception, bailing out!")
-            node.system_exit()
+            node.system_exit_sync()
 
     @wraps(method)
     async def async_wrap(node: NodeBase, *args) -> None:
@@ -308,6 +296,6 @@ def on_error_exit(
             await method(node, *args)
         except Exception:
             node.logger.exception("unhandled exception, bailing out!")
-            await node.capture_exception(system_exit=True)
+            await node.system_exit()
 
     return async_wrap if inspect.iscoroutinefunction(method) else sync_wrap
