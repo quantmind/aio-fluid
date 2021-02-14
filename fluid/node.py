@@ -227,6 +227,9 @@ class Consumer(NodeWorker):
         self.process_message = process_message
         self._message_queue = asyncio.Queue()
 
+    def qsize(self) -> int:
+        return self._message_queue.qsize()
+
     async def work(self):
         while self.is_running():
             message = await self._message_queue.get()
