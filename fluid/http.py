@@ -266,6 +266,8 @@ class WsConnection(NodeWorker):
                         self.logger.exception(
                             "Critical failure while broadcasting binary message"
                         )
+            # release the loop for greedy websocket connections
+            await asyncio.sleep(0)
 
 
 class WsComponent(Component):
