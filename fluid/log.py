@@ -13,7 +13,7 @@ APP_NAME = LOGGER_NAME or "fluid"
 
 
 LOG_FORMAT_PRODUCTION = (
-    "%(asctime)s %(name)s %(processName)s %(filename)s %(funcName)s %(levelname)s "
+    "%(asctime)s %(name)s %(levelname)s %(filename)s %(funcName)s "
     "%(lineno)s %(module)s %(threadName)s %(message)s"
 )
 
