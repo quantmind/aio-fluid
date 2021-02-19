@@ -23,8 +23,8 @@ class ScheduleTasks(Node):
 
     async def tick(self) -> None:
         now = datetime.utcnow()
-        for task in self.task_manager.registry.values():
-            if task.schedule and task.schedule(now):
+        for task in self.task_manager.registry.periodic():
+            if task.schedule(now):
                 from_now = task.randomize() if task.randomize else 0
                 if from_now:
                     asyncio.get_event_loop().call_later(from_now, self._queue, task)

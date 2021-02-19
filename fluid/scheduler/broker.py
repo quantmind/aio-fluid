@@ -4,7 +4,7 @@ import os
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from functools import cached_property
-from typing import Any, Callable, Dict, Optional, Union
+from typing import Any, Callable, Dict, Iterable, Optional, Union
 from uuid import uuid4
 
 from yarl import URL
@@ -21,6 +21,13 @@ DEFAULT_BROKER_URL = "redis://localhost:6379/3"
 
 class UnknownTask(RuntimeError):
     pass
+
+
+class TaskRegistry(Dict[str, Task]):
+    def periodic(self) -> Iterable[Task]:
+        for task in self.values():
+            if task.schedule:
+                yield task
 
 
 @dataclass
@@ -51,7 +58,7 @@ class TaskRun:
 class Broker(ABC):
     def __init__(self, url: URL) -> None:
         self.url: URL = url
-        self.registry: Dict[str, Task] = {}
+        self.registry: TaskRegistry = TaskRegistry()
 
     @abstractmethod
     async def queue_task(
