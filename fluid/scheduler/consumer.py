@@ -6,7 +6,7 @@ from typing import Callable, Dict, NamedTuple, Union
 from fluid.node import NodeWorkers, Worker
 from fluid.utils import milliseconds
 
-from .broker import Broker, TaskRun
+from .broker import Broker, TaskRegistry, TaskRun
 from .task import Task
 from .utils import WaitFor
 
@@ -34,7 +34,7 @@ class TaskManager(NodeWorkers):
         return Broker.from_env()
 
     @property
-    def registry(self) -> Dict[str, Task]:
+    def registry(self) -> TaskRegistry:
         return self.broker.registry
 
     @cached_property

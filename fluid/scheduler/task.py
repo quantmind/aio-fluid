@@ -1,6 +1,7 @@
 import logging
-from datetime import datetime
 from typing import TYPE_CHECKING, Any, Callable, Dict, NamedTuple, Optional, Union
+
+from .crontab import ScheduleType
 
 LogType = Callable[[str], None]
 
@@ -33,7 +34,6 @@ class TaskContext(NamedTuple):
 
 
 TaskExecutor = Callable[[TaskContext], None]
-ScheduleType = Callable[[datetime], bool]
 RandomizeType = Callable[[], Union[float, int]]
 
 

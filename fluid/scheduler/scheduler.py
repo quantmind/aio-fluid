@@ -1,8 +1,10 @@
 import asyncio
 from datetime import datetime
+from typing import Dict
 
 from ..node import Node
 from .consumer import TaskManager
+from .crontab import CronRun
 from .task import Task
 
 
@@ -20,11 +22,14 @@ class ScheduleTasks(Node):
     def __init__(self, task_manager: TaskManager) -> None:
         super().__init__()
         self.task_manager: TaskManager = task_manager
+        self.last_run: Dict[str, CronRun] = {}
 
     async def tick(self) -> None:
         now = datetime.utcnow()
         for task in self.task_manager.registry.periodic():
-            if task.schedule(now):
+            run = task.schedule(now, self.last_run.get(task.name))
+            if run:
+                self.last_run[task.name] = run
                 from_now = task.randomize() if task.randomize else 0
                 if from_now:
                     asyncio.get_event_loop().call_later(from_now, self._queue, task)

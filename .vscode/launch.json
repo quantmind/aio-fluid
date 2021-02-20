@@ -6,15 +6,13 @@
             "name": "PyTest",
             "type": "python",
             "request": "launch",
-            "stopOnEntry": false,
-            "python": "${command:python.interpreterPath}",
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "module": "pytest",
             "env": {},
             "args": [
                 "-x",
-                "tests/scheduler"
+                "tests/scheduler/test_scheduler.py::test_scheduled"
             ],
             "debugOptions": [
                 "RedirectOutput"
