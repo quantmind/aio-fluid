@@ -12,7 +12,7 @@
             "env": {},
             "args": [
                 "-x",
-                "tests/scheduler/test_scheduler.py::test_scheduled"
+                "tests/scheduler/test_crontab.py::test_consecutive_runs"
             ],
             "debugOptions": [
                 "RedirectOutput"

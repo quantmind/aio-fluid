@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 
 import pytest
 
@@ -11,7 +11,7 @@ def test_crontab_month():
     validate_m = crontab(month="1,4,*/6,8-9")
 
     for x in range(1, 13):
-        res = validate_m(datetime.datetime(2011, x, 1))
+        res = validate_m(datetime(2011, x, 1))
         if x in valids:
             assert res
         else:
@@ -24,7 +24,7 @@ def test_crontab_day():
     validate_d = crontab(day="*/6,1,4,8-9")
 
     for x in range(1, 32):
-        res = validate_d(datetime.datetime(2011, 1, x))
+        res = validate_d(datetime(2011, 1, x))
         if x in valids:
             assert res
         else:
@@ -33,7 +33,7 @@ def test_crontab_day():
     valids = [1, 11, 21, 31]
     validate_d = crontab(day="*/10")
     for x in range(1, 32):
-        res = validate_d(datetime.datetime(2011, 1, x))
+        res = validate_d(datetime(2011, 1, x))
         if x in valids:
             assert res
         else:
@@ -41,7 +41,7 @@ def test_crontab_day():
 
     valids.pop()  # Remove 31, as feb only has 28 days.
     for x in range(1, 29):
-        res = validate_d(datetime.datetime(2011, 2, x))
+        res = validate_d(datetime(2011, 2, x))
         if x in valids:
             assert res
         else:
@@ -54,15 +54,15 @@ def test_crontab_hour():
     validate_h = crontab(hour="8-9,*/6,1,4")
 
     for x in range(24):
-        res = validate_h(datetime.datetime(2011, 1, 1, x))
+        res = validate_h(datetime(2011, 1, 1, x))
         if x in valids:
             assert res
         else:
             assert res is None
 
     edge = crontab(hour=0)
-    assert edge(datetime.datetime(2011, 1, 1, 0, 0))
-    assert edge(datetime.datetime(2011, 1, 1, 12, 0)) is None
+    assert edge(datetime(2011, 1, 1, 0, 0))
+    assert edge(datetime(2011, 1, 1, 12, 0)) is None
 
 
 def test_crontab_minute():
@@ -71,7 +71,7 @@ def test_crontab_minute():
     validate_m = crontab(minute="4,8-9,*/6,1")
 
     for x in range(60):
-        res = validate_m(datetime.datetime(2011, 1, 1, 1, x))
+        res = validate_m(datetime(2011, 1, 1, 1, x))
         if x in valids:
             assert res
         else:
@@ -81,7 +81,7 @@ def test_crontab_minute():
     valids = set((0, 16, 32, 48))
     validate_m = crontab(minute="*/16")
     for x in range(60):
-        res = validate_m(datetime.datetime(2011, 1, 1, 1, x))
+        res = validate_m(datetime(2011, 1, 1, 1, x))
         if x in valids:
             assert res
         else:
@@ -95,7 +95,7 @@ def test_crontab_day_of_week():
     validate_dow = crontab(day_of_week="0,2")
 
     for x in range(1, 32):
-        res = validate_dow(datetime.datetime(2011, 1, x))
+        res = validate_dow(datetime(2011, 1, x))
         if x in valids:
             assert res
         else:
@@ -108,9 +108,9 @@ def test_crontab_sunday():
         valid = set((2, 9, 16, 23, 30))
         for x in range(1, 32):
             if x in valid:
-                assert validate(datetime.datetime(2011, 1, x))
+                assert validate(datetime(2011, 1, x))
             else:
-                assert validate(datetime.datetime(2011, 1, x)) is None
+                assert validate(datetime(2011, 1, x)) is None
 
 
 def test_crontab_all_together():
@@ -120,24 +120,24 @@ def test_crontab_all_together():
         month="1,5", day="1,4,7", day_of_week="0,6", hour="*/4", minute="1-5,10-15,50"
     )
 
-    assert validate(datetime.datetime(2011, 5, 1, 4, 11))
-    assert validate(datetime.datetime(2011, 5, 7, 20, 50))
-    assert validate(datetime.datetime(2011, 1, 1, 0, 1))
+    assert validate(datetime(2011, 5, 1, 4, 11))
+    assert validate(datetime(2011, 5, 7, 20, 50))
+    assert validate(datetime(2011, 1, 1, 0, 1))
 
     # fails validation on month
-    assert validate(datetime.datetime(2011, 6, 4, 4, 11)) is None
+    assert validate(datetime(2011, 6, 4, 4, 11)) is None
 
     # fails validation on day
-    assert validate(datetime.datetime(2011, 1, 6, 4, 11)) is None
+    assert validate(datetime(2011, 1, 6, 4, 11)) is None
 
     # fails validation on day_of_week
-    assert validate(datetime.datetime(2011, 1, 4, 4, 11)) is None
+    assert validate(datetime(2011, 1, 4, 4, 11)) is None
 
     # fails validation on hour
-    assert validate(datetime.datetime(2011, 1, 1, 1, 11)) is None
+    assert validate(datetime(2011, 1, 1, 1, 11)) is None
 
     # fails validation on minute
-    assert validate(datetime.datetime(2011, 1, 1, 4, 6)) is None
+    assert validate(datetime(2011, 1, 1, 4, 6)) is None
 
 
 def test_invalid_crontabs():
@@ -148,3 +148,13 @@ def test_invalid_crontabs():
         crontab(minute="0-61")
     with pytest.raises(ValueError):
         crontab(day_of_week="*/3")
+
+
+async def test_consecutive_runs():
+    schedule = crontab(day="*", hour=8, minute=0)
+    run = schedule(datetime(2021, 2, 20, 8))
+    assert run
+    # seconds are not considered in crontab scheduler
+    assert schedule(datetime(2021, 2, 20, 8), run) is None
+    assert schedule(datetime(2021, 2, 20, 8, 0, 1), run) is None
+    assert schedule(datetime(2021, 2, 20, 8, 1, 0), run) is None
