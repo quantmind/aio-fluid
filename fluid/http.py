@@ -273,6 +273,7 @@ class WsConnection(NodeWorker):
 class WsComponent(Component):
     connection_factory = WsConnection
     on_disconnect: Optional[Callable[[WsConnection], None]] = None
+    heartbeat: Optional[float] = None
 
     @cached_property
     def ws_connections(self) -> Dict[str, WsConnection]:
@@ -287,6 +288,8 @@ class WsComponent(Component):
     ) -> WsConnection:
         connection = self.ws_connections.get(ws_url)
         if not connection:
+            if self.heartbeat:
+                kw.setdefault("heartbeat", self.heartbeat)
             ws = await self.get_session().ws_connect(ws_url, **kw)
             connection = self.connection_factory(self, ws_url, ws)
             await connection.start()
