@@ -126,6 +126,10 @@ class RedisBroker(Broker):
     def task_queue_name(self) -> str:
         return f"{self.name}-queue"
 
+    async def close(self) -> None:
+        """Close the broker on shutdown"""
+        await self.redis.close()
+
     async def get_task_run(self) -> Optional[TaskRun]:
         pub = await self.redis.pub()
         data = await pub.brpop(self.task_queue_name, timeout=1)

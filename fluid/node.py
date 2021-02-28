@@ -242,7 +242,7 @@ class TickWorker(Node):
     def __init__(
         self,
         tick: Callable[[], None],
-        heartbeat: int = 1,
+        heartbeat: float = 1,
         logger: Optional[Logger] = None,
     ) -> None:
         super().__init__(logger=logger)

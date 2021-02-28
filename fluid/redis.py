@@ -91,7 +91,11 @@ class MessageReceiver(NodeWorker):
 
     async def work(self) -> None:
         async for channel, msg in self.receiver.iter():
-            self.on_message(channel, msg)
+            if self.is_running():
+                self.on_message(channel, msg)
+                await asyncio.sleep(0)
+            else:
+                break
 
     async def teardown(self) -> None:
         redis = await self.sub.get(connect=False)
