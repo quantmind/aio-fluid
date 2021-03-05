@@ -1,18 +1,31 @@
+import asyncio
 import atexit
 import os
 import signal
 from collections import defaultdict
+from contextlib import asynccontextmanager
+from datetime import datetime
 from tempfile import NamedTemporaryFile
 from time import monotonic
+from typing import Optional
 
+import boto3
 from aiohttp import web
 
 from . import kernel
+from .node import Node
 
 sampler_routes = web.RouteTableDef()
 
 
 FLAMEGRAPH = os.getenv("FLAMEGRAPH_EXECUTABLE") or "/bin/flamegraph.pl"
+FLAMEGRAPH_DATA_BUCKET, FLAMEGRAPH_DATA_PATH = os.getenv(
+    "FLAMEGRAPH_DATA_BUCKET_PATH", "replace/me"
+).split("/")
+
+
+class FlamegraphError(RuntimeError):
+    pass
 
 
 class Sampler:
@@ -57,6 +70,25 @@ class Sampler:
         lines.extend(["{} {}".format(frame, count) for frame, count in ordered_stacks])
         return "\n".join(lines) + "\n"
 
+    @asynccontextmanager
+    async def flamegraph_file(self, title: str, stats: str) -> None:
+        with NamedTemporaryFile(prefix="flamegraph-") as f:
+            f.write(stats.encode("utf-8"))
+            f.flush()
+            result = kernel.CollectBytes()
+            error = kernel.CollectBytes()
+            code = await kernel.run(
+                FLAMEGRAPH,
+                f.name,
+                "--title",
+                title,
+                result_callback=result,
+                error_callback=error,
+            )
+            if code:
+                raise FlamegraphError(error.data)
+            yield result.data
+
     # INTERNALS
 
     def _sample(self, signum, frame) -> None:
@@ -74,6 +106,44 @@ class Sampler:
 
     def __del__(self):
         self.stop()
+
+
+class NodeSampler(Node):
+    heartbeat = STACK_SAMPLER_PERIOD = int(os.getenv("STACK_SAMPLER_PERIOD", "60"))
+
+    def __init__(self, title: str, sampler: Optional[Sampler] = None, **kwargs):
+        super().__init__(**kwargs)
+        self.title: str = title
+        self.sampler: Sampler = sampler or Sampler()
+        self.s3 = boto3.client("s3")
+
+    async def tick(self) -> None:
+        if not self.sampler.started:
+            self.sampler.start()
+        else:
+            stats = self.sampler.stats()
+            self.sampler.reset()
+            async with self.sampler.flamegraph_file(self.title, stats) as svg:
+                await asyncio.get_event_loop().run_in_executor(None, self.upload, svg)
+
+    def upload(self, svg: bytes) -> None:
+        dte = datetime.utcnow()
+        date_str = dte.date().isoformat()
+        time_str = dte.time().strftime("%H-%M-%S")
+        s3_path = f"{FLAMEGRAPH_DATA_PATH}/{date_str}/{self.title}/{time_str}.svg"
+        self.logger.info("upload flamegraph svg file to %s", s3_path)
+        try:
+            self.s3.put_object(
+                Bucket=FLAMEGRAPH_DATA_BUCKET,
+                Key=s3_path,
+                Body=svg,
+                ContentType="image/svg+xml",
+            )
+        except Exception:
+            self.logger.exception(
+                "Could not upload flamegraph data file to %s",
+                s3_path,
+            )
 
 
 @sampler_routes.get("/stacksampler/stats")
