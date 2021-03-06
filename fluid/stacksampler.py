@@ -123,8 +123,13 @@ class NodeSampler(Node):
         else:
             stats = self.sampler.stats()
             self.sampler.reset()
-            async with self.sampler.flamegraph_file(self.title, stats) as svg:
-                await asyncio.get_event_loop().run_in_executor(None, self.upload, svg)
+            try:
+                async with self.sampler.flamegraph_file(self.title, stats) as svg:
+                    await asyncio.get_event_loop().run_in_executor(
+                        None, self.upload, svg
+                    )
+            except FlamegraphError as e:
+                self.logger.warning("could not create flamegraph svg: %s", e)
 
     def upload(self, svg: bytes) -> None:
         dte = datetime.utcnow()
