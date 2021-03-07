@@ -1,5 +1,6 @@
 import asyncio
 import inspect
+import logging
 import os
 import random
 import time
@@ -7,17 +8,13 @@ import uuid
 from abc import ABC, abstractmethod
 from functools import cached_property, wraps
 from logging import Logger
-from typing import Any, Callable, List, Optional, Tuple, cast
+from typing import Any, Callable, List, Optional, Tuple
 
 from aiohttp.client import ClientConnectionError, ClientConnectorError
 from aiohttp.web import Application, GracefulExit
-from openapi import logger
 
+from .log import get_logger
 from .utils import close_task, dot_name, underscore
-
-
-def getLogger(name) -> Logger:
-    return logger.getLogger(dot_name(name))
 
 
 class Id:
@@ -31,11 +28,15 @@ class Id:
         """My unique ID"""
         return uuid.uuid4().hex
 
+    @classmethod
+    def create_logger(cls, logger: Optional[logging.Logger] = None) -> logging.Logger:
+        return logger or get_logger(dot_name(cls.name()))
+
 
 class IdLog(Id):
     @cached_property
     def logger(self):
-        return getLogger(self.name())
+        return self.create_logger()
 
 
 class NodeBase(ABC, Id):
@@ -102,7 +103,7 @@ class NodeBase(ABC, Id):
 
 class NodeWorker(NodeBase):
     def __init__(self, *, logger: Optional[Logger] = None) -> None:
-        self.logger: Logger = cast(Logger, logger or getLogger(self.name()))
+        self.logger: Logger = self.create_logger(logger)
         self._worker = None
 
     # FOR DERIVED CLASSES
@@ -154,7 +155,7 @@ class NodeWorker(NodeBase):
 
 class NodeWorkers(NodeBase):
     def __init__(self, *workers: NodeWorker, logger: Optional[Logger] = None) -> None:
-        self.logger: Logger = cast(Logger, logger or getLogger(self.name()))
+        self.logger: Logger = self.create_logger(logger)
         self._closing: bool = False
         self._workers: List[NodeBase] = list(workers)
 

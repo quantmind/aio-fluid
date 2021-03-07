@@ -1,5 +1,4 @@
 import asyncio
-import logging
 import os
 from typing import Any, Callable, Dict, Optional, Sequence
 
@@ -8,13 +7,14 @@ from aioredis import ConnectionClosedError
 from aioredis.pubsub import Receiver
 from openapi import json
 
+from .log import get_logger
 from .node import NodeWorker
 
 DEFAULT_URL = "redis://localhost:6379"
 DEFAULT_CACHE_TIMEOUT = int(os.getenv("DEFAULT_CACHE_TIMEOUT", 300))
 CACHE_KEY_PREFIX = os.getenv("CACHE_KEY_PREFIX", "cache")
 
-logger = logging.getLogger("redis")
+logger = get_logger("redis")
 
 
 def setup(app, redis_url: str = "", name: str = "", app_key="redis") -> None:

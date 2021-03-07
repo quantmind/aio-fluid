@@ -1,4 +1,3 @@
-import logging
 import os
 import sys
 from functools import partial
@@ -6,7 +5,9 @@ from functools import partial
 import aioconsole
 from aiohttp.web import Application
 
-logger = logging.getLogger("backdoor")
+from .log import get_logger
+
+logger = get_logger("backdoor")
 AIO_BACKDOOR_PORT = os.environ.get("AIO_BACKDOOR_PORT", 8087)
 CONSOLE_MESSAGE = """\
 ---
@@ -41,7 +42,7 @@ class ConsoleManager:
         self.aio_console = await aioconsole.start_interactive_server(
             partial(self._console, app), self.host, self.port
         )
-        logger.warning("Backdoor console running on port %i", self.port)
+        logger.warning("console running on port %i", self.port)
 
     async def on_cleanup(self, app) -> None:
         if self.aio_console:

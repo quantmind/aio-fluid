@@ -4,12 +4,13 @@ from logging.config import dictConfig
 from typing import Dict
 
 import click
-from openapi.logger import LOGGER_NAME, colorlog
 
 logger = logging.getLogger()
 
 
-APP_NAME = LOGGER_NAME or "fluid"
+LEVEL = (os.environ.get("LOG_LEVEL") or "info").upper()
+APP_NAME = os.environ.get("APP_NAME") or "fluid"
+K8S = os.environ.get("KUBERNETES_SERVICE_HOST")
 
 
 LOG_FORMAT_PRODUCTION = (
@@ -17,33 +18,55 @@ LOG_FORMAT_PRODUCTION = (
     "%(lineno)s %(module)s %(threadName)s %(message)s"
 )
 
-LOG_FORMAT = "%(asctime)s %(levelname)s %(name)s %(message)s"
+LOG_FORMAT_DEV = "%(asctime)s %(levelname)s %(name)s %(message)s"
+
+LOG_FORMAT = LOG_FORMAT_PRODUCTION if K8S else LOG_FORMAT_DEV
+
+
+logger = logging.getLogger(APP_NAME)
+
+
+def get_logger(name: str = "") -> logging.Logger:
+    return logger.getChild(name) if name else logger
 
 
 def level_num(level: str) -> int:
     return getattr(logging, level)
 
 
-def log_config(level: str) -> Dict:
+def log_config(level: int) -> Dict:
+    other_level = max(level, logging.INFO)
+    handler = "main" if K8S else "color"
     return {
         "version": 1,
         "disable_existing_loggers": False,
         "formatters": {
             "json": {
                 "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
-                "format": LOG_FORMAT_PRODUCTION,
+                "format": LOG_FORMAT,
             },
-            "verbose": {"format": LOG_FORMAT_PRODUCTION},
+            "color": {
+                "()": "colorlog.ColoredFormatter",
+                "format": f"%(log_color)s{LOG_FORMAT}",
+            },
+            "verbose": {"format": LOG_FORMAT},
         },
         "handlers": {
             "main": {
                 "level": "INFO",
                 "class": "logging.StreamHandler",
                 "formatter": "json",
-            }
+            },
+            "color": {
+                "level": "INFO",
+                "class": "colorlog.StreamHandler",
+                "formatter": "color",
+            },
         },
-        "loggers": {APP_NAME: {"level": level, "handlers": ["main"], "propagate": 0}},
-        "root": {"level": "INFO", "handlers": ["main"]},
+        "loggers": {
+            APP_NAME: {"level": level, "handlers": [handler], "propagate": 0},
+        },
+        "root": {"level": other_level, "handlers": [handler]},
     }
 
 
@@ -52,21 +75,7 @@ def log_name(name: str = "") -> str:
 
 
 def setup(level: str):
-    level = level_num(level)
-    if level > logging.INFO or os.environ.get("KUBERNETES_SERVICE_HOST"):
-        dictConfig(log_config(level))
-    else:
-        logger.setLevel(level)
-        if not logger.hasHandlers():
-            fmt = LOG_FORMAT
-            if colorlog:
-                handler = colorlog.StreamHandler()
-                fmt = colorlog.ColoredFormatter(f"%(log_color)s{LOG_FORMAT}")
-            else:  # pragma: no cover
-                handler = logging.StreamHandler()
-                fmt = logging.Formatter(LOG_FORMAT)
-            handler.setFormatter(fmt)
-            logger.addHandler(handler)
+    dictConfig(log_config(level_num(level)))
 
 
 @click.pass_context
