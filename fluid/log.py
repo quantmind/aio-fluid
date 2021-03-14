@@ -8,7 +8,7 @@ import click
 logger = logging.getLogger()
 
 
-LEVEL = (os.environ.get("LOG_LEVEL") or "info").upper()
+LOG_LEVEL = (os.environ.get("LOG_LEVEL") or "info").upper()
 APP_NAME = os.environ.get("APP_NAME") or "fluid"
 K8S = os.environ.get("KUBERNETES_SERVICE_HOST")
 
@@ -53,12 +53,12 @@ def log_config(level: int) -> Dict:
         },
         "handlers": {
             "main": {
-                "level": "INFO",
+                "level": level,
                 "class": "logging.StreamHandler",
                 "formatter": "json",
             },
             "color": {
-                "level": "INFO",
+                "level": level,
                 "class": "colorlog.StreamHandler",
                 "formatter": "color",
             },
@@ -85,6 +85,6 @@ def setup_logging(ctx: click.Context, verbose: bool, quiet: bool) -> None:
     elif quiet:
         level = "WARNING"
     else:
-        level = "INFO"
+        level = LOG_LEVEL
     ctx.obj["log_level"] = level_num(level)
     setup(level)

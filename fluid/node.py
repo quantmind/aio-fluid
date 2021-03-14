@@ -106,6 +106,10 @@ class NodeWorker(NodeBase):
         self.logger: Logger = self.create_logger(logger)
         self._worker = None
 
+    @property
+    def debug(self) -> bool:
+        return self.logger.isEnabledFor(logging.DEBUG)
+
     # FOR DERIVED CLASSES
 
     async def work(self) -> None:
@@ -158,6 +162,10 @@ class NodeWorkers(NodeBase):
         self.logger: Logger = self.create_logger(logger)
         self._closing: bool = False
         self._workers: List[NodeBase] = list(workers)
+
+    @property
+    def debug(self) -> bool:
+        return self.logger.isEnabledFor(logging.DEBUG)
 
     def is_running(self) -> bool:
         return isinstance(self._workers, tuple)
