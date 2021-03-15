@@ -241,7 +241,16 @@ class WsConnection(NodeWorker):
         ws_component.ws_connections[ws_url] = self
 
     async def write_json(self, data: JsonType) -> None:
-        await self.ws_connection.send_str(json.dumps(data))
+        await self.write_str(json.dumps(data))
+
+    async def write_str(self, msg: str) -> None:
+        try:
+            await self.ws_connection.send_str(msg)
+        except ConnectionResetError:
+            if not self.ws_component.on_disconnect:
+                raise
+            self.logger.warning("lost websocket connection")
+            await self.close()
 
     async def teardown(self) -> None:
         self.ws_component.ws_connections.pop(self.ws_url, None)
