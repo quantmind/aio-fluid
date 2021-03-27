@@ -116,14 +116,22 @@ class RedisPubSub:
     def __init__(self, url: str = "", name: str = "") -> None:
         self.name = name or self.__class__.__name__
         self.url = url or os.getenv("REDIS_URL", DEFAULT_URL)
+        self._lock = asyncio.Lock()
         self._pub = Connection(self.url, self.name)
         self._sub = Connection(self.url, f"{self.name}:streaming")
+        self._pool: Optional[aioredis.Redis] = None
 
     async def pub(self, connect: bool = True) -> aioredis.Redis:
         return await self._pub.get()
 
     async def sub(self, connect: bool = True) -> aioredis.Redis:
         return await self._sub.get()
+
+    async def pool(self) -> aioredis.Redis:
+        async with self._lock:
+            if self._pool is None:
+                self._pool = await aioredis.create_redis_pool(self.url)
+        return self._pool
 
     async def close(self, app=None) -> None:
         await asyncio.gather(self._pub.close(), self._sub.close())

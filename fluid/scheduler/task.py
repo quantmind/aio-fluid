@@ -24,10 +24,7 @@ class TaskContext(NamedTuple):
     run_id: str
     log: LogType
     params: Dict[str, Any]
-
-    @property
-    def logger(self) -> logging.Logger:
-        return self.task.logger
+    logger: logging.Logger
 
     def raise_error(self, msg: str) -> None:
         raise TaskRunError(msg)
@@ -71,6 +68,7 @@ class Task(NamedTuple):
             run_id=run_id,
             log=log or self.logger.info,
             params=params,
+            logger=self.logger.getChild(run_id) if run_id else self.logger,
         )
 
 

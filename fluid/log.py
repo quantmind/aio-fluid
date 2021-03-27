@@ -35,7 +35,7 @@ def level_num(level: str) -> int:
 
 
 def log_config(level: int) -> Dict:
-    other_level = max(level, logging.INFO)
+    other_level = max(level, logging.WARNING)
     handler = "main" if K8S else "color"
     return {
         "version": 1,
