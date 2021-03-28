@@ -1,7 +1,7 @@
 import logging
 import os
 from logging.config import dictConfig
-from typing import Dict
+from typing import Dict, Optional
 
 import click
 
@@ -34,8 +34,11 @@ def level_num(level: str) -> int:
     return getattr(logging, level)
 
 
-def log_config(level: int) -> Dict:
-    other_level = max(level, logging.WARNING)
+def log_config(
+    level: int, other_level: int = logging.WARNING, app_name: Optional[str] = None
+) -> Dict:
+    app_name = app_name if app_name is not None else APP_NAME
+    other_level = max(level, other_level)
     handler = "main" if K8S else "color"
     return {
         "version": 1,
@@ -64,7 +67,7 @@ def log_config(level: int) -> Dict:
             },
         },
         "loggers": {
-            APP_NAME: {"level": level, "handlers": [handler], "propagate": 0},
+            app_name: {"level": level, "handlers": [handler], "propagate": 0},
         },
         "root": {"level": other_level, "handlers": [handler]},
     }

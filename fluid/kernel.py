@@ -16,6 +16,7 @@ async def run(
     error_callback: Optional[KernelCallback] = None,
     env: Optional[Dict[str, str]] = None,
     stream_output: bool = False,
+    stream_error: bool = False,
 ):
     process = await asyncio.create_subprocess_exec(
         executable,
@@ -28,7 +29,7 @@ async def run(
     await asyncio.wait(
         [
             _read_stream(process.stdout, stream_output, result_callback or noop),
-            _read_stream(process.stderr, stream_output, error_callback or noop),
+            _read_stream(process.stderr, stream_error, error_callback or noop),
         ]
     )
     return await process.wait()

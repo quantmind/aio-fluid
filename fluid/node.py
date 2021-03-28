@@ -8,7 +8,7 @@ import uuid
 from abc import ABC, abstractmethod
 from functools import cached_property, wraps
 from logging import Logger
-from typing import Any, Callable, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from aiohttp.client import ClientConnectionError, ClientConnectorError
 from aiohttp.web import Application, GracefulExit
@@ -155,6 +155,21 @@ class NodeWorker(NodeBase):
             await self.system_exit()
         else:
             await self.close(close_worker=False)
+
+
+class WorkerApplication(Dict[str, Any]):
+    def __init__(self):
+        super().__init__()
+        self.on_startup = []
+        self.on_shutdown = []
+
+    async def startup(self):
+        for on_startup in self.on_startup:
+            await on_startup(self)
+
+    async def shutdown(self):
+        for on_shutdown in self.on_shutdown:
+            await on_shutdown(self)
 
 
 class NodeWorkers(NodeBase):

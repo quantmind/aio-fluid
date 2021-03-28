@@ -1,7 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List
 
-from fluid.scheduler import Consumer, Scheduler, TaskRun
+from fluid.scheduler import TaskConsumer, TaskRun, TaskScheduler
 from fluid.utils import wait_for
 
 
@@ -16,37 +16,37 @@ class WaitFor:
             self.runs.append(task_run)
 
 
-async def test_scheduler(scheduler: Scheduler):
+async def test_scheduler(scheduler: TaskScheduler):
     assert scheduler
     assert scheduler.broker.registry
     assert "dummy" in scheduler.registry
     assert "scheduled" in scheduler.registry
 
 
-async def test_consumer(consumer: Consumer):
+async def test_consumer(consumer: TaskConsumer):
     assert consumer.broker.registry
     assert "dummy" in consumer.broker.registry
     assert consumer.num_concurrent_tasks == 0
 
 
-async def test_dummy_execution(consumer: Consumer):
+async def test_dummy_execution(consumer: TaskConsumer):
     task_run = consumer.execute("dummy")
     assert task_run.name == "dummy"
     await task_run.waiter
     assert task_run.end
 
 
-async def test_dummy_queue(consumer: Consumer):
+async def test_dummy_queue(consumer: TaskConsumer):
     task_run = await consumer.queue_and_wait("dummy")
     assert task_run.end
 
 
-async def test_dummy_error(consumer: Consumer):
+async def test_dummy_error(consumer: TaskConsumer):
     task_run = await consumer.queue_and_wait("dummy", error=True)
     assert isinstance(task_run.exception, RuntimeError)
 
 
-async def test_scheduled(consumer: Consumer):
+async def test_scheduled(consumer: TaskConsumer):
     handler = WaitFor(name="scheduled")
     consumer.register_handler("end.scheduled", handler)
     try:

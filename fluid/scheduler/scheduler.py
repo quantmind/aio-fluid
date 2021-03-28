@@ -3,12 +3,12 @@ from datetime import datetime
 from typing import Dict
 
 from ..node import Node
-from .consumer import TaskManager
+from .consumer import TaskProducer
 from .crontab import CronRun
 from .task import Task
 
 
-class Scheduler(TaskManager):
+class TaskScheduler(TaskProducer):
     """A task manager for scheduling tasks"""
 
     def __init__(self) -> None:
@@ -19,9 +19,9 @@ class Scheduler(TaskManager):
 class ScheduleTasks(Node):
     heartbeat = 0.1
 
-    def __init__(self, task_manager: TaskManager) -> None:
+    def __init__(self, task_manager: TaskScheduler) -> None:
         super().__init__()
-        self.task_manager: TaskManager = task_manager
+        self.task_manager: TaskScheduler = task_manager
         self.last_run: Dict[str, CronRun] = {}
 
     async def tick(self) -> None:

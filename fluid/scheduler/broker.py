@@ -45,6 +45,10 @@ class TaskRun:
         return self.task.name
 
     @property
+    def name_id(self) -> str:
+        return f"{self.task.name}.{self.id}"
+
+    @property
     def exception(self) -> Optional[Exception]:
         if self.waiter.done():
             return self.waiter.exception()

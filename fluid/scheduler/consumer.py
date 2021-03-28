@@ -3,6 +3,8 @@ from collections import defaultdict, deque
 from functools import cached_property
 from typing import Callable, Dict, NamedTuple, Union
 
+from inflection import underscore
+
 from fluid.node import NodeWorkers, Worker
 from fluid.utils import milliseconds
 
@@ -24,10 +26,9 @@ class Event(NamedTuple):
 
 
 class TaskManager(NodeWorkers):
-    def __init__(self) -> None:
-        super().__init__()
-        self._msg_handlers: Dict[str, Dict[str, ConsumerCallback]] = defaultdict(dict)
-        self._queue_tasks_worker = Worker(self._queue_tasks)
+    @property
+    def type(self) -> str:
+        return underscore(self.__class__.__name__)
 
     @cached_property
     def broker(self) -> Broker:
@@ -36,6 +37,25 @@ class TaskManager(NodeWorkers):
     @property
     def registry(self) -> TaskRegistry:
         return self.broker.registry
+
+    async def teardown(self) -> None:
+        await self.broker.close()
+
+    def register_task(self, task: Task) -> None:
+        """Register a task with the task manager
+
+        Only tasks registered can be executed by a task manager
+        """
+        self.broker.register_task(task)
+
+
+class TaskProducer(TaskManager):
+    def __init__(self) -> None:
+        super().__init__()
+        self._msg_handlers: Dict[str, Dict[str, ConsumerCallback]] = defaultdict(dict)
+        self._queue_tasks_worker = Worker(
+            self._queue_tasks, logger=self.logger.getChild("queue")
+        )
 
     @cached_property
     def task_queue(self) -> asyncio.Queue:
@@ -47,13 +67,6 @@ class TaskManager(NodeWorkers):
     async def teardown(self) -> None:
         await self._queue_tasks_worker.close()
         await self.broker.close()
-
-    def register_task(self, task: Task) -> None:
-        """Register a task with the task manager
-
-        Only tasks registered can be executed by a task manager
-        """
-        self.broker.register_task(task)
 
     def queue(self, task: Union[str, Task], **params) -> str:
         """Queue a Task for execution and return the run id"""
@@ -91,7 +104,7 @@ class ConsumerConfig(NamedTuple):
     max_concurrent_tasks: int = 5
 
 
-class Consumer(TaskManager):
+class TaskConsumer(TaskProducer):
     def __init__(self, **config) -> None:
         super().__init__()
         self.cfg: ConsumerConfig = ConsumerConfig(**config)
@@ -131,6 +144,7 @@ class Consumer(TaskManager):
                 if not task_run:
                     continue
             task_run.start = milliseconds()
+            self.logger.info("start task.%s", task_run.name_id)
             self._concurrent_tasks[task_run.id] = task_run
             self.dispatch(task_run, "start")
             try:
@@ -147,3 +161,6 @@ class Consumer(TaskManager):
             task_run.end = milliseconds()
             self._concurrent_tasks.pop(task_run.id)
             self.dispatch(task_run, "end")
+            self.logger.info(
+                "end task.%s in %s milliseconds", task_run.name_id, task_run.end
+            )

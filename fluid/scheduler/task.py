@@ -1,6 +1,8 @@
 import logging
 from typing import TYPE_CHECKING, Any, Callable, Dict, NamedTuple, Optional, Union
 
+from fluid import log
+
 from .crontab import ScheduleType
 
 LogType = Callable[[str], None]
@@ -92,5 +94,5 @@ class TaskConstructor:
     def __call__(self, executor: TaskExecutor) -> Task:
         kwargs = {"name": executor.__name__, **self.kwargs, "executor": executor}
         name = kwargs["name"]
-        kwargs["logger"] = logging.getLogger(f"task.{name}")
+        kwargs["logger"] = log.get_logger(f"task.{name}")
         return Task(**kwargs)
