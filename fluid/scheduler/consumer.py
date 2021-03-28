@@ -26,9 +26,12 @@ class Event(NamedTuple):
 
 
 class TaskManager(NodeWorkers):
-    @property
-    def type(self) -> str:
-        return underscore(self.__class__.__name__)
+    def __init__(self) -> None:
+        super().__init__()
+        self._msg_handlers: Dict[str, Dict[str, ConsumerCallback]] = defaultdict(dict)
+        self._queue_tasks_worker = Worker(
+            self._queue_tasks, logger=self.logger.getChild("queue")
+        )
 
     @cached_property
     def broker(self) -> Broker:
@@ -38,7 +41,19 @@ class TaskManager(NodeWorkers):
     def registry(self) -> TaskRegistry:
         return self.broker.registry
 
+    @cached_property
+    def task_queue(self) -> asyncio.Queue:
+        return asyncio.Queue()
+
+    @property
+    def type(self) -> str:
+        return underscore(self.__class__.__name__)
+
+    async def setup(self) -> None:
+        await self._queue_tasks_worker.start_app(self.app)
+
     async def teardown(self) -> None:
+        await self._queue_tasks_worker.close()
         await self.broker.close()
 
     def register_task(self, task: Task) -> None:
@@ -47,26 +62,6 @@ class TaskManager(NodeWorkers):
         Only tasks registered can be executed by a task manager
         """
         self.broker.register_task(task)
-
-
-class TaskProducer(TaskManager):
-    def __init__(self) -> None:
-        super().__init__()
-        self._msg_handlers: Dict[str, Dict[str, ConsumerCallback]] = defaultdict(dict)
-        self._queue_tasks_worker = Worker(
-            self._queue_tasks, logger=self.logger.getChild("queue")
-        )
-
-    @cached_property
-    def task_queue(self) -> asyncio.Queue:
-        return asyncio.Queue()
-
-    async def setup(self) -> None:
-        await self._queue_tasks_worker.start_app(self.app)
-
-    async def teardown(self) -> None:
-        await self._queue_tasks_worker.close()
-        await self.broker.close()
 
     def queue(self, task: Union[str, Task], **params) -> str:
         """Queue a Task for execution and return the run id"""
@@ -104,7 +99,7 @@ class ConsumerConfig(NamedTuple):
     max_concurrent_tasks: int = 5
 
 
-class TaskConsumer(TaskProducer):
+class TaskConsumer(TaskManager):
     def __init__(self, **config) -> None:
         super().__init__()
         self.cfg: ConsumerConfig = ConsumerConfig(**config)

@@ -3,12 +3,12 @@ from datetime import datetime
 from typing import Dict
 
 from ..node import Node
-from .consumer import TaskProducer
+from .consumer import TaskManager
 from .crontab import CronRun
 from .task import Task
 
 
-class TaskScheduler(TaskProducer):
+class TaskScheduler(TaskManager):
     """A task manager for scheduling tasks"""
 
     def __init__(self) -> None:

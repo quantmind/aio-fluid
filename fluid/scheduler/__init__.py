@@ -1,4 +1,4 @@
-from .consumer import TaskConsumer, TaskManager, TaskProducer, TaskRun
+from .consumer import TaskConsumer, TaskManager, TaskRun
 from .crontab import crontab
 from .every import every
 from .scheduler import TaskScheduler
@@ -22,7 +22,6 @@ __all__ = [
     "TaskConstructor",
     "TaskDecoratorError",
     "TaskManager",
-    "TaskProducer",
     "TaskConsumer",
     "TaskRun",
     "crontab",
