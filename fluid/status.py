@@ -13,6 +13,9 @@ status_routes = web.RouteTableDef()
 
 @status_routes.get("/status")
 async def status(request):
+    service_status = request.app.get("service_status")
+    if service_status:
+        await service_status(request)
     result = dict(ok=True, sha=__version__, timestamp=__timestamp__)
     return web.json_response(result)
 

@@ -1,5 +1,6 @@
 import logging
 import os
+from typing import Callable, Optional
 
 from aiohttp.web import Application
 from openapi.middleware import json_error, sentry_middleware
@@ -27,6 +28,7 @@ class Service:
         app: Application = None,
         sentry_dsn: str = "",
         backdoor_port: int = 0,
+        service_status: Optional[Callable] = None,
         status_routes: bool = True,
         metrics_path: str = "/metrics",
         sampler: bool = False,
@@ -42,6 +44,8 @@ class Service:
             app.router.add_get(metrics_path, aio.web.server_stats)
         #
         app["service"] = service
+        if service_status:
+            app["service_status"] = service_status
         app.on_startup.append(service.on_startup)
         app.on_shutdown.insert(0, service.on_shutdown)
         # add app health probes
