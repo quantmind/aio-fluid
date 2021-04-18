@@ -105,11 +105,7 @@ class RedisPubSub:
         self.name = name or self.__class__.__name__
         self.url = url or os.getenv("REDIS_URL", DEFAULT_URL)
         self._lock = asyncio.Lock()
-        self._pub = Connection(self.url, self.name)
         self._pool: Optional[aioredis.Redis] = None
-
-    async def pub(self, connect: bool = True) -> aioredis.Redis:
-        return await self._pub.get()
 
     async def pool(self) -> aioredis.Redis:
         async with self._lock:

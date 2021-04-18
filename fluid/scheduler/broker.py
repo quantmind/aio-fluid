@@ -135,8 +135,8 @@ class RedisBroker(Broker):
         await self.redis.close()
 
     async def get_task_run(self) -> Optional[TaskRun]:
-        pub = await self.redis.pub()
-        data = await pub.brpop(self.task_queue_name, timeout=1)
+        redis = await self.redis.pool()
+        data = await redis.brpop(self.task_queue_name, timeout=1)
         if data:
             data_str = data[1].decode("utf-8")
             return self.task_run_from_data(json.loads(data_str))
@@ -145,9 +145,9 @@ class RedisBroker(Broker):
     async def queue_task(
         self, run_id: str, task: Union[str, Task], params: Dict[str, Any]
     ) -> TaskRun:
-        pub = await self.redis.pub()
+        redis = await self.redis.pool()
         data = self.task_run_data(run_id, task, params)
-        await pub.lpush(self.task_queue_name, json.dumps(data))
+        await redis.lpush(self.task_queue_name, json.dumps(data))
         return self.task_run_from_data(data)
 
 
