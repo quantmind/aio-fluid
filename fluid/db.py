@@ -9,10 +9,6 @@ from openapi.types import Record
 from sqlalchemy import Table
 
 
-class ExpectedOneOnly(RuntimeError):
-    pass
-
-
 @dataclass
 class DbTools:
     db: CrudDB
