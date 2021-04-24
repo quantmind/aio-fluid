@@ -1,5 +1,3 @@
-# Fix this until we fix sqlalchemy_utils
-sqlalchemy
 #
 uvloop
 aio-openapi
