@@ -35,5 +35,5 @@ async def batch_select(
     query = db.get_query(table, table.select(), params=filters)
     async with db.transaction() as conn:
         result = await conn.stream(query)
-        async for rows in result.partiions(batch_size):
+        async for rows in result.partitions(batch_size):
             yield rows
