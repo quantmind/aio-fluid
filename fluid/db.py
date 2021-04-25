@@ -1,12 +1,26 @@
 from dataclasses import dataclass
-from typing import Iterator, List
+from typing import Any, Coroutine, Iterator, List, Type, Union
 
 from aiohttp import web
 from openapi import json
 from openapi.data.validate import ValidationErrors
 from openapi.db import CrudDB
-from openapi.types import Record
+from openapi.types import Connection, Record
 from sqlalchemy import Table
+from sqlalchemy.exc import NoResultFound
+
+ErrorType = Union[Type[Exception], Exception]
+
+
+class ExpectedOneOnly(ValueError):
+    pass
+
+
+def one_only(data: List, *, error: ErrorType = ExpectedOneOnly) -> Any:
+    n = len(data)
+    if n != 1:
+        raise error
+    return data[0]
 
 
 @dataclass
@@ -33,3 +47,13 @@ async def batch_select(
         result = await conn.stream(query)
         async for rows in result.partitions(batch_size):
             yield rows
+
+
+async def one_record(
+    coroutine: Coroutine, *, error: ErrorType = ExpectedOneOnly
+) -> Record:
+    result = await coroutine
+    try:
+        return result.one()
+    except NoResultFound as exc:
+        raise error from exc
