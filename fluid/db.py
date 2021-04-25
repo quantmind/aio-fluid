@@ -5,7 +5,7 @@ from aiohttp import web
 from openapi import json
 from openapi.data.validate import ValidationErrors
 from openapi.db import CrudDB
-from openapi.types import Connection, Record
+from openapi.types import Record
 from sqlalchemy import Table
 from sqlalchemy.exc import NoResultFound
 
@@ -50,7 +50,9 @@ async def batch_select(
 
 
 async def one_record(
-    coroutine: Coroutine, *, error: ErrorType = ExpectedOneOnly
+    coroutine: Coroutine,
+    *,
+    error: ErrorType = ExpectedOneOnly,
 ) -> Record:
     result = await coroutine
     try:
