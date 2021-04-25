@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Coroutine, Iterator, List, Type, Union
+from typing import Any, Iterator, List, Type, Union
 
 from aiohttp import web
 from openapi import json
@@ -8,19 +8,13 @@ from openapi.db import CrudDB
 from openapi.types import Record
 from sqlalchemy import Table
 from sqlalchemy.exc import NoResultFound
+from sqlalchemy.ext.asyncio import AsyncResult
 
 ErrorType = Union[Type[Exception], Exception]
 
 
 class ExpectedOneOnly(ValueError):
     pass
-
-
-def one_only(data: List, *, error: ErrorType = ExpectedOneOnly) -> Any:
-    n = len(data)
-    if n != 1:
-        raise error
-    return data[0]
 
 
 @dataclass
@@ -49,12 +43,14 @@ async def batch_select(
             yield rows
 
 
-async def one_record(
-    coroutine: Coroutine,
-    *,
-    error: ErrorType = ExpectedOneOnly,
-) -> Record:
-    result = await coroutine
+def one_only(data: List, *, error: ErrorType = ExpectedOneOnly) -> Any:
+    n = len(data)
+    if n != 1:
+        raise error
+    return data[0]
+
+
+def one_record(result: AsyncResult, *, error: ErrorType = ExpectedOneOnly) -> Record:
     try:
         return result.one()
     except NoResultFound as exc:
