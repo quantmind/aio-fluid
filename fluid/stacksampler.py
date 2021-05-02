@@ -1,4 +1,3 @@
-import asyncio
 import atexit
 import os
 import signal
@@ -12,7 +11,7 @@ from typing import Optional
 import boto3
 from aiohttp import web
 
-from . import kernel
+from . import executor, kernel
 from .node import Node
 
 sampler_routes = web.RouteTableDef()
@@ -125,9 +124,7 @@ class NodeSampler(Node):
             self.sampler.reset()
             try:
                 async with self.sampler.flamegraph_file(self.title, stats) as svg:
-                    await asyncio.get_event_loop().run_in_executor(
-                        None, self.upload, svg
-                    )
+                    await executor.run(self.upload, svg)
             except FlamegraphError as e:
                 self.logger.warning("could not create flamegraph svg: %s", e)
 

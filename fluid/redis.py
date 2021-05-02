@@ -7,7 +7,7 @@ from aioredis import ConnectionClosedError
 from aioredis.pubsub import Receiver
 from openapi import json
 
-from .log import get_logger
+from .log import APP_NAME, get_logger
 from .node import NodeWorker
 
 DEFAULT_URL = "redis://localhost:6379"
@@ -17,7 +17,7 @@ CACHE_KEY_PREFIX = os.getenv("CACHE_KEY_PREFIX", "cache")
 logger = get_logger("redis")
 
 
-def setup(app, redis_url: str = "", name: str = "", app_key="redis") -> None:
+def setup(app, redis_url: str = "", name: str = APP_NAME, app_key="redis") -> None:
     redis = RedisPubSub(url=redis_url, name=name)
     app[app_key] = redis
     app.on_shutdown.append(redis.close)
@@ -102,7 +102,7 @@ class RedisPubSub:
     """Manage pubsub and queue"""
 
     def __init__(self, url: str = "", name: str = "") -> None:
-        self.name = name or self.__class__.__name__
+        self.name = name or APP_NAME
         self.url = url or os.getenv("REDIS_URL", DEFAULT_URL)
         self._lock = asyncio.Lock()
         self._pool: Optional[aioredis.Redis] = None
