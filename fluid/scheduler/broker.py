@@ -10,7 +10,7 @@ from uuid import uuid4
 from yarl import URL
 
 from fluid.redis import RedisPubSub
-from fluid.utils import milliseconds
+from fluid.utils import microseconds
 
 from .task import Task
 
@@ -39,6 +39,10 @@ class TaskRun:
     start: int = 0
     end: int = 0
     waiter: asyncio.Future = field(default_factory=asyncio.Future)
+
+    @property
+    def duration(self) -> int:
+        return self.end - self.start
 
     @property
     def name(self) -> str:
@@ -106,7 +110,7 @@ class Broker(ABC):
         This dictionary must be serializable by the broker
         """
         task = self.task_from_registry(task)
-        return dict(id=run_id, name=task.name, params=params, queued=milliseconds())
+        return dict(id=run_id, name=task.name, params=params, queued=microseconds())
 
     @classmethod
     def from_env(cls) -> "Broker":

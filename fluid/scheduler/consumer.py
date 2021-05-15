@@ -6,7 +6,7 @@ from typing import Callable, Dict, NamedTuple, Union
 from inflection import underscore
 
 from fluid.node import Consumer, NodeWorkers, Worker
-from fluid.utils import milliseconds
+from fluid.utils import microseconds
 
 from .broker import Broker, TaskRegistry, TaskRun
 from .task import Task
@@ -161,7 +161,7 @@ class TaskConsumer(TaskManager):
                 if not task_run:
                     await asyncio.sleep(self.cfg.sleep)
                     continue
-            task_run.start = milliseconds()
+            task_run.start = microseconds()
             self.logger.info("start task.%s", task_run.name_id)
             self._concurrent_tasks[task_run.id] = task_run
             self.dispatch(task_run, "start")
@@ -176,10 +176,12 @@ class TaskConsumer(TaskManager):
                 await task_run.waiter
             except Exception:
                 self.logger.exception("Critical exception in task %s", task_run.name)
-            task_run.end = milliseconds()
+            task_run.end = microseconds()
             self._concurrent_tasks.pop(task_run.id)
             self.dispatch(task_run, "end")
             self.logger.info(
-                "end task.%s in %s milliseconds", task_run.name_id, task_run.end
+                "end task.%s in %s milliseconds",
+                task_run.name_id,
+                round(0.001 * task_run.duration, 3),
             )
             await asyncio.sleep(self.cfg.sleep)
