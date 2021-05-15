@@ -52,7 +52,7 @@ async def spawn(ctx: TaskContext):
         "-W",
         "ignore",
         "-m",
-        "tasks.cpubound",
+        "fluid.scheduler.cpubound",
         ctx.task.name,
         ctx.run_id,
         result_callback=RemoteLog(sys.stdout),
