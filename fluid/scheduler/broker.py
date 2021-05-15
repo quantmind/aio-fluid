@@ -93,6 +93,7 @@ class Broker(ABC):
         self.registry[task.name] = task
 
     def task_run_from_data(self, data: Dict[str, Any]) -> TaskRun:
+        """Build a TaskRun object from its metadata"""
         data = data.copy()
         name = data.pop("name")
         return TaskRun(task=self.task_from_registry(name), **data)
@@ -100,6 +101,10 @@ class Broker(ABC):
     def task_run_data(
         self, run_id: str, task: Union[str, Task], params: Dict[str, Any]
     ) -> Dict[str, Any]:
+        """Create a dictionary of metadata required by a task run
+
+        This dictionary must be serializable by the broker
+        """
         task = self.task_from_registry(task)
         return dict(id=run_id, name=task.name, params=params, queued=milliseconds())
 

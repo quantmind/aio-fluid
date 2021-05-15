@@ -5,14 +5,14 @@ from typing import Callable, Dict, NamedTuple, Union
 
 from inflection import underscore
 
-from fluid.node import NodeWorkers, Worker
+from fluid.node import Consumer, NodeWorkers, Worker
 from fluid.utils import milliseconds
 
 from .broker import Broker, TaskRegistry, TaskRun
 from .task import Task
 from .utils import WaitFor
 
-ConsumerCallback = Callable[[TaskRun], None]
+ConsumerCallback = Callable[[TaskRun, "TaskManager"], None]
 
 
 class Event(NamedTuple):
@@ -26,12 +26,18 @@ class Event(NamedTuple):
 
 
 class TaskManager(NodeWorkers):
-    def __init__(self) -> None:
-        super().__init__()
+    """Base class for both TaskConsumer and TaskScheduler"""
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
         self._msg_handlers: Dict[str, Dict[str, ConsumerCallback]] = defaultdict(dict)
+        self._consumer = Consumer(
+            self._execute_async, logger=self.logger.getChild("internal-consumer")
+        )
         self._queue_tasks_worker = Worker(
             self._queue_tasks, logger=self.logger.getChild("queue")
         )
+        self.add_workers(self._consumer)
 
     @cached_property
     def broker(self) -> Broker:
@@ -77,7 +83,7 @@ class TaskManager(NodeWorkers):
         handlers = self._msg_handlers.get(event_type)
         if handlers:
             for handler in handlers.values():
-                handler(task_run)
+                handler(task_run, self)
 
     def register_handler(self, event: str, handler: ConsumerCallback) -> None:
         event = Event.from_string(event)
@@ -87,16 +93,28 @@ class TaskManager(NodeWorkers):
         event = Event.from_string(event)
         self._msg_handlers[event.type].pop(event.tag, None)
 
+    def execute_async(self, async_callable, *args) -> None:
+        self._consumer.submit((async_callable, args))
+
     # process tasks from the internal queue
     async def _queue_tasks(self) -> None:
         while self.is_running():
             run_id, task, params = await self.task_queue.get()
             task_run = await self.broker.queue_task(run_id, task, params)
             self.dispatch(task_run, "queued")
+            await asyncio.sleep(0)
+
+    async def _execute_async(self, message) -> None:
+        try:
+            executable, args = message
+            await executable(*args)
+        except Exception:
+            self.logger.exception("unhadled exception while executing async callaback")
 
 
 class ConsumerConfig(NamedTuple):
     max_concurrent_tasks: int = 5
+    sleep: float = 0.2
 
 
 class TaskConsumer(TaskManager):
@@ -105,8 +123,12 @@ class TaskConsumer(TaskManager):
         self.cfg: ConsumerConfig = ConsumerConfig(**config)
         self._concurrent_tasks: Dict[str, TaskRun] = {}
         self._priority_task_run_queue = deque()
-        for _ in range(self.cfg.max_concurrent_tasks):
-            self.add_workers(Worker(self._consume_tasks))
+        for i in range(self.cfg.max_concurrent_tasks):
+            self.add_workers(
+                Worker(
+                    self._consume_tasks, logger=self.logger.getChild(f"worker-{i+1}")
+                )
+            )
 
     @property
     def num_concurrent_tasks(self) -> int:
@@ -137,6 +159,7 @@ class TaskConsumer(TaskManager):
             else:
                 task_run = await self.broker.get_task_run()
                 if not task_run:
+                    await asyncio.sleep(self.cfg.sleep)
                     continue
             task_run.start = milliseconds()
             self.logger.info("start task.%s", task_run.name_id)
@@ -159,3 +182,4 @@ class TaskConsumer(TaskManager):
             self.logger.info(
                 "end task.%s in %s milliseconds", task_run.name_id, task_run.end
             )
+            await asyncio.sleep(self.cfg.sleep)

@@ -234,10 +234,15 @@ class Node(NodeWorker):
 
 
 class Consumer(NodeWorker):
-    def __init__(self, process_message, **kwargs) -> None:
+    def __init__(
+        self,
+        process_message,
+        queue: Optional[asyncio.Queue] = None,
+        **kwargs,
+    ) -> None:
         super().__init__(**kwargs)
         self.process_message = process_message
-        self._message_queue = asyncio.Queue()
+        self._message_queue = queue or asyncio.Queue()
 
     def qsize(self) -> int:
         return self._message_queue.qsize()

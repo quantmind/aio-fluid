@@ -11,7 +11,7 @@ class WaitFor:
     times: int = 2
     runs: List[TaskRun] = field(default_factory=list)
 
-    def __call__(self, task_run: TaskRun):
+    def __call__(self, task_run: TaskRun, _):
         if task_run.name == self.name:
             self.runs.append(task_run)
 
