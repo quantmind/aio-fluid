@@ -31,6 +31,9 @@ class TaskContext(NamedTuple):
     def raise_error(self, msg: str) -> None:
         raise TaskRunError(msg)
 
+    async def store(self, value: Any):
+        await self.task_manager.broker.store(self.run_id, value)
+
 
 TaskExecutor = Callable[[TaskContext], None]
 RandomizeType = Callable[[], Union[float, int]]

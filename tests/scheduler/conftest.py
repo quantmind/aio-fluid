@@ -1,40 +1,37 @@
 import os
 
 import pytest
-from aiohttp.web import Application
-from openapi.rest import rest
+from aioredis import Redis
 
-from fluid.scheduler import TaskConsumer, TaskManager, TaskScheduler
-from fluid.webcli import app_cli
+from fluid.node import WorkerApplication
+from fluid.scheduler import TaskConsumer, TaskScheduler
 
-from . import tasks
+from .tasks import add_task_manager, task_application
 
-os.environ["PYTHON_ENV"] = "test"
+os.environ["TASK_MANAGER_APP"] = "tests.scheduler.tasks:task_application"
 
 
 @pytest.fixture(scope="module")
-async def task_app(loop) -> TaskConsumer:
-    cli = rest()
-    app = cli.get_serve_app()
-    app["consumer"] = task_manager(app, TaskConsumer())
-    app["scheduler"] = task_manager(app, TaskScheduler())
-    async with app_cli(app):
+async def task_app(loop) -> WorkerApplication:
+    app = task_application(TaskConsumer())
+    add_task_manager(app, TaskScheduler())
+    await app.startup()
+    try:
         yield app
+    finally:
+        await app.shutdown()
 
 
 @pytest.fixture()
-def consumer(task_app) -> TaskConsumer:
-    return task_app["consumer"]
+def task_consumer(task_app: WorkerApplication) -> TaskConsumer:
+    return task_app["task_consumer"]
 
 
 @pytest.fixture()
-def scheduler(task_app) -> TaskScheduler:
-    return task_app["scheduler"]
+def task_scheduler(task_app: WorkerApplication) -> TaskScheduler:
+    return task_app["task_scheduler"]
 
 
-def task_manager(app: Application, manager: TaskManager) -> TaskManager:
-    manager.register_task(tasks.dummy)
-    manager.register_task(tasks.scheduled)
-    app.on_startup.append(manager.start_app)
-    app.on_shutdown.append(manager.close_app)
-    return manager
+@pytest.fixture()
+async def redis(task_consumer: TaskConsumer) -> Redis:
+    return await task_consumer.broker.redis.pool()
