@@ -2,9 +2,12 @@ import os
 from dataclasses import dataclass, field
 from typing import List
 
+import pytest
 from aioredis import Redis
 
 from fluid.scheduler import TaskConsumer, TaskRun, TaskScheduler
+from fluid.scheduler.broker import UnknownTask
+from fluid.scheduler.constants import TaskPriority
 from fluid.utils import wait_for
 
 
@@ -24,12 +27,20 @@ async def test_scheduler(task_scheduler: TaskScheduler):
     assert task_scheduler.broker.registry
     assert "dummy" in task_scheduler.registry
     assert "scheduled" in task_scheduler.registry
+    with pytest.raises(UnknownTask):
+        task_scheduler.broker.task_from_registry("bbdjchbjch")
+
+
+async def test_queue_length(task_consumer: TaskConsumer):
+    ql = await task_consumer.broker.queue_length()
+    assert len(ql) == 3
+    for p in TaskPriority:
+        assert ql[p.name] == 0
 
 
 async def test_consumer(task_consumer: TaskConsumer):
     assert task_consumer.broker.registry
     assert "dummy" in task_consumer.broker.registry
-    assert task_consumer.num_concurrent_tasks == 0
 
 
 async def test_dummy_execution(task_consumer: TaskConsumer):

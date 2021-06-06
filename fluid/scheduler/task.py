@@ -3,6 +3,7 @@ from typing import TYPE_CHECKING, Any, Callable, Dict, NamedTuple, Optional, Uni
 
 from fluid import log
 
+from .constants import TaskPriority
 from .crontab import ScheduleType
 
 LogType = Callable[[str], None]
@@ -45,6 +46,7 @@ class Task(NamedTuple):
     schedule: Optional[ScheduleType] = None
     randomize: Optional[RandomizeType] = None
     overlap: bool = True
+    priority: TaskPriority = TaskPriority.medium
 
     @property
     def description(self) -> str:
