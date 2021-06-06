@@ -14,7 +14,9 @@ from fluid.scheduler import (
     TaskDecoratorError,
     TaskExecutor,
     TaskManager,
+    TaskRun,
 )
+from fluid.scheduler.constants import TaskState
 
 TASK_MANAGER_SPAWN: str = os.getenv("TASK_MANAGER_SPAWN", "")
 TASK_MANAGER_APP: str = os.getenv("TASK_MANAGER_APP", "")
@@ -47,20 +49,22 @@ class RemoteLog:
 async def spawn(ctx: TaskContext):
     env = dict(os.environ)
     env["TASK_MANAGER_SPAWN"] = "true"
-    await kernel.run(
+    result = await kernel.run(
         "python",
         "-W",
         "ignore",
         "-m",
         "fluid.scheduler.cpubound",
-        ctx.task.name,
-        ctx.run_id,
+        ctx.name,
+        ctx.task_run.id,
         result_callback=RemoteLog(sys.stdout),
         error_callback=RemoteLog(sys.stderr),
         env=env,
         stream_output=True,
         stream_error=True,
     )
+    if result:
+        ctx.task_run.set_state(TaskState.failure)
 
 
 class CpuTaskConstructor(TaskConstructor):
@@ -94,12 +98,20 @@ async def main(name: str, run_id: str):
     app = create_task_app()
     task_manager: TaskManager = app["task_manager"]
     await app.startup()
+    logger = task_manager.logger
     try:
         task = task_manager.broker.task_from_registry(name)
-        await task(task_manager, run_id=run_id)
+        task_run = TaskRun(id=run_id, queued=0, task=task, params={})
+        task_context = task.create_context(task_manager, task_run=task_run)
+        logger = task_context.logger
+        await task.executor(task_context)
+    except Exception:
+        logger.exception("Unhandled exception executing CPU task")
+        return 1
     finally:
         await app.shutdown()
+    return 0
 
 
 if __name__ == "__main__":
-    asyncio.get_event_loop().run_until_complete(main(*sys.argv[1:]))
+    exit(asyncio.get_event_loop().run_until_complete(main(*sys.argv[1:])))

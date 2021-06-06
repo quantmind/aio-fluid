@@ -1,10 +1,13 @@
 import logging
 from typing import TYPE_CHECKING, Any, Callable, Dict, NamedTuple, Optional, Union
+from uuid import uuid4
 
 from fluid import log
+from fluid.utils import microseconds
 
 from .constants import TaskPriority
 from .crontab import ScheduleType
+from .task_run import TaskRun
 
 LogType = Callable[[str], None]
 
@@ -23,11 +26,25 @@ class TaskRunError(RuntimeError):
 
 class TaskContext(NamedTuple):
     task_manager: "TaskManager"
-    task: "Task"
-    run_id: str
+    task_run: TaskRun
     log: LogType
-    params: Dict[str, Any]
     logger: logging.Logger
+
+    @property
+    def task(self) -> "Task":
+        return self.task_run.task
+
+    @property
+    def run_id(self) -> "str":
+        return self.task_run.id
+
+    @property
+    def name(self) -> str:
+        return self.task_run.name
+
+    @property
+    def params(self) -> Dict[str, Any]:
+        return self.task_run.params
 
     def raise_error(self, msg: str) -> None:
         raise TaskRunError(msg)
@@ -62,17 +79,22 @@ class Task(NamedTuple):
     def create_context(
         self,
         task_manager,
+        task_run: Optional["TaskRun"] = None,
         log: Optional[LogType] = None,
-        run_id: str = "",
         **params,
     ):
+        if task_run is None:
+            task_run = TaskRun(
+                id=uuid4().hex, queued=microseconds(), task=self, params=params
+            )
+        else:
+            assert task_run.name == self.name, "task_run for a different task"
+            assert not params, "task run is provided - cannot pass params"
         return TaskContext(
             task_manager=task_manager,
-            task=self,
-            run_id=run_id,
+            task_run=task_run,
             log=log or self.logger.info,
-            params=params,
-            logger=self.logger.getChild(run_id) if run_id else self.logger,
+            logger=self.logger.getChild(task_run.id),
         )
 
 

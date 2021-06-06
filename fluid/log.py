@@ -11,6 +11,7 @@ logger = logging.getLogger()
 LOG_LEVEL = (os.environ.get("LOG_LEVEL") or "info").upper()
 APP_NAME = os.environ.get("APP_NAME") or "fluid"
 K8S = os.environ.get("KUBERNETES_SERVICE_HOST")
+LOG_HANDLER = os.environ.get("LOG_HANDLER")
 
 
 LOG_FORMAT_PRODUCTION = (
@@ -35,11 +36,14 @@ def level_num(level: str) -> int:
 
 
 def log_config(
-    level: int, other_level: int = logging.WARNING, app_name: Optional[str] = None
+    level: int,
+    other_level: int = logging.WARNING,
+    app_name: Optional[str] = None,
+    json=bool(K8S),
 ) -> Dict:
     app_name = app_name if app_name is not None else APP_NAME
     other_level = max(level, other_level)
-    handler = "main" if K8S else "color"
+    handler = LOG_HANDLER or ("main" if json else "color")
     return {
         "version": 1,
         "disable_existing_loggers": False,
@@ -47,6 +51,11 @@ def log_config(
             "json": {
                 "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
                 "format": LOG_FORMAT,
+            },
+            "nicejson": {
+                "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+                "format": LOG_FORMAT,
+                "json_indent": 2,
             },
             "color": {
                 "()": "colorlog.ColoredFormatter",
@@ -59,6 +68,11 @@ def log_config(
                 "level": level,
                 "class": "logging.StreamHandler",
                 "formatter": "json",
+            },
+            "nicejson": {
+                "level": level,
+                "class": "logging.StreamHandler",
+                "formatter": "nicejson",
             },
             "color": {
                 "level": level,

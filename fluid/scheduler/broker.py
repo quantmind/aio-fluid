@@ -98,8 +98,8 @@ class Broker(ABC):
         )
 
     @classmethod
-    def from_env(cls) -> "Broker":
-        url = os.getenv("SCHEDULER_BROKER_URL", DEFAULT_BROKER_URL)
+    def from_url(cls, url: str = "") -> "Broker":
+        url = url or os.getenv("SCHEDULER_BROKER_URL", DEFAULT_BROKER_URL)
         p = URL(url)
         Factory = _brokers.get(p.scheme)
         if not Factory:

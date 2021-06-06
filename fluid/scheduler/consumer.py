@@ -43,7 +43,7 @@ class TaskManager(NodeWorkers):
 
     @cached_property
     def broker(self) -> Broker:
-        return Broker.from_env()
+        return Broker.from_url()
 
     @property
     def registry(self) -> TaskRegistry:
@@ -181,12 +181,13 @@ class TaskConsumer(TaskManager):
                     continue
             task_run.start = microseconds()
             task_run.set_state(TaskState.running)
-            self.logger.info("start task.%s", task_run.name_id)
+            # create task context
+            task_context = task_run.task.create_context(self, task_run=task_run)
+            task_context.logger.info("start")
             self._concurrent_tasks[task_run.id] = task_run
             self.dispatch(task_run, "start")
             try:
-                params = {**task_run.params, "run_id": task_run.id}
-                result = await task_run.task(self, **params)
+                result = await task_run.task.executor(task_context)
             except Exception as exc:
                 task_run.waiter.set_exception(exc)
                 task_run.set_state(TaskState.failure)
@@ -197,13 +198,13 @@ class TaskConsumer(TaskManager):
             try:
                 await task_run.waiter
             except Exception:
-                self.logger.exception("Critical exception in task %s", task_run.name)
+                task_context.logger.exception("critical exception while executing")
             task_run.end = microseconds()
             self._concurrent_tasks.pop(task_run.id)
             self.dispatch(task_run, "end")
-            self.logger.info(
-                "end task.%s in %s milliseconds",
-                task_run.name_id,
+            task_context.logger.info(
+                "end - %s - milliseconds - %s",
+                task_run.state,
                 round(0.001 * task_run.duration, 3),
             )
             await asyncio.sleep(self.cfg.sleep)
