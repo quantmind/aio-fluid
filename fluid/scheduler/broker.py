@@ -64,9 +64,10 @@ class Broker(ABC):
         if isinstance(task, Task):
             self.register_task(task)
         else:
-            task = self.registry.get(task)
-            if not task:
+            task_ = self.registry.get(task)
+            if not task_:
                 raise UnknownTask(task)
+            task = task_
         return task
 
     def register_task(self, task: Task) -> None:

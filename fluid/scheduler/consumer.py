@@ -121,7 +121,7 @@ class TaskManager(NodeWorkers):
             executable, args = message
             await executable(*args)
         except Exception:
-            self.logger.exception("unhadled exception while executing async callaback")
+            self.logger.exception("unhandled exception while executing async callaback")
 
 
 class ConsumerConfig(NamedTuple):
