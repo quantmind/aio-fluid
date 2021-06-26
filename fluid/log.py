@@ -19,7 +19,7 @@ LOG_FORMAT_PRODUCTION = (
     "%(lineno)s %(module)s %(threadName)s %(message)s"
 )
 
-LOG_FORMAT_DEV = "%(asctime)s %(levelname)s %(name)s %(message)s"
+LOG_FORMAT_DEV = "%(asctime)s %(process)d %(levelname)s %(name)s %(message)s"
 
 LOG_FORMAT = LOG_FORMAT_PRODUCTION if K8S else LOG_FORMAT_DEV
 
