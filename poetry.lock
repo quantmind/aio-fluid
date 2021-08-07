@@ -1,4 +1,17 @@
 [[package]]
+name = "aio-kong"
+version = "0.8.2"
+description = "Asynchronous Kong client"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+aiohttp = "*"
+click = "*"
+pyyaml = "*"
+
+[[package]]
 name = "aio-openapi"
 version = "2.3.1"
 description = "Minimal OpenAPI asynchronous server application"
@@ -22,6 +35,24 @@ simplejson = "*"
 sqlalchemy = "*"
 sqlalchemy-utils = "*"
 uvloop = "*"
+
+[[package]]
+name = "aiobotocore"
+version = "1.3.3"
+description = "Async client for aws services using botocore and aiohttp"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+aiohttp = ">=3.3.1"
+aioitertools = ">=0.5.1"
+botocore = ">=1.20.106,<1.20.107"
+wrapt = ">=1.10.10"
+
+[package.extras]
+awscli = ["awscli (>=1.19.106,<1.19.107)"]
+boto3 = ["boto3 (>=1.17.106,<1.17.107)"]
 
 [[package]]
 name = "aioconsole"
@@ -49,6 +80,25 @@ yarl = ">=1.0,<2.0"
 
 [package.extras]
 speedups = ["aiodns", "brotlipy", "cchardet"]
+
+[[package]]
+name = "aiohttp-cors"
+version = "0.7.0"
+description = "CORS support for aiohttp"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+aiohttp = ">=1.1"
+
+[[package]]
+name = "aioitertools"
+version = "0.8.0"
+description = "itertools and builtins for AsyncIO and mixed iterables"
+category = "main"
+optional = false
+python-versions = ">=3.6"
 
 [[package]]
 name = "aioredis"
@@ -154,27 +204,24 @@ uvloop = ["uvloop (>=0.15.2)"]
 
 [[package]]
 name = "boto3"
-version = "1.18.16"
+version = "1.17.106"
 description = "The AWS SDK for Python"
 category = "main"
 optional = false
-python-versions = ">= 3.6"
+python-versions = ">= 2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 
 [package.dependencies]
-botocore = ">=1.21.16,<1.22.0"
+botocore = ">=1.20.106,<1.21.0"
 jmespath = ">=0.7.1,<1.0.0"
-s3transfer = ">=0.5.0,<0.6.0"
-
-[package.extras]
-crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
+s3transfer = ">=0.4.0,<0.5.0"
 
 [[package]]
 name = "botocore"
-version = "1.21.16"
+version = "1.20.106"
 description = "Low-level, data-driven core of boto 3."
 category = "main"
 optional = false
-python-versions = ">= 3.6"
+python-versions = ">= 2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*"
 
 [package.dependencies]
 jmespath = ">=0.7.1,<1.0.0"
@@ -713,11 +760,11 @@ use_chardet_on_py3 = ["chardet (>=3.0.2,<5)"]
 
 [[package]]
 name = "s3transfer"
-version = "0.5.0"
+version = "0.4.2"
 description = "An Amazon S3 Transfer Manager"
 category = "main"
 optional = false
-python-versions = ">= 3.6"
+python-versions = "*"
 
 [package.dependencies]
 botocore = ">=1.12.36,<2.0a.0"
@@ -896,14 +943,24 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "7c4cfc0245b0fad32df62269cbf713edd73bdb2a9ae5f1feeaf953f8d21d9f13"
+content-hash = "dfb10ec1ac64b8e7c6b3cadc16dd41b9caf8d49273e79d3e989b4431b5f5ece0"
 
 [metadata.files]
+aio-kong = [
+    {file = "aio-kong-0.8.2.tar.gz", hash = "sha256:2c1c00e2bddc4b0b1c98177731410f29793c1ff66f89cf16cf8e360a00a3c1e1"},
+    {file = "aio_kong-0.8.2-py36-none-any.whl", hash = "sha256:d162c7e1f868e73ef09a3d68726bbc1417a46dc52530add8ce5502c9fd725dd6"},
+    {file = "aio_kong-0.8.2-py37-none-any.whl", hash = "sha256:8b8081c080e5a43e59ef4593b57f8c936086b4dd33d703592360778a4c0f795f"},
+    {file = "aio_kong-0.8.2-py38-none-any.whl", hash = "sha256:ab12e895250d44c02727889af32d8015978b5b9b8d0e12cc706cecea6f31cc35"},
+    {file = "aio_kong-0.8.2-py39-none-any.whl", hash = "sha256:445d093bcaeb69e6a576be505a26cae2668dadcf5bfd788faae30201b8a0f013"},
+]
 aio-openapi = [
     {file = "aio-openapi-2.3.1.tar.gz", hash = "sha256:bb63645632a02e1d519903e6e17920fd3b78c09df3248c68bea52b9680a6a911"},
     {file = "aio_openapi-2.3.1-py37-none-any.whl", hash = "sha256:7bb6384ae44ab5ba9929a1f2bf19d738d03c7eea3155e939919d6a2785c07a6d"},
     {file = "aio_openapi-2.3.1-py38-none-any.whl", hash = "sha256:86c7413ae6f440f5661615a7a82ff28a2ddbd28975dde35ab65d024594cff249"},
     {file = "aio_openapi-2.3.1-py39-none-any.whl", hash = "sha256:834b0df13f7bea2b17da2811cdeb9b91902281664ed8844b1d9897219bb27353"},
+]
+aiobotocore = [
+    {file = "aiobotocore-1.3.3.tar.gz", hash = "sha256:b6bae95c55ef822d790bf8ebf6aed3d09b33e2817fa5f10e16a77028332963c2"},
 ]
 aioconsole = [
     {file = "aioconsole-0.3.1.tar.gz", hash = "sha256:7c038bb40b7690bf5be6b17154830b7bff25e7be1c02d8420a346c3efbd5d8e5"},
@@ -946,6 +1003,14 @@ aiohttp = [
     {file = "aiohttp-3.7.4.post0-cp39-cp39-win32.whl", hash = "sha256:932bb1ea39a54e9ea27fc9232163059a0b8855256f4052e776357ad9add6f1c9"},
     {file = "aiohttp-3.7.4.post0-cp39-cp39-win_amd64.whl", hash = "sha256:02f46fc0e3c5ac58b80d4d56eb0a7c7d97fcef69ace9326289fb9f1955e65cfe"},
     {file = "aiohttp-3.7.4.post0.tar.gz", hash = "sha256:493d3299ebe5f5a7c66b9819eacdcfbbaaf1a8e84911ddffcdc48888497afecf"},
+]
+aiohttp-cors = [
+    {file = "aiohttp-cors-0.7.0.tar.gz", hash = "sha256:4d39c6d7100fd9764ed1caf8cebf0eb01bf5e3f24e2e073fda6234bc48b19f5d"},
+    {file = "aiohttp_cors-0.7.0-py3-none-any.whl", hash = "sha256:0451ba59fdf6909d0e2cd21e4c0a43752bc0703d33fc78ae94d9d9321710193e"},
+]
+aioitertools = [
+    {file = "aioitertools-0.8.0-py3-none-any.whl", hash = "sha256:3a141f01d1050ac8c01917aee248d262736dab875ce0471f0dba5f619346b452"},
+    {file = "aioitertools-0.8.0.tar.gz", hash = "sha256:8b02facfbc9b0f1867739949a223f3d3267ed8663691cc95abd94e2c1d8c2b46"},
 ]
 aioredis = [
     {file = "aioredis-2.0.0-py3-none-any.whl", hash = "sha256:9921d68a3df5c5cdb0d5b49ad4fc88a4cfdd60c108325df4f0066e8410c55ffb"},
@@ -993,12 +1058,12 @@ black = [
     {file = "black-21.7b0.tar.gz", hash = "sha256:c8373c6491de9362e39271630b65b964607bc5c79c83783547d76c839b3aa219"},
 ]
 boto3 = [
-    {file = "boto3-1.18.16-py3-none-any.whl", hash = "sha256:23e55b7cde2b35c79c63d4d52c761fdc2141f70f02df76f68882776a33dfcb63"},
-    {file = "boto3-1.18.16.tar.gz", hash = "sha256:806111acfb70715dfbe9d9f0d6089e7a9661a6d6bb422b17e035fc32e17f3f37"},
+    {file = "boto3-1.17.106-py2.py3-none-any.whl", hash = "sha256:231b2023f4fe12af679afa7d893534ce2703db2318a8fa51fc7876890760f352"},
+    {file = "boto3-1.17.106.tar.gz", hash = "sha256:c0740378b913ca53f5fc0dba91e99a752c5a30ae7b58a0c5e54e3e2a68df26c5"},
 ]
 botocore = [
-    {file = "botocore-1.21.16-py3-none-any.whl", hash = "sha256:697b577d62a8893bce56c74ee53e54f04e69b14e42a6591e109c49b5675c19ed"},
-    {file = "botocore-1.21.16.tar.gz", hash = "sha256:b0e342b8c554f34f9f1cb028fbc20aff535fefe0c86a4e2cae7201846cd6aa4a"},
+    {file = "botocore-1.20.106-py2.py3-none-any.whl", hash = "sha256:47ec01b20c4bc6aaa16d21f756ead2f437b47c1335b083356cdc874e9140b023"},
+    {file = "botocore-1.20.106.tar.gz", hash = "sha256:6d5c983808b1d00437f56d0c08412bd82d9f8012fdb77e555f97277a1fd4d5df"},
 ]
 cached-property = [
     {file = "cached-property-1.5.2.tar.gz", hash = "sha256:9fa5755838eecbb2d234c3aa390bd80fbd3ac6b6869109bfc1b499f7bd89a130"},
@@ -1484,8 +1549,8 @@ requests = [
     {file = "requests-2.26.0.tar.gz", hash = "sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7"},
 ]
 s3transfer = [
-    {file = "s3transfer-0.5.0-py3-none-any.whl", hash = "sha256:9c1dc369814391a6bda20ebbf4b70a0f34630592c9aa520856bf384916af2803"},
-    {file = "s3transfer-0.5.0.tar.gz", hash = "sha256:50ed823e1dc5868ad40c8dc92072f757aa0e653a192845c94a3b676f4a62da4c"},
+    {file = "s3transfer-0.4.2-py2.py3-none-any.whl", hash = "sha256:9b3752887a2880690ce628bc263d6d13a3864083aeacff4890c1c9839a5eb0bc"},
+    {file = "s3transfer-0.4.2.tar.gz", hash = "sha256:cb022f4b16551edebbb31a377d3f09600dbada7363d8c5db7976e7f47732e1b2"},
 ]
 simplejson = [
     {file = "simplejson-3.17.3-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:18302970ce341c3626433d4ffbdac19c7cca3d6e2d54b12778bcb8095f695473"},

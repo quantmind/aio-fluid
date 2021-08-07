@@ -37,4 +37,4 @@ test-lint:		## run linters
 
 
 publish:		## release to pypi and github tag
-	@poetry publish -u lsbardel -p $(PYPI_PASSWORD)
+	@poetry publish --build -u lsbardel -p $(PYPI_PASSWORD)
