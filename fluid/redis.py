@@ -107,7 +107,7 @@ class FluidRedis:
             expire = expire or DEFAULT_CACHE_TIMEOUT
             data = await loader(*args)
             if expire:
-                await self.cli.set(cache_key, json.dumps(data), expire=expire)
+                await self.cli.set(cache_key, json.dumps(data), ex=expire)
         elif data is not None:
             data = json.loads(data)
         return data
