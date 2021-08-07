@@ -1,7 +1,4 @@
-# Minimal makefile for Sphinx documentation
-#
-
-.PHONY: help clean docs
+.PHONY: help clean install lint mypy test test-lint publish
 
 help:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
@@ -17,10 +14,6 @@ clean:			## remove python cache files
 	rm -rf .coverage
 
 
-version:		## display software version
-	@python setup.py --version
-
-
 install: 		## install packages in virtualenv
 	@./dev/install
 
@@ -30,7 +23,7 @@ lint: 			## run linters
 
 
 mypy:			## run mypy
-	@mypy metablock
+	@poetry run mypy fluid
 
 
 test:			## test with coverage
@@ -43,17 +36,5 @@ test-lint:		## run linters
 	poetry run ./dev/lint --check
 
 
-test-version:		## validate version
-	@agilekit git validate --yes-no
-
-
-bundle:			## build python 3.8 bundle
-	@python setup.py sdist bdist_wheel
-
-
-release-github:		## new tag in github
-	@agilekit --config dev/agile.json git release --yes
-
-
-release-pypi:		## release to pypi and github tag
-	@twine upload dist/* --username lsbardel --password $(PYPI_PASSWORD)
+publish:		## release to pypi and github tag
+	@poetry publish -u lsbardel -p $(PYPI_PASSWORD)

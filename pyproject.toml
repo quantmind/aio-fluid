@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "aio-fluid"
 version = "0.1.0"
-description = ""
+description = "Tools for backend python services"
 license = "BST"
 authors = ["Luca <luca@quantmind.com>"]
 readme = "readme.md"
@@ -32,7 +32,8 @@ flake8-builtins = "^1.5.3"
 flake8-commas = "^2.0.0"
 pytest-cov = "^2.12.1"
 pytest-aiohttp = "^0.3.0"
-coveralls = "^3.2.0"
+codecov = "^2.1.12"
+mypy = "^0.910"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

@@ -8,6 +8,7 @@ jobs:
     env:
       PYTHON_ENV: ci
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
     strategy:
       matrix:
         python-version: [3.8, 3.9]
@@ -30,4 +31,8 @@ jobs:
       - name: tests
         run: make test
       - name: upload coverage
+        if: matrix.python-version == '3.9'
         run: codecov --file ./build/coverage.xml
+      - name: publish
+        if: matrix.python-version == '3.9'
+        run: make publish
