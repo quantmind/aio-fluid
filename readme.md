@@ -9,5 +9,5 @@
 This is a simple python package you can install via pip:
 
 ```
-pip install fluid
+pip install aio-fluid
 ```

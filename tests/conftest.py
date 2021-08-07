@@ -3,7 +3,7 @@ import os
 
 import pytest
 
-from fluid.redis import RedisPubSub
+from fluid.redis import FluidRedis
 from fluid.webcli import TestClient, app_cli
 
 from .app import AppClient, create_app
@@ -23,7 +23,7 @@ def loop():
 
 @pytest.fixture
 async def redis(loop):
-    cli = RedisPubSub()
+    cli = FluidRedis()
     try:
         yield cli
     finally:

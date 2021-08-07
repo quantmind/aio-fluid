@@ -26,9 +26,7 @@ install: 		## install packages in virtualenv
 
 
 lint: 			## run linters
-	isort .
-	./dev/run-black
-	flake8
+	poetry run ./dev/lint
 
 
 mypy:			## run mypy
@@ -36,13 +34,13 @@ mypy:			## run mypy
 
 
 test:			## test with coverage
-	@pytest -x --log-cli-level error --cov --cov-report xml --cov-report html
+	@poetry run \
+		pytest -x --log-cli-level error \
+		--cov --cov-report xml --cov-report html
 
 
 test-lint:		## run linters
-	isort . --check
-	./dev/run-black --check
-	flake8
+	poetry run ./dev/lint --check
 
 
 test-version:		## validate version

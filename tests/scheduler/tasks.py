@@ -24,8 +24,8 @@ async def scheduled(context: TaskContext) -> str:
 @cpu_task
 async def cpu_bound(context: TaskContext) -> int:
     await asyncio.sleep(0.1)
-    redis = await context.task_manager.broker.redis.pool()
-    redis.setex(context.run_id, os.getpid(), 10)
+    redis = context.task_manager.broker.redis.cli
+    await redis.setex(context.run_id, os.getpid(), 10)
 
 
 def add_task_manager(app: WorkerApplication, manager: TaskManager) -> TaskManager:

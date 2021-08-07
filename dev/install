@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-pip install -U pip wheel setuptools
-pip install -U -r dev/requirements.txt

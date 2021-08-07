@@ -2,11 +2,11 @@ import asyncio
 import os
 from typing import Any, Callable, Optional, Sequence
 
-import aioredis
-from aioredis import ConnectionClosedError
-from aioredis.pubsub import Receiver
-from openapi import json
+import async_timeout
+from aioredis import Redis
+from aioredis.client import PubSub
 
+from . import json
 from .log import APP_NAME, get_logger
 from .node import NodeWorker
 
@@ -17,38 +17,13 @@ CACHE_KEY_PREFIX = os.getenv("CACHE_KEY_PREFIX", "cache")
 logger = get_logger("redis")
 
 
-def setup(app, redis_url: str = "", name: str = APP_NAME, app_key="redis") -> None:
-    redis = RedisPubSub(url=redis_url, name=name)
+def setup(
+    app, redis_url: str = "", name: str = APP_NAME, app_key="redis"
+) -> "FluidRedis":
+    redis = FluidRedis(url=redis_url, name=name)
     app[app_key] = redis
     app.on_shutdown.append(redis.close)
-
-
-class Connection:
-    def __init__(self, url: str, name: str) -> None:
-        self.url = url
-        self.name = name
-        self.lock = asyncio.Lock()
-        self._redis = None
-
-    async def get(self, *, connect: bool = True) -> Optional[aioredis.Redis]:
-        async with self.lock:
-            if self._redis is None and connect:
-                self._redis = await self._connect()
-        return self._redis
-
-    async def close(self) -> None:
-        async with self.lock:
-            if self._redis:
-                redis = self._redis
-                self._redis = None
-                redis.close()
-                await redis.wait_closed()
-                logger.warning("closed redis connections %s", self.name)
-
-    async def _connect(self) -> aioredis.Redis:
-        redis = await aioredis.create_redis(self.url)
-        await redis.client_setname(self.name)
-        return redis
+    return redis
 
 
 class MessageReceiver(NodeWorker):
@@ -56,79 +31,57 @@ class MessageReceiver(NodeWorker):
 
     def __init__(
         self,
-        sub: Connection,
+        sub: PubSub,
         on_message: Callable[[str, str], None],
         channels: Sequence[str] = (),
         patterns: Sequence[str] = (),
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
-        self.sub: Connection = sub
-        self.receiver = Receiver()
+        self.sub: PubSub = sub
         self.on_message = on_message
-        self.channels = [self.receiver.channel(channel) for channel in channels or ()]
-        self.patterns = [self.receiver.pattern(pattern) for pattern in patterns or ()]
-        assert self.channels or self.patterns, "No channels nor patterns specified"
+        self.channels = tuple(channels)
+        self.patterns = tuple(patterns)
 
     async def setup(self) -> None:
-        redis = await self.sub.get()
         if self.channels:
-            await redis.subscribe(*self.channels)
+            await self.sub.subscribe(*self.channels)
         if self.patterns:
-            await redis.psubscribe(*self.patterns)
+            await self.sub.psubscribe(*self.patterns)
 
     async def work(self) -> None:
-        async for channel, msg in self.receiver.iter():
-            if self.is_running():
-                self.on_message(channel, msg)
-                await asyncio.sleep(0)
-            else:
-                break
+        while self.is_running():
+            try:
+                async with async_timeout.timeout(1):
+                    message = self.sub.get_message(ignore_subscribe_messages=True)
+                    if message is not None:
+                        self.on_message(message)
+                    await asyncio.sleep(0)
+            except asyncio.TimeoutError:
+                pass
 
     async def teardown(self) -> None:
-        redis = await self.sub.get(connect=False)
-        if redis:
-            try:
-                if self.channels:
-                    await redis.unsubscribe(*self.channels)
-                if self.patterns:
-                    await redis.punsubscribe(*self.patterns)
-            except (ConnectionClosedError, RuntimeError):
-                pass
-        self.receiver.stop()
+        await self.sub.close()
 
 
-class RedisPubSub:
-    """Manage pubsub and queue"""
-
+class FluidRedis:
     def __init__(self, url: str = "", name: str = "") -> None:
         self.name = name or APP_NAME
-        self.url = url or os.getenv("REDIS_URL", DEFAULT_URL)
-        self._lock = asyncio.Lock()
-        self._pool: Optional[aioredis.Redis] = None
-
-    async def pool(self) -> aioredis.Redis:
-        async with self._lock:
-            if self._pool is None:
-                self._pool = await aioredis.create_redis_pool(self.url)
-        return self._pool
+        self.cli: Redis = Redis.from_url(url or os.getenv("REDIS_URL", DEFAULT_URL))
 
     async def close(self, app=None) -> None:
-        redis = self._pool
-        if redis:
-            redis.close()
-            await redis.wait_closed()
+        await self.cli.close()
+        await self.cli.connection_pool.disconnect()
 
     def receiver(
         self,
         on_message: Callable[[str, str], None],
-        channels: Sequence[str] = None,
-        patterns: Sequence[str] = None,
-        name: str = "streaming",
+        channels: Sequence[str] = (),
+        patterns: Sequence[str] = (),
         **kwargs,
     ) -> MessageReceiver:
         return MessageReceiver(
-            Connection(self.url, f"{self.name}:{name}"),
+            self.cli.pubsub(),
             on_message,
             channels,
             patterns,
@@ -149,17 +102,15 @@ class RedisPubSub:
     ) -> Any:
         """Load JSON data from redis cache"""
         cache_key = self.cache_key(key, *args)
-        redis = await self.pool()
-        data = await redis.get(cache_key)
+        data = await self.cli.get(cache_key)
         if not data and loader:
             expire = expire or DEFAULT_CACHE_TIMEOUT
             data = await loader(*args)
             if expire:
-                await redis.set(cache_key, json.dumps(data), expire=expire)
+                await self.cli.set(cache_key, json.dumps(data), expire=expire)
         elif data is not None:
             data = json.loads(data)
         return data
 
     async def invalidate_cache(self, key: str, *args) -> None:
-        redis = await self.pool()
-        await redis.delete(self.cache_key(key, *args))
+        await self.cli.delete(self.cache_key(key, *args))

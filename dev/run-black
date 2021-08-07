@@ -1,2 +1,0 @@
-#!/bin/bash
-black . --exclude "venv|build|dev|dist" $1

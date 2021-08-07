@@ -22,16 +22,16 @@ async def task_app(loop) -> WorkerApplication:
         await app.shutdown()
 
 
-@pytest.fixture()
+@pytest.fixture
 def task_consumer(task_app: WorkerApplication) -> TaskConsumer:
     return task_app["task_consumer"]
 
 
-@pytest.fixture()
+@pytest.fixture
 def task_scheduler(task_app: WorkerApplication) -> TaskScheduler:
     return task_app["task_scheduler"]
 
 
-@pytest.fixture()
-async def redis(task_consumer: TaskConsumer) -> Redis:
-    return await task_consumer.broker.redis.pool()
+@pytest.fixture
+def redis(task_consumer: TaskConsumer) -> Redis:
+    return task_consumer.broker.redis.cli

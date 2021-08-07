@@ -1,4 +1,3 @@
-import json
 import os
 from abc import ABC, abstractmethod
 from functools import cached_property
@@ -7,7 +6,8 @@ from uuid import uuid4
 
 from yarl import URL
 
-from fluid.redis import RedisPubSub
+from fluid import json
+from fluid.redis import FluidRedis
 from fluid.utils import microseconds
 
 from .constants import TaskPriority, TaskState
@@ -116,8 +116,8 @@ class RedisBroker(Broker):
     """A simple broker based on redis lists"""
 
     @cached_property
-    def redis(self) -> RedisPubSub:
-        return RedisPubSub(str(self.url.with_query({})), name=self.task_queue_name)
+    def redis(self) -> FluidRedis:
+        return FluidRedis(str(self.url.with_query({})), name=self.task_queue_name)
 
     @property
     def name(self) -> str:
@@ -131,8 +131,7 @@ class RedisBroker(Broker):
         return f"{self.name}-queue-{priority.name}"
 
     async def queue_length(self) -> Dict[str, int]:
-        redis = await self.redis.pool()
-        pipe = redis.pipeline()
+        pipe = self.redis.cli.pipeline()
         for name in self.task_queue_names:
             pipe.llen(name)
         result = await pipe.execute()
@@ -143,19 +142,17 @@ class RedisBroker(Broker):
         await self.redis.close()
 
     async def get_task_run(self) -> Optional[TaskRun]:
-        redis = await self.redis.pool()
-        data = await redis.brpop(*self.task_queue_names, timeout=1)
+        data = await self.redis.cli.brpop(self.task_queue_names, timeout=1)
         if data:
             data_str = data[1].decode("utf-8")
             return self.task_run_from_data(json.loads(data_str))
         return None
 
     async def queue_task(self, queued_task: QueuedTask) -> TaskRun:
-        redis = await self.redis.pool()
         task = self.task_from_registry(queued_task.task)
         priority = queued_task.priority or task.priority
         data = self.task_run_data(queued_task, TaskState.queued)
-        await redis.lpush(self.task_queue_name(priority), json.dumps(data))
+        await self.redis.cli.lpush(self.task_queue_name(priority), json.dumps(data))
         return self.task_run_from_data(data)
 
 
