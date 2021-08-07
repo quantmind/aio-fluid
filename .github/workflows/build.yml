@@ -32,7 +32,7 @@ jobs:
         run: make test
       - name: upload coverage
         if: matrix.python-version == '3.9'
-        run: codecov --file ./build/coverage.xml
+        run: poetry run codecov --file ./build/coverage.xml
       - name: publish
         if: matrix.python-version == '3.9'
         run: make publish
