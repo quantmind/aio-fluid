@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 isort . $1
 black . --exclude ".venv|build|dev|dist" $1
 flake8

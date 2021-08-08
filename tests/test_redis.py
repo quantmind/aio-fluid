@@ -1,7 +1,10 @@
 import asyncio
-from typing import Any, NamedTuple
+from dataclasses import dataclass, field
+from typing import Any, List, NamedTuple
 
+from fluid import json
 from fluid.redis import FluidRedis
+from fluid.utils import wait_for
 
 
 class Loader(NamedTuple):
@@ -11,17 +14,29 @@ class Loader(NamedTuple):
         return self.value
 
 
+@dataclass
+class MessageHandler:
+    data: List = field(default_factory=list)
+
+    def __call__(self, message):
+        self.data.append(message)
+
+
 async def test_receiver(redis: FluidRedis):
-    def on_message(message):
-        pass
+    on_message = MessageHandler()
 
     receiver = redis.receiver(
         on_message=on_message, channels=["test"], patterns=["blaaa-*"]
     )
-    await receiver.setup()
+    await receiver.start()
     channels = await redis.cli.pubsub_channels()
     assert b"test" in channels
-    await receiver.teardown()
+    await redis.cli.publish("test", json.dumps(dict(result="test")))
+    await wait_for(lambda: len(on_message.data) > 0)
+    msg = on_message.data[0]
+    assert msg["channel"] == b"test"
+    assert json.loads(msg["data"]) == dict(result="test")
+    await receiver.close()
     channels = await redis.cli.pubsub_channels()
     assert b"test" not in channels
 

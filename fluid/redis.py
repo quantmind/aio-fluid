@@ -53,7 +53,7 @@ class MessageReceiver(NodeWorker):
         while self.is_running():
             try:
                 async with async_timeout.timeout(1):
-                    message = self.sub.get_message(ignore_subscribe_messages=True)
+                    message = await self.sub.get_message(ignore_subscribe_messages=True)
                     if message is not None:
                         self.on_message(message)
                     await asyncio.sleep(0)
