@@ -34,5 +34,5 @@ jobs:
         if: matrix.python-version == '3.9'
         run: poetry run codecov --file ./build/coverage.xml
       - name: publish
-        if: ${{ matrix.python-version == '3.9' && github.event.head_commit.message == "release" }}
+        if: ${{ matrix.python-version == '3.9' && github.event.head_commit.message == 'release' }}
         run: make publish
