@@ -29,14 +29,19 @@ async def test_receiver(redis: FluidRedis):
         on_message=on_message, channels=["test"], patterns=["blaaa-*"]
     )
     await receiver.start()
-    channels = await redis.cli.pubsub_channels()
-    assert b"test" in channels
+    await asyncio.sleep(0.5)
     await redis.cli.publish("test", json.dumps(dict(result="test")))
     await wait_for(lambda: len(on_message.data) > 0)
     msg = on_message.data[0]
     assert msg["channel"] == b"test"
     assert json.loads(msg["data"]) == dict(result="test")
+
+    #
+    channels = await redis.cli.pubsub_channels()
+    assert b"test" in channels
+    #
     await receiver.close()
+    await asyncio.sleep(0.5)
     channels = await redis.cli.pubsub_channels()
     assert b"test" not in channels
 
