@@ -3,15 +3,16 @@ import os
 from typing import Any, Callable, Optional, Sequence
 
 import async_timeout
-from aioredis import Redis
+from aioredis import BlockingConnectionPool, Redis
 from aioredis.client import PubSub
 
 from . import json
 from .log import APP_NAME, get_logger
 from .node import NodeWorker
 
-DEFAULT_URL = "redis://localhost:6379"
+REDIS_DEFAULT_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 DEFAULT_CACHE_TIMEOUT = int(os.getenv("DEFAULT_CACHE_TIMEOUT", 300))
+REDIS_MAX_CONNECTIONS_DEFAULT = int(os.getenv("MAX_REDIS_CONNECTIONS", "5"))
 CACHE_KEY_PREFIX = os.getenv("CACHE_KEY_PREFIX", "cache")
 
 logger = get_logger("redis")
@@ -65,9 +66,19 @@ class MessageReceiver(NodeWorker):
 
 
 class FluidRedis:
-    def __init__(self, url: str = "", name: str = "") -> None:
-        self.name = name or APP_NAME
-        self.cli: Redis = Redis.from_url(url or os.getenv("REDIS_URL", DEFAULT_URL))
+    def __init__(
+        self,
+        url: str = "",
+        name: str = "",
+        max_connections: int = 0,
+    ) -> None:
+        self.cli: Redis = Redis(
+            connection_pool=BlockingConnectionPool.from_url(
+                url or REDIS_DEFAULT_URL,
+                max_connections=max_connections or REDIS_MAX_CONNECTIONS_DEFAULT,
+                client_name=name or APP_NAME,
+            )
+        )
 
     async def close(self, app=None) -> None:
         await self.cli.close()

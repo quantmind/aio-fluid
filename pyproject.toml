@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aio-fluid"
-version = "0.1.5"
+version = "0.1.6"
 description = "Tools for backend python services"
 license = "BST"
 authors = ["Luca <luca@quantmind.com>"]

@@ -117,7 +117,7 @@ class RedisBroker(Broker):
 
     @cached_property
     def redis(self) -> FluidRedis:
-        return FluidRedis(str(self.url.with_query({})), name=self.task_queue_name)
+        return FluidRedis(str(self.url.with_query({})), name=self.name)
 
     @property
     def name(self) -> str:
