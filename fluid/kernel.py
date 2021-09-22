@@ -40,6 +40,8 @@ async def _read_stream(stream, stream_output: bool, cb: KernelCallback):
         if stream_output:
             try:
                 chunk = await stream.readuntil()
+            except asyncio.IncompleteReadError as e:
+                chunk = e.partial
             except asyncio.LimitOverrunError as exc:
                 chunk = await stream.readexactly(exc.consumed)
         else:

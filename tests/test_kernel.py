@@ -9,7 +9,7 @@ async def test_env_variable() -> None:
 
 async def test_long_line() -> None:
     result = kernel.CollectBytes()
-    await kernel.run(
+    code = await kernel.run(
         "python",
         "-m",
         "tests.scripts.long_line",
@@ -17,4 +17,5 @@ async def test_long_line() -> None:
         stream_output=True,
         stream_error=True,
     )
+    assert code == 0
     assert result.data

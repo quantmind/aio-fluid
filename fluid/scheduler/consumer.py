@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from collections import defaultdict, deque
 from functools import cached_property
 from typing import Callable, Dict, NamedTuple, Optional, Union
@@ -213,13 +214,16 @@ class TaskConsumer(TaskManager):
             try:
                 await task_run.waiter
             except TaskFailure:
-                task_context.logger.warning("CPU bound task failure")
+                # task_context.logger.warning("CPU bound task failure")
+                # no need to log here, the log is already done from the CPU bound script
+                pass
             except Exception:
                 task_context.logger.exception("critical exception while executing")
             task_run.end = microseconds()
             self._concurrent_tasks.pop(task_run.id)
             self.dispatch(task_run, "end")
-            task_context.logger.info(
+            task_context.logger.log(
+                logging.WARNING if task_run.is_failure else logging.INFO,
                 "end - %s - milliseconds - %s",
                 task_run.state,
                 round(0.001 * task_run.duration, 3),
