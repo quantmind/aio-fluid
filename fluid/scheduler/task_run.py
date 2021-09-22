@@ -56,5 +56,9 @@ class TaskRun:
     def in_finish_state(self) -> bool:
         return TaskState[self.state] in FINISHED_STATES
 
+    @property
+    def is_failure(self) -> bool:
+        return TaskState[self.state] is TaskState.failure
+
     def set_state(self, state: TaskState) -> None:
         self.state = state.name

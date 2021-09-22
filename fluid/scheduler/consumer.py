@@ -8,13 +8,17 @@ from inflection import underscore
 from fluid.node import Consumer, NodeWorkers, Worker
 from fluid.utils import microseconds
 
-from .broker import Broker, QueuedTask, TaskRegistry
+from .broker import Broker, QueuedTask, TaskRegistry, UnknownTask
 from .constants import TaskPriority, TaskState
 from .task import Task
 from .task_run import TaskRun
 from .utils import WaitFor
 
 ConsumerCallback = Callable[[TaskRun, "TaskManager"], None]
+
+
+class TaskFailure(RuntimeError):
+    pass
 
 
 class Event(NamedTuple):
@@ -175,7 +179,15 @@ class TaskConsumer(TaskManager):
             if self._priority_task_run_queue:
                 task_run = self._priority_task_run_queue.pop()
             else:
-                task_run = await self.broker.get_task_run()
+                try:
+                    task_run = await self.broker.get_task_run()
+                except UnknownTask as exc:
+                    self.logger.error(
+                        "unknown task %s - it looks like it is not "
+                        "registered with this consumer",
+                        exc,
+                    )
+                    task_run = None
                 if not task_run:
                     await asyncio.sleep(self.cfg.sleep)
                     continue
@@ -192,11 +204,16 @@ class TaskConsumer(TaskManager):
                 task_run.waiter.set_exception(exc)
                 task_run.set_state(TaskState.failure)
             else:
-                task_run.waiter.set_result(result)
-                if not task_run.in_finish_state:
-                    task_run.set_state(TaskState.success)
+                if task_run.is_failure:
+                    task_run.waiter.set_exception(TaskFailure())
+                else:
+                    task_run.waiter.set_result(result)
+                    if not task_run.in_finish_state:
+                        task_run.set_state(TaskState.success)
             try:
                 await task_run.waiter
+            except TaskFailure:
+                task_context.logger.warning("CPU bound task failure")
             except Exception:
                 task_context.logger.exception("critical exception while executing")
             task_run.end = microseconds()

@@ -12,7 +12,7 @@
             "env": {},
             "args": [
                 "-x",
-                "tests/scheduler"
+                "tests/test_kernel.py"
             ],
             "debugOptions": [
                 "RedirectOutput"

@@ -1,13 +1,17 @@
 [tool.poetry]
 name = "aio-fluid"
-version = "0.1.6"
+version = "0.1.7"
 description = "Tools for backend python services"
-license = "BST"
+license = "BSD"
 authors = ["Luca <luca@quantmind.com>"]
 readme = "readme.md"
 packages = [
     {include = "fluid"}
 ]
+
+[tool.poetry.urls]
+"Repository" = "https://github.com/quantmind/aio-fluid"
+"Issues" = "https://github.com/quantmind/aio-fluid/issues"
 
 [tool.poetry.dependencies]
 python = ">=3.8,<3.10"
