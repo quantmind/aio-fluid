@@ -3,6 +3,7 @@ import sys
 from typing import Callable, Dict, Optional
 
 KernelCallback = Callable[[bytes], None]
+READ_LIMIT = 2 ** 16  # 64 KiB
 
 
 async def run_python(*args: str) -> str:
@@ -24,6 +25,7 @@ async def run(
         stdin=asyncio.subprocess.PIPE,
         stdout=asyncio.subprocess.PIPE,
         stderr=asyncio.subprocess.PIPE,
+        limit=READ_LIMIT,
         env=env,
     )
     await asyncio.wait(
@@ -35,15 +37,29 @@ async def run(
     return await process.wait()
 
 
-async def _read_stream(stream, stream_output: bool, cb: KernelCallback):
+async def _read_line(stream: asyncio.StreamReader) -> bytes:
+    chunks = []
+    while True:
+        try:
+            chunk = await stream.readuntil()
+        except asyncio.IncompleteReadError as e:
+            chunks.append(e.partial)
+            break
+        except asyncio.LimitOverrunError:
+            chunk = await stream.readexactly(READ_LIMIT)
+            chunks.append(chunk)
+        else:
+            chunks.append(chunk)
+            break
+    return b"".join(chunks)
+
+
+async def _read_stream(
+    stream: asyncio.StreamReader, stream_output: bool, cb: KernelCallback
+):
     while True:
         if stream_output:
-            try:
-                chunk = await stream.readuntil()
-            except asyncio.IncompleteReadError as e:
-                chunk = e.partial
-            except asyncio.LimitOverrunError as exc:
-                chunk = await stream.readexactly(exc.consumed)
+            chunk = await _read_line(stream)
         else:
             chunk = await stream.read()
         if chunk:
