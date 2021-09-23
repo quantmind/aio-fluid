@@ -11,3 +11,13 @@ This is a simple python package you can install via pip:
 ```
 pip install aio-fluid
 ```
+
+## Modules
+
+### [scheduler](./scheduler)
+
+A simple asynchronous task queue with a scheduler
+
+### [kernel](./kernel)
+
+Async utility for executing commands in sub-processes
