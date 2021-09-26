@@ -62,7 +62,8 @@ class Task(NamedTuple):
     logger: logging.Logger
     schedule: Optional[ScheduleType] = None
     randomize: Optional[RandomizeType] = None
-    overlap: bool = True
+    max_concurrency: int = 1
+    """how many tasks can run in each consumer concurrently"""
     priority: TaskPriority = TaskPriority.medium
 
     @property

@@ -14,10 +14,10 @@ pip install aio-fluid
 
 ## Modules
 
-### [scheduler](./scheduler)
+### [scheduler](./fluid/scheduler)
 
 A simple asynchronous task queue with a scheduler
 
-### [kernel](./kernel)
+### [kernel](./fluid/kernel)
 
 Async utility for executing commands in sub-processes

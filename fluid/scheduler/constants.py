@@ -13,6 +13,10 @@ class TaskState(enum.Enum):
     running = 2
     success = 3
     failure = 4
+    aborted = 5
+    rate_limited = 6
 
 
-FINISHED_STATES = frozenset((TaskState.success, TaskState.failure))
+FINISHED_STATES = frozenset(
+    (TaskState.success, TaskState.failure, TaskState.aborted, TaskState.rate_limited)
+)

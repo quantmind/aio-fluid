@@ -9,10 +9,12 @@ from fluid.scheduler.cpubound import cpu_task
 
 
 @task
-async def dummy(context: TaskContext) -> None:
-    await asyncio.sleep(0.1)
+async def dummy(context: TaskContext) -> float:
+    sleep = context.params.get("sleep", 0.1)
+    await asyncio.sleep(sleep)
     if context.params.get("error"):
         raise RuntimeError("just an error")
+    return sleep
 
 
 @task(schedule=every(timedelta(seconds=1)))

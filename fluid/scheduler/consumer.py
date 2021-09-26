@@ -130,15 +130,17 @@ class TaskManager(NodeWorkers):
 
 
 class ConsumerConfig(NamedTuple):
-    max_concurrent_tasks: int = 5
-    sleep: float = 0.2
+    max_concurrent_tasks: int = 10
+    """number of coroutine workers"""
+    sleep: float = 0.1
+    """amount to sleep after completion of a task"""
 
 
 class TaskConsumer(TaskManager):
     def __init__(self, **config) -> None:
         super().__init__()
         self.cfg: ConsumerConfig = ConsumerConfig(**config)
-        self._concurrent_tasks: Dict[str, TaskRun] = {}
+        self._concurrent_tasks: Dict[str, Dict[str, TaskRun]] = defaultdict(dict)
         self._priority_task_run_queue = deque()
         for i in range(self.cfg.max_concurrent_tasks):
             self.add_workers(
@@ -150,7 +152,11 @@ class TaskConsumer(TaskManager):
     @property
     def num_concurrent_tasks(self) -> int:
         """The number of concurrent_tasks"""
-        return len(self._concurrent_tasks)
+        return sum(len(v) for v in self._concurrent_tasks.values())
+
+    def num_concurrent_tasks_for(self, task_name) -> int:
+        """The number of concurrent_tasks"""
+        return len(self._concurrent_tasks[task_name])
 
     async def queue_and_wait(self, task: Union[str, Task], **params) -> TaskRun:
         run_id = self.execute(task, **params).id
@@ -192,25 +198,32 @@ class TaskConsumer(TaskManager):
                 if not task_run:
                     await asyncio.sleep(self.cfg.sleep)
                     continue
+            task_name = task_run.name
             task_run.start = microseconds()
             task_run.set_state(TaskState.running)
-            # create task context
             task_context = task_run.task.create_context(self, task_run=task_run)
-            task_context.logger.info("start")
-            self._concurrent_tasks[task_run.id] = task_run
-            self.dispatch(task_run, "start")
-            try:
-                result = await task_run.task.executor(task_context)
-            except Exception as exc:
-                task_run.waiter.set_exception(exc)
-                task_run.set_state(TaskState.failure)
+            #
+            if task_run.task.max_concurrency <= self.num_concurrent_tasks_for(
+                task_name
+            ):
+                task_run.set_state(TaskState.rate_limited)
+                task_run.waiter.set_result(None)
             else:
-                if task_run.is_failure:
-                    task_run.waiter.set_exception(TaskFailure())
+                task_context.logger.info("start")
+                self._concurrent_tasks[task_name][task_run.id] = task_run
+                self.dispatch(task_run, "start")
+                try:
+                    result = await task_run.task.executor(task_context)
+                except Exception as exc:
+                    task_run.waiter.set_exception(exc)
+                    task_run.set_state(TaskState.failure)
                 else:
-                    task_run.waiter.set_result(result)
-                    if not task_run.in_finish_state:
-                        task_run.set_state(TaskState.success)
+                    if task_run.is_failure:
+                        task_run.waiter.set_exception(TaskFailure())
+                    else:
+                        task_run.waiter.set_result(result)
+                        if not task_run.in_finish_state:
+                            task_run.set_state(TaskState.success)
             try:
                 await task_run.waiter
             except TaskFailure:
@@ -220,7 +233,7 @@ class TaskConsumer(TaskManager):
             except Exception:
                 task_context.logger.exception("critical exception while executing")
             task_run.end = microseconds()
-            self._concurrent_tasks.pop(task_run.id)
+            self._concurrent_tasks[task_name].pop(task_run.id, None)
             self.dispatch(task_run, "end")
             task_context.logger.log(
                 logging.WARNING if task_run.is_failure else logging.INFO,
