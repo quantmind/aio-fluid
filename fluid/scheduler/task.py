@@ -1,8 +1,11 @@
 import logging
+import os
+from importlib import import_module
 from typing import TYPE_CHECKING, Any, Callable, Dict, NamedTuple, Optional, Union
 from uuid import uuid4
 
 from fluid import log
+from fluid.node import WorkerApplication
 from fluid.utils import microseconds
 
 from .constants import TaskPriority
@@ -22,6 +25,25 @@ class TaskDecoratorError(RuntimeError):
 
 class TaskRunError(RuntimeError):
     pass
+
+
+TASK_MANAGER_APP: str = os.getenv("TASK_MANAGER_APP", "")
+
+
+class ImproperlyConfigured(RuntimeError):
+    pass
+
+
+def create_task_app() -> WorkerApplication:
+    if not TASK_MANAGER_APP:
+        raise ImproperlyConfigured("missing TASK_MANAGER_APP environment variable")
+    bits = TASK_MANAGER_APP.split(":")
+    if len(bits) != 2:
+        raise ImproperlyConfigured(
+            "TASK_MANAGER_APP must be of the form <module>:<function>"
+        )
+    mod = import_module(bits[0])
+    return getattr(mod, bits[1])()
 
 
 class TaskContext(NamedTuple):
@@ -73,7 +95,13 @@ class Task(NamedTuple):
     async def register(self, broker: "Broker") -> None:
         pass
 
-    async def __call__(self, task_manager: "TaskManager", **kwargs) -> Any:
+    async def __call__(
+        self,
+        task_manager: Optional["TaskManager"] = None,
+        **kwargs,
+    ) -> Any:
+        if task_manager is None:
+            task_manager = create_task_app()["task_manager"]
         context = self.create_context(task_manager, **kwargs)
         return await self.executor(context)
 

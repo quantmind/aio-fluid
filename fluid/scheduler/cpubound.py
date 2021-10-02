@@ -2,11 +2,9 @@ import asyncio
 import logging
 import os
 import sys
-from importlib import import_module
 from logging.config import dictConfig
 
 from fluid import kernel, log
-from fluid.node import WorkerApplication
 from fluid.scheduler import (
     Task,
     TaskConstructor,
@@ -15,27 +13,11 @@ from fluid.scheduler import (
     TaskExecutor,
     TaskManager,
     TaskRun,
+    create_task_app,
 )
 from fluid.scheduler.constants import TaskState
 
 TASK_MANAGER_SPAWN: str = os.getenv("TASK_MANAGER_SPAWN", "")
-TASK_MANAGER_APP: str = os.getenv("TASK_MANAGER_APP", "")
-
-
-class ImproperlyConfigured(RuntimeError):
-    pass
-
-
-def create_task_app() -> WorkerApplication:
-    if not TASK_MANAGER_APP:
-        raise ImproperlyConfigured("missing TASK_MANAGER_APP environment variable")
-    bits = TASK_MANAGER_APP.split(":")
-    if len(bits) != 2:
-        raise ImproperlyConfigured(
-            "TASK_MANAGER_APP must be of the form <module>:<function>"
-        )
-    mod = import_module(bits[0])
-    return getattr(mod, bits[1])()
 
 
 class RemoteLog:

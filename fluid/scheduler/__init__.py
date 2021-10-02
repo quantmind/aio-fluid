@@ -10,6 +10,7 @@ from .task import (
     TaskDecoratorError,
     TaskExecutor,
     TaskRunError,
+    create_task_app,
     task,
 )
 from .task_run import TaskRun
@@ -28,6 +29,7 @@ __all__ = [
     "TaskManager",
     "TaskConsumer",
     "TaskRun",
+    "create_task_app",
     "crontab",
     "every",
 ]
