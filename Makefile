@@ -36,5 +36,9 @@ test-lint:		## run linters
 	poetry run ./dev/lint --check
 
 
+test-version:		## check version compatibility
+	@./dev/test-version
+	
+
 publish:		## release to pypi and github tag
 	@poetry publish --build -u lsbardel -p $(PYPI_PASSWORD)

@@ -15,3 +15,17 @@ from fluid.scheduler import task, TaskContext
 async def say_hi(ctx: TaskContext):
     return "Hi!"
 ```
+
+There are three types of tasks implemented
+
+* Simple concurrent tasks - they run concurrently with the task consumer - thy must be IO type tasks (no heavy CPU bound operations)
+  ```python
+    from fluid.scheduler import task, TaskContext
+
+    @task
+    async def fecth_data(ctx: TaskContext):
+        # fetch data
+        data = await http_cli.get("https://...")
+        # trigger another task
+        ctx.queue
+    ```

@@ -11,7 +11,7 @@ jobs:
       PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
     strategy:
       matrix:
-        python-version: [3.8, 3.9]
+        python-version: ["3.8", "3.9", "3.10"]
 
     steps:
       - name: checkout code
@@ -31,8 +31,8 @@ jobs:
       - name: tests
         run: make test
       - name: upload coverage
-        if: matrix.python-version == '3.9'
+        if: matrix.python-version == '3.10'
         run: poetry run codecov --file ./build/coverage.xml
       - name: publish
-        if: ${{ matrix.python-version == '3.9' && github.event.head_commit.message == 'release' }}
+        if: ${{ matrix.python-version == '3.10' && github.event.head_commit.message == 'release' }}
         run: make publish
