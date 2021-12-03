@@ -1,15 +1,15 @@
 [[package]]
 name = "aio-kong"
-version = "0.8.2"
-description = "Asynchronous Kong client"
+version = "0.9.0"
+description = "Asynchronous Kong Client"
 category = "main"
 optional = false
-python-versions = "*"
+python-versions = ">=3.8,<4.0"
 
 [package.dependencies]
-aiohttp = "*"
-click = "*"
-pyyaml = "*"
+aiohttp = ">=3.8.1,<4.0.0"
+click = ">=8.0.3,<9.0.0"
+PyYAML = ">=6.0,<7.0"
 
 [[package]]
 name = "aio-openapi"
@@ -1001,15 +1001,12 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<3.10"
-content-hash = "48cc2aad3a716123c9eb0edd20835b63106228aae8ade77e0fca5692d50600ca"
+content-hash = "79b9abd2c9e6651cf6c2ebfbe14cc187552de100491f0dbbaf1acf2e1e9fa805"
 
 [metadata.files]
 aio-kong = [
-    {file = "aio-kong-0.8.2.tar.gz", hash = "sha256:2c1c00e2bddc4b0b1c98177731410f29793c1ff66f89cf16cf8e360a00a3c1e1"},
-    {file = "aio_kong-0.8.2-py36-none-any.whl", hash = "sha256:d162c7e1f868e73ef09a3d68726bbc1417a46dc52530add8ce5502c9fd725dd6"},
-    {file = "aio_kong-0.8.2-py37-none-any.whl", hash = "sha256:8b8081c080e5a43e59ef4593b57f8c936086b4dd33d703592360778a4c0f795f"},
-    {file = "aio_kong-0.8.2-py38-none-any.whl", hash = "sha256:ab12e895250d44c02727889af32d8015978b5b9b8d0e12cc706cecea6f31cc35"},
-    {file = "aio_kong-0.8.2-py39-none-any.whl", hash = "sha256:445d093bcaeb69e6a576be505a26cae2668dadcf5bfd788faae30201b8a0f013"},
+    {file = "aio-kong-0.9.0.tar.gz", hash = "sha256:c5e4b5fb9131fa3981d0c35d4e0891ab2879413a304c19bdbceaf39a1a07b161"},
+    {file = "aio_kong-0.9.0-py3-none-any.whl", hash = "sha256:4bef0c4d96b45dced4accf44d65a547a0a01f1b5771bea0e3a7ce6ba7d0454e3"},
 ]
 aio-openapi = [
     {file = "aio-openapi-2.5.1.tar.gz", hash = "sha256:cce5eb1d5dd3f3eb8ecaa4e42be87cc229bb8e6c87cec987b3a32fb7a34caa26"},
