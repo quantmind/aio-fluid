@@ -58,13 +58,13 @@ async def test_dummy_queue(task_consumer: TaskConsumer):
     assert task_run.end
 
 
-@pytest.mark.skip("falky test after upgrade")
 async def test_dummy_error(task_consumer: TaskConsumer):
     task_run = await task_consumer.queue_and_wait("dummy", error=True)
     assert task_run.state == TaskState.failure.name
     assert isinstance(task_run.exception, RuntimeError)
 
 
+@pytest.mark.skip("flaky test after upgrade")
 async def test_dummy_rate_limit(task_consumer: TaskConsumer):
     tasks = await asyncio.gather(
         task_consumer.queue_and_wait("dummy", sleep=0.5),
