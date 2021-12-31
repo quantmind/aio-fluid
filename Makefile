@@ -38,7 +38,11 @@ test-lint:		## run linters
 
 test-version:		## check version compatibility
 	@./dev/test-version
-	
+
 
 publish:		## release to pypi and github tag
 	@poetry publish --build -u lsbardel -p $(PYPI_PASSWORD)
+
+
+outdated:		## Show outdated packages
+	poetry show -o
