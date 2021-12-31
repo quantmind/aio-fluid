@@ -38,13 +38,9 @@ class TaskManager(NodeWorkers):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self._msg_handlers: Dict[str, Dict[str, ConsumerCallback]] = defaultdict(dict)
-        self._consumer = Consumer(
-            self._execute_async, logger=self.logger.getChild("internal-consumer")
-        )
         self._queue_tasks_worker = Worker(
             self._queue_tasks, logger=self.logger.getChild("queue")
         )
-        self.add_workers(self._consumer)
 
     @cached_property
     def broker(self) -> Broker:
@@ -63,6 +59,10 @@ class TaskManager(NodeWorkers):
         return underscore(self.__class__.__name__)
 
     async def setup(self) -> None:
+        self._consumer = Consumer(
+            self._execute_async, logger=self.logger.getChild("internal-consumer")
+        )
+        self.add_workers(self._consumer)
         await self._queue_tasks_worker.start_app(self.app)
 
     async def teardown(self) -> None:
