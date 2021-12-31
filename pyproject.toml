@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aio-fluid"
-version = "0.3.1"
+version = "0.3.2"
 description = "Tools for backend python services"
 license = "BSD"
 authors = ["Luca <luca@quantmind.com>"]
@@ -45,7 +45,8 @@ python-slugify = {version = "^5.0.2", extras = ["unidecode"]}
 python-json-logger = "^2.0.2"
 colorlog = "^6.6.0"
 aiohttp_cors = "^0.7.0"
-aiobotocore = {version = "^2.1.0", extras=["boto3"]}
+aiobotocore = {version = "^2.0.1", extras=["boto3"]}
+s3fs = {version = "^2021.11.1"}
 aio-kong = "^0.9.0"
 uvloop = "^0.16.0"
 
