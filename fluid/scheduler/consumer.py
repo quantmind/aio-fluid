@@ -2,7 +2,7 @@ import asyncio
 import logging
 from collections import defaultdict, deque
 from functools import cached_property
-from typing import Callable, Dict, NamedTuple, Optional, Union
+from typing import Callable, Deque, Dict, NamedTuple, Optional, Union
 
 from inflection import underscore
 
@@ -38,6 +38,7 @@ class TaskManager(NodeWorkers):
     def __init__(self, **kwargs) -> None:
         super().__init__(**kwargs)
         self._msg_handlers: Dict[str, Dict[str, ConsumerCallback]] = defaultdict(dict)
+        self._task_to_queue: Deque[QueuedTask] = deque()
         self._queue_tasks_worker = Worker(
             self._queue_tasks, logger=self.logger.getChild("queue")
         )
@@ -49,10 +50,6 @@ class TaskManager(NodeWorkers):
     @property
     def registry(self) -> TaskRegistry:
         return self.broker.registry
-
-    @cached_property
-    def task_queue(self) -> asyncio.Queue:
-        return asyncio.Queue()
 
     @property
     def type(self) -> str:
@@ -89,7 +86,7 @@ class TaskManager(NodeWorkers):
             priority=priority,
             params=params,
         )
-        self.task_queue.put_nowait(queued_task)
+        self._task_to_queue.appendleft(queued_task)
         return queued_task
 
     def dispatch(self, task_run: TaskRun, event_type: str) -> str:
@@ -116,10 +113,14 @@ class TaskManager(NodeWorkers):
     # process tasks from the internal queue
     async def _queue_tasks(self) -> None:
         while self.is_running():
-            queued_task = await self.task_queue.get()
-            task_run = await self.broker.queue_task(queued_task)
-            self.dispatch(task_run, "queued")
-            await asyncio.sleep(0)
+            try:
+                queued_task = self._task_to_queue.pop()
+            except IndexError:
+                await asyncio.sleep(0.1)
+            else:
+                task_run = await self.broker.queue_task(queued_task)
+                self.dispatch(task_run, "queued")
+                await asyncio.sleep(0)
 
     async def _execute_async(self, message) -> None:
         try:

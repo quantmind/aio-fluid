@@ -237,15 +237,17 @@ class Consumer(NodeWorker):
     def __init__(
         self,
         process_message,
-        queue: Optional[asyncio.Queue] = None,
         **kwargs,
     ) -> None:
         super().__init__(**kwargs)
         self.process_message = process_message
-        self._message_queue = queue or asyncio.Queue()
+        self._message_queue: Optional[asyncio.Queue] = None
 
     def qsize(self) -> int:
-        return self._message_queue.qsize()
+        return 0 if self._message_queue is None else self._message_queue.qsize()
+
+    async def setup(self) -> None:
+        self._message_queue = asyncio.Queue()
 
     async def work(self):
         while self.is_running():
@@ -254,6 +256,8 @@ class Consumer(NodeWorker):
             await asyncio.sleep(0)
 
     def submit(self, message) -> None:
+        if self._message_queue is None:
+            raise RuntimeError("cannot submit to a non running consumer")
         self._message_queue.put_nowait(message)
 
 
