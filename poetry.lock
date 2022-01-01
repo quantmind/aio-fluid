@@ -13,7 +13,7 @@ PyYAML = ">=6.0,<7.0"
 
 [[package]]
 name = "aio-openapi"
-version = "2.6.0"
+version = "2.6.1"
 description = "Minimal OpenAPI asynchronous server application"
 category = "main"
 optional = false
@@ -1048,7 +1048,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">=3.8,<4"
-content-hash = "215ed60121c70851a554969e60b569b7f81130598ea447752c43870eff67f4e4"
+content-hash = "71cfb390cf2d0c858c4ea3c6be948a09a67fbfd845535c4a690b02bfc03091d3"
 
 [metadata.files]
 aio-kong = [
@@ -1056,8 +1056,8 @@ aio-kong = [
     {file = "aio_kong-0.9.0-py3-none-any.whl", hash = "sha256:4bef0c4d96b45dced4accf44d65a547a0a01f1b5771bea0e3a7ce6ba7d0454e3"},
 ]
 aio-openapi = [
-    {file = "aio-openapi-2.6.0.tar.gz", hash = "sha256:4e571d8fac17ac162ceb6427519135893d03f165a65513828e52de1f88c42504"},
-    {file = "aio_openapi-2.6.0-py3-none-any.whl", hash = "sha256:56f3a3142b5b391f54dc4e4dcf397911a7684d39044789f5d23fca7cd0f5cbca"},
+    {file = "aio-openapi-2.6.1.tar.gz", hash = "sha256:2174630722fc837f3c9cbab8d18772b76f9528f89faaac0b62065f1db869bae7"},
+    {file = "aio_openapi-2.6.1-py3-none-any.whl", hash = "sha256:752c5fa98b9eb3c80f881a0f68586fda87847bdd2ced86e4c9b062852e6a615a"},
 ]
 aiobotocore = [
     {file = "aiobotocore-2.0.1.tar.gz", hash = "sha256:73b697da549d7f280c640ba3118cadcfc77312ce3ea493b55384bd3624ee5588"},
