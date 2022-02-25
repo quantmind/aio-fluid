@@ -1,6 +1,6 @@
 import sys
 
-length = 2 ** 17 + 2 ** 10
+length = 2**17 + 2**10
 
 
 if __name__ == "__main__":

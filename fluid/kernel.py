@@ -3,7 +3,7 @@ import sys
 from typing import Callable, Dict, Optional
 
 KernelCallback = Callable[[bytes], None]
-READ_LIMIT = 2 ** 16  # 64 KiB
+READ_LIMIT = 2**16  # 64 KiB
 
 
 async def run_python(*args: str) -> str:

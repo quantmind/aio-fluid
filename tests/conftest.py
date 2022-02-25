@@ -11,7 +11,7 @@ from .app import AppClient, create_app
 os.environ["PYTHON_ENV"] = "test"
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def loop():
     """Return an instance of the event loop."""
     # Shared loop makes everything easier. Just don't mess it up.
@@ -30,8 +30,8 @@ async def redis(loop):
         await cli.close()
 
 
-@pytest.fixture(scope="module")
-async def restcli(loop) -> TestClient:
+@pytest.fixture
+async def restcli() -> TestClient:
     api_app = create_app()
     app = api_app.web()
     # single_db_connection(app)
