@@ -82,6 +82,7 @@ class Task(NamedTuple):
     name: str
     executor: TaskExecutor
     logger: logging.Logger
+    description: str = ""
     schedule: Optional[ScheduleType] = None
     randomize: Optional[RandomizeType] = None
     max_concurrency: int = 1
@@ -145,7 +146,12 @@ class TaskConstructor:
         self.kwargs = kwargs
 
     def __call__(self, executor: TaskExecutor) -> Task:
-        kwargs = {"name": executor.__name__, **self.kwargs, "executor": executor}
+        kwargs = {
+            "name": executor.__name__,
+            "description": executor.__doc__,
+            **self.kwargs,
+            "executor": executor,
+        }
         name = kwargs["name"]
         kwargs["logger"] = log.get_logger(f"task.{name}")
         return Task(**kwargs)

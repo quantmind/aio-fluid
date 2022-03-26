@@ -25,8 +25,13 @@ class ScheduleTasks(Node):
         self.last_run: Dict[str, CronRun] = {}
 
     async def tick(self) -> None:
+        if not self.task_manager.config.schedule_tasks:
+            return
         now = datetime.utcnow()
-        for task in self.task_manager.registry.periodic():
+        periodic_tasks = await self.task_manager.broker.filter_tasks(
+            scheduled=True, enabled=True
+        )
+        for task in periodic_tasks:
             run = task.schedule(now, self.last_run.get(task.name))
             if run:
                 self.last_run[task.name] = run

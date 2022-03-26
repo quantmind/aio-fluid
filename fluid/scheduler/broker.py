@@ -1,7 +1,18 @@
 import os
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from functools import cached_property
-from typing import Any, Callable, Dict, Iterable, NamedTuple, Optional, Tuple, Union
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Iterable,
+    List,
+    NamedTuple,
+    Optional,
+    Tuple,
+    Union,
+)
 from uuid import uuid4
 
 from yarl import URL
@@ -19,15 +30,31 @@ _brokers = {}
 DEFAULT_BROKER_URL = "redis://localhost:6379/3"
 
 
-class UnknownTask(RuntimeError):
+class TaskError(RuntimeError):
     pass
+
+
+class UnknownTask(TaskError):
+    pass
+
+
+class DisabledTask(TaskError):
+    pass
+
+
+@dataclass
+class TaskInfo:
+    name: str
+    description: str
+    priority: str
+    schedule: Optional[str] = None
+    enabled: bool = True
 
 
 class TaskRegistry(Dict[str, Task]):
     def periodic(self) -> Iterable[Task]:
         for task in self.values():
-            if task.schedule:
-                yield task
+            yield task
 
 
 class QueuedTask(NamedTuple):
@@ -52,7 +79,15 @@ class Broker(ABC):
 
     @abstractmethod
     async def queue_length(self) -> Dict[str, int]:
-        """Get a Task run from the task queue"""
+        """Length of task queues"""
+
+    @abstractmethod
+    async def get_tasks_info(self) -> List[TaskInfo]:
+        """List of TaskInfo objects"""
+
+    @abstractmethod
+    async def update_task(self, task: Task, params: dict) -> TaskInfo:
+        """Update a task dynamic parameters"""
 
     async def close(self) -> None:
         """Close the broker on shutdown"""
@@ -60,18 +95,39 @@ class Broker(ABC):
     def new_uuid(self) -> str:
         return uuid4().hex
 
+    async def filter_tasks(
+        self, scheduled: Optional[bool] = None, enabled: Optional[bool] = None
+    ) -> List[Task]:
+        task_info = await self.get_tasks_info()
+        task_map = {info.name: info for info in task_info}
+        tasks = []
+        for task in self.registry.values():
+            if scheduled is not None and bool(task.schedule) is not scheduled:
+                continue
+            if enabled is not None and task_map[task.name].enabled is not enabled:
+                continue
+            tasks.append(task)
+        return tasks
+
     def task_from_registry(self, task: Union[str, Task]) -> Task:
         if isinstance(task, Task):
             self.register_task(task)
+            task_ = task
         else:
             task_ = self.registry.get(task)
             if not task_:
                 raise UnknownTask(task)
-            task = task_
-        return task
+        return task_
 
     def register_task(self, task: Task) -> None:
         self.registry[task.name] = task
+
+    async def enable_task(self, task_name: str, enable: bool = True) -> TaskInfo:
+        """Enable or disable a registered task"""
+        task = self.registry.get(task_name)
+        if not task:
+            raise UnknownTask(task_name)
+        return await self.update_task(task, dict(enabled=enable))
 
     def task_run_from_data(self, data: Dict[str, Any]) -> TaskRun:
         """Build a TaskRun object from its metadata"""
@@ -127,8 +183,33 @@ class RedisBroker(Broker):
     def task_queue_names(self) -> Tuple[str, ...]:
         return tuple(self.task_queue_name(p) for p in TaskPriority)
 
+    def task_hash_name(self, name: str) -> str:
+        return f"{self.name}-tasks-{name}"
+
     def task_queue_name(self, priority: TaskPriority) -> str:
         return f"{self.name}-queue-{priority.name}"
+
+    async def get_tasks_info(self) -> List[TaskInfo]:
+        pipe = self.redis.cli.pipeline()
+        task_names = []
+        for name in self.registry:
+            task_names.append(name)
+            pipe.hgetall(self.task_hash_name(name))
+        tasks_info = dict(zip(task_names, await pipe.execute()))
+        return [
+            self._decode_task(task, tasks_info[name])
+            for name, task in self.registry.items()
+        ]
+
+    async def update_task(self, task: Task, params: dict) -> TaskInfo:
+        pipe = self.redis.cli.pipeline()
+        pipe.hset(
+            self.task_hash_name(task.name),
+            mapping={name: json.dumps(value) for name, value in params.items()},
+        )
+        pipe.hgetall(self.task_hash_name(task.name))
+        _, info = await pipe.execute()
+        return self._decode_task(task, info)
 
     async def queue_length(self) -> Dict[str, int]:
         pipe = self.redis.cli.pipeline()
@@ -154,6 +235,16 @@ class RedisBroker(Broker):
         data = self.task_run_data(queued_task, TaskState.queued)
         await self.redis.cli.lpush(self.task_queue_name(priority), json.dumps(data))
         return self.task_run_from_data(data)
+
+    def _decode_task(self, task: Task, data: dict):
+        info = {name.decode(): json.loads(value) for name, value in data.items()}
+        return TaskInfo(
+            name=task.name,
+            description=task.description,
+            schedule=str(task.schedule) if task.schedule else None,
+            priority=task.priority.name,
+            enabled=info.get("enabled", True),
+        )
 
 
 Broker.register_broker("redis", RedisBroker)

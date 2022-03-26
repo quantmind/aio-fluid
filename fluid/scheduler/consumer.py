@@ -1,6 +1,7 @@
 import asyncio
 import logging
 from collections import defaultdict, deque
+from dataclasses import dataclass
 from functools import cached_property
 from typing import Callable, Deque, Dict, NamedTuple, Optional, Union
 
@@ -20,6 +21,12 @@ ConsumerCallback = Callable[[TaskRun, "TaskManager"], None]
 
 class TaskFailure(RuntimeError):
     pass
+
+
+@dataclass
+class TaskManagerConfig:
+    schedule_tasks: bool = True
+    consume_tasks: bool = True
 
 
 class Event(NamedTuple):
@@ -45,6 +52,7 @@ class TaskManager(NodeWorkers):
         self._consumer = Consumer(
             self._execute_async, logger=self.logger.getChild("internal-consumer")
         )
+        self.config: TaskManagerConfig = TaskManagerConfig()
         self.add_workers(self._consumer)
 
     @cached_property
@@ -79,7 +87,7 @@ class TaskManager(NodeWorkers):
         priority: Optional[TaskPriority] = None,
         **params,
     ) -> QueuedTask:
-        """Queue a Task for execution and return the QueuedTask object"""
+        """Queue a Task for execution and return schedule_tasksthe QueuedTask object"""
         queued_task = QueuedTask(
             run_id=self.broker.new_uuid(),
             task=task,
@@ -138,6 +146,8 @@ class ConsumerConfig(NamedTuple):
 
 
 class TaskConsumer(TaskManager):
+    """The Task Consumer is resposnible for consuming tasks from a task queue"""
+
     def __init__(self, **config) -> None:
         super().__init__()
         self.cfg: ConsumerConfig = ConsumerConfig(**config)
@@ -156,7 +166,7 @@ class TaskConsumer(TaskManager):
         return sum(len(v) for v in self._concurrent_tasks.values())
 
     def num_concurrent_tasks_for(self, task_name) -> int:
-        """The number of concurrent_tasks"""
+        """The number of concurrent tasks for a given task_name"""
         return len(self._concurrent_tasks[task_name])
 
     async def queue_and_wait(self, task: Union[str, Task], **params) -> TaskRun:
@@ -184,6 +194,9 @@ class TaskConsumer(TaskManager):
     # Internals
     async def _consume_tasks(self) -> None:
         while self.is_running():
+            if not self.config.consume_tasks:
+                await asyncio.sleep(self.cfg.sleep)
+                continue
             if self._priority_task_run_queue:
                 task_run = self._priority_task_run_queue.pop()
             else:

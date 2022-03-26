@@ -43,14 +43,14 @@ class TaskRun:
         return f"{self.task.name}.{self.id}"
 
     @property
-    def exception(self) -> Optional[Exception]:
-        if self.waiter.done():
-            return self.waiter.exception()
+    def exception(self) -> Optional[BaseException]:
+        return self.waiter.exception() if self.waiter.done() else None
 
     @property
-    def result(self):
-        if self.waiter.done() and not self.exception:
-            return self.waiter.result()
+    def result(self) -> Any:
+        return (
+            self.waiter.result() if self.waiter.done() and not self.exception else None
+        )
 
     @property
     def in_finish_state(self) -> bool:

@@ -2,7 +2,7 @@
 """
 import re
 from datetime import datetime
-from typing import Callable, NamedTuple, Optional, Union
+from typing import Callable, NamedTuple, Optional, Set, Union
 
 dash_re = re.compile(r"(\d+)-(\d+)")
 every_re = re.compile(r"\*\/(\d+)")
@@ -54,7 +54,7 @@ def crontab(
     cron_settings = []
 
     for (date_str, value, acceptable) in validation:
-        settings = set()
+        settings: Set[int] = set()
 
         if isinstance(value, int):
             value = str(value)
@@ -65,12 +65,12 @@ def crontab(
                 continue
 
             if piece.isdigit():
-                piece = int(piece)
-                if piece not in acceptable:
-                    raise ValueError("%d is not a valid input" % piece)
+                digit = int(piece)
+                if digit not in acceptable:
+                    raise ValueError("%d is not a valid input" % digit)
                 elif date_str == "w":
-                    piece %= 7
-                settings.add(piece)
+                    digit %= 7
+                settings.add(digit)
 
             else:
                 dash_match = dash_re.match(piece)
