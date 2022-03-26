@@ -1,4 +1,5 @@
 import asyncio
+import os
 from datetime import datetime
 from typing import Dict
 
@@ -17,7 +18,7 @@ class TaskScheduler(TaskManager):
 
 
 class ScheduleTasks(Node):
-    heartbeat = 0.1
+    heartbeat = float(os.getenv("TASK_SCHEDULER_HEARTBEAT", "0.1"))
 
     def __init__(self, task_manager: TaskScheduler) -> None:
         super().__init__()
