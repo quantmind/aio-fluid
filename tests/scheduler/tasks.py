@@ -19,8 +19,16 @@ async def dummy(context: TaskContext) -> float:
 
 @task(schedule=every(timedelta(seconds=1)))
 async def scheduled(context: TaskContext) -> str:
+    """A simple scheduled task"""
     await asyncio.sleep(0.1)
     return "OK"
+
+
+@task
+async def disabled(context: TaskContext) -> float:
+    sleep = context.params.get("sleep", 0.1)
+    await asyncio.sleep(sleep)
+    return sleep
 
 
 @cpu_task
@@ -33,6 +41,7 @@ async def cpu_bound(context: TaskContext) -> int:
 def add_task_manager(app: WorkerApplication, manager: TaskManager) -> TaskManager:
     manager.register_task(dummy)
     manager.register_task(scheduled)
+    manager.register_task(disabled)
     manager.register_task(cpu_bound)
     app.on_startup.append(manager.start_app)
     app.on_shutdown.append(manager.close_app)

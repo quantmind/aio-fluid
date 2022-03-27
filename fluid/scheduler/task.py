@@ -9,7 +9,7 @@ from fluid.node import WorkerApplication
 from fluid.utils import microseconds
 
 from .constants import TaskPriority
-from .crontab import ScheduleType
+from .crontab import Scheduler
 from .task_run import TaskRun
 
 LogType = Callable[[str], None]
@@ -83,7 +83,7 @@ class Task(NamedTuple):
     executor: TaskExecutor
     logger: logging.Logger
     description: str = ""
-    schedule: Optional[ScheduleType] = None
+    schedule: Optional[Scheduler] = None
     randomize: Optional[RandomizeType] = None
     max_concurrency: int = 1
     """how many tasks can run in each consumer concurrently"""

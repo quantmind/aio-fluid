@@ -98,3 +98,24 @@ async def test_cpubound_execution(task_consumer: TaskConsumer, redis: Redis):
     result = await redis.get(task_run.id)
     assert result
     assert int(result) != os.getpid()
+
+
+async def test_task_info(task_consumer: TaskConsumer):
+    with pytest.raises(UnknownTask):
+        await task_consumer.broker.enable_task("hfgfhgfhfh")
+    info = await task_consumer.broker.enable_task("scheduled")
+    assert info.enabled is True
+    assert info.name == "scheduled"
+    assert info.schedule == "every(0:00:01)"
+    assert info.description == "A simple scheduled task"
+
+
+async def test_disabled_execution(task_consumer: TaskConsumer):
+    info = await task_consumer.broker.enable_task("disabled", enable=False)
+    assert info.enabled is False
+    assert info.name == "disabled"
+    task_run = task_consumer.execute("disabled")
+    assert task_run.name == "disabled"
+    await task_run.waiter
+    assert task_run.end
+    assert task_run.state == TaskState.aborted.name

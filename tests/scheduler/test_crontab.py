@@ -9,6 +9,9 @@ def test_crontab_month():
     # validates the following months, 1, 4, 7, 8, 9
     valids = set((1, 4, 7, 8, 9))
     validate_m = crontab(month="1,4,*/6,8-9")
+    assert str(validate_m) == (
+        "crontab(minute *; hour *; day *; month 1,4,*/6,8-9; day_of_week *)"
+    )
 
     for x in range(1, 13):
         res = validate_m(datetime(2011, x, 1))

@@ -82,7 +82,7 @@ class Broker(ABC):
         """Length of task queues"""
 
     @abstractmethod
-    async def get_tasks_info(self) -> List[TaskInfo]:
+    async def get_tasks_info(self, *task_names: str) -> List[TaskInfo]:
         """List of TaskInfo objects"""
 
     @abstractmethod
@@ -189,16 +189,18 @@ class RedisBroker(Broker):
     def task_queue_name(self, priority: TaskPriority) -> str:
         return f"{self.name}-queue-{priority.name}"
 
-    async def get_tasks_info(self) -> List[TaskInfo]:
+    async def get_tasks_info(self, *task_names: str) -> List[TaskInfo]:
         pipe = self.redis.cli.pipeline()
-        task_names = []
-        for name in self.registry:
-            task_names.append(name)
-            pipe.hgetall(self.task_hash_name(name))
-        tasks_info = dict(zip(task_names, await pipe.execute()))
+        names = task_names or self.registry
+        requested_task_names = []
+        for name in names:
+            if name in self.registry:
+                requested_task_names.append(name)
+                pipe.hgetall(self.task_hash_name(name))
+        tasks_info = await pipe.execute()
         return [
-            self._decode_task(task, tasks_info[name])
-            for name, task in self.registry.items()
+            self._decode_task(self.registry[name], task_info)
+            for name, task_info in zip(requested_task_names, tasks_info)
         ]
 
     async def update_task(self, task: Task, params: dict) -> TaskInfo:

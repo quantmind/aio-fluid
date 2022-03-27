@@ -27,6 +27,10 @@ class TaskFailure(RuntimeError):
 class TaskManagerConfig:
     schedule_tasks: bool = True
     consume_tasks: bool = True
+    max_concurrent_tasks: int = 10
+    """number of coroutine workers"""
+    sleep: float = 0.1
+    """amount to sleep after completion of a task"""
 
 
 class Event(NamedTuple):
@@ -43,7 +47,7 @@ class TaskManager(NodeWorkers):
     """Base class for both TaskConsumer and TaskScheduler"""
 
     def __init__(self, **kwargs) -> None:
-        super().__init__(**kwargs)
+        super().__init__()
         self._msg_handlers: Dict[str, Dict[str, ConsumerCallback]] = defaultdict(dict)
         self._task_to_queue: Deque[QueuedTask] = deque()
         self._queue_tasks_worker = Worker(
@@ -52,7 +56,7 @@ class TaskManager(NodeWorkers):
         self._consumer = Consumer(
             self._execute_async, logger=self.logger.getChild("internal-consumer")
         )
-        self.config: TaskManagerConfig = TaskManagerConfig()
+        self.config: TaskManagerConfig = TaskManagerConfig(**kwargs)
         self.add_workers(self._consumer)
 
     @cached_property
@@ -150,10 +154,9 @@ class TaskConsumer(TaskManager):
 
     def __init__(self, **config) -> None:
         super().__init__()
-        self.cfg: ConsumerConfig = ConsumerConfig(**config)
         self._concurrent_tasks: Dict[str, Dict[str, TaskRun]] = defaultdict(dict)
         self._priority_task_run_queue = deque()
-        for i in range(self.cfg.max_concurrent_tasks):
+        for i in range(self.config.max_concurrent_tasks):
             self.add_workers(
                 Worker(
                     self._consume_tasks, logger=self.logger.getChild(f"worker-{i+1}")
@@ -195,7 +198,7 @@ class TaskConsumer(TaskManager):
     async def _consume_tasks(self) -> None:
         while self.is_running():
             if not self.config.consume_tasks:
-                await asyncio.sleep(self.cfg.sleep)
+                await asyncio.sleep(self.config.sleep)
                 continue
             if self._priority_task_run_queue:
                 task_run = self._priority_task_run_queue.pop()
@@ -210,18 +213,23 @@ class TaskConsumer(TaskManager):
                     )
                     task_run = None
                 if not task_run:
-                    await asyncio.sleep(self.cfg.sleep)
+                    await asyncio.sleep(self.config.sleep)
                     continue
             task_name = task_run.name
             task_run.start = microseconds()
             task_run.set_state(TaskState.running)
             task_context = task_run.task.create_context(self, task_run=task_run)
+            info = await self.broker.get_tasks_info(task_name)
+            if not info[0].enabled:
+                task_run.set_state(TaskState.aborted)
+                task_run.waiter.set_result(None)
             #
-            if task_run.task.max_concurrency <= self.num_concurrent_tasks_for(
+            elif task_run.task.max_concurrency <= self.num_concurrent_tasks_for(
                 task_name
             ):
                 task_run.set_state(TaskState.rate_limited)
                 task_run.waiter.set_result(None)
+            #
             else:
                 task_context.logger.info("start")
                 self._concurrent_tasks[task_name][task_run.id] = task_run
@@ -248,6 +256,14 @@ class TaskConsumer(TaskManager):
                 task_context.logger.exception("critical exception while executing")
             task_run.end = microseconds()
             self._concurrent_tasks[task_name].pop(task_run.id, None)
+            await self.broker.update_task(
+                task_run.task,
+                dict(
+                    last_run_end=task_run.end,
+                    last_run_duration=task_run.duration,
+                    last_run_state=task_run.state,
+                ),
+            )
             self.dispatch(task_run, "end")
             task_context.logger.log(
                 logging.WARNING if task_run.is_failure else logging.INFO,
@@ -255,4 +271,4 @@ class TaskConsumer(TaskManager):
                 task_run.state,
                 round(0.001 * task_run.duration, 3),
             )
-            await asyncio.sleep(self.cfg.sleep)
+            await asyncio.sleep(self.config.sleep)
