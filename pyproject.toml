@@ -34,7 +34,7 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4"
-aio-openapi = "^2.7.1"
+aio-openapi = "^2.7.2"
 aioredis = "^2.0.0"
 ujson = "^5.1.0"
 inflection = "^0.5.1"

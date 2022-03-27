@@ -4,6 +4,8 @@ from importlib import import_module
 from typing import TYPE_CHECKING, Any, Callable, Dict, NamedTuple, Optional, Union
 from uuid import uuid4
 
+from openapi.spec.utils import trim_docstring
+
 from fluid import log
 from fluid.node import WorkerApplication
 from fluid.utils import microseconds
@@ -148,7 +150,7 @@ class TaskConstructor:
     def __call__(self, executor: TaskExecutor) -> Task:
         kwargs = {
             "name": executor.__name__,
-            "description": executor.__doc__,
+            "description": trim_docstring(executor.__doc__ or ""),
             **self.kwargs,
             "executor": executor,
         }

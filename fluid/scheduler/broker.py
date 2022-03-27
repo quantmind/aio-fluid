@@ -49,6 +49,9 @@ class TaskInfo:
     priority: str
     schedule: Optional[str] = None
     enabled: bool = True
+    last_run_end: Optional[int] = None
+    last_run_duration: Optional[int] = None
+    last_run_state: Optional[str] = None
 
 
 class TaskRegistry(Dict[str, Task]):
@@ -246,6 +249,9 @@ class RedisBroker(Broker):
             schedule=str(task.schedule) if task.schedule else None,
             priority=task.priority.name,
             enabled=info.get("enabled", True),
+            last_run_duration=info.get("last_run_duration"),
+            last_run_end=info.get("last_run_end"),
+            last_run_state=info.get("last_run_state"),
         )
 
 
