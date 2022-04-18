@@ -3,7 +3,7 @@ import logging
 from collections import defaultdict, deque
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Callable, Deque, Dict, NamedTuple, Optional, Union
+from typing import Any, Callable, Coroutine, Deque, Dict, NamedTuple, Optional, Tuple
 
 from inflection import underscore
 
@@ -17,6 +17,8 @@ from .task_run import TaskRun
 from .utils import WaitFor
 
 ConsumerCallback = Callable[[TaskRun, "TaskManager"], None]
+AsyncExecutor = Callable[..., Coroutine[Any, Any, None]]
+AsyncMessage = Tuple[AsyncExecutor, Tuple]
 
 
 class TaskFailure(RuntimeError):
@@ -31,6 +33,7 @@ class TaskManagerConfig:
     """number of coroutine workers"""
     sleep: float = 0.1
     """amount to sleep after completion of a task"""
+    broker_url: str = ""
 
 
 class Event(NamedTuple):
@@ -46,7 +49,7 @@ class Event(NamedTuple):
 class TaskManager(NodeWorkers):
     """Base class for both TaskConsumer and TaskScheduler"""
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, **kwargs: Any) -> None:
         super().__init__()
         self._msg_handlers: Dict[str, Dict[str, ConsumerCallback]] = defaultdict(dict)
         self._task_to_queue: Deque[QueuedTask] = deque()
@@ -61,7 +64,7 @@ class TaskManager(NodeWorkers):
 
     @cached_property
     def broker(self) -> Broker:
-        return Broker.from_url()
+        return Broker.from_url(self.config.broker_url)
 
     @property
     def registry(self) -> TaskRegistry:
@@ -89,7 +92,7 @@ class TaskManager(NodeWorkers):
         self,
         task: str,
         priority: Optional[TaskPriority] = None,
-        **params,
+        **params: Any,
     ) -> QueuedTask:
         """Queue a Task for execution and return schedule_tasksthe QueuedTask object"""
         queued_task = QueuedTask(
@@ -101,25 +104,21 @@ class TaskManager(NodeWorkers):
         self._task_to_queue.appendleft(queued_task)
         return queued_task
 
-    def dispatch(self, task_run: TaskRun, event_type: str) -> str:
-        """Dispatch a message to the registered handlers.
-
-        It returns the asset affected by the message (if any)
-        """
-        handlers = self._msg_handlers.get(event_type)
-        if handlers:
+    def dispatch(self, task_run: TaskRun, event_type: str) -> None:
+        """Dispatch a message to the registered handlers."""
+        if handlers := self._msg_handlers.get(event_type):
             for handler in handlers.values():
                 handler(task_run, self)
 
-    def register_handler(self, event: str, handler: ConsumerCallback) -> None:
-        event = Event.from_string(event)
+    def register_handler(self, event_name: str, handler: ConsumerCallback) -> None:
+        event = Event.from_string(event_name)
         self._msg_handlers[event.type][event.tag] = handler
 
-    def unregister_handler(self, event: str) -> None:
-        event = Event.from_string(event)
+    def unregister_handler(self, event_name: str) -> None:
+        event = Event.from_string(event_name)
         self._msg_handlers[event.type].pop(event.tag, None)
 
-    def execute_async(self, async_callable, *args) -> None:
+    def execute_async(self, async_callable: AsyncExecutor, *args: Any) -> None:
         self._consumer.submit((async_callable, args))
 
     # process tasks from the internal queue
@@ -134,7 +133,7 @@ class TaskManager(NodeWorkers):
                 self.dispatch(task_run, "queued")
                 await asyncio.sleep(0)
 
-    async def _execute_async(self, message) -> None:
+    async def _execute_async(self, message: AsyncMessage) -> None:
         try:
             executable, args = message
             await executable(*args)
@@ -142,20 +141,13 @@ class TaskManager(NodeWorkers):
             self.logger.exception("unhandled exception while executing async callaback")
 
 
-class ConsumerConfig(NamedTuple):
-    max_concurrent_tasks: int = 10
-    """number of coroutine workers"""
-    sleep: float = 0.1
-    """amount to sleep after completion of a task"""
-
-
 class TaskConsumer(TaskManager):
-    """The Task Consumer is resposnible for consuming tasks from a task queue"""
+    """The Task Consumer is responsible for consuming tasks from a task queue"""
 
-    def __init__(self, **config) -> None:
-        super().__init__()
+    def __init__(self, **config: Any) -> None:
+        super().__init__(**config)
         self._concurrent_tasks: Dict[str, Dict[str, TaskRun]] = defaultdict(dict)
-        self._priority_task_run_queue = deque()
+        self._priority_task_run_queue: Deque = deque()
         for i in range(self.config.max_concurrent_tasks):
             self.add_workers(
                 Worker(
@@ -168,11 +160,11 @@ class TaskConsumer(TaskManager):
         """The number of concurrent_tasks"""
         return sum(len(v) for v in self._concurrent_tasks.values())
 
-    def num_concurrent_tasks_for(self, task_name) -> int:
+    def num_concurrent_tasks_for(self, task_name: str) -> int:
         """The number of concurrent tasks for a given task_name"""
         return len(self._concurrent_tasks[task_name])
 
-    async def queue_and_wait(self, task: Union[str, Task], **params) -> TaskRun:
+    async def queue_and_wait(self, task: str, **params: Any) -> TaskRun:
         run_id = self.execute(task, **params).id
         waitfor = WaitFor(run_id=run_id)
         self.register_handler(f"end.{waitfor.run_id}", waitfor)
@@ -181,12 +173,11 @@ class TaskConsumer(TaskManager):
         finally:
             self.unregister_handler(f"end.{waitfor.run_id}")
 
-    def execute(self, task: Union[Task, str], **params) -> TaskRun:
+    def execute(self, task: str, **params: Any) -> TaskRun:
         """Execute a Task by-passing the broker task queue"""
         queued_task = QueuedTask(
             run_id=self.broker.new_uuid(),
             task=task,
-            priority="",
             params=params,
         )
         data = self.broker.task_run_data(queued_task, TaskState.queued)
@@ -271,4 +262,4 @@ class TaskConsumer(TaskManager):
                 task_run.state,
                 round(0.001 * task_run.duration, 3),
             )
-            await asyncio.sleep(self.config.sleep)
+            await asyncio.sleep(0)

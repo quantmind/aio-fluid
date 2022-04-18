@@ -8,13 +8,15 @@ import uuid
 from abc import ABC, abstractmethod
 from functools import cached_property, wraps
 from logging import Logger
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple
 
 from aiohttp.client import ClientConnectionError, ClientConnectorError
 from aiohttp.web import Application, GracefulExit
 
 from .log import get_logger
 from .utils import close_task, dot_name, underscore
+
+WorkerType = Callable[[], Coroutine[Any, Any, None]]
 
 
 class Id:
@@ -264,7 +266,7 @@ class Consumer(NodeWorker):
 class Worker(NodeWorker):
     def __init__(
         self,
-        work: Callable[[], None],
+        work: WorkerType,
         logger: Optional[Logger] = None,
     ) -> None:
         super().__init__(logger=logger)
@@ -274,7 +276,7 @@ class Worker(NodeWorker):
 class TickWorker(Node):
     def __init__(
         self,
-        tick: Callable[[], None],
+        tick: WorkerType,
         heartbeat: float = 1,
         logger: Optional[Logger] = None,
     ) -> None:

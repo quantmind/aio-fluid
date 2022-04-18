@@ -1,7 +1,16 @@
 import logging
 import os
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, Callable, Dict, NamedTuple, Optional, Union
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Coroutine,
+    Dict,
+    NamedTuple,
+    Optional,
+    Union,
+)
 from uuid import uuid4
 
 from openapi.spec.utils import trim_docstring
@@ -74,7 +83,7 @@ class TaskContext(NamedTuple):
         raise TaskRunError(msg)
 
 
-TaskExecutor = Callable[[TaskContext], None]
+TaskExecutor = Callable[[TaskContext], Coroutine[Any, Any, None]]
 RandomizeType = Callable[[], Union[float, int]]
 
 
@@ -91,17 +100,13 @@ class Task(NamedTuple):
     """how many tasks can run in each consumer concurrently"""
     priority: TaskPriority = TaskPriority.medium
 
-    @property
-    def description(self) -> str:
-        return self.executor.__doc__ or ""
-
     async def register(self, broker: "Broker") -> None:
         pass
 
     async def __call__(
         self,
         task_manager: Optional["TaskManager"] = None,
-        **kwargs,
+        **kwargs: Any,
     ) -> Any:
         if task_manager is None:
             task_manager = create_task_app()["task_manager"]
@@ -110,11 +115,11 @@ class Task(NamedTuple):
 
     def create_context(
         self,
-        task_manager,
+        task_manager: "TaskManager",
         task_run: Optional["TaskRun"] = None,
         log: Optional[LogType] = None,
-        **params,
-    ):
+        **params: Any,
+    ) -> TaskContext:
         if task_run is None:
             task_run = TaskRun(
                 id=uuid4().hex, queued=microseconds(), task=self, params=params
@@ -130,7 +135,7 @@ class Task(NamedTuple):
         )
 
 
-def task(*args, **kwargs) -> Union[Task, "TaskConstructor"]:
+def task(*args: Any, **kwargs: Any) -> Union[Task, "TaskConstructor"]:
     if kwargs and args:
         raise TaskDecoratorError("cannot use positional parameters")
     elif kwargs:
@@ -144,7 +149,7 @@ def task(*args, **kwargs) -> Union[Task, "TaskConstructor"]:
 
 
 class TaskConstructor:
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs: Any):
         self.kwargs = kwargs
 
     def __call__(self, executor: TaskExecutor) -> Task:

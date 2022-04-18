@@ -63,8 +63,8 @@ class TaskRegistry(Dict[str, Task]):
 class QueuedTask(NamedTuple):
     run_id: str
     task: str
-    priority: Optional[TaskPriority]
     params: Dict[str, Any]
+    priority: Optional[TaskPriority] = None
 
 
 class Broker(ABC):
@@ -184,7 +184,15 @@ class RedisBroker(Broker):
 
     @cached_property
     def task_queue_names(self) -> Tuple[str, ...]:
-        return tuple(self.task_queue_name(p) for p in TaskPriority)
+        priorities = self.url.query.get("queues")
+        if priorities is None:
+            return tuple(self.task_queue_name(p) for p in TaskPriority)
+        elif priorities:
+            return tuple(
+                self.task_queue_name(TaskPriority[p]) for p in priorities.split(",")
+            )
+        else:
+            return ()
 
     def task_hash_name(self, name: str) -> str:
         return f"{self.name}-tasks-{name}"
@@ -217,21 +225,24 @@ class RedisBroker(Broker):
         return self._decode_task(task, info)
 
     async def queue_length(self) -> Dict[str, int]:
-        pipe = self.redis.cli.pipeline()
-        for name in self.task_queue_names:
-            pipe.llen(name)
-        result = await pipe.execute()
-        return {p.name: r for p, r in zip(TaskPriority, result)}
+        if self.task_queue_names:
+            pipe = self.redis.cli.pipeline()
+            for name in self.task_queue_names:
+                pipe.llen(name)
+            result = await pipe.execute()
+            return {p.name: r for p, r in zip(TaskPriority, result)}
+        return {}
 
     async def close(self) -> None:
         """Close the broker on shutdown"""
         await self.redis.close()
 
     async def get_task_run(self) -> Optional[TaskRun]:
-        data = await self.redis.cli.brpop(self.task_queue_names, timeout=1)
-        if data:
-            data_str = data[1].decode("utf-8")
-            return self.task_run_from_data(json.loads(data_str))
+        if self.task_queue_names:
+            data = await self.redis.cli.brpop(self.task_queue_names, timeout=1)
+            if data:
+                data_str = data[1].decode("utf-8")
+                return self.task_run_from_data(json.loads(data_str))
         return None
 
     async def queue_task(self, queued_task: QueuedTask) -> TaskRun:
