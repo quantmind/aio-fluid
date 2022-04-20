@@ -30,6 +30,10 @@ _brokers = {}
 DEFAULT_BROKER_URL = "redis://localhost:6379/3"
 
 
+def broker_url_from_env() -> URL:
+    return URL(os.getenv("SCHEDULER_BROKER_URL", DEFAULT_BROKER_URL))
+
+
 class TaskError(RuntimeError):
     pass
 
@@ -159,7 +163,7 @@ class Broker(ABC):
 
     @classmethod
     def from_url(cls, url: str = "") -> "Broker":
-        url = url or os.getenv("SCHEDULER_BROKER_URL", DEFAULT_BROKER_URL)
+        url = url or broker_url_from_env()
         p = URL(url)
         Factory = _brokers.get(p.scheme)
         if not Factory:
