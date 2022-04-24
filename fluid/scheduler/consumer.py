@@ -14,7 +14,6 @@ from .broker import Broker, QueuedTask, TaskRegistry, UnknownTask
 from .constants import TaskPriority, TaskState
 from .task import Task
 from .task_run import TaskRun
-from .utils import WaitFor
 
 ConsumerCallback = Callable[[TaskRun, "TaskManager"], None]
 AsyncExecutor = Callable[..., Coroutine[Any, Any, None]]
@@ -164,14 +163,9 @@ class TaskConsumer(TaskManager):
         """The number of concurrent tasks for a given task_name"""
         return len(self._concurrent_tasks[task_name])
 
-    async def queue_and_wait(self, task: str, **params: Any) -> TaskRun:
-        run_id = self.execute(task, **params).id
-        waitfor = WaitFor(run_id=run_id)
-        self.register_handler(f"end.{waitfor.run_id}", waitfor)
-        try:
-            return await waitfor.waiter
-        finally:
-            self.unregister_handler(f"end.{waitfor.run_id}")
+    async def queue_and_wait(self, task: str, **params: Any) -> Any:
+        """Execute a task by-passing the broker task queue and wait for result"""
+        return await self.execute(task, **params).waiter
 
     def execute(self, task: str, **params: Any) -> TaskRun:
         """Execute a Task by-passing the broker task queue"""
@@ -210,20 +204,17 @@ class TaskConsumer(TaskManager):
             task_run.start = microseconds()
             task_run.set_state(TaskState.running)
             task_context = task_run.task.create_context(self, task_run=task_run)
-            info = await self.broker.get_tasks_info(task_name)
-            if not info[0].enabled:
-                task_run.set_state(TaskState.aborted)
-                task_run.waiter.set_result(None)
+            self._concurrent_tasks[task_name][task_run.id] = task_run
             #
-            elif task_run.task.max_concurrency <= self.num_concurrent_tasks_for(
-                task_name
-            ):
+            if task_run.task.max_concurrency < self.num_concurrent_tasks_for(task_name):
                 task_run.set_state(TaskState.rate_limited)
+                task_run.waiter.set_result(None)
+            elif not (await self.broker.get_tasks_info(task_name))[0].enabled:
+                task_run.set_state(TaskState.aborted)
                 task_run.waiter.set_result(None)
             #
             else:
                 task_context.logger.info("start")
-                self._concurrent_tasks[task_name][task_run.id] = task_run
                 self.dispatch(task_run, "start")
                 try:
                     result = await task_run.task.executor(task_context)

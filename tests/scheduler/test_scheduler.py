@@ -1,6 +1,5 @@
 import asyncio
 import os
-from collections import defaultdict
 from dataclasses import dataclass, field
 from typing import List
 
@@ -53,30 +52,21 @@ async def test_dummy_execution(task_consumer: TaskConsumer):
 
 
 async def test_dummy_queue(task_consumer: TaskConsumer):
-    task_run = await task_consumer.queue_and_wait("dummy")
-    assert task_run.state == TaskState.success.name
-    assert task_run.end
+    assert await task_consumer.queue_and_wait("dummy", sleep=0.2) == 0.2
 
 
 async def test_dummy_error(task_consumer: TaskConsumer):
-    task_run = await task_consumer.queue_and_wait("dummy", error=True)
-    assert task_run.state == TaskState.failure.name
-    assert isinstance(task_run.exception, RuntimeError)
+    with pytest.raises(RuntimeError):
+        await task_consumer.queue_and_wait("dummy", error=True)
 
 
-@pytest.mark.skip("flaky test after upgrade")
 async def test_dummy_rate_limit(task_consumer: TaskConsumer):
-    tasks = await asyncio.gather(
-        task_consumer.queue_and_wait("dummy", sleep=0.5),
-        task_consumer.queue_and_wait("dummy"),
+    s1, s2 = await asyncio.gather(
+        task_consumer.queue_and_wait("dummy", sleep=0.53),
+        task_consumer.queue_and_wait("dummy", sleep=0.52),
     )
-    states = defaultdict(list)
-    for task in tasks:
-        states[task.state].append(task)
-    assert len(states) == 2
-    assert len(states[TaskState.success.name]) == 1
-    assert states[TaskState.success.name][0].result == 0.5
-    assert len(states[TaskState.rate_limited.name]) == 1
+    assert s1 == 0.53
+    assert s2 is None
     assert task_consumer.num_concurrent_tasks == 0
 
 
