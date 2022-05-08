@@ -1,3 +1,4 @@
+import inspect
 import logging
 import os
 from importlib import import_module
@@ -83,7 +84,7 @@ class TaskContext(NamedTuple):
         raise TaskRunError(msg)
 
 
-TaskExecutor = Callable[[TaskContext], Coroutine[Any, Any, None]]
+TaskExecutor = Callable[[TaskContext], Coroutine[Any, Any, Any]]
 RandomizeType = Callable[[], Union[float, int]]
 
 
@@ -154,11 +155,20 @@ class TaskConstructor:
 
     def __call__(self, executor: TaskExecutor) -> Task:
         kwargs = {
-            "name": executor.__name__,
-            "description": trim_docstring(executor.__doc__ or ""),
+            "name": get_name(executor),
+            "description": trim_docstring(inspect.getdoc(executor) or ""),
             **self.kwargs,
             "executor": executor,
         }
         name = kwargs["name"]
         kwargs["logger"] = log.get_logger(f"task.{name}")
         return Task(**kwargs)
+
+
+def get_name(o: Any) -> str:
+    if hasattr(o, "__name__"):
+        return o.__name__
+    elif hasattr(o, "__class__"):
+        return o.__class__.__name__
+    else:
+        return str(o)
