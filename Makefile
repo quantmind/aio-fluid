@@ -29,6 +29,7 @@ mypy:			## run mypy
 test:			## test with coverage
 	@poetry run \
 		pytest -x --log-cli-level error \
+		-m "not flaky" \
 		--cov --cov-report xml --cov-report html
 
 

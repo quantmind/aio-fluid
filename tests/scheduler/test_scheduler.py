@@ -60,6 +60,7 @@ async def test_dummy_error(task_consumer: TaskConsumer):
         await task_consumer.queue_and_wait("dummy", error=True)
 
 
+@pytest.mark.flaky
 async def test_dummy_rate_limit(task_consumer: TaskConsumer):
     s1, s2 = await asyncio.gather(
         task_consumer.queue_and_wait("dummy", sleep=0.53),
