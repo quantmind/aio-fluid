@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aio-fluid"
-version = "0.4.4"
+version = "0.4.5"
 description = "Tools for backend python services"
 license = "BSD"
 authors = ["Luca <luca@quantmind.com>"]
@@ -34,21 +34,21 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.8,<4"
-aio-openapi = "^2.9.0"
+aio-openapi = "^3.0.0"
 aioredis = "^2.0.0"
 ujson = "^5.1.0"
 inflection = "^0.5.1"
 prometheus-async = "^22.1.0"
 aioconsole = "^0.4.1"
-pycountry = "^22.1.10"
 python-slugify = {version = "^6.1.0", extras = ["unidecode"]}
 python-json-logger = "^2.0.2"
 colorlog = "^6.6.0"
 aiohttp_cors = "^0.7.0"
-aiobotocore = {version = "~2.2.0", extras=["boto3"]}
-s3fs = {version = "^2022.3.0"}
+aiobotocore = {version = "~2.3.0", extras=["boto3"]}
+s3fs = {version = "^2022.5.0"}
 aio-kong = "^0.9.0"
 uvloop = "^0.16.0"
+pycountry = "^22.3.5"
 
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
@@ -60,7 +60,7 @@ flake8-commas = "^2.0.0"
 pytest-cov = "^3.0.0"
 pytest-aiohttp = "^1.0.4"
 codecov = "^2.1.12"
-mypy = "^0.942"
+mypy = "^0.961"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
