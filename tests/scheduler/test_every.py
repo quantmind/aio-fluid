@@ -9,3 +9,10 @@ async def test_delay():
     assert scheduler(datetime.now()) is None
     await asyncio.sleep(0.4)
     assert scheduler(datetime.now()) is not None
+    assert scheduler.next_delta() == scheduler.delta
+
+
+def test_jitter():
+    scheduler = every(timedelta(seconds=5), jitter=timedelta(seconds=2))
+    assert scheduler.next_delta() > scheduler.delta
+    assert scheduler.next_delta() < scheduler.delta + scheduler.jitter
