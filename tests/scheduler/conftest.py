@@ -11,8 +11,8 @@ from .tasks import add_task_manager, task_application
 os.environ["TASK_MANAGER_APP"] = "tests.scheduler.tasks:task_application"
 
 
-@pytest.fixture
-async def task_app(loop) -> WorkerApplication:
+@pytest.fixture(scope="module")
+async def task_app() -> WorkerApplication:
     app = task_application(TaskConsumer())
     add_task_manager(app, TaskScheduler())
     await app.startup()

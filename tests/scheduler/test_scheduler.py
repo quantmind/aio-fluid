@@ -23,6 +23,7 @@ class WaitFor:
             self.runs.append(task_run)
 
 
+@pytest.mark.flaky
 def test_scheduler(task_scheduler: TaskScheduler):
     assert task_scheduler
     assert task_scheduler.broker.registry
