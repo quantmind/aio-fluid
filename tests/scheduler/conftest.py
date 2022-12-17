@@ -1,9 +1,9 @@
 import os
 
 import pytest
-from aioredis import Redis
 
 from fluid.node import WorkerApplication
+from fluid.redis import Redis
 from fluid.scheduler import TaskConsumer, TaskScheduler
 
 from .tasks import add_task_manager, task_application

@@ -3,8 +3,8 @@ import os
 from typing import Any, Callable, Optional, Sequence
 
 import async_timeout
-from aioredis import BlockingConnectionPool, Redis
-from aioredis.client import PubSub
+from redis.asyncio import BlockingConnectionPool, Redis
+from redis.asyncio.client import PubSub
 
 from . import json
 from .log import APP_NAME, get_logger

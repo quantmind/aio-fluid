@@ -30,8 +30,12 @@ async def run(
     )
     await asyncio.wait(
         [
-            _read_stream(process.stdout, stream_output, result_callback or noop),
-            _read_stream(process.stderr, stream_error, error_callback or noop),
+            asyncio.create_task(
+                _read_stream(process.stdout, stream_output, result_callback or noop)
+            ),
+            asyncio.create_task(
+                _read_stream(process.stderr, stream_error, error_callback or noop)
+            ),
         ]
     )
     return await process.wait()
