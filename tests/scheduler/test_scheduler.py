@@ -23,8 +23,7 @@ class WaitFor:
             self.runs.append(task_run)
 
 
-@pytest.mark.flaky
-def test_scheduler(task_scheduler: TaskScheduler):
+def test_scheduler_node(task_scheduler: TaskScheduler):
     assert task_scheduler
     assert task_scheduler.broker.registry
     assert "dummy" in task_scheduler.registry
@@ -72,6 +71,7 @@ async def test_dummy_rate_limit(task_consumer: TaskConsumer):
     assert task_consumer.num_concurrent_tasks == 0
 
 
+@pytest.mark.flaky
 async def test_scheduled(task_consumer: TaskConsumer):
     handler = WaitFor(name="scheduled")
     task_consumer.register_handler("end.scheduled", handler)
