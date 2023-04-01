@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aio-fluid"
-version = "0.5.0"
+version = "0.5.1"
 description = "Tools for backend python services"
 license = "BSD"
 authors = ["Luca <luca@quantmind.com>"]
@@ -33,18 +33,18 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = ">=3.10,<4"
-aio-openapi = "^3.1.1"
+aio-openapi = "^3.2.0"
 ujson = "^5.1.0"
 inflection = "^0.5.1"
 prometheus-async = "^22.1.0"
-aioconsole = "^0.5.0"
-python-slugify = {version = "^6.1.0", extras = ["unidecode"]}
+aioconsole = "^0.6.1"
+python-slugify = {version = "^8.0.1", extras = ["unidecode"]}
 python-json-logger = "^2.0.2"
 colorlog = "^6.6.0"
 aiohttp_cors = "^0.7.0"
-aiobotocore = {version = "~2.4.1", extras=["boto3"]}
-s3fs = {version = "^2022.8.2"}
-aio-kong = "^2.8.0"
+aiobotocore = {version = "~2.4.2", extras=["boto3"]}
+s3fs = {version = "^2023.3.0"}
+aio-kong = "^3.0.0"
 uvloop = "^0.17.0"
 pycountry = "^22.3.5"
 redis = "^4.4.0"
@@ -52,14 +52,14 @@ redis = "^4.4.0"
 [tool.poetry.dev-dependencies]
 pytest = "^7.1.2"
 isort = "^5.9.3"
-black = "^22.1.0"
+black = "^23.3.0"
 flake8 = "^6.0.0"
 flake8-builtins = "^2.0.0"
 flake8-commas = "^2.0.0"
 pytest-cov = "^4.0.0"
 codecov = "^2.1.12"
-mypy = "^0.991"
-pytest-asyncio = "^0.19.0"
+mypy = "^1.1.1"
+pytest-asyncio = "^0.21.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

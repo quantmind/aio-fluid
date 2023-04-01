@@ -47,7 +47,6 @@ async def test_receiver(redis: FluidRedis):
 
 
 async def test_cache(redis: FluidRedis):
-
     data = await redis.from_cache("whatever-test", expire=1, loader=Loader(400))
     assert data == 400
     data = await redis.from_cache("whatever-test", expire=1, loader=Loader(401))

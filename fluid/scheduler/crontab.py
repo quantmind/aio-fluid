@@ -73,7 +73,7 @@ class crontab(Scheduler):
         )
         cron_settings = []
 
-        for (date_str, value, acceptable) in validation:
+        for date_str, value, acceptable in validation:
             settings: Set[int] = set()
 
             if isinstance(value, int):
@@ -130,7 +130,7 @@ class crontab(Scheduler):
         if last_run == run:
             return None
 
-        for (date_piece, selection) in zip(run[1:], self.cron_settings):
+        for date_piece, selection in zip(run[1:], self.cron_settings):
             if date_piece not in selection:
                 return None
         return run
