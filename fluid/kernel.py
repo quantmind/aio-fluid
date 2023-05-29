@@ -1,12 +1,12 @@
 import asyncio
 import sys
-from typing import Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 KernelCallback = Callable[[bytes], None]
 READ_LIMIT = 2**16  # 64 KiB
 
 
-async def run_python(*args: str) -> str:
+async def run_python(*args: str) -> int:
     return await run(sys.executable, *args)
 
 
@@ -18,7 +18,7 @@ async def run(
     env: Optional[Dict[str, str]] = None,
     stream_output: bool = False,
     stream_error: bool = False,
-):
+) -> int:
     process = await asyncio.create_subprocess_exec(
         executable,
         *args,
@@ -28,6 +28,8 @@ async def run(
         limit=READ_LIMIT,
         env=env,
     )
+    if not process.stdout or not process.stderr:
+        raise RuntimeError("Failed to create subprocess")
     await asyncio.wait(
         [
             asyncio.create_task(
@@ -60,7 +62,7 @@ async def _read_line(stream: asyncio.StreamReader) -> bytes:
 
 async def _read_stream(
     stream: asyncio.StreamReader, stream_output: bool, cb: KernelCallback
-):
+) -> None:
     while True:
         if stream_output:
             chunk = await _read_line(stream)
@@ -77,9 +79,9 @@ def noop(data: bytes) -> None:
 
 
 class EncodedLog:
-    def __init__(self, log: Callable[[str], None] = sys.stdout.write):
+    def __init__(self, log: Callable[[str], Any] = sys.stdout.write) -> None:
         self.log = log
-        self.data = []
+        self.data: list[str] = []
 
     def __call__(self, data: bytes) -> None:
         msg = data.decode("utf-8")

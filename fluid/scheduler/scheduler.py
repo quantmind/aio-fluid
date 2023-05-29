@@ -33,14 +33,15 @@ class ScheduleTasks(Node):
             scheduled=True, enabled=True
         )
         for task in periodic_tasks:
-            run = task.schedule(now, self.last_run.get(task.name))
-            if run:
-                self.last_run[task.name] = run
-                from_now = task.randomize() if task.randomize else 0
-                if from_now:
-                    asyncio.get_event_loop().call_later(from_now, self._queue, task)
-                else:
-                    self._queue(task)
+            if task.schedule:
+                run = task.schedule(now, self.last_run.get(task.name))
+                if run:
+                    self.last_run[task.name] = run
+                    from_now = task.randomize() if task.randomize else 0
+                    if from_now:
+                        asyncio.get_event_loop().call_later(from_now, self._queue, task)
+                    else:
+                        self._queue(task)
 
     def _queue(self, task: Task) -> None:
-        self.task_manager.queue(task)
+        self.task_manager.queue(task.name)

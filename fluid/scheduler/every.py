@@ -1,6 +1,5 @@
 import random
 from datetime import datetime, timedelta
-from typing import Optional
 
 from .crontab import CronRun, Scheduler
 
@@ -16,14 +15,14 @@ class every(Scheduler):
         self.delay: timedelta = delay
         self.jitter: timedelta = jitter
         self._delta: timedelta = self.next_delta()
-        self._started = None
+        self._started: datetime | None = None
 
     def info(self) -> str:
         return str(self.delta)
 
     def __call__(
-        self, timestamp: datetime, last_run: Optional[CronRun] = None
-    ) -> Optional[CronRun]:
+        self, timestamp: datetime, last_run: CronRun | None = None
+    ) -> CronRun | None:
         if not last_run and self.delay:
             if not self._started:
                 self._started = timestamp

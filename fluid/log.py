@@ -39,7 +39,7 @@ def log_config(
     level: int,
     other_level: int = logging.WARNING,
     app_name: Optional[str] = None,
-    json=bool(K8S),
+    json: bool = bool(K8S),
 ) -> Dict:
     app_name = app_name if app_name is not None else APP_NAME
     other_level = max(level, other_level)
@@ -91,7 +91,7 @@ def log_name(name: str = "") -> str:
     return APP_NAME if not name else f"{APP_NAME}.{name}"
 
 
-def setup(level: str):
+def setup(level: str) -> None:
     dictConfig(log_config(level_num(level)))
 
 

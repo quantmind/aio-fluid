@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aio-fluid"
-version = "0.5.2"
+version = "0.5.3"
 description = "Tools for backend python services"
 license = "BSD"
 authors = ["Luca <luca@quantmind.com>"]
@@ -32,7 +32,7 @@ classifiers = [
 "Issues" = "https://github.com/quantmind/aio-fluid/issues"
 
 [tool.poetry.dependencies]
-python = ">=3.10,<4"
+python = ">=3.10,<3.12"
 aio-openapi = "^3.2.0"
 ujson = "^5.1.0"
 inflection = "^0.5.1"
@@ -42,25 +42,59 @@ python-slugify = {version = "^8.0.1", extras = ["unidecode"]}
 python-json-logger = "^2.0.2"
 colorlog = "^6.6.0"
 aiohttp_cors = "^0.7.0"
-aiobotocore = {version = "~2.4.2", extras=["boto3"]}
-s3fs = {version = "^2023.3.0"}
+aiobotocore = {version = "~2.5.0", extras=["boto3"]}
+s3fs = {version = "^2023.5.0"}
 aio-kong = "^3.3.0"
 uvloop = "^0.17.0"
 pycountry = "^22.3.5"
 redis = "^4.4.0"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 pytest = "^7.1.2"
 isort = "^5.9.3"
 black = "^23.3.0"
-flake8 = "^6.0.0"
-flake8-builtins = "^2.0.0"
-flake8-commas = "^2.0.0"
 pytest-cov = "^4.0.0"
-codecov = "^2.1.12"
-mypy = "^1.1.1"
+mypy = "^1.3.0"
 pytest-asyncio = "^0.21.0"
+ruff = "^0.0.270"
+types-ujson = "^5.7.0.5"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = [
+    "tests"
+]
+markers = [
+    "flaky: marks test as flaky"
+]
+
+[tool.isort]
+profile = "black"
+
+[tool.ruff]
+select = ["E", "F"]
+line-length = 88
+
+[tool.mypy]
+disallow_untyped_calls = "true"
+warn_return_any = "false"
+disallow_untyped_defs = "true"
+warn_no_return = "true"
+
+[[tool.mypy.overrides]]
+module = "fluid.utils"
+ignore_errors = "true"
+
+
+[[tool.mypy.overrides]]
+module = "fluid.node"
+ignore_errors = "true"
+
+[[tool.mypy.overrides]]
+module = "fluid.redis"
+ignore_errors = "true"

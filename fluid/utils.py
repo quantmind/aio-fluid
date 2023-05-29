@@ -17,10 +17,11 @@ def as_uuid(uid: Any) -> Optional[str]:
             return uuid.UUID(uid).hex
         except ValueError:
             return None
+    return None
 
 
 def add_api_url(
-    request, data: Union[List, Dict], path: Optional[str] = None, key: str = "id"
+    request: Any, data: Union[List, Dict], path: Optional[str] = None, key: str = "id"
 ) -> Union[List, Dict]:
     """Add api_url field to data"""
     datas = data

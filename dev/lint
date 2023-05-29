@@ -1,4 +1,17 @@
 #!/usr/bin/env bash
-isort . $1
-black . --exclude ".venv|build|dev|dist" $1
-flake8
+set -e
+
+BLACK_ARG="--check"
+RUFF_ARG=""
+
+if [ "$1" = "fix" ] ; then
+    BLACK_ARG=""
+    RUFF_ARG="--fix"
+fi
+
+echo "run black"
+black fluid tests ${BLACK_ARG}
+echo "run ruff"
+ruff fluid tests ${RUFF_ARG}
+echo "run mypy"
+mypy fluid/scheduler

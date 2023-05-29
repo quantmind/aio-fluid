@@ -1,18 +1,9 @@
-import os
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from functools import cached_property
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterable,
-    List,
-    NamedTuple,
-    Optional,
-    Tuple,
-    Union,
-)
+from typing import Any, Dict, Iterable, List, NamedTuple, Optional
 from uuid import uuid4
 
 from yarl import URL
@@ -21,17 +12,16 @@ from fluid import json
 from fluid.redis import FluidRedis
 from fluid.utils import microseconds
 
+from . import settings
 from .constants import TaskPriority, TaskState
 from .task import Task
 from .task_run import TaskRun
 
-_brokers = {}
-
-DEFAULT_BROKER_URL = "redis://localhost:6379/3"
+_brokers: dict[str, type[Broker]] = {}
 
 
 def broker_url_from_env() -> URL:
-    return URL(os.getenv("SCHEDULER_BROKER_URL", DEFAULT_BROKER_URL))
+    return URL(settings.SCHEDULER_BROKER_URL)
 
 
 class TaskError(RuntimeError):
@@ -116,15 +106,14 @@ class Broker(ABC):
             tasks.append(task)
         return tasks
 
-    def task_from_registry(self, task: Union[str, Task]) -> Task:
+    def task_from_registry(self, task: str | Task) -> Task:
         if isinstance(task, Task):
             self.register_task(task)
-            task_ = task
+            return task
         else:
-            task_ = self.registry.get(task)
-            if not task_:
-                raise UnknownTask(task)
-        return task_
+            if task_ := self.registry.get(task):
+                return task_
+            raise UnknownTask(task)
 
     def register_task(self, task: Task) -> None:
         self.registry[task.name] = task
@@ -162,16 +151,15 @@ class Broker(ABC):
         )
 
     @classmethod
-    def from_url(cls, url: str = "") -> "Broker":
-        url = url or broker_url_from_env()
-        p = URL(url)
+    def from_url(cls, url: str = "") -> Broker:
+        p = URL(url or broker_url_from_env())
         Factory = _brokers.get(p.scheme)
         if not Factory:
-            raise RuntimeError(f"Invalid broker {url}")
+            raise RuntimeError(f"Invalid broker {p}")
         return Factory(p)
 
     @classmethod
-    def register_broker(cls, name: str, factory: Callable):
+    def register_broker(cls, name: str, factory: type[Broker]) -> None:
         _brokers[name] = factory
 
 
@@ -187,7 +175,7 @@ class RedisBroker(Broker):
         return self.url.query.get("name", "redis-task-broker")
 
     @cached_property
-    def task_queue_names(self) -> Tuple[str, ...]:
+    def task_queue_names(self) -> tuple[str, ...]:
         priorities = self.url.query.get("queues")
         if priorities is None:
             return tuple(self.task_queue_name(p) for p in TaskPriority)
@@ -256,7 +244,7 @@ class RedisBroker(Broker):
         await self.redis.cli.lpush(self.task_queue_name(priority), json.dumps(data))
         return self.task_run_from_data(data)
 
-    def _decode_task(self, task: Task, data: dict):
+    def _decode_task(self, task: Task, data: dict) -> TaskInfo:
         info = {name.decode(): json.loads(value) for name, value in data.items()}
         return TaskInfo(
             name=task.name,

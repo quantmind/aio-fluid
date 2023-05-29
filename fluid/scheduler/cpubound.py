@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 from logging.config import dictConfig
+from typing import Any
 
 from fluid import kernel, log
 from fluid.scheduler import (
@@ -14,21 +15,20 @@ from fluid.scheduler import (
     TaskManager,
     TaskRun,
     create_task_app,
+    settings,
 )
 from fluid.scheduler.constants import TaskState
 
-TASK_MANAGER_SPAWN: str = os.getenv("TASK_MANAGER_SPAWN", "")
-
 
 class RemoteLog:
-    def __init__(self, out):
+    def __init__(self, out: Any) -> None:
         self.out = out
 
     def __call__(self, data: bytes) -> None:
         self.out.write(data.decode("utf-8"))
 
 
-async def spawn(ctx: TaskContext):
+async def spawn(ctx: TaskContext) -> None:
     env = dict(os.environ)
     env["TASK_MANAGER_SPAWN"] = "true"
     result = await kernel.run(
@@ -51,7 +51,7 @@ async def spawn(ctx: TaskContext):
 
 class CpuTaskConstructor(TaskConstructor):
     def __call__(self, executor: TaskExecutor) -> Task:
-        if TASK_MANAGER_SPAWN == "true":
+        if settings.TASK_MANAGER_SPAWN == "true":
             cpu_executor = executor
         else:
             self.kwargs["name"] = executor.__name__
@@ -59,7 +59,7 @@ class CpuTaskConstructor(TaskConstructor):
         return super().__call__(cpu_executor)
 
 
-def cpu_task(*args, **kwargs) -> Task:
+def cpu_task(*args: Any, **kwargs: Any) -> Task | CpuTaskConstructor:
     """Decorator for creating a CPU bound task"""
     if kwargs and args:
         raise TaskDecoratorError("cannot use positional parameters")
@@ -73,7 +73,7 @@ def cpu_task(*args, **kwargs) -> Task:
         return CpuTaskConstructor()(args[0])
 
 
-async def main(name: str, run_id: str):
+async def main(name: str, run_id: str) -> int:
     dictConfig(
         log.log_config(logging.INFO, logging.CRITICAL, f"{log.APP_NAME}.task.{name}")
     )

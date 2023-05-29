@@ -1,17 +1,10 @@
+from __future__ import annotations
+
 import inspect
 import logging
 import os
 from importlib import import_module
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    Callable,
-    Coroutine,
-    Dict,
-    NamedTuple,
-    Optional,
-    Union,
-)
+from typing import TYPE_CHECKING, Any, Callable, Coroutine, NamedTuple, TypeVar
 from uuid import uuid4
 
 from openapi.spec.utils import trim_docstring
@@ -40,6 +33,7 @@ class TaskRunError(RuntimeError):
 
 
 TASK_MANAGER_APP: str = os.getenv("TASK_MANAGER_APP", "")
+T = TypeVar("T")
 
 
 class ImproperlyConfigured(RuntimeError):
@@ -65,11 +59,11 @@ class TaskContext(NamedTuple):
     logger: logging.Logger
 
     @property
-    def task(self) -> "Task":
+    def task(self) -> Task:
         return self.task_run.task
 
     @property
-    def run_id(self) -> "str":
+    def run_id(self) -> str:
         return self.task_run.id
 
     @property
@@ -77,15 +71,19 @@ class TaskContext(NamedTuple):
         return self.task_run.name
 
     @property
-    def params(self) -> Dict[str, Any]:
+    def params(self) -> dict[str, Any]:
         return self.task_run.params
+
+    def model(self, factory: type[T]) -> T:
+        """Create a model instance from the task params"""
+        return factory(**self.task_run.params)
 
     def raise_error(self, msg: str) -> None:
         raise TaskRunError(msg)
 
 
 TaskExecutor = Callable[[TaskContext], Coroutine[Any, Any, Any]]
-RandomizeType = Callable[[], Union[float, int]]
+RandomizeType = Callable[[], float | int]
 
 
 class Task(NamedTuple):
@@ -95,8 +93,8 @@ class Task(NamedTuple):
     executor: TaskExecutor
     logger: logging.Logger
     description: str = ""
-    schedule: Optional[Scheduler] = None
-    randomize: Optional[RandomizeType] = None
+    schedule: Scheduler | None = None
+    randomize: RandomizeType | None = None
     max_concurrency: int = 1
     """how many tasks can run in each consumer concurrently"""
     priority: TaskPriority = TaskPriority.medium
@@ -106,7 +104,7 @@ class Task(NamedTuple):
 
     async def __call__(
         self,
-        task_manager: Optional["TaskManager"] = None,
+        task_manager: TaskManager | None = None,
         **kwargs: Any,
     ) -> Any:
         if task_manager is None:
@@ -116,9 +114,9 @@ class Task(NamedTuple):
 
     def create_context(
         self,
-        task_manager: "TaskManager",
-        task_run: Optional["TaskRun"] = None,
-        log: Optional[LogType] = None,
+        task_manager: TaskManager,
+        task_run: TaskRun | None = None,
+        log: LogType | None = None,
         **params: Any,
     ) -> TaskContext:
         if task_run is None:
@@ -136,7 +134,7 @@ class Task(NamedTuple):
         )
 
 
-def task(*args: Any, **kwargs: Any) -> Union[Task, "TaskConstructor"]:
+def task(*args: Any, **kwargs: Any) -> Task | TaskConstructor:
     if kwargs and args:
         raise TaskDecoratorError("cannot use positional parameters")
     elif kwargs:
@@ -154,7 +152,7 @@ class TaskConstructor:
         self.kwargs = kwargs
 
     def __call__(self, executor: TaskExecutor) -> Task:
-        kwargs = {
+        kwargs: dict[str, Any] = {
             "name": get_name(executor),
             "description": trim_docstring(inspect.getdoc(executor) or ""),
             **self.kwargs,

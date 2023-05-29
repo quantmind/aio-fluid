@@ -8,7 +8,7 @@ import uuid
 from abc import ABC, abstractmethod
 from functools import cached_property, wraps
 from logging import Logger
-from typing import Any, Callable, Coroutine, Dict, List, Optional, Tuple
+from typing import Any, Callable, Coroutine, List, Optional, Tuple
 
 from aiohttp.client import ClientConnectionError, ClientConnectorError
 from aiohttp.web import Application, GracefulExit
@@ -45,12 +45,12 @@ class NodeBase(ABC, Id):
     exit_lag: int = 1
     app: Optional[Application] = None
 
-    async def start_app(self, app: Application) -> None:
+    async def start_app(self, app: Application | None = None) -> None:
         """Start application"""
         self.app = app
         await self.start()
 
-    async def close_app(self, app: Application) -> None:
+    async def close_app(self, app: Application | None = None) -> None:
         await self.close()
 
     @abstractmethod
@@ -159,17 +159,17 @@ class NodeWorker(NodeBase):
             await self.close(close_worker=False)
 
 
-class WorkerApplication(Dict[str, Any]):
+class WorkerApplication(dict[str, Any]):
     def __init__(self):
         super().__init__()
         self.on_startup = []
         self.on_shutdown = []
 
-    async def startup(self):
+    async def startup(self) -> None:
         for on_startup in self.on_startup:
             await on_startup(self)
 
-    async def shutdown(self):
+    async def shutdown(self) -> None:
         for on_shutdown in self.on_shutdown:
             await on_shutdown(self)
 
