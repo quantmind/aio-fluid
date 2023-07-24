@@ -160,7 +160,7 @@ class NodeWorker(NodeBase):
 
 
 class WorkerApplication(dict[str, Any]):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.on_startup = []
         self.on_shutdown = []

@@ -3,21 +3,24 @@ import logging
 import os
 import sys
 from logging.config import dictConfig
-from typing import Any
+from typing import Any, overload
 
 from fluid import kernel, log
 from fluid.scheduler import (
+    Scheduler,
     Task,
     TaskConstructor,
     TaskContext,
     TaskDecoratorError,
     TaskExecutor,
     TaskManager,
+    TaskPriority,
     TaskRun,
+    TaskState,
     create_task_app,
     settings,
 )
-from fluid.scheduler.constants import TaskState
+from fluid.scheduler.task import RandomizeType
 
 
 class RemoteLog:
@@ -59,18 +62,36 @@ class CpuTaskConstructor(TaskConstructor):
         return super().__call__(cpu_executor)
 
 
-def cpu_task(*args: Any, **kwargs: Any) -> Task | CpuTaskConstructor:
+@overload
+def cpu_task(executor: TaskExecutor) -> Task:
+    ...
+
+
+@overload
+def cpu_task(
+    *,
+    name: str | None = None,
+    schedule: Scheduler | None = None,
+    description: str | None = None,
+    randomize: RandomizeType | None = None,
+    max_concurrency: int = 1,
+    priority: TaskPriority = TaskPriority.medium,
+) -> CpuTaskConstructor:
+    ...
+
+
+def cpu_task(
+    executor: TaskExecutor | None = None, **kwargs: Any
+) -> Task | CpuTaskConstructor:
     """Decorator for creating a CPU bound task"""
-    if kwargs and args:
+    if kwargs and executor:
         raise TaskDecoratorError("cannot use positional parameters")
     elif kwargs:
         return CpuTaskConstructor(**kwargs)
-    elif len(args) > 1:
-        raise TaskDecoratorError("cannot use positional parameters")
-    elif not args:
+    elif not executor:
         raise TaskDecoratorError("this is a decorator cannot be invoked in this way")
     else:
-        return CpuTaskConstructor()(args[0])
+        return CpuTaskConstructor()(executor)
 
 
 async def main(name: str, run_id: str) -> int:

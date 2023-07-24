@@ -4,7 +4,16 @@ import inspect
 import logging
 import os
 from importlib import import_module
-from typing import TYPE_CHECKING, Any, Callable, Coroutine, NamedTuple, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Coroutine,
+    NamedTuple,
+    TypeVar,
+    cast,
+    overload,
+)
 from uuid import uuid4
 
 from openapi.spec.utils import trim_docstring
@@ -49,7 +58,7 @@ def create_task_app() -> WorkerApplication:
             "TASK_MANAGER_APP must be of the form <module>:<function>"
         )
     mod = import_module(bits[0])
-    return getattr(mod, bits[1])()
+    return cast(WorkerApplication, getattr(mod, bits[1])())
 
 
 class TaskContext(NamedTuple):
@@ -134,30 +143,47 @@ class Task(NamedTuple):
         )
 
 
-def task(*args: Any, **kwargs: Any) -> Task | TaskConstructor:
-    if kwargs and args:
+@overload
+def task(executor: TaskExecutor) -> Task:
+    ...
+
+
+@overload
+def task(
+    *,
+    name: str | None = None,
+    schedule: Scheduler | None = None,
+    description: str | None = None,
+    randomize: RandomizeType | None = None,
+    max_concurrency: int = 1,
+    priority: TaskPriority = TaskPriority.medium,
+) -> TaskConstructor:
+    ...
+
+
+# implementation of the task decorator
+def task(executor: TaskExecutor | None = None, **kwargs: Any) -> Task | TaskConstructor:
+    if kwargs and executor:
         raise TaskDecoratorError("cannot use positional parameters")
     elif kwargs:
         return TaskConstructor(**kwargs)
-    elif len(args) > 1:
-        raise TaskDecoratorError("cannot use positional parameters")
-    elif not args:
+    elif not executor:
         raise TaskDecoratorError("this is a decorator cannot be invoked in this way")
     else:
-        return TaskConstructor()(args[0])
+        return TaskConstructor()(executor)
 
 
 class TaskConstructor:
-    def __init__(self, **kwargs: Any):
+    def __init__(self, **kwargs: Any) -> None:
         self.kwargs = kwargs
 
     def __call__(self, executor: TaskExecutor) -> Task:
         kwargs: dict[str, Any] = {
             "name": get_name(executor),
             "description": trim_docstring(inspect.getdoc(executor) or ""),
-            **self.kwargs,
             "executor": executor,
         }
+        kwargs.update(self.kwargs)
         name = kwargs["name"]
         kwargs["logger"] = log.get_logger(f"task.{name}")
         return Task(**kwargs)
@@ -165,8 +191,8 @@ class TaskConstructor:
 
 def get_name(o: Any) -> str:
     if hasattr(o, "__name__"):
-        return o.__name__
+        return str(o.__name__)
     elif hasattr(o, "__class__"):
-        return o.__class__.__name__
+        return str(o.__class__.__name__)
     else:
         return str(o)

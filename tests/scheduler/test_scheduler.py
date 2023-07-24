@@ -1,11 +1,11 @@
 import asyncio
 import os
 from dataclasses import dataclass, field
-from typing import List
+from typing import Any
 
 import pytest
+from redis.asyncio import Redis
 
-from fluid.redis import Redis
 from fluid.scheduler import TaskConsumer, TaskRun, TaskScheduler
 from fluid.scheduler.broker import UnknownTask
 from fluid.scheduler.constants import TaskPriority, TaskState
@@ -16,14 +16,14 @@ from fluid.utils import wait_for
 class WaitFor:
     name: str
     times: int = 2
-    runs: List[TaskRun] = field(default_factory=list)
+    runs: list[TaskRun] = field(default_factory=list)
 
-    def __call__(self, task_run: TaskRun, _):
+    def __call__(self, task_run: TaskRun, _: Any) -> None:
         if task_run.name == self.name:
             self.runs.append(task_run)
 
 
-def test_scheduler_node(task_scheduler: TaskScheduler):
+def test_scheduler_node(task_scheduler: TaskScheduler) -> None:
     assert task_scheduler
     assert task_scheduler.broker.registry
     assert "dummy" in task_scheduler.registry
@@ -32,36 +32,36 @@ def test_scheduler_node(task_scheduler: TaskScheduler):
         task_scheduler.broker.task_from_registry("bbdjchbjch")
 
 
-async def test_queue_length(task_consumer: TaskConsumer):
+async def test_queue_length(task_consumer: TaskConsumer) -> None:
     ql = await task_consumer.broker.queue_length()
     assert len(ql) == 3
     for p in TaskPriority:
         assert ql[p.name] >= 0
 
 
-async def test_consumer(task_consumer: TaskConsumer):
+async def test_consumer(task_consumer: TaskConsumer) -> None:
     assert task_consumer.broker.registry
     assert "dummy" in task_consumer.broker.registry
 
 
-async def test_dummy_execution(task_consumer: TaskConsumer):
+async def test_dummy_execution(task_consumer: TaskConsumer) -> None:
     task_run = task_consumer.execute("dummy")
     assert task_run.name == "dummy"
     await task_run.waiter
     assert task_run.end
 
 
-async def test_dummy_queue(task_consumer: TaskConsumer):
+async def test_dummy_queue(task_consumer: TaskConsumer) -> None:
     assert await task_consumer.queue_and_wait("dummy", sleep=0.2) == 0.2
 
 
-async def test_dummy_error(task_consumer: TaskConsumer):
+async def test_dummy_error(task_consumer: TaskConsumer) -> None:
     with pytest.raises(RuntimeError):
         await task_consumer.queue_and_wait("dummy", error=True)
 
 
 @pytest.mark.flaky
-async def test_dummy_rate_limit(task_consumer: TaskConsumer):
+async def test_dummy_rate_limit(task_consumer: TaskConsumer) -> None:
     s1, s2 = await asyncio.gather(
         task_consumer.queue_and_wait("dummy", sleep=0.53),
         task_consumer.queue_and_wait("dummy", sleep=0.52),
@@ -72,7 +72,7 @@ async def test_dummy_rate_limit(task_consumer: TaskConsumer):
 
 
 @pytest.mark.flaky
-async def test_scheduled(task_consumer: TaskConsumer):
+async def test_scheduled(task_consumer: TaskConsumer) -> None:
     handler = WaitFor(name="scheduled")
     task_consumer.register_handler("end.scheduled", handler)
     try:
@@ -82,7 +82,9 @@ async def test_scheduled(task_consumer: TaskConsumer):
 
 
 @pytest.mark.flaky
-async def test_cpubound_execution(task_consumer: TaskConsumer, redis: Redis):
+async def test_cpubound_execution(
+    task_consumer: TaskConsumer, redis: Redis  # type: ignore
+) -> None:
     task_run = task_consumer.execute("cpu_bound")
     await task_run.waiter
     assert task_run.end
@@ -93,7 +95,7 @@ async def test_cpubound_execution(task_consumer: TaskConsumer, redis: Redis):
     assert int(result) != os.getpid()
 
 
-async def test_task_info(task_consumer: TaskConsumer):
+async def test_task_info(task_consumer: TaskConsumer) -> None:
     with pytest.raises(UnknownTask):
         await task_consumer.broker.enable_task("hfgfhgfhfh")
     info = await task_consumer.broker.enable_task("scheduled")
@@ -103,7 +105,7 @@ async def test_task_info(task_consumer: TaskConsumer):
     assert info.description == "A simple scheduled task"
 
 
-async def test_disabled_execution(task_consumer: TaskConsumer):
+async def test_disabled_execution(task_consumer: TaskConsumer) -> None:
     info = await task_consumer.broker.enable_task("disabled", enable=False)
     assert info.enabled is False
     assert info.name == "disabled"

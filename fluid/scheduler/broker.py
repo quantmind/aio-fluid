@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass
+from abc import ABC, abstractmethod, abstractproperty
 from functools import cached_property
 from typing import Any, Dict, Iterable, List, NamedTuple, Optional
 from uuid import uuid4
@@ -15,6 +14,7 @@ from fluid.utils import microseconds
 from . import settings
 from .constants import TaskPriority, TaskState
 from .task import Task
+from .task_info import TaskInfo
 from .task_run import TaskRun
 
 _brokers: dict[str, type[Broker]] = {}
@@ -36,18 +36,6 @@ class DisabledTask(TaskError):
     pass
 
 
-@dataclass
-class TaskInfo:
-    name: str
-    description: str
-    priority: str
-    schedule: Optional[str] = None
-    enabled: bool = True
-    last_run_end: Optional[int] = None
-    last_run_duration: Optional[int] = None
-    last_run_state: Optional[str] = None
-
-
 class TaskRegistry(Dict[str, Task]):
     def periodic(self) -> Iterable[Task]:
         for task in self.values():
@@ -66,6 +54,10 @@ class Broker(ABC):
         self.url: URL = url
         self.registry: TaskRegistry = TaskRegistry()
 
+    @abstractproperty
+    def task_queue_names(self) -> tuple[str, ...]:
+        """Names of the task queues"""
+
     @abstractmethod
     async def queue_task(self, queued_task: QueuedTask) -> TaskRun:
         """Queue a task"""
@@ -79,11 +71,11 @@ class Broker(ABC):
         """Length of task queues"""
 
     @abstractmethod
-    async def get_tasks_info(self, *task_names: str) -> List[TaskInfo]:
+    async def get_tasks_info(self, *task_names: str) -> list[TaskInfo]:
         """List of TaskInfo objects"""
 
     @abstractmethod
-    async def update_task(self, task: Task, params: dict) -> TaskInfo:
+    async def update_task(self, task: Task, params: dict[str, Any]) -> TaskInfo:
         """Update a task dynamic parameters"""
 
     async def close(self) -> None:
@@ -192,7 +184,7 @@ class RedisBroker(Broker):
     def task_queue_name(self, priority: TaskPriority) -> str:
         return f"{self.name}-queue-{priority.name}"
 
-    async def get_tasks_info(self, *task_names: str) -> List[TaskInfo]:
+    async def get_tasks_info(self, *task_names: str) -> list[TaskInfo]:
         pipe = self.redis.cli.pipeline()
         names = task_names or self.registry
         requested_task_names = []
@@ -206,7 +198,7 @@ class RedisBroker(Broker):
             for name, task_info in zip(requested_task_names, tasks_info)
         ]
 
-    async def update_task(self, task: Task, params: dict) -> TaskInfo:
+    async def update_task(self, task: Task, params: dict[str, Any]) -> TaskInfo:
         pipe = self.redis.cli.pipeline()
         pipe.hset(
             self.task_hash_name(task.name),
@@ -244,7 +236,7 @@ class RedisBroker(Broker):
         await self.redis.cli.lpush(self.task_queue_name(priority), json.dumps(data))
         return self.task_run_from_data(data)
 
-    def _decode_task(self, task: Task, data: dict) -> TaskInfo:
+    def _decode_task(self, task: Task, data: dict[bytes, Any]) -> TaskInfo:
         info = {name.decode(): json.loads(value) for name, value in data.items()}
         return TaskInfo(
             name=task.name,

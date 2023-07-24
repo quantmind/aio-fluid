@@ -5,7 +5,7 @@ import logging
 from collections import defaultdict, deque
 from dataclasses import dataclass
 from functools import cached_property
-from typing import Any, Callable, Coroutine, Deque, Dict, NamedTuple, Optional, Tuple
+from typing import Any, Callable, Coroutine, Deque, Dict, NamedTuple, Optional
 
 from inflection import underscore
 
@@ -19,7 +19,7 @@ from .task_run import TaskRun
 
 ConsumerCallback = Callable[[TaskRun, "TaskManager"], None]
 AsyncExecutor = Callable[..., Coroutine[Any, Any, None]]
-AsyncMessage = Tuple[AsyncExecutor, Tuple]
+AsyncMessage = tuple[AsyncExecutor, tuple[Any, ...]]
 
 
 class TaskFailure(RuntimeError):
@@ -147,8 +147,8 @@ class TaskConsumer(TaskManager):
 
     def __init__(self, **config: Any) -> None:
         super().__init__(**config)
-        self._concurrent_tasks: Dict[str, Dict[str, TaskRun]] = defaultdict(dict)
-        self._priority_task_run_queue: Deque = deque()
+        self._concurrent_tasks: dict[str, dict[str, TaskRun]] = defaultdict(dict)
+        self._priority_task_run_queue: deque[TaskRun] = deque()
         for i in range(self.config.max_concurrent_tasks):
             self.add_workers(
                 Worker(
@@ -191,17 +191,19 @@ class TaskConsumer(TaskManager):
                 task_run = self._priority_task_run_queue.pop()
             else:
                 try:
-                    task_run = await self.broker.get_task_run()
+                    maybe_task_run = await self.broker.get_task_run()
                 except UnknownTask as exc:
                     self.logger.error(
                         "unknown task %s - it looks like it is not "
                         "registered with this consumer",
                         exc,
                     )
-                    task_run = None
-                if not task_run:
+                    maybe_task_run = None
+                if not maybe_task_run:
                     await asyncio.sleep(self.config.sleep)
                     continue
+                else:
+                    task_run = maybe_task_run
             task_name = task_run.name
             task_run.start = microseconds()
             task_run.set_state(TaskState.running)

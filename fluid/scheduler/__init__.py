@@ -1,7 +1,7 @@
 from .broker import Broker, QueuedTask
 from .constants import TaskPriority, TaskState
 from .consumer import TaskConsumer, TaskManager
-from .crontab import crontab
+from .crontab import Scheduler, crontab
 from .every import every
 from .scheduler import TaskScheduler
 from .task import (
@@ -17,6 +17,7 @@ from .task import (
 from .task_run import TaskRun
 
 __all__ = [
+    "Scheduler",
     "TaskPriority",
     "TaskState",
     "TaskScheduler",

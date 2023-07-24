@@ -1,7 +1,7 @@
 import logging
 import os
 from logging.config import dictConfig
-from typing import Dict, Optional
+from typing import Any, cast
 
 import click
 
@@ -32,15 +32,15 @@ def get_logger(name: str = "") -> logging.Logger:
 
 
 def level_num(level: str) -> int:
-    return getattr(logging, level)
+    return cast(int, getattr(logging, level))
 
 
 def log_config(
     level: int,
     other_level: int = logging.WARNING,
-    app_name: Optional[str] = None,
+    app_name: str | None = None,
     json: bool = bool(K8S),
-) -> Dict:
+) -> dict[str, Any]:
     app_name = app_name if app_name is not None else APP_NAME
     other_level = max(level, other_level)
     handler = LOG_HANDLER or ("main" if json else "color")

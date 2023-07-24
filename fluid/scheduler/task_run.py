@@ -1,6 +1,8 @@
+from __future__ import annotations
+
 import asyncio
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Optional
 
 from .constants import FINISHED_STATES, TaskState
 
@@ -14,13 +16,13 @@ class TaskRun:
 
     id: str
     queued: int
-    task: "Task"
-    params: Dict[str, Any]
+    task: Task
+    params: dict[str, Any]
     start: int = 0
     end: int = 0
     priority: str = ""
     state: str = TaskState.init.name
-    waiter: asyncio.Future = field(default_factory=asyncio.Future)
+    waiter: asyncio.Future[Any] = field(default_factory=asyncio.Future)
 
     @property
     def in_queue(self) -> int:
