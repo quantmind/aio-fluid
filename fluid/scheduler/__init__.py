@@ -14,6 +14,7 @@ from .task import (
     create_task_app,
     task,
 )
+from .task_info import TaskInfo
 from .task_run import TaskRun
 
 __all__ = [
@@ -30,6 +31,7 @@ __all__ = [
     "TaskDecoratorError",
     "TaskManager",
     "TaskConsumer",
+    "TaskInfo",
     "TaskRun",
     "QueuedTask",
     "Broker",

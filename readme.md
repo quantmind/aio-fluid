@@ -4,6 +4,7 @@
 [![Python versions](https://img.shields.io/pypi/pyversions/aio-fluid.svg)](https://pypi.org/project/aio-fluid)
 [![build](https://github.com/quantmind/fluid/workflows/build/badge.svg)](https://github.com/quantmind/aio-fluid/actions?query=workflow%3Abuild)
 [![codecov](https://codecov.io/gh/quantmind/aio-fluid/branch/main/graph/badge.svg?token=81oWUoyEVp)](https://codecov.io/gh/quantmind/aio-fluid)
+[![Downloads](https://img.shields.io/pypi/dd/aio-fluid.svg)](https://pypi.org/project/aio-fluid/)
 
 ## Installation
 
