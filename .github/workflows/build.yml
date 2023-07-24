@@ -13,7 +13,6 @@ jobs:
     timeout-minutes: 5
     env:
       PYTHON_ENV: ci
-      CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
       PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
     strategy:
       matrix:
