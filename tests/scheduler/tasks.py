@@ -3,7 +3,7 @@ import os
 from datetime import timedelta
 from typing import cast
 
-from fluid.node import WorkerApplication
+from fluid.tools_aiohttp.node import WorkerApplication
 from fluid.scheduler import TaskContext, TaskManager, every, task
 from fluid.scheduler.cpubound import cpu_task
 

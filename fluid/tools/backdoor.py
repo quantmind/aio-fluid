@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 from functools import partial
@@ -5,10 +6,8 @@ from functools import partial
 import aioconsole
 from aiohttp.web import Application
 
-from .log import get_logger
-
-logger = get_logger("backdoor")
-AIO_BACKDOOR_PORT = os.environ.get("AIO_BACKDOOR_PORT", 8087)
+logger = logging.getLogger(__name__)
+AIO_BACKDOOR_PORT: int = int(os.environ.get("AIO_BACKDOOR_PORT", "8087"))
 CONSOLE_MESSAGE = """\
 ---
 This console is running in the same asyncio event loop as the Service application.

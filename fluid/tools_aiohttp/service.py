@@ -3,10 +3,13 @@ import os
 from typing import Callable, Optional
 
 from aiohttp.web import Application
+
+from . import status
+from ..tools import backdoor
 from openapi.middleware import json_error, sentry_middleware
 from prometheus_async import aio
 
-from . import backdoor, stacksampler, status
+from ..tools import stacksampler
 
 logger = logging.getLogger("fluid.service")
 

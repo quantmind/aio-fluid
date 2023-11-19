@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 
 import pytest
 
-from fluid import node
+from fluid.tools_aiohttp import node
 
 
 @dataclass

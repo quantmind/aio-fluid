@@ -8,8 +8,8 @@ from uuid import uuid4
 from yarl import URL
 
 from fluid import json
-from fluid.redis import FluidRedis
-from fluid.utils import microseconds
+from fluid.tools.redis import FluidRedis
+from fluid.tools.timestamp import Timestamp
 
 from . import settings
 from .constants import TaskPriority, TaskState
@@ -139,7 +139,7 @@ class Broker(ABC):
             priority=priority.name,
             state=state.name,
             params=queued_task.params,
-            queued=microseconds(),
+            queued=Timestamp.utcnow(),
         )
 
     @classmethod

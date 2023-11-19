@@ -5,7 +5,7 @@ from openapi.spec.path import ApiPath
 from openapi.ws import pubsub
 from openapi.ws.manager import SocketsManager
 
-from fluid import service
+from fluid.tools_aiohttp import service
 from fluid.http import HttpClient, WsComponent
 
 ws_routes = web.RouteTableDef()

@@ -1,15 +1,11 @@
 import os
 
-from openapi import sentry
-from openapi.middleware import json_error
+from .tools.text import str2bool
 
-PYTHON_ENV = os.environ.get("PYTHON_ENV", "production")
-ENVIRONMENT = os.environ.get("ENVIRONMENT", PYTHON_ENV)
-SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
+# Workers
+STOPPING_GRACE_PERIOD: int = int(os.getenv("STOPPING_GRACE_PERIOD") or "10")
 
-
-def add_error_middleware(app):
-    app["env"] = PYTHON_ENV
-    sm = sentry.middleware(app, SENTRY_DSN, ENVIRONMENT)
-    app.middlewares.append(json_error())
-    app.middlewares.append(sm)
+# Database
+DBPOOL_MAX_SIZE: int = int(os.getenv("DBPOOL_MAX_SIZE") or "10")
+DBPOOL_MAX_OVERFLOW: int = int(os.getenv("DBPOOL_MAX_OVERFLOW") or "10")
+DBECHO: bool = str2bool(os.getenv("DBECHO") or "no")

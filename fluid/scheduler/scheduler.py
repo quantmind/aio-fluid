@@ -3,7 +3,7 @@ import os
 from datetime import datetime
 from typing import Dict
 
-from ..node import Node
+from ..tools_aiohttp.node import Node
 from .consumer import TaskManager
 from .crontab import CronRun
 from .task import Task

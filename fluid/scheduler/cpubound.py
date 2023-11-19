@@ -5,7 +5,7 @@ import sys
 from logging.config import dictConfig
 from typing import Any, overload
 
-from fluid import kernel, log
+from fluid import log
 from fluid.scheduler import (
     Scheduler,
     Task,
@@ -21,6 +21,7 @@ from fluid.scheduler import (
     settings,
 )
 from fluid.scheduler.task import RandomizeType
+from fluid.tools import kernel
 
 
 class RemoteLog:

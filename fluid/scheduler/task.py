@@ -19,7 +19,7 @@ from uuid import uuid4
 from openapi.spec.utils import trim_docstring
 
 from fluid import log
-from fluid.node import WorkerApplication
+from fluid.tools_aiohttp.node import WorkerApplication
 from fluid.utils import microseconds
 
 from .constants import TaskPriority

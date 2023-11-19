@@ -13,8 +13,8 @@ from typing import Any, Callable, Coroutine, List, Optional, Tuple
 from aiohttp.client import ClientConnectionError, ClientConnectorError
 from aiohttp.web import Application, GracefulExit
 
-from .log import get_logger
-from .utils import close_task, dot_name, underscore
+from ..log import get_logger
+from ..utils import close_task, dot_name, underscore
 
 WorkerType = Callable[[], Coroutine[Any, Any, None]]
 

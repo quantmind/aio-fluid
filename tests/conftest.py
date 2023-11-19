@@ -4,7 +4,7 @@ import os
 import pytest
 from openapi.testing import TestClient, app_cli
 
-from fluid.redis import FluidRedis
+from fluid.tools.redis import FluidRedis
 
 from .app import AppClient, create_app
 

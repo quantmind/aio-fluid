@@ -13,7 +13,7 @@ from aiohttp.formdata import FormData
 from inflection import underscore
 
 from fluid import json
-from fluid.node import NodeWorker
+from fluid.tools_aiohttp.node import NodeWorker
 from fluid.types import JsonType, String, to_bytes
 
 from .utils import with_ops

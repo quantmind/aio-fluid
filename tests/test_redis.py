@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from typing import Any, List, NamedTuple
 
 from fluid import json
-from fluid.redis import FluidRedis
+from fluid.tools.redis import FluidRedis
 from fluid.utils import wait_for
 
 

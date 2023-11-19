@@ -19,7 +19,7 @@ install: 		## install packages in virtualenv
 
 
 lint: 			## run linters
-	poetry run ./dev/lint
+	poetry run ./dev/lint fix
 
 
 mypy:			## run mypy
@@ -33,8 +33,8 @@ test:			## test with coverage
 		--cov --cov-report xml --cov-report html
 
 
-test-lint:		## run linters
-	poetry run ./dev/lint --check
+test-lint:		## run test linters
+	poetry run ./dev/lint
 
 
 test-version:		## check version compatibility
@@ -46,4 +46,4 @@ publish:		## release to pypi and github tag
 
 
 outdated:		## Show outdated packages
-	poetry show -o
+	poetry show -o -a
