@@ -43,3 +43,9 @@ publish:		## release to pypi and github tag
 
 outdated:		## Show outdated packages
 	poetry show -o -a
+
+
+
+.PHONY: example
+example:		## run task scheduler example
+	@poetry run python -m examples.all_features
