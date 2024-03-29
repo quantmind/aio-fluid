@@ -3,7 +3,6 @@ from __future__ import annotations
 import inspect
 import logging
 import os
-from importlib import import_module
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -11,16 +10,12 @@ from typing import (
     Coroutine,
     NamedTuple,
     TypeVar,
-    cast,
     overload,
 )
 from uuid import uuid4
 
-from openapi.spec.utils import trim_docstring
-
 from fluid import log
-from fluid.tools_aiohttp.node import WorkerApplication
-from fluid.utils import microseconds
+from fluid.tools.text import trim_docstring
 
 from .constants import TaskPriority
 from .crontab import Scheduler
@@ -47,18 +42,6 @@ T = TypeVar("T")
 
 class ImproperlyConfigured(RuntimeError):
     pass
-
-
-def create_task_app() -> WorkerApplication:
-    if not TASK_MANAGER_APP:
-        raise ImproperlyConfigured("missing TASK_MANAGER_APP environment variable")
-    bits = TASK_MANAGER_APP.split(":")
-    if len(bits) != 2:
-        raise ImproperlyConfigured(
-            "TASK_MANAGER_APP must be of the form <module>:<function>"
-        )
-    mod = import_module(bits[0])
-    return cast(WorkerApplication, getattr(mod, bits[1])())
 
 
 class TaskContext(NamedTuple):
@@ -111,16 +94,6 @@ class Task(NamedTuple):
     async def register(self, broker: "Broker") -> None:
         pass
 
-    async def __call__(
-        self,
-        task_manager: TaskManager | None = None,
-        **kwargs: Any,
-    ) -> Any:
-        if task_manager is None:
-            task_manager = create_task_app()["task_manager"]
-        context = self.create_context(task_manager, **kwargs)
-        return await self.executor(context)
-
     def create_context(
         self,
         task_manager: TaskManager,
@@ -144,8 +117,7 @@ class Task(NamedTuple):
 
 
 @overload
-def task(executor: TaskExecutor) -> Task:
-    ...
+def task(executor: TaskExecutor) -> Task: ...
 
 
 @overload
@@ -157,8 +129,7 @@ def task(
     randomize: RandomizeType | None = None,
     max_concurrency: int = 1,
     priority: TaskPriority = TaskPriority.medium,
-) -> TaskConstructor:
-    ...
+) -> TaskConstructor: ...
 
 
 # implementation of the task decorator

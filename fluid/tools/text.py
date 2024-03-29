@@ -31,7 +31,7 @@ def as_uuid(uid: Any) -> str | None:
     return None
 
 
-def nice_env_str(space: int = 4, trim_length: int = 100):
+def nice_env_str(space: int = 4, trim_length: int = 100) -> str:
     lt = max(len(k) for k in os.environ) + space
     values = []
     for key, value in os.environ.items():
@@ -46,3 +46,17 @@ def nice_json(data: Any) -> str:
     if not isinstance(data, str):
         return json.dumps(data, indent=4)
     return data
+
+
+def trim_docstring(docstring: str) -> str:
+    """Uniformly trims leading/trailing whitespace from docstrings.
+    Based on
+    http://www.python.org/peps/pep-0257.html#handling-docstring-indentation
+    """
+    if not docstring or not docstring.strip():
+        return ""
+    # Convert tabs to spaces and split into lines
+    lines = docstring.expandtabs().splitlines()
+    indent = min(len(line) - len(line.lstrip()) for line in lines if line.lstrip())
+    trimmed = [lines[0].lstrip()] + [line[indent:].rstrip() for line in lines[1:]]
+    return "\n".join(trimmed).strip()

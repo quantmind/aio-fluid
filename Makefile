@@ -14,16 +14,12 @@ clean:			## remove python cache files
 	rm -rf .coverage
 
 
-install: 		## install packages in virtualenv
-	@./dev/install
+install: 		## install dev packages via poetry
+	@./.dev/install
 
 
 lint: 			## run linters
-	poetry run ./dev/lint fix
-
-
-mypy:			## run mypy
-	@poetry run mypy fluid
+	poetry run ./.dev/lint fix
 
 
 test:			## test with coverage

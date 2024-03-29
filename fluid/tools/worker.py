@@ -6,7 +6,7 @@ import random
 from abc import ABC, abstractmethod, abstractproperty
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from typing import AsyncGenerator, Awaitable, Callable, Generic, Sequence
+from typing import Any, AsyncIterator, Awaitable, Callable, Generic, Sequence
 
 import async_timeout
 from inflection import underscore
@@ -37,7 +37,7 @@ class Worker(ABC):
         return 1
 
     @abstractmethod
-    async def status(self) -> dict:
+    async def status(self) -> dict[str, Any]:
         """
         Get the status of the strategy.
         """
@@ -67,7 +67,7 @@ class StoppingWorker(Worker):
     def gracefully_stop(self) -> None:
         self._stopping = True
 
-    async def status(self) -> dict:
+    async def status(self) -> dict[str, Any]:
         return {"stopping": self.stopping}
 
 
@@ -83,7 +83,7 @@ class TickWorker(StoppingWorker):
         self._nr_ticks: int = 0
         self._heartbeat = heartbeat
 
-    async def status(self) -> dict:
+    async def status(self) -> dict[str, Any]:
         status = await super().status()
         status.update(ticks=self._nr_ticks)
         return status
@@ -118,7 +118,7 @@ class QueueConsumer(StoppingWorker, Generic[MessageType]):
     def queue_size(self) -> int:
         return self._queue.qsize()
 
-    async def status(self) -> dict:
+    async def status(self) -> dict[str, Any]:
         status = await super().status()
         status.update(queue_size=self.queue_size())
         return status
@@ -150,7 +150,7 @@ class AsyncConsumer(QueueConsumer[MessageType]):
 @dataclass
 class WorkerTasks:
     workers: Sequence[Worker] = field(default_factory=list)
-    tasks: Sequence[asyncio.Task] = field(default_factory=list)
+    tasks: Sequence[asyncio.Task[Any]] = field(default_factory=list)
 
     @property
     def stopping(self) -> bool:
@@ -166,7 +166,7 @@ class WorkerTasks:
             return False
         return True
 
-    def workers_tasks(self) -> tuple[list[Worker], list[asyncio.Task]]:
+    def workers_tasks(self) -> tuple[list[Worker], list[asyncio.Task[Any]]]:
         if self.frozen:
             raise RuntimeError("Cannot add workers")
         return self.workers, self.tasks  # type: ignore
@@ -175,7 +175,7 @@ class WorkerTasks:
         for worker in self.workers:
             worker.gracefully_stop()
 
-    async def status(self) -> dict:
+    async def status(self) -> dict[str, Any]:
         status_workers = await asyncio.gather(
             *[worker.status() for worker in self.workers],
         )
@@ -207,12 +207,10 @@ class MultipleWorkers(Worker):
         self.add_workers(*workers)
 
     @abstractmethod
-    def add_workers(self, *workers: Worker) -> None:
-        ...
+    def add_workers(self, *workers: Worker) -> None: ...
 
     @abstractmethod
-    async def wait_for_exit(self) -> None:
-        ...
+    async def wait_for_exit(self) -> None: ...
 
     @property
     def stopping(self) -> bool:
@@ -225,10 +223,10 @@ class MultipleWorkers(Worker):
     def gracefully_stop(self) -> None:
         self._workers.gracefully_stop()
 
-    async def status(self) -> dict:
+    async def status(self) -> dict[str, Any]:
         return await self._workers.status()
 
-    def create_task(self, worker: Worker) -> asyncio.Task:
+    def create_task(self, worker: Worker) -> asyncio.Task[Any]:
         return asyncio.create_task(
             self._run_worker(worker), name=f"{self.worker_name}-{worker.worker_name}"
         )
@@ -267,7 +265,7 @@ class MultipleWorkers(Worker):
         self.gracefully_stop()
 
     @asynccontextmanager
-    async def safe_run(self) -> AsyncGenerator:
+    async def safe_run(self) -> AsyncIterator[None]:
         """Context manager to run a worker safely"""
         try:
             yield
@@ -326,7 +324,7 @@ class Workers(MultipleWorkers):
         super().__init__(
             *workers, name=name, stopping_grace_period=stopping_grace_period
         )
-        self._workers_task: asyncio.Task | None = None
+        self._workers_task: asyncio.Task[Any] | None = None
         self._delayed_callbacks: list[
             tuple[Callable[[], None], float, float, float]
         ] = []

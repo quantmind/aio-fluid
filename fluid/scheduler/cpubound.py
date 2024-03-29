@@ -64,8 +64,7 @@ class CpuTaskConstructor(TaskConstructor):
 
 
 @overload
-def cpu_task(executor: TaskExecutor) -> Task:
-    ...
+def cpu_task(executor: TaskExecutor) -> Task: ...
 
 
 @overload
@@ -77,8 +76,7 @@ def cpu_task(
     randomize: RandomizeType | None = None,
     max_concurrency: int = 1,
     priority: TaskPriority = TaskPriority.medium,
-) -> CpuTaskConstructor:
-    ...
+) -> CpuTaskConstructor: ...
 
 
 def cpu_task(
