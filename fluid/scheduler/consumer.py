@@ -3,40 +3,28 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import defaultdict, deque
-from dataclasses import dataclass
-from functools import cached_property
-from typing import Any, Callable, Coroutine, Deque, Dict, NamedTuple, Optional
+from functools import cached_property, partial
+from typing import Any, Callable, Coroutine, NamedTuple
 
 from inflection import underscore
 
-from fluid.tools.timestamp import Timestamp
-from fluid.tools.worker import QueueConsumer, TickWorker, Workers
+from fluid import settings
+from .errors import TaskRunError, UnknownTaskError
+from fluid.utils.dates import utcnow
+from fluid.utils.worker import (
+    QueueConsumerWorker,
+    WorkerFunction,
+    Workers,
+)
 
-from .broker import Broker, QueuedTask, TaskRegistry, UnknownTask
-from .constants import TaskPriority, TaskState
-from .task import Task
-from .task_run import TaskRun
+from .broker import Broker, QueuedTask, TaskRegistry
+from .models import Task, TaskManagerConfig, TaskPriority, TaskRun, TaskState
 
 ConsumerCallback = Callable[[TaskRun, "TaskManager"], None]
 AsyncExecutor = Callable[..., Coroutine[Any, Any, None]]
 AsyncMessage = tuple[AsyncExecutor, tuple[Any, ...]]
 
-logger = logging.getLogger(__name__)
-
-
-class TaskFailure(RuntimeError):
-    pass
-
-
-@dataclass
-class TaskManagerConfig:
-    schedule_tasks: bool = True
-    consume_tasks: bool = True
-    max_concurrent_tasks: int = 10
-    """number of coroutine workers"""
-    sleep: float = 0.1
-    """amount to sleep after completion of a task"""
-    broker_url: str = ""
+logger = settings.get_logger(__name__)
 
 
 class Event(NamedTuple):
@@ -49,29 +37,20 @@ class Event(NamedTuple):
         return cls(bits[0], bits[1] if len(bits) > 1 else "")
 
 
-class AsyncConsumer(QueueConsumer[AsyncExecutor]):
-    async def run(self) -> None:
-        while not self.stopping:
-            if message := await self.receive():
-                try:
-                    executable, args = message
-                    await executable(*args)
-                except Exception:
-                    logger.exception(
-                        "unhandled exception while executing async callaback"
-                    )
-
-
 class TaskManager(Workers):
     """Base class for both TaskConsumer and TaskScheduler"""
 
     def __init__(self, **kwargs: Any) -> None:
         super().__init__()
-        self._msg_handlers: Dict[str, Dict[str, ConsumerCallback]] = defaultdict(dict)
-        self._task_to_queue: Deque[QueuedTask] = deque()
-        self._consumer = AsyncConsumer(name="internal-consumer")
+        self._msg_handlers: dict[str, dict[str, ConsumerCallback]] = defaultdict(dict)
+        self._task_to_queue: deque[QueuedTask] = deque()
+        self._queue_tasks_worker = WorkerFunction(
+            self._queue_task, name="queue-task-worker"
+        )
+        self._consumer = QueueConsumerWorker(self._execute_async)
         self.config: TaskManagerConfig = TaskManagerConfig(**kwargs)
-        self.add_workers(TickWorker(self._queue_tasks, name="queue"), self._consumer)
+        self.state: dict = {}
+        self.add_workers(self._queue_tasks_worker, self._consumer)
 
     @cached_property
     def broker(self) -> Broker:
@@ -85,7 +64,7 @@ class TaskManager(Workers):
     def type(self) -> str:
         return underscore(self.__class__.__name__)
 
-    async def teardown(self) -> None:
+    async def on_shutdown(self) -> None:
         await self.broker.close()
 
     def register_task(self, task: Task) -> None:
@@ -95,13 +74,22 @@ class TaskManager(Workers):
         """
         self.broker.register_task(task)
 
+    def register_from_module(self, module: Any) -> None:
+        for name in dir(module):
+            if name.startswith("_"):
+                continue
+            if isinstance(obj := getattr(module, name), Task):
+                self.register_task(obj)
+
     def queue(
         self,
         task: str,
-        priority: Optional[TaskPriority] = None,
+        priority: TaskPriority | None = None,
         **params: Any,
     ) -> QueuedTask:
-        """Queue a Task for execution and return schedule_tasksthe QueuedTask object"""
+        """Queue a Task for execution and return he QueuedTask object"""
+        # make sure the task is registered
+        self.broker.task_from_registry(task)
         queued_task = QueuedTask(
             run_id=self.broker.new_uuid(),
             task=task,
@@ -110,6 +98,30 @@ class TaskManager(Workers):
         )
         self._task_to_queue.appendleft(queued_task)
         return queued_task
+
+    def create_task_run(self, queued_task: QueuedTask) -> TaskRun:
+        """Create a TaskRun from a QueuedTask"""
+        task = self.task_from_registry(queued_task.task)
+        return self.create_task_run_from_task(
+            task, queued_task.run_id, queued_task.priority, **queued_task.params
+        )
+
+    def create_task_run_from_task(
+        self,
+        task: Task,
+        run_id: str,
+        priority: TaskPriority | None = None,
+        **params: Any,
+    ) -> TaskRun:
+        return TaskRun(
+            id=run_id,
+            task=task,
+            priority=priority or task.priority,
+            state=TaskState.queued,
+            params=params,
+            queued=utcnow(),
+            task_manager=self,
+        )
 
     def dispatch(self, task_run: TaskRun, event_type: str) -> None:
         """Dispatch a message to the registered handlers."""
@@ -128,15 +140,34 @@ class TaskManager(Workers):
     def execute_async(self, async_callable: AsyncExecutor, *args: Any) -> None:
         self._consumer.send((async_callable, args))
 
+    async def execute_task(
+        self, task: Task, run_id: str = "", **params: Any
+    ) -> TaskRun:
+        run_id = run_id or self.broker.new_uuid()
+        task_run = self.create_task_run_from_task(task, run_id, **params)
+        return await self.execute_task_run(task_run)
+
+    async def execute_task_run(self, task_run: TaskRun) -> None:
+        self.execute_async(task_run.wrapper())
+        await task_run.waiter
+
     # process tasks from the internal queue
-    async def _queue_tasks(self) -> None:
+    async def _queue_task(self) -> None:
         try:
             queued_task = self._task_to_queue.pop()
         except IndexError:
             await asyncio.sleep(0.1)
         else:
-            task_run = await self.broker.queue_task(queued_task)
+            task_run = await self.broker.queue_task(self, queued_task)
             self.dispatch(task_run, "queued")
+            await asyncio.sleep(0)
+
+    async def _execute_async(self, message: AsyncMessage) -> None:
+        try:
+            executable, args = message
+            await executable(*args)
+        except Exception:
+            logger.exception("unhandled exception while executing async callback")
 
 
 class TaskConsumer(TaskManager):
@@ -147,7 +178,12 @@ class TaskConsumer(TaskManager):
         self._concurrent_tasks: dict[str, dict[str, TaskRun]] = defaultdict(dict)
         self._priority_task_run_queue: deque[TaskRun] = deque()
         for i in range(self.config.max_concurrent_tasks):
-            self.add_workers(TickWorker(self._consume_tasks, name=f"worker-{i+1}"))
+            worker_name = f"task-worker-{i+1}"
+            self.add_workers(
+                WorkerFunction(
+                    partial(self._consume_tasks, worker_name), name=worker_name
+                )
+            )
 
     @property
     def num_concurrent_tasks(self) -> int:
@@ -169,13 +205,12 @@ class TaskConsumer(TaskManager):
             task=task,
             params=params,
         )
-        data = self.broker.task_run_data(queued_task, TaskState.queued)
-        task_run = self.broker.task_run_from_data(data)
+        task_run = self.broker.create_task_run(self, queued_task)
         self._priority_task_run_queue.appendleft(task_run)
         return task_run
 
     # Internals
-    async def _consume_tasks(self) -> None:
+    async def _consume_tasks(self, worker_name: str) -> None:
         if not self.config.consume_tasks:
             await asyncio.sleep(self.config.sleep)
             return
@@ -183,23 +218,22 @@ class TaskConsumer(TaskManager):
             task_run = self._priority_task_run_queue.pop()
         else:
             try:
-                maybe_task_run = await self.broker.get_task_run()
-            except UnknownTask as exc:
-                self.logger.error(
-                    "unknown task %s - it looks like it is not "
+                maybe_task_run = await self.broker.get_task_run(self)
+            except UnknownTaskError as exc:
+                logger.error(
+                    "%s unknown task %s - it looks like it is not "
                     "registered with this consumer",
+                    worker_name,
                     exc,
                 )
                 maybe_task_run = None
             if not maybe_task_run:
-                await asyncio.sleep(self.config.sleep)
                 return
             else:
                 task_run = maybe_task_run
         task_name = task_run.name
-        task_run.start = Timestamp.utcnow()
+        task_run.start = utcnow()
         task_run.set_state(TaskState.running)
-        task_context = task_run.task.create_context(self, task_run=task_run)
         self._concurrent_tasks[task_name][task_run.id] = task_run
         #
         if task_run.task.max_concurrency < self.num_concurrent_tasks_for(task_name):
@@ -210,29 +244,29 @@ class TaskConsumer(TaskManager):
             task_run.waiter.set_result(None)
         #
         else:
-            task_context.logger.info("start")
+            task_run.logger.info("start")
             self.dispatch(task_run, "start")
             try:
-                result = await task_run.task.executor(task_context)
+                result = await task_run.task.executor(task_run)
             except Exception as exc:
                 task_run.waiter.set_exception(exc)
                 task_run.set_state(TaskState.failure)
             else:
                 if task_run.is_failure:
-                    task_run.waiter.set_exception(TaskFailure())
+                    task_run.waiter.set_exception(TaskRunError())
                 else:
                     task_run.waiter.set_result(result)
                     if not task_run.in_finish_state:
                         task_run.set_state(TaskState.success)
         try:
             await task_run.waiter
-        except TaskFailure:
+        except TaskRunError:
             # task_context.logger.warning("CPU bound task failure")
             # no need to log here, the log is already done from the CPU bound script
             pass
         except Exception:
-            task_context.logger.exception("critical exception while executing")
-        task_run.end = Timestamp.utcnow()
+            task_run.logger.exception("critical exception while executing")
+        task_run.end = utcnow()
         self._concurrent_tasks[task_name].pop(task_run.id, None)
         await self.broker.update_task(
             task_run.task,
@@ -243,9 +277,13 @@ class TaskConsumer(TaskManager):
             ),
         )
         self.dispatch(task_run, "end")
-        task_context.logger.log(
+        task_run.logger.log(
             logging.WARNING if task_run.is_failure else logging.INFO,
             "end - %s - milliseconds - %s",
             task_run.state,
-            round(0.001 * task_run.duration, 3),
+            round(task_run.duration.total_millis, 2),
         )
+
+
+# required by pydantic to avoid `Class not fully defined` error
+TaskRun.model_rebuild()

@@ -4,7 +4,6 @@ import sys
 from functools import partial
 
 import aioconsole
-from aiohttp.web import Application
 
 logger = logging.getLogger(__name__)
 AIO_BACKDOOR_PORT: int = int(os.environ.get("AIO_BACKDOOR_PORT", "8087"))
@@ -13,13 +12,6 @@ CONSOLE_MESSAGE = """\
 This console is running in the same asyncio event loop as the Service application.
 Try: await asyncio.sleep(1, result=3)
 ---"""
-
-
-def setup(app: Application, port: int = AIO_BACKDOOR_PORT) -> None:
-    console = ConsoleManager(port)
-    app.on_startup.append(console.on_startup)
-    app.on_cleanup.insert(0, console.on_cleanup)
-    app["console_manager"] = console
 
 
 class Console(aioconsole.AsynchronousConsole):

@@ -4,7 +4,11 @@
 import re
 from abc import ABC, abstractmethod
 from datetime import datetime
-from typing import NamedTuple, Optional, Set, Union
+from typing import NamedTuple, Set, Union
+
+from zoneinfo import ZoneInfo
+
+from fluid.utils.dates import UTC
 
 dash_re = re.compile(r"(\d+)-(\d+)")
 every_re = re.compile(r"\*\/(\d+)")
@@ -19,6 +23,7 @@ class CronRun(NamedTuple):
     hour: int
     minute: int
     second: int = 0
+    tz: ZoneInfo = UTC
 
     @property
     def datetime(self) -> datetime:
@@ -35,12 +40,12 @@ class Scheduler(ABC):
 
     @abstractmethod
     def __call__(
-        self, timestamp: datetime, last_run: Optional[CronRun] = None
-    ) -> Optional[CronRun]:
-        pass
+        self, timestamp: datetime, last_run: CronRun | None = None
+    ) -> CronRun | None:
+        """Return a CronRun if the given timestamp matches the schedule."""
 
 
-class crontab(Scheduler):
+class crontab(Scheduler):  # noqa N801
     """
     Convert a "crontab"-style set of parameters into a test function that will
     return True when the given datetime matches the parameters set forth in
@@ -60,7 +65,9 @@ class crontab(Scheduler):
         day: CI = "*",
         month: CI = "*",
         day_of_week: CI = "*",
+        tz: ZoneInfo = UTC,
     ) -> None:
+        self.tz: ZoneInfo = tz
         self._info = (
             f"minute {minute}; hour {hour}; day {day}; month {month}; "
             f"day_of_week {day_of_week}"
@@ -117,15 +124,20 @@ class crontab(Scheduler):
                         settings.update(acceptable[::interval])
 
             cron_settings.append(sorted(list(settings)))
-
         self.cron_settings = tuple(cron_settings)
 
     def info(self) -> str:
         return self._info
 
     def __call__(
-        self, timestamp: datetime, last_run: Optional[CronRun] = None
-    ) -> Optional[CronRun]:
+        self, timestamp: datetime, last_run: CronRun | None = None
+    ) -> CronRun | None:
+        # assume datetime is always utc
+        if timestamp.tzinfo is None:
+            raise ValueError("timestamp tick must have a timezone")
+        if timestamp.tzinfo != self.tz:
+            # convert timestamp into cron_settings timezone
+            timestamp = timestamp.astimezone(self.tz)
         year, month, day, hour, minute, _, w, _, _ = timestamp.timetuple()
         run = CronRun(year, month, day, (w + 1) % 7, hour, minute)
         if last_run == run:

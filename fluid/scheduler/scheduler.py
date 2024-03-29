@@ -1,34 +1,37 @@
 import asyncio
-import os
-from datetime import datetime
-from typing import Dict
+from typing import Any
 
-from ..tools_aiohttp.node import Node
-from .consumer import TaskManager
+from fluid import settings
+from fluid.utils.dates import utcnow
+from fluid.utils.worker import WorkerFunction
+
+from .consumer import TaskConsumer
 from .crontab import CronRun
-from .task import Task
+from .models import Task
 
 
-class TaskScheduler(TaskManager):
+class TaskScheduler(TaskConsumer):
     """A task manager for scheduling tasks"""
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, **kwargs: Any) -> None:
+        super().__init__(**kwargs)
         self.add_workers(ScheduleTasks(self))
 
 
-class ScheduleTasks(Node):
-    heartbeat = float(os.getenv("TASK_SCHEDULER_HEARTBEAT", "0.1"))
-
-    def __init__(self, task_manager: TaskScheduler) -> None:
-        super().__init__()
+class ScheduleTasks(WorkerFunction):
+    def __init__(
+        self,
+        task_manager: TaskScheduler,
+        heartbeat: float | int = 0.001 * settings.SCHEDULER_HEARTBEAT_MILLIS,
+    ) -> None:
+        super().__init__(self.tick, heartbeat=heartbeat)
         self.task_manager: TaskScheduler = task_manager
-        self.last_run: Dict[str, CronRun] = {}
+        self.last_run: dict[str, CronRun] = {}
 
     async def tick(self) -> None:
         if not self.task_manager.config.schedule_tasks:
             return
-        now = datetime.utcnow()
+        now = utcnow()
         periodic_tasks = await self.task_manager.broker.filter_tasks(
             scheduled=True, enabled=True
         )

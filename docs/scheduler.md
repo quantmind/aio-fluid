@@ -1,4 +1,4 @@
-# Distrubuted Task Producer/Consumer
+# Distributed Task Producer/Consumer
 
 This module has a lightweight implementation of a distributed task producer (TaskScheduler) and consumer (TaskConsumer).
 The middleware for distributing tasks can be configured via the Broker interface.
@@ -6,13 +6,13 @@ A redis broker is provided for convenience.
 
 ## Tasks
 
-Tasks are standard python async functions decorated with the `task` or `cpu_task` decorators.
+Tasks are standard python async functions decorated with the `task` decorator.
 
 ```python
-from fluid.scheduler import task, TaskContext
+from fluid.scheduler import task, TaskRun
 
 @task
-async def say_hi(ctx: TaskContext):
+async def say_hi(ctx: TaskRun):
     return "Hi!"
 ```
 
@@ -21,10 +21,10 @@ There are two types of tasks implemented
 * **Simple concurrent tasks** - they run concurrently with the task consumer - thy must be IO type tasks (no heavy CPU bound operations)
 
   ```python
-    from fluid.scheduler import task, TaskContext
+    from fluid.scheduler import task, TaskRun
 
     @task
-    async def fecth_data(ctx: TaskContext):
+    async def fecth_data(ctx: TaskRun):
         # fetch data
         data = await http_cli.get("https://...")
         data_id = await datastore_cli.stote(data)
@@ -35,10 +35,10 @@ There are two types of tasks implemented
 * **CPU bound tasks** - they run on a subprocess
 
   ```python
-    from fluid.scheduler import cpu_task, TaskContext
+    from fluid.scheduler import task, TaskRun
 
-    @cpu_task
-    async def heavy_calculation(ctx: TaskContext):
+    @task(cpu_bound=True)
+    async def heavy_calculation(ctx: TaskRun):
         # perform some heavy calculation
         data = await datastore_cli.get(ctx.params["data_id"])
         ...
