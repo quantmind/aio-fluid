@@ -3,6 +3,7 @@ import os
 from .utils.text import to_bool
 
 APP_NAME: str = os.getenv("APP_NAME", "fluid")
+ENV: str = os.getenv("PYTHON_ENV", "dev")
 LOG_LEVEL = (os.getenv("LOG_LEVEL") or "info").upper()
 LOG_HANDLER = os.getenv("LOG_HANDLER", "plain")
 PYTHON_LOG_FORMAT = os.getenv(

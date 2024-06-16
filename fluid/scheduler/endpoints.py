@@ -16,11 +16,15 @@ from fluid.utils.worker import Worker
 router = APIRouter()
 
 
-def get_task_manger(request: Request) -> TaskManager:
-    return cast(TaskManager, request.app.state.task_manager)
+def get_task_manger_from_request(request: Request) -> TaskManager:
+    return get_task_manger(request.app)
 
 
-TaskManagerDep = Annotated[TaskManager, Depends(get_task_manger)]
+def get_task_manger(app: FastAPI) -> TaskManager:
+    return cast(TaskManager, app.state.task_manager)
+
+
+TaskManagerDep = Annotated[TaskManager, Depends(get_task_manger_from_request)]
 
 
 class TaskUpdate(BaseModel):
