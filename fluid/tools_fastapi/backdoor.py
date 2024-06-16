@@ -2,7 +2,7 @@ from functools import partial
 
 from fastapi import FastAPI
 
-from fluid.tools.backdoor import AIO_BACKDOOR_PORT, ConsoleManager
+from fluid.utils.backdoor import AIO_BACKDOOR_PORT, ConsoleManager
 
 
 def setup(app: FastAPI, port: int = AIO_BACKDOOR_PORT) -> None:

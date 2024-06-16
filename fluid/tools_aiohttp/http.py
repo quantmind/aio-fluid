@@ -16,7 +16,7 @@ from fluid import json
 from fluid.tools_aiohttp.node import NodeWorker
 from fluid.types import JsonType, String, to_bytes
 
-from .utils import with_ops
+from ..utils import with_ops
 
 
 class ResponseError(RuntimeError):

@@ -1,9 +1,11 @@
 import asyncio
 import os
+import time
 from datetime import timedelta
 from typing import cast
 
 from fluid.scheduler import TaskRun, every, task
+from fluid.scheduler.broker import RedisBroker
 
 
 @task
@@ -29,9 +31,10 @@ async def disabled(context: TaskRun) -> float:
     return sleep
 
 
-@task(cpu_bound=True)
-async def cpu_bound(context: TaskRun) -> int:
-    await asyncio.sleep(0.1)
-    redis = context.task_manager.broker.redis_cli
-    await redis.setex(context.run_id, os.getpid(), 10)
-    return 0
+@task(cpu_bound=True, schedule=every(timedelta(seconds=5)))
+async def cpu_bound(context: TaskRun) -> None:
+    """A CPU bound task running on subprocess"""
+    time.sleep(1)
+    broker = cast(RedisBroker, context.task_manager.broker)
+    redis = broker.redis_cli
+    await redis.setex(context.id, os.getpid(), 10)

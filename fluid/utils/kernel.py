@@ -6,8 +6,8 @@ KernelCallback = Callable[[bytes], None]
 READ_LIMIT = 2**16  # 64 KiB
 
 
-async def run_python(*args: str) -> int:
-    return await run(sys.executable, *args)
+async def run_python(*args: str, **kwargs) -> int:
+    return await run(sys.executable, *args, **kwargs)
 
 
 async def run(

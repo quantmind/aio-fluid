@@ -1,10 +1,11 @@
-from typing import Annotated
+from typing import Annotated, Any
 
-from fastapi import APIRouter, Depends, HTTPException, Path, Request
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Path, Request
 from pydantic import BaseModel, Field
 
 from fluid.scheduler import QueuedTask, TaskInfo, TaskManager, TaskPriority
 from fluid.scheduler.errors import UnknownTaskError
+from fluid.tools_fastapi import app_workers
 
 router = APIRouter()
 
@@ -67,3 +68,17 @@ async def patch_task(
         return await task_manager.broker.enable_task(task_name, task_update.enabled)
     except UnknownTaskError as exc:
         raise HTTPException(status_code=404, detail="Task not found") from exc
+
+
+def setup_fastapi(
+    task_manager: TaskManager,
+    *,
+    app: FastAPI | None = None,
+    **kwargs: Any,
+) -> FastAPI:
+    """Setup the FastAPI app"""
+    app = app or FastAPI(**kwargs)
+    app.include_router(router, tags=["Tasks"])
+    app.state.task_manager = task_manager
+    app_workers(app).add_workers(task_manager)
+    return app

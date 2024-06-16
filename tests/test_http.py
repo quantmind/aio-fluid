@@ -3,7 +3,7 @@ import json
 
 import pytest
 
-from fluid.http import HttpResponseError
+from fluid.tools_aiohttp.http import HttpResponseError
 
 from .app import AppClient
 

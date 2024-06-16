@@ -1,24 +1,25 @@
 from __future__ import annotations
 
-import asyncio
 import enum
 import inspect
+import json
 import logging
 import os
 import sys
-import json
-from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, NamedTuple, overload
 
 from pydantic import BaseModel, Field, field_serializer
 from redis.asyncio.lock import Lock
 
 from fluid import settings
-from fluid.utils import kernel
+from fluid.utils import kernel, log
+from fluid.utils.data import compact_dict
+from fluid.utils.dates import utcnow
 from fluid.utils.text import trim_docstring
 
 from .crontab import Scheduler
+from .errors import TaskDecoratorError, TaskRunError
 
 if TYPE_CHECKING:
     from .consumer import TaskManager
@@ -47,6 +48,10 @@ class TaskState(enum.StrEnum):
     def is_failure(self) -> bool:
         return self is TaskState.failure
 
+    @property
+    def is_done(self) -> bool:
+        return self in FINISHED_STATES
+
 
 FINISHED_STATES = frozenset(
     (TaskState.success, TaskState.failure, TaskState.aborted, TaskState.rate_limited)
@@ -63,21 +68,29 @@ class TaskManagerConfig(BaseModel):
     broker_url: str = ""
 
 
-class TaskInfo(BaseModel):
+class TaskInfoBase(BaseModel):
     name: str = Field(description="Task name")
     description: str = Field(description="Task description")
+    module: str = Field(description="Task module")
     priority: TaskPriority = Field(description="Task priority")
     schedule: str | None = Field(default=None, description="Task schedule")
+
+
+class TaskInfoUpdate(BaseModel):
     enabled: bool = Field(default=True, description="Task enabled")
-    last_run_end: int | None = Field(
+    last_run_end: datetime | None = Field(
         default=None, description="Task last run end as milliseconds since epoch"
     )
-    last_run_duration: int | None = Field(
+    last_run_duration: timedelta | None = Field(
         default=None, description="Task last run duration in milliseconds"
     )
     last_run_state: str | None = Field(
         default=None, description="State of last task run"
     )
+
+
+class TaskInfo(TaskInfoBase, TaskInfoUpdate):
+    pass
 
 
 class QueuedTask(BaseModel):
@@ -104,10 +117,24 @@ class Task(NamedTuple):
     """how many tasks can run in each consumer concurrently - 0 means no limit"""
     priority: TaskPriority = TaskPriority.medium
 
+    @property
+    def cpu_bound(self) -> bool:
+        return self.executor is run_in_subprocess
+
     def params_dump_json(self, params: dict[str, Any]) -> str:
         if params_model := self.params_model:
             return params_model(**params).model_dump_json()
         return json.dumps(params)
+
+    def info(self, **params: Any) -> TaskInfo:
+        params.update(
+            name=self.name,
+            description=self.description,
+            module=self.module,
+            priority=self.priority,
+            schedule=str(self.schedule) if self.schedule else None,
+        )
+        return TaskInfo(**compact_dict(params))
 
 
 class TaskRun(BaseModel, arbitrary_types_allowed=True):
@@ -122,12 +149,16 @@ class TaskRun(BaseModel, arbitrary_types_allowed=True):
     task_manager: TaskManager = Field(exclude=True, repr=False)
     start: datetime | None = None
     end: datetime | None = None
-    waiter: asyncio.Future[Any] = Field(
-        default_factory=asyncio.Future, exclude=True, repr=False
-    )
 
-    def wrapper(self) -> TaskRunWrapper:
-        return TaskRunWrapper(self)
+    async def execute(self) -> None:
+        try:
+            self.set_state(TaskState.running)
+            await self.task.executor(self)
+        except Exception:
+            self.set_state(TaskState.failure)
+            raise
+        else:
+            self.set_state(TaskState.success)
 
     @field_serializer("task")
     def serialize_task(self, task: Task, _info: Any) -> str:
@@ -138,16 +169,29 @@ class TaskRun(BaseModel, arbitrary_types_allowed=True):
         return self.task.logger
 
     @property
-    def in_queue(self) -> int:
-        return self.start.diff(self.queued)
+    def in_queue(self) -> timedelta | None:
+        if self.start:
+            return self.start - self.queued
+        return None
 
     @property
-    def duration(self) -> int:
-        return self.end.diff(self.start)
+    def duration(self) -> timedelta | None:
+        if self.start and self.end:
+            return self.end - self.start
+        return None
 
     @property
-    def total(self) -> int:
-        return self.end.diff(self.queued)
+    def duration_ms(self) -> float | None:
+        duration = self.duration
+        if duration is not None:
+            return round(1000 * duration.total_seconds(), 2)
+        return None
+
+    @property
+    def total(self) -> timedelta | None:
+        if self.end:
+            return self.end - self.queued
+        return None
 
     @property
     def name(self) -> str:
@@ -158,49 +202,30 @@ class TaskRun(BaseModel, arbitrary_types_allowed=True):
         return f"{self.task.name}.{self.id}"
 
     @property
-    def exception(self) -> BaseException | None:
-        return self.waiter.exception() if self.waiter.done() else None
-
-    @property
-    def result(self) -> Any:
-        return (
-            self.waiter.result() if self.waiter.done() and not self.exception else None
-        )
-
-    @property
-    def in_finish_state(self) -> bool:
-        return TaskState[self.state] in FINISHED_STATES
+    def is_done(self) -> bool:
+        return self.state.is_done
 
     @property
     def is_failure(self) -> bool:
         return self.state.is_failure
 
-    def set_state(self, state: TaskState) -> None:
+    def set_state(
+        self,
+        state: TaskState,
+    ) -> None:
         self.state = state
+        match self.state:
+            case TaskState.running:
+                self.start = utcnow()
+            case TaskState.success | TaskState.aborted | TaskState.rate_limited:
+                self.end = utcnow()
+                if self.start is None:
+                    self.start = self.end
+            case TaskState.failure:
+                self.end = utcnow()
 
     def lock(self, timeout: float | None) -> Lock:
         return self.task_manager.broker.lock(self.name, timeout=timeout)
-
-
-@dataclass
-class TaskRunWrapper:
-    task_run: TaskRun
-
-    async def __call__(self) -> None:
-        try:
-            await self.task_run.task.executor(self.task_run)
-        except Exception as exc:
-            self.task_run.waiter.set_exception(exc)
-        else:
-            self.task_run.waiter.set_result(None)
-
-
-class TaskDecoratorError(RuntimeError):
-    pass
-
-
-class TaskRunError(RuntimeError):
-    pass
 
 
 @overload
@@ -223,7 +248,6 @@ def task(
 
 # implementation of the task decorator
 def task(executor: TaskExecutor | None = None, **kwargs: Any) -> Task | TaskConstructor:
-
     if kwargs and executor:
         raise TaskDecoratorError("cannot use positional parameters")
     elif kwargs:
@@ -245,7 +269,11 @@ class TaskConstructor:
         else:
             return self.create_task(executor)
 
-    def create_task(self, executor: TaskExecutor, defaults: dict | None = None) -> Task:
+    def create_task(
+        self,
+        executor: TaskExecutor,
+        defaults: dict[str, Any] | None = None,
+    ) -> Task:
         kwargs: dict[str, Any] = self.kwargs_defaults(executor)
         if defaults:
             kwargs.update(defaults)
@@ -253,7 +281,7 @@ class TaskConstructor:
         name = kwargs["name"]
         kwargs.update(
             executor=executor,
-            logger=settings.get_logger(f"task.{name}", prefix=True),
+            logger=log.get_logger(f"task.{name}", prefix=True),
         )
         return Task(**kwargs)
 
@@ -264,9 +292,10 @@ class TaskConstructor:
             return self.create_task(run_in_subprocess, self.kwargs_defaults(executor))
 
     def kwargs_defaults(self, executor: TaskExecutor) -> dict[str, Any]:
+        module = inspect.getmodule(executor)
         return {
             "name": get_name(executor),
-            "module": inspect.getmodule(executor).__name__,
+            "module": module.__name__ if module else "",
             "description": trim_docstring(inspect.getdoc(executor) or ""),
             "executor": executor,
         }
@@ -312,4 +341,4 @@ async def run_in_subprocess(ctx: TaskRun) -> None:
         stream_error=True,
     )
     if result:
-        ctx.set_state(TaskState.failure)
+        raise TaskRunError(result)

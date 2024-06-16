@@ -12,3 +12,7 @@ class DisabledTaskError(TaskError):
 
 class TaskRunError(TaskError):
     pass
+
+
+class TaskDecoratorError(TaskError):
+    pass

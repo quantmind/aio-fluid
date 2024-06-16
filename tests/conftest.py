@@ -3,7 +3,6 @@ import os
 
 import pytest
 
-from .app import AppClient, create_app
 
 os.environ["PYTHON_ENV"] = "test"
 
@@ -16,26 +15,3 @@ def event_loop():
         yield loop
     finally:
         loop.close()
-
-
-@pytest.fixture
-async def redis():
-    cli = FluidRedis()
-    try:
-        yield cli
-    finally:
-        await cli.close()
-
-
-@pytest.fixture
-async def restcli() -> TestClient:
-    api_app = create_app()
-    app = api_app.web()
-    # single_db_connection(app)
-    async with app_cli(app) as client:
-        cli = AppClient("")
-        cli.session = client
-        try:
-            yield cli
-        finally:
-            await cli.close()

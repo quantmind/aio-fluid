@@ -7,7 +7,6 @@ from fluid.utils.worker import WorkerFunction
 
 from .consumer import TaskConsumer
 from .crontab import CronRun
-from .models import Task
 
 
 class TaskScheduler(TaskConsumer):
@@ -42,9 +41,8 @@ class ScheduleTasks(WorkerFunction):
                     self.last_run[task.name] = run
                     from_now = task.randomize() if task.randomize else 0
                     if from_now:
-                        asyncio.get_event_loop().call_later(from_now, self._queue, task)
+                        asyncio.get_event_loop().call_later(
+                            from_now, self.task_manager.sync_queue, task
+                        )
                     else:
-                        self._queue(task)
-
-    def _queue(self, task: Task) -> None:
-        self.task_manager.queue(task.name)
+                        self.task_manager.sync_queue(task)

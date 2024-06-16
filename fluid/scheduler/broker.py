@@ -9,11 +9,12 @@ from redis.asyncio.lock import Lock
 from yarl import URL
 
 from fluid import settings
-from fluid.utils.redis import Redis, FluidRedis
+from redis.asyncio import Redis
+from fluid.utils.redis import FluidRedis
 import json
 from .errors import UnknownTaskError
 
-from .models import QueuedTask, Task, TaskInfo, TaskPriority, TaskRun
+from .models import Task, TaskInfo, TaskPriority, TaskRun, TaskInfoUpdate
 
 if TYPE_CHECKING:  # pragma: no cover
     from .consumer import TaskManager
@@ -42,9 +43,7 @@ class Broker(ABC):
         """Names of the task queues"""
 
     @abstractmethod
-    async def queue_task(
-        self, task_manager: TaskManager, queued_task: QueuedTask
-    ) -> TaskRun:
+    async def queue_task(self, task_run: TaskRun) -> None:
         """Queue a task"""
 
     @abstractmethod
@@ -129,7 +128,7 @@ class RedisBroker(Broker):
         return FluidRedis.create(str(self.url.with_query({})), name=self.name)
 
     @property
-    def redis_cli(self) -> Redis:
+    def redis_cli(self) -> Redis[bytes]:
         return self.redis.redis_cli
 
     @property
@@ -170,9 +169,10 @@ class RedisBroker(Broker):
 
     async def update_task(self, task: Task, params: dict[str, Any]) -> TaskInfo:
         pipe = self.redis_cli.pipeline()
+        info = json.loads(TaskInfoUpdate(**params).model_dump_json())
         pipe.hset(
             self.task_hash_name(task.name),
-            mapping={name: json.dumps(value) for name, value in params.items()},
+            mapping={name: json.dumps(value) for name, value in info.items()},
         )
         pipe.hgetall(self.task_hash_name(task.name))
         _, info = await pipe.execute()
@@ -193,8 +193,8 @@ class RedisBroker(Broker):
 
     async def get_task_run(self, task_manager: TaskManager) -> TaskRun | None:
         if self.task_queue_names:
-            if redis_data := await self.redis_cli.brpop(  # type: ignore [misc]
-                self.task_queue_names,  # type: ignore [arg-type]
+            if redis_data := await self.redis_cli.brpop(
+                self.task_queue_names,
                 timeout=1,
             ):
                 data = json.loads(redis_data[1])
@@ -205,31 +205,18 @@ class RedisBroker(Broker):
                 return TaskRun(**data)
         return None
 
-    async def queue_task(
-        self, task_manager: TaskManager, queued_task: QueuedTask
-    ) -> TaskRun:
-        task_run = self.create_task_run(task_manager, queued_task)
-        await self.redis_cli.lpush(  # type: ignore [misc]
+    async def queue_task(self, task_run: TaskRun) -> None:
+        await self.redis_cli.lpush(
             self.task_queue_name(task_run.priority),
             task_run.model_dump_json(),
         )
-        return task_run
 
     def lock(self, name: str, timeout: float | None = None) -> Lock:
         return self.redis_cli.lock(name, timeout=timeout)
 
     def _decode_task(self, task: Task, data: dict[bytes, Any]) -> TaskInfo:
         info = {name.decode(): json.loads(value) for name, value in data.items()}
-        return TaskInfo(
-            name=task.name,
-            description=task.description,
-            schedule=str(task.schedule) if task.schedule else None,
-            priority=task.priority,
-            enabled=info.get("enabled", True),
-            last_run_duration=info.get("last_run_duration"),
-            last_run_end=info.get("last_run_end"),
-            last_run_state=info.get("last_run_state"),
-        )
+        return task.info(**info)
 
 
 Broker.register_broker("redis", RedisBroker)

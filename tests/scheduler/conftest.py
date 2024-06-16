@@ -4,7 +4,6 @@ from typing import AsyncIterator, cast
 import pytest
 from redis.asyncio import Redis
 
-from fluid.tools_aiohttp.node import WorkerApplication
 from fluid.scheduler import TaskConsumer, TaskScheduler
 from fluid.scheduler.broker import RedisBroker
 

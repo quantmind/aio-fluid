@@ -48,4 +48,4 @@ outdated:		## Show outdated packages
 
 .PHONY: example
 example:		## run task scheduler example
-	@poetry run python -m examples.all_features
+	@poetry run python -m examples.main
