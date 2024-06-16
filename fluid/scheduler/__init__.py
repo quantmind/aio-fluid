@@ -2,7 +2,7 @@ from .broker import Broker
 from .consumer import TaskConsumer, TaskManager
 from .crontab import Scheduler, crontab
 from .every import every
-from .models import Task, TaskInfo, TaskPriority, TaskRun, TaskState, task, QueuedTask
+from .models import QueuedTask, Task, TaskInfo, TaskPriority, TaskRun, TaskState, task
 from .scheduler import TaskScheduler
 
 __all__ = [

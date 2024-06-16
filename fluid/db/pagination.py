@@ -2,12 +2,11 @@ from __future__ import annotations
 
 from typing import Any, NamedTuple, Sequence, cast
 
+from fluid_common import settings
+from fluid_common.utils.errors import ValidationError
 from sqlalchemy.ext.asyncio import AsyncConnection
 from sqlalchemy.sql import FromClause, tuple_
 from sqlalchemy.sql.expression import ColumnElement
-
-from fluid_common import settings
-from fluid_common.utils.errors import ValidationError
 
 from .crud import CrudDB, Row, Select, column_value_to_python
 from .cursor import Cursor, CursorEntry

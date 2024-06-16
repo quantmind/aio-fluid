@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 
 import pytest
 
-from fluid.tools_aiohttp import node
+from fluid.utils.worker import QueueConsumerWorker
 
 
 @dataclass
@@ -12,19 +12,13 @@ class Waiter:
         default_factory=lambda: asyncio.get_event_loop().create_future()
     )
 
-    def __call__(self, message):
+    async def __call__(self, message):
         self.waiter.set_result(message)
-
-
-async def test_node_worker() -> None:
-    worker = node.NodeWorker()
-    assert worker.name() == "node_worker"
-    assert worker.uid == worker.uid
 
 
 async def test_consumer() -> None:
     process = Waiter()
-    consumer = node.Consumer(process)
+    consumer = QueueConsumerWorker(process)
     assert consumer.qsize() == 0
     with pytest.raises(RuntimeError):
         consumer.submit("test")

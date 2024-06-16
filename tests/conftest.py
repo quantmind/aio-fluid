@@ -3,7 +3,6 @@ import os
 
 import pytest
 
-
 os.environ["PYTHON_ENV"] = "test"
 
 

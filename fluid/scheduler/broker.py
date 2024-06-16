@@ -1,20 +1,20 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod, abstractproperty
+import json
+from abc import ABC, abstractmethod
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Iterable
 from uuid import uuid4
 
+from redis.asyncio import Redis
 from redis.asyncio.lock import Lock
 from yarl import URL
 
 from fluid import settings
-from redis.asyncio import Redis
 from fluid.utils.redis import FluidRedis
-import json
-from .errors import UnknownTaskError
 
-from .models import Task, TaskInfo, TaskPriority, TaskRun, TaskInfoUpdate
+from .errors import UnknownTaskError
+from .models import Task, TaskInfo, TaskInfoUpdate, TaskPriority, TaskRun
 
 if TYPE_CHECKING:  # pragma: no cover
     from .consumer import TaskManager
@@ -38,7 +38,8 @@ class Broker(ABC):
         self.url: URL = url
         self.registry: TaskRegistry = TaskRegistry()
 
-    @abstractproperty
+    @property
+    @abstractmethod
     def task_queue_names(self) -> tuple[str, ...]:
         """Names of the task queues"""
 

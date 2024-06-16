@@ -2,14 +2,13 @@ from datetime import date, datetime
 from typing import Any, Set, TypeAlias, cast
 
 from dateutil.parser import parse as parse_date
+from fluid_common.utils.errors import ValidationError
 from sqlalchemy import Column, Table, func, insert, select
 from sqlalchemy.engine.cursor import CursorResult
 from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncConnection
-from sqlalchemy.sql import Select, FromClause, and_, or_
+from sqlalchemy.sql import FromClause, Select, and_, or_
 from sqlalchemy.sql.dml import Delete, Insert, Update
-
-from fluid_common.utils.errors import ValidationError
 
 from .container import Database
 

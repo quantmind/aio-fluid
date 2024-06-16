@@ -1,4 +1,4 @@
-from fluid.tools import kernel
+from fluid.utils import kernel
 from tests.scripts import long_line
 
 

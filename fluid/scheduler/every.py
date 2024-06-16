@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 from .crontab import CronRun, Scheduler
 
 
-class every(Scheduler):
+class every(Scheduler):  # noqa: N801
     def __init__(
         self,
         delta: timedelta,

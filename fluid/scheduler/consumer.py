@@ -155,7 +155,7 @@ class TaskManager:
             raise ImportError(
                 "TaskManagerCLI is not available - "
                 "install with `pip install aio-fluid[cli]`"
-            )
+            ) from None
         return TaskManagerCLI(self, **kwargs)
 
     async def _execute_and_exit(self, task: Task | str, **params: Any) -> TaskRun:

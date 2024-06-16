@@ -7,14 +7,12 @@ from rich.console import Console
 from rich.table import Table
 
 from fluid.tools_fastapi import serve_app
+
 from .endpoints import setup_fastapi
 
 if TYPE_CHECKING:
     from .consumer import TaskManager
     from .models import TaskRun
-
-
-DEFAULT_COMMANDS: list[click.Command] = []
 
 
 class TaskManagerCLI(click.Group):

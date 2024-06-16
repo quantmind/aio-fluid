@@ -16,7 +16,7 @@ packages = [
 python = ">=3.11,<3.13"
 async-timeout = "^4.0.3"
 inflection = "^0.5.1"
-redis = "^5.0.1"
+redis = {version = "^5.0.1", extras = ["hiredis"] }
 pydantic = "^2.0.3"
 yarl = "^1.9.4"
 fastapi = {version = "^0.111.0"}
@@ -68,7 +68,7 @@ markers = [
 profile = "black"
 
 [tool.ruff]
-lint.select = ["E", "F"]
+lint.select = ["A", "E", "W", "F", "I", "B", "N"]
 line-length = 88
 
 [tool.mypy]

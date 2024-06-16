@@ -3,7 +3,7 @@ from typing import Any, FrozenSet, Hashable, Iterable, Set
 DEFAULT_SKIP_VALUES = frozenset((None,))
 
 
-def reversed_dict(d: dict) -> dict:
+def reversed_dict(d: dict) -> dict:  # type: ignore [type-arg]
     return {v: k for k, v in d.items()}
 
 

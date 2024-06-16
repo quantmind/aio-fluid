@@ -37,7 +37,9 @@ async def cpu_bound(context: TaskRun) -> int:
     return 0
 
 
-def add_task_manager(manager: TaskManager) -> TaskManager:
+def task_application(manager: TaskManager | None = None) -> TaskManager:
+    if manager is None:
+        manager = TaskManager()
     manager.register_task(dummy)
     manager.register_task(scheduled)
     manager.register_task(disabled)

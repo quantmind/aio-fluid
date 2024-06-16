@@ -1,17 +1,23 @@
-from typing import Annotated, Any
+from typing import Annotated, Any, cast
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Path, Request
 from pydantic import BaseModel, Field
 
-from fluid.scheduler import QueuedTask, TaskInfo, TaskManager, TaskPriority
+from fluid.scheduler import (
+    TaskInfo,
+    TaskManager,
+    TaskPriority,
+    TaskRun,
+)
 from fluid.scheduler.errors import UnknownTaskError
 from fluid.tools_fastapi import app_workers
+from fluid.utils.worker import Worker
 
 router = APIRouter()
 
 
 def get_task_manger(request: Request) -> TaskManager:
-    return request.app.state.task_manager
+    return cast(TaskManager, request.app.state.task_manager)
 
 
 TaskManagerDep = Annotated[TaskManager, Depends(get_task_manger)]
@@ -23,7 +29,7 @@ class TaskUpdate(BaseModel):
 
 class TaskCreate(BaseModel):
     name: str = Field(description="Task name")
-    params: dict = Field(description="Task parameters", default_factory=dict)
+    params: dict[str, Any] = Field(description="Task parameters", default_factory=dict)
     priority: TaskPriority | None = Field(default=None, description="Task priority")
 
 
@@ -39,16 +45,16 @@ async def get_tasks(task_manager: TaskManagerDep) -> list[TaskInfo]:
 
 @router.post(
     "/tasks",
-    response_model=QueuedTask,
+    response_model=TaskRun,
     summary="Queue a new Tasks",
     description="Queue a new task to be run",
 )
 async def queue_task(
     task_manager: TaskManagerDep,
     task: TaskCreate,
-) -> QueuedTask:
+) -> TaskRun:
     try:
-        return task_manager.queue(task.name, task.priority, **task.params)
+        return await task_manager.queue(task.name, task.priority, **task.params)
     except UnknownTaskError as exc:
         raise HTTPException(status_code=404, detail="Task not found") from exc
 
@@ -80,5 +86,6 @@ def setup_fastapi(
     app = app or FastAPI(**kwargs)
     app.include_router(router, tags=["Tasks"])
     app.state.task_manager = task_manager
-    app_workers(app).add_workers(task_manager)
+    if isinstance(task_manager, Worker):
+        app_workers(app).add_workers(task_manager)
     return app

@@ -11,7 +11,7 @@ class DbGroup(click.Group):
         self,
         db: Database,
         name: str = "db",
-        help: str = "Manage database and migrations",
+        help: str = "Manage database and migrations",  # noqa: A002
         **kwargs: Any,
     ) -> None:
         super().__init__(name=name, help=help, **kwargs)
@@ -239,7 +239,7 @@ def delete_rows(ctx: click.Context, table: str, dry: bool) -> None:
         db_table = db.metadata.tables[table]
     except KeyError:
         click.echo(f"table {table} not found in {engine}", err=True)
-        raise click.Abort()
+        raise click.Abort() from None
     with engine.begin() as conn:
         count_query = select(func.count()).select_from(db_table)
         rows = conn.execute(count_query).scalar()

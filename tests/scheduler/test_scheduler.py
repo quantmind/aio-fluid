@@ -6,10 +6,15 @@ from typing import Any
 import pytest
 from redis.asyncio import Redis
 
-from fluid.scheduler import TaskConsumer, TaskRun, TaskScheduler
-from fluid.scheduler.broker import UnknownTask
-from fluid.scheduler.constants import TaskPriority, TaskState
-from fluid.utils import wait_for
+from fluid.scheduler import (
+    TaskConsumer,
+    TaskPriority,
+    TaskRun,
+    TaskScheduler,
+    TaskState,
+)
+from fluid.scheduler.errors import UnknownTaskError
+from fluid.utils.waiter import wait_for
 
 
 @dataclass
@@ -28,7 +33,7 @@ def test_scheduler_node(task_scheduler: TaskScheduler) -> None:
     assert task_scheduler.broker.registry
     assert "dummy" in task_scheduler.registry
     assert "scheduled" in task_scheduler.registry
-    with pytest.raises(UnknownTask):
+    with pytest.raises(UnknownTaskError):
         task_scheduler.broker.task_from_registry("bbdjchbjch")
 
 
@@ -96,7 +101,7 @@ async def test_cpubound_execution(
 
 
 async def test_task_info(task_consumer: TaskConsumer) -> None:
-    with pytest.raises(UnknownTask):
+    with pytest.raises(UnknownTaskError):
         await task_consumer.broker.enable_task("hfgfhgfhfh")
     info = await task_consumer.broker.enable_task("scheduled")
     assert info.enabled is True

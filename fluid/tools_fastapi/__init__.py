@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from fastapi import FastAPI
 import uvicorn
+from fastapi import FastAPI
 
 from fluid.utils.worker import Workers
 
