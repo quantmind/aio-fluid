@@ -42,7 +42,7 @@ def log_config(
             "formatter": "plain",
         }
     }
-    log_formatters = {"plain": {"format": log_format}}
+    log_formatters: dict = {"plain": {"format": log_format}}
     if pythonjsonlogger is not None:
         log_handlers.update(
             json={

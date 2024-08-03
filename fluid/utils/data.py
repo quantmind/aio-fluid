@@ -1,4 +1,4 @@
-from typing import Any, FrozenSet, Hashable, Iterable, Set
+from typing import Any, Hashable, Iterable
 
 DEFAULT_SKIP_VALUES = frozenset((None,))
 
@@ -8,10 +8,10 @@ def reversed_dict(d: dict) -> dict:  # type: ignore [type-arg]
 
 
 def compact_dict(
-    *args: Iterable,
-    skip_values: Set | FrozenSet = DEFAULT_SKIP_VALUES,
+    *args: Iterable[Any],
+    skip_values: set[Any] | frozenset[Any] = DEFAULT_SKIP_VALUES,
     **kwargs: Any,
-) -> dict:
+) -> dict[str, Any]:
     return {
         k: v
         for k, v in dict(*args, **kwargs).items()

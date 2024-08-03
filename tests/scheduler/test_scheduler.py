@@ -27,7 +27,7 @@ class WaitFor:
             self.runs.append(task_run)
 
 
-def test_scheduler_node(task_scheduler: TaskScheduler) -> None:
+def test_scheduler_manager(task_scheduler: TaskScheduler) -> None:
     assert task_scheduler
     assert task_scheduler.broker.registry
     assert "dummy" in task_scheduler.registry

@@ -7,6 +7,7 @@ from pydantic.fields import FieldInfo
 
 
 def is_subclass(value: Any, cls: type) -> bool:
+    """A safe version of issubclass that returns False if value is not a class."""
     try:
         return issubclass(value, cls)
     except TypeError:
@@ -14,6 +15,7 @@ def is_subclass(value: Any, cls: type) -> bool:
 
 
 def make_field_optional(field: FieldInfo, default: Any = None) -> Tuple[Any, FieldInfo]:
+    """Make a field optional by wrapping it in Optional or Union"""
     new = deepcopy(field)
     if get_origin(field.annotation) is types.UnionType:
         as_none = False
@@ -21,14 +23,14 @@ def make_field_optional(field: FieldInfo, default: Any = None) -> Tuple[Any, Fie
         for arg in get_args(field.annotation):
             if is_subclass(arg, BaseModel):
                 arg = make_partial_model(arg)
-            elif arg == type(None):
+            elif arg is type(None):
                 as_none = True
             new_args.append(arg)
         if not as_none:
             new_args.append(type(None))
         annotation = Union[tuple(new_args)]  # type: ignore[valid-type]
     elif is_subclass(field.annotation, BaseModel):
-        annotation = make_partial_model(field.annotation)  # type: ignore[arg-type]
+        annotation = make_partial_model(field.annotation)  # type: ignore
     else:
         annotation = Optional[field.annotation]
     new.default = default

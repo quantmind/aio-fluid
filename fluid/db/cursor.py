@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import base64
+import json
 from typing import Any, NamedTuple, Self
 
-from fluid_common.utils import crypt, json
-from fluid_common.utils.errors import ValidationError
+from fluid.utils.errors import ValidationError
+from fluid.utils.text import to_bytes
 
 
 class CursorEntry(NamedTuple):
@@ -37,7 +38,7 @@ class Cursor(NamedTuple):
 
     def encode(self) -> str:
         data = tuple(e.value for e in self.entries)
-        cursor_bytes = crypt.to_bytes(
+        cursor_bytes = to_bytes(
             json.dumps((data, self.limit, self.filters, self.search_text))
         )
         base64_bytes = base64.b64encode(cursor_bytes)

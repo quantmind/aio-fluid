@@ -14,4 +14,4 @@ black fluid tests ${BLACK_ARG}
 echo "run ruff"
 ruff check fluid tests ${RUFF_ARG}
 echo "run mypy"
-mypy fluid/scheduler
+mypy fluid

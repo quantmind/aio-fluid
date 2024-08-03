@@ -14,24 +14,21 @@ clean:			## remove python cache files
 	rm -rf .coverage
 
 
-install: 		## install dev packages via poetry
+install: 		## install all packages via poetry
 	@./.dev/install
 
 
 lint: 			## run linters
 	poetry run ./.dev/lint fix
 
+lint-test:		## run test linters
+	poetry run ./.dev/lint
 
 test:			## test with coverage
 	@poetry run \
 		pytest -x --log-cli-level error \
 		-m "not flaky" \
 		--cov --cov-report xml --cov-report html
-
-
-test-lint:		## run test linters
-	poetry run ./dev/lint
-
 
 test-version:		## check version compatibility
 	@./dev/test-version

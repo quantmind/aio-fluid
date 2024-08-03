@@ -2,11 +2,12 @@ from __future__ import annotations
 
 from typing import Any, NamedTuple, Sequence, cast
 
-from fluid_common import settings
-from fluid_common.utils.errors import ValidationError
 from sqlalchemy.ext.asyncio import AsyncConnection
 from sqlalchemy.sql import FromClause, tuple_
 from sqlalchemy.sql.expression import ColumnElement
+
+from fluid import settings
+from fluid.utils.errors import ValidationError
 
 from .crud import CrudDB, Row, Select, column_value_to_python
 from .cursor import Cursor, CursorEntry
@@ -53,7 +54,7 @@ class Pagination(NamedTuple):
             decoded_cursor = None
             limit = min(
                 limit or settings.DEFAULT_PAGINATION_LIMIT,
-                settings.MAX_PAGINATION_LIMIT,
+                settings.DEFAULT_PAGINATION_MAX_LIMIT,
             )
         return cls(
             order_by_fields=order_by_fields,

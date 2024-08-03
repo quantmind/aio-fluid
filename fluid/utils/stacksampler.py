@@ -3,15 +3,14 @@ import logging
 import signal
 from collections import defaultdict
 from contextlib import asynccontextmanager
+from dataclasses import dataclass, field
 from tempfile import NamedTemporaryFile
 from time import monotonic
 from typing import AsyncIterator
 
 from fluid import settings
-from fluid.tools.worker import TickWorker
 
-from . import executor, kernel
-from .dispatcher import SimpleDispatcher
+from . import kernel
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +19,7 @@ class FlamegraphError(RuntimeError):
     pass
 
 
+@dataclass
 class Sampler:
     """
     A simple stack sampler for low-overhead CPU profiling: samples the call
@@ -27,13 +27,14 @@ class Sampler:
     this uses signals, it only works on the main thread.
     """
 
-    def __init__(self, interval: float = 0.005) -> None:
-        self.interval = interval
-        self._started = None
-        self._stack_counts = defaultdict(int)
+    interval: float = 0.005
+    _started = None
+    _stack_counts: defaultdict[str, int] = field(
+        default_factory=lambda: defaultdict(int)
+    )
 
     @property
-    def started(self) -> float:
+    def started(self) -> float | None:
         return self._started
 
     def start(self) -> None:
@@ -89,8 +90,8 @@ class Sampler:
             while frame is not None:
                 stack.append(self._format_frame(frame))
                 frame = frame.f_back
-            stack = ";".join(reversed(stack))
-            self._stack_counts[stack] += 1
+            stack_str = ";".join(reversed(stack))
+            self._stack_counts[stack_str] += 1
             signal.setitimer(signal.ITIMER_VIRTUAL, self.interval)
 
     def _format_frame(self, frame) -> str:
@@ -98,27 +99,3 @@ class Sampler:
 
     def __del__(self):
         self.stop()
-
-
-class WorkerSampler(TickWorker):
-    def __init__(
-        self,
-        name: str = "",
-        heartbeat=settings.STACK_SAMPLER_PERIOD,
-        sampler: Sampler | None = None,
-    ):
-        super().__init__(self._tick, name=name, heartbeat=heartbeat)
-        self.sampler: Sampler = sampler or Sampler()
-        self.dispatcher = SimpleDispatcher[bytes]()
-
-    async def _tick(self) -> None:
-        if not self.sampler.started:
-            self.sampler.start()
-        else:
-            stats = self.sampler.stats()
-            self.sampler.reset()
-            try:
-                async with self.sampler.flamegraph_file(self.name, stats) as svg:
-                    await executor.run(self.upload, svg)
-            except FlamegraphError as e:
-                logger.warning("could not create flamegraph svg: %s", e)

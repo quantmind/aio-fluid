@@ -1,12 +1,12 @@
 import logging
-import os
 import sys
 from functools import partial
 
 import aioconsole
 
+from fluid import settings
+
 logger = logging.getLogger(__name__)
-AIO_BACKDOOR_PORT: int = int(os.environ.get("AIO_BACKDOOR_PORT", "8087"))
 CONSOLE_MESSAGE = """\
 ---
 This console is running in the same asyncio event loop as the Service application.
@@ -25,7 +25,11 @@ class Console(aioconsole.AsynchronousConsole):
 class ConsoleManager:
     aio_console = None
 
-    def __init__(self, port: int, host: str = "0.0.0.0") -> None:
+    def __init__(
+        self,
+        port: int = settings.AIO_BACKDOOR_PORT,
+        host: str = "0.0.0.0",
+    ) -> None:
         self.port = port
         self.host = host
 
