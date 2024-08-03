@@ -20,17 +20,17 @@ There are two types of tasks implemented
 
 * **Simple concurrent tasks** - they run concurrently with the task consumer - thy must be IO type tasks (no heavy CPU bound operations)
 
-  ```python
-    from fluid.scheduler import task, TaskRun
+```python
+  from fluid.scheduler import task, TaskRun
 
-    @task
-    async def fecth_data(ctx: TaskRun):
-        # fetch data
-        data = await http_cli.get("https://...")
-        data_id = await datastore_cli.stote(data)
-        # trigger another task
-        ctx.task_manager.queue("heavy_calculation", data_id=data_id)
-  ```
+  @task
+  async def fecth_data(ctx: TaskRun):
+      # fetch data
+      data = await http_cli.get("https://...")
+      data_id = await datastore_cli.stote(data)
+      # trigger another task
+      ctx.task_manager.queue("heavy_calculation", data_id=data_id)
+```
 
 * **CPU bound tasks** - they run on a subprocess
 

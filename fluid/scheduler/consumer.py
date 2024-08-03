@@ -200,6 +200,12 @@ class TaskConsumer(TaskManager, Workers):
         """The number of concurrent tasks for a given task_name"""
         return len(self._concurrent_tasks[task_name])
 
+    def queue_and_wait(self, task: str, **params: Any) -> TaskRun:
+        """Execute a Task by-passing the broker task queue"""
+        task_run = self.create_task_run(task, **params)
+        self._priority_task_run_queue.appendleft(task_run)
+        return task_run
+
     # Internals
 
     # process tasks from the internal queue

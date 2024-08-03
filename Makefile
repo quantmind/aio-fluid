@@ -49,3 +49,8 @@ outdated:		## Show outdated packages
 .PHONY: example
 example:		## run task scheduler example
 	@poetry run python -m examples.main
+
+
+.PHONY: docs-serve
+docs-serve:		## serve documentation
+	@poetry run mkdocs serve
