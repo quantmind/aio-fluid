@@ -6,11 +6,6 @@
          <changefreq>daily</changefreq>
     </url>
     <url>
-         <loc>https://aio-fluid.com/scheduler/</loc>
-         <lastmod>2024-08-04</lastmod>
-         <changefreq>daily</changefreq>
-    </url>
-    <url>
          <loc>https://aio-fluid.com/reference/</loc>
          <lastmod>2024-08-04</lastmod>
          <changefreq>daily</changefreq>
@@ -27,6 +22,21 @@
     </url>
     <url>
          <loc>https://aio-fluid.com/reference/task_run/</loc>
+         <lastmod>2024-08-04</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://aio-fluid.com/tutorials/</loc>
+         <lastmod>2024-08-04</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://aio-fluid.com/tutorials/db/</loc>
+         <lastmod>2024-08-04</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://aio-fluid.com/tutorials/scheduler/</loc>
          <lastmod>2024-08-04</lastmod>
          <changefreq>daily</changefreq>
     </url>

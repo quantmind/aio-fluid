@@ -8,26 +8,26 @@
       
       
       
-        <link rel="canonical" href="https://aio-fluid.com/">
+        <link rel="canonical" href="https://aio-fluid.com/tutorials/scheduler/">
+      
+      
+        <link rel="prev" href="../db/">
       
       
       
-        <link rel="next" href="reference/">
-      
-      
-      <link rel="icon" href="assets/images/favicon.png">
+      <link rel="icon" href="../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.31">
     
     
       
-        <title>Aio Fluid</title>
+        <title>Task Queue - Aio Fluid</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.3cba04c6.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.3cba04c6.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -46,9 +46,9 @@
       
     
     
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -74,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#installation" class="md-skip">
+        <a href="#task-queue" class="md-skip">
           Skip to content
         </a>
       
@@ -90,7 +90,7 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="Aio Fluid" class="md-header__button md-logo" aria-label="Aio Fluid" data-md-component="logo">
+    <a href="../.." title="Aio Fluid" class="md-header__button md-logo" aria-label="Aio Fluid" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -110,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Task Queue
             
           </span>
         </div>
@@ -223,7 +223,7 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="Aio Fluid" class="md-nav__button md-logo" aria-label="Aio Fluid" data-md-component="logo">
+    <a href="../.." title="Aio Fluid" class="md-nav__button md-logo" aria-label="Aio Fluid" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
@@ -250,28 +250,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Home
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -280,42 +262,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      Installation
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#development" class="md-nav__link">
-    <span class="md-ellipsis">
-      Development
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -362,7 +308,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/" class="md-nav__link">
+      <a href="../../reference/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -383,7 +329,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task_broker/" class="md-nav__link">
+      <a href="../../reference/task_broker/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -404,7 +350,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task_manager/" class="md-nav__link">
+      <a href="../../reference/task_manager/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -425,7 +371,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task_run/" class="md-nav__link">
+      <a href="../../reference/task_run/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -450,17 +396,19 @@
       
   
   
+    
   
   
+  
     
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
@@ -474,7 +422,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Tutorials
@@ -488,7 +436,7 @@
   
   
     <li class="md-nav__item">
-      <a href="tutorials/" class="md-nav__link">
+      <a href="../" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -509,7 +457,7 @@
   
   
     <li class="md-nav__item">
-      <a href="tutorials/db/" class="md-nav__link">
+      <a href="../db/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -527,10 +475,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="tutorials/scheduler/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Task Queue
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -539,6 +507,44 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#broker" class="md-nav__link">
+    <span class="md-ellipsis">
+      Broker
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -568,6 +574,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -576,18 +584,18 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
+  <a href="#tasks" class="md-nav__link">
     <span class="md-ellipsis">
-      Installation
+      Tasks
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#development" class="md-nav__link">
+  <a href="#broker" class="md-nav__link">
     <span class="md-ellipsis">
-      Development
+      Broker
     </span>
   </a>
   
@@ -611,34 +619,77 @@
   
 
 
-  <h1>Home</h1>
+<h1 id="task-queue">Task Queue<a class="headerlink" href="#task-queue" title="Permanent link">&para;</a></h1>
+<p>This module has a lightweight implementation of a distributed task producer (TaskScheduler) and consumer (TaskConsumer).
+The middleware for distributing tasks can be configured via the Broker interface.
+A redis broker is provided for convenience.</p>
+<h2 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h2>
+<p>Tasks are standard python async functions decorated with the <code>task</code> decorator.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
 
-<p>Aio Fluid</p>
-<p>Async utilities for backend python services</p>
-<p><a href="https://badge.fury.io/py/aio-fluid"><img alt="PyPI version" src="https://badge.fury.io/py/aio-fluid.svg" /></a>
-<a href="https://pypi.org/project/aio-fluid"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/aio-fluid.svg" /></a>
-<a href="https://github.com/quantmind/aio-fluid/actions?query=workflow%3Abuild"><img alt="build" src="https://github.com/quantmind/fluid/workflows/build/badge.svg" /></a></p>
-<p><strong>Documentation</strong>: <a href="https://quantmind.github.io/aio-fluid">https://quantmind.github.io/aio-fluid</a></p>
-<p><strong>Source Code</strong>: <a href="https://github.com/quantmind/aio-fluid">https://github.com/quantmind/aio-fluid</a></p>
-<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
-<p>This is a simple python package you can install via pip:</p>
-<div class="codehilite"><pre><span></span><code>pip install aio-fluid
+<span class="nd">@task</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">say_hi</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">):</span>
+    <span class="k">return</span> <span class="s2">&quot;Hi!&quot;</span>
 </code></pre></div>
 
-<p>To install all the dependencies, you can use the <code>full</code> extra:</p>
-<div class="codehilite"><pre><span></span><code>pip install aio-fluid[full]
-</code></pre></div>
-
-<p>this includes the following extra dependencies:</p>
+<p>There are two types of tasks implemented</p>
 <ul>
-<li><code>cli</code> for the command line interface</li>
-<li><code>db</code> for database support</li>
-<li><code>http</code> for http client support</li>
-<li><code>log</code> for JSON logging support</li>
+<li><strong>Simple concurrent tasks</strong> - they run concurrently with the task consumer - thy must be IO type tasks (no heavy CPU bound operations)</li>
 </ul>
-<h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h2>
-<p>You can run the examples via</p>
-<div class="codehilite"><pre><span></span><code>poetry run python -m examples.main
+<div class="codehilite"><pre><span></span><code>  <span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
+
+  <span class="nd">@task</span>
+  <span class="k">async</span> <span class="k">def</span> <span class="nf">fecth_data</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">):</span>
+      <span class="c1"># fetch data</span>
+      <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">http_cli</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://...&quot;</span><span class="p">)</span>
+      <span class="n">data_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">datastore_cli</span><span class="o">.</span><span class="n">stote</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+      <span class="c1"># trigger another task</span>
+      <span class="n">ctx</span><span class="o">.</span><span class="n">task_manager</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;heavy_calculation&quot;</span><span class="p">,</span> <span class="n">data_id</span><span class="o">=</span><span class="n">data_id</span><span class="p">)</span>
+</code></pre></div>
+
+<ul>
+<li><strong>CPU bound tasks</strong> - they run on a subprocess</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
+
+<span class="nd">@task</span><span class="p">(</span><span class="n">cpu_bound</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">heavy_calculation</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">datastore_cli</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;data_id&quot;</span><span class="p">])</span>
+    <span class="c1"># perform some heavy calculation</span>
+    <span class="o">...</span>
+    <span class="c1"># trigger another task</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="n">task_manager</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;fetch_data&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Both tasks can be periodically scheduled via the <code>schedule</code> keyword argument:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskContext</span><span class="p">,</span> <span class="n">every</span>
+
+<span class="nd">@task</span><span class="p">(</span><span class="n">schedule</span><span class="o">=</span><span class="n">every</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">scheduled</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">TaskContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;OK&quot;</span>
+</code></pre></div>
+
+<h2 id="broker">Broker<a class="headerlink" href="#broker" title="Permanent link">&para;</a></h2>
+<p>A Task broker needs to implement three abstract methods</p>
+<div class="codehilite"><pre><span></span><code>  <span class="nd">@abstractmethod</span>
+  <span class="k">async</span> <span class="k">def</span> <span class="nf">queue_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queued_task</span><span class="p">:</span> <span class="n">QueuedTask</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRun</span><span class="p">:</span>
+<span class="w">      </span><span class="sd">&quot;&quot;&quot;Queue a task&quot;&quot;&quot;</span>
+
+  <span class="nd">@abstractmethod</span>
+  <span class="k">async</span> <span class="k">def</span> <span class="nf">get_task_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TaskRun</span><span class="p">]:</span>
+<span class="w">      </span><span class="sd">&quot;&quot;&quot;Get a Task run from the task queue&quot;&quot;&quot;</span>
+
+  <span class="nd">@abstractmethod</span>
+  <span class="k">async</span> <span class="k">def</span> <span class="nf">queue_length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">      </span><span class="sd">&quot;&quot;&quot;Length of task queues&quot;&quot;&quot;</span>
+</code></pre></div>
+
+<p>The library ships a Redis broker for convenience.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">Broker</span>
+
+<span class="n">redis_broker</span> <span class="o">=</span> <span class="n">Broker</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span><span class="s2">&quot;redis://localhost:6349&quot;</span><span class="p">)</span>
 </code></pre></div>
 
 
@@ -686,10 +737,10 @@
     </div>
     
     
-    <script id="__config" type="application/json">{"base": ".", "features": [], "search": "assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
-      <script src="assets/javascripts/bundle.fe8b6f2b.min.js"></script>
+      <script src="../../assets/javascripts/bundle.fe8b6f2b.min.js"></script>
       
     
   </body>
