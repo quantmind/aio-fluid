@@ -42,11 +42,6 @@ test-version:		## check version compatibility
 publish:		## release to pypi and github tag
 	@poetry publish --build -u lsbardel -p $(PYPI_PASSWORD)
 
-
-.PHONY: publish-docs
-publish-docs:		## publish the book to github pages
-	poetry run mkdocs gh-deploy
-
 .PHONY: outdated
 outdated:		## Show outdated packages
 	poetry show -o -a
@@ -56,6 +51,14 @@ outdated:		## Show outdated packages
 example:		## run task scheduler example
 	@poetry run python -m examples.main
 
+
+.PHONY: docs
+docs:			## build documentation
+	@poetry run mkdocs build
+
+.PHONY: docs-publish
+docs-publish:		## publish the book to github pages
+	poetry run mkdocs gh-deploy
 
 .PHONY: docs-serve
 docs-serve:		## serve documentation

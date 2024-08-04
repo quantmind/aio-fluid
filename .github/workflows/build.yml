@@ -33,6 +33,8 @@ jobs:
         run: make install
       - name: run lint
         run: make lint-test
+      - name: build docs
+        run: make docs
       - name: tests
         run: make test
       - name: upload coverage

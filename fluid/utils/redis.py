@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from dataclasses import dataclass
 from typing import Any, Self
 
@@ -35,4 +37,4 @@ class FluidRedis:
         return "%s:%s" % (kwargs.get("host"), kwargs.get("port", 6379))
 
     async def close(self, *args: Any) -> None:
-        await self.redis_cli.aclose(True)
+        await self.redis_cli.aclose(True)  # type: ignore[attr-defined]
