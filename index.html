@@ -303,6 +303,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#development" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -490,6 +499,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#development" class="md-nav__link">
+    <span class="md-ellipsis">
+      Development
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -515,9 +533,27 @@
 <p><a href="https://badge.fury.io/py/aio-fluid"><img alt="PyPI version" src="https://badge.fury.io/py/aio-fluid.svg" /></a>
 <a href="https://pypi.org/project/aio-fluid"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/aio-fluid.svg" /></a>
 <a href="https://github.com/quantmind/aio-fluid/actions?query=workflow%3Abuild"><img alt="build" src="https://github.com/quantmind/fluid/workflows/build/badge.svg" /></a></p>
+<p><strong>Documentation</strong>: <a href="https://quantmind.github.io/aio-fluid">https://quantmind.github.io/aio-fluid</a></p>
+<p><strong>Source Code</strong>: <a href="https://github.com/quantmind/aio-fluid">https://github.com/quantmind/aio-fluid</a></p>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
 <p>This is a simple python package you can install via pip:</p>
 <div class="codehilite"><pre><span></span><code>pip install aio-fluid
+</code></pre></div>
+
+<p>To install all the dependencies, you can use the <code>full</code> extra:</p>
+<div class="codehilite"><pre><span></span><code>pip install aio-fluid[full]
+</code></pre></div>
+
+<p>this includes the following extra dependencies:</p>
+<ul>
+<li><code>cli</code> for the command line interface</li>
+<li><code>db</code> for database support</li>
+<li><code>http</code> for http client support</li>
+<li><code>log</code> for JSON logging support</li>
+</ul>
+<h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h2>
+<p>You can run the examples via</p>
+<div class="codehilite"><pre><span></span><code>poetry run python -m examples.main
 </code></pre></div>
 
 

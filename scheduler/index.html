@@ -565,18 +565,17 @@ A redis broker is provided for convenience.</p>
 <ul>
 <li><strong>CPU bound tasks</strong> - they run on a subprocess</li>
 </ul>
-<p>```python
-    from fluid.scheduler import task, TaskRun</p>
-<div class="codehilite"><pre><span></span><code>@task(cpu_bound=True)
-async def heavy_calculation(ctx: TaskRun):
-    # perform some heavy calculation
-    data = await datastore_cli.get(ctx.params[&quot;data_id&quot;])
-    ...
-    # trigger another task
-    ctx.task_manager.queue(&quot;fetch_data&quot;)
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
+
+<span class="nd">@task</span><span class="p">(</span><span class="n">cpu_bound</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">async</span> <span class="k">def</span> <span class="nf">heavy_calculation</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">):</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">datastore_cli</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;data_id&quot;</span><span class="p">])</span>
+    <span class="c1"># perform some heavy calculation</span>
+    <span class="o">...</span>
+    <span class="c1"># trigger another task</span>
+    <span class="n">ctx</span><span class="o">.</span><span class="n">task_manager</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;fetch_data&quot;</span><span class="p">)</span>
 </code></pre></div>
 
-<p>```</p>
 <p>Both tasks can be periodically scheduled via the <code>schedule</code> keyword argument:</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
 <span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskContext</span><span class="p">,</span> <span class="n">every</span>
