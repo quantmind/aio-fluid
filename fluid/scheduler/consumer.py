@@ -4,7 +4,7 @@ import asyncio
 import logging
 from collections import defaultdict, deque
 from contextlib import AsyncExitStack
-from functools import cached_property, partial
+from functools import partial
 from typing import Any, Callable, Coroutine, Self
 
 import async_timeout
@@ -50,6 +50,7 @@ class TaskManager:
         self.state: dict[str, Any] = {}
         self.config: TaskManagerConfig = TaskManagerConfig(**kwargs)
         self.dispatcher = TaskDispatcher()
+        self.broker = TaskBroker.from_url(self.config.broker_url)
         self._stack = AsyncExitStack()
 
     async def __aenter__(self) -> Self:
@@ -63,10 +64,6 @@ class TaskManager:
 
     async def enter_async_context(self, cm: Any) -> Any:
         return await self._stack.enter_async_context(cm)
-
-    @cached_property
-    def broker(self) -> TaskBroker:
-        return TaskBroker.from_url(self.config.broker_url)
 
     @property
     def registry(self) -> TaskRegistry:

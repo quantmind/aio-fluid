@@ -306,7 +306,8 @@ class MultipleWorkers(RunningWorker):
         try:
             async with async_timeout.timeout(self._stopping_grace_period):
                 await self.wait_for_exit()
-                return
+            await self.on_shutdown()
+            return
         except asyncio.TimeoutError:
             logger.warning(
                 "could not stop workers %s gracefully after %s"

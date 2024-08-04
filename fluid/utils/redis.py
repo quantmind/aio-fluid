@@ -35,4 +35,4 @@ class FluidRedis:
         return "%s:%s" % (kwargs.get("host"), kwargs.get("port", 6379))
 
     async def close(self, *args: Any) -> None:
-        await self.redis_cli.close(self.redis_cli.connection_pool)
+        await self.redis_cli.aclose(True)
