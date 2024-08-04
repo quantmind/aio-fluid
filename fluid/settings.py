@@ -1,15 +1,47 @@
 import os
 
-from openapi import sentry
-from openapi.middleware import json_error
+from .utils.text import to_bool
 
-PYTHON_ENV = os.environ.get("PYTHON_ENV", "production")
-ENVIRONMENT = os.environ.get("ENVIRONMENT", PYTHON_ENV)
-SENTRY_DSN = os.environ.get("SENTRY_DSN", "")
+APP_NAME: str = os.getenv("APP_NAME", "fluid")
+ENV: str = os.getenv("PYTHON_ENV", "dev")
+LOG_LEVEL = (os.getenv("LOG_LEVEL") or "info").upper()
+LOG_HANDLER = os.getenv("LOG_HANDLER", "plain")
+PYTHON_LOG_FORMAT = os.getenv(
+    "PYTHON_LOG_FORMAT",
+    "%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+
+# Workers
+STOPPING_GRACE_PERIOD: int = int(os.getenv("FLUID_STOPPING_GRACE_PERIOD") or "10")
+MAX_CONCURRENT_TASKS: int = int(os.getenv("FLUID_MAX_CONCURRENT_TASKS") or "5")
+SCHEDULER_HEARTBEAT_MILLIS: int = int(
+    os.getenv("FLUID_SCHEDULER_HEARTBEAT_MILLIS", "100")
+)
+BROKER_URL: str = os.getenv("FLUID_BROKER_URL", "redis://localhost:6379/3")
 
 
-def add_error_middleware(app):
-    app["env"] = PYTHON_ENV
-    sm = sentry.middleware(app, SENTRY_DSN, ENVIRONMENT)
-    app.middlewares.append(json_error())
-    app.middlewares.append(sm)
+REDIS_DEFAULT_URL = os.getenv("REDIS_DEFAULT_URL", "redis://localhost:6379")
+REDIS_MAX_CONNECTIONS = int(os.getenv("MAX_REDIS_CONNECTIONS", "5"))
+
+# Database
+# Database
+DATABASE = os.getenv(
+    "DATABASE", "postgresql+asyncpg://postgres:postgres@localhost:5432/fluid"
+)
+DATABASE_SCHEMA: str | None = os.getenv("DATABASE_SCHEMA")
+DBPOOL_MAX_SIZE: int = int(os.getenv("FLUID_DBPOOL_MAX_SIZE") or "10")
+DBPOOL_MAX_OVERFLOW: int = int(os.getenv("FLUID_DBPOOL_MAX_OVERFLOW") or "10")
+DBECHO: bool = to_bool(os.getenv("FLUID_DBECHO") or "no")
+
+# Pagination
+DEFAULT_PAGINATION_LIMIT = int(os.getenv("DEFAULT_PAGINATION_LIMIT") or "250")
+DEFAULT_PAGINATION_MAX_LIMIT = int(os.getenv("DEFAULT_PAGINATION_MAX_LIMIT") or "500")
+
+# Console backdoor
+AIO_BACKDOOR_PORT: int = int(os.environ.get("AIO_BACKDOOR_PORT", "8087"))
+
+# Flamegraph
+FLAMEGRAPH_EXECUTABLE: str = os.getenv("FLUID_FLAMEGRAPH_EXECUTABLE", "flamegraph.pl")
+STACK_SAMPLER_PERIOD_SECONDS: int = int(
+    os.getenv("FLUID_STACK_SAMPLER_PERIOD_SECONDS", "1")
+)

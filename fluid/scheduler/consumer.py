@@ -3,69 +3,67 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections import defaultdict, deque
-from dataclasses import dataclass
-from functools import cached_property
-from typing import Any, Callable, Coroutine, Deque, Dict, NamedTuple, Optional
+from contextlib import AsyncExitStack
+from functools import partial
+from typing import Any, Callable, Coroutine, Self
 
+import async_timeout
 from inflection import underscore
 
-from fluid.node import Consumer, NodeWorkers, Worker
-from fluid.utils import microseconds
+from fluid.utils import log
+from fluid.utils.dispatcher import Dispatcher
+from fluid.utils.worker import WorkerFunction, Workers
 
-from .broker import Broker, QueuedTask, TaskRegistry, UnknownTask
-from .constants import TaskPriority, TaskState
-from .task import Task
-from .task_run import TaskRun
+from .broker import TaskBroker, TaskRegistry
+from .errors import TaskAbortedError, TaskRunError, UnknownTaskError
+from .models import (
+    Task,
+    TaskManagerConfig,
+    TaskPriority,
+    TaskRun,
+    TaskRunWaiter,
+    TaskState,
+)
 
-ConsumerCallback = Callable[[TaskRun, "TaskManager"], None]
+try:
+    from .cli import TaskManagerCLI
+except ImportError:
+    TaskManagerCLI = None  # type: ignore[assignment,misc]
+
+
 AsyncExecutor = Callable[..., Coroutine[Any, Any, None]]
 AsyncMessage = tuple[AsyncExecutor, tuple[Any, ...]]
 
-
-class TaskFailure(RuntimeError):
-    pass
+logger = log.get_logger(__name__)
 
 
-@dataclass
-class TaskManagerConfig:
-    schedule_tasks: bool = True
-    consume_tasks: bool = True
-    max_concurrent_tasks: int = 10
-    """number of coroutine workers"""
-    sleep: float = 0.1
-    """amount to sleep after completion of a task"""
-    broker_url: str = ""
+class TaskDispatcher(Dispatcher[TaskRun]):
+
+    def message_type(self, message: TaskRun) -> str:
+        return message.state
 
 
-class Event(NamedTuple):
-    type: str
-    tag: str
-
-    @classmethod
-    def from_string(cls, event: str) -> "Event":
-        bits = event.split(".")
-        return cls(bits[0], bits[1] if len(bits) > 1 else "")
-
-
-class TaskManager(NodeWorkers):
-    """Base class for both TaskConsumer and TaskScheduler"""
+class TaskManager:
+    """The task manager is the main entry point for managing tasks"""
 
     def __init__(self, **kwargs: Any) -> None:
-        super().__init__()
-        self._msg_handlers: Dict[str, Dict[str, ConsumerCallback]] = defaultdict(dict)
-        self._task_to_queue: Deque[QueuedTask] = deque()
-        self._queue_tasks_worker = Worker(
-            self._queue_tasks, logger=self.logger.getChild("queue")
-        )
-        self._consumer = Consumer(
-            self._execute_async, logger=self.logger.getChild("internal-consumer")
-        )
+        self.state: dict[str, Any] = {}
         self.config: TaskManagerConfig = TaskManagerConfig(**kwargs)
-        self.add_workers(self._consumer)
+        self.dispatcher = TaskDispatcher()
+        self.broker = TaskBroker.from_url(self.config.broker_url)
+        self._stack = AsyncExitStack()
 
-    @cached_property
-    def broker(self) -> Broker:
-        return Broker.from_url(self.config.broker_url)
+    async def __aenter__(self) -> Self:
+        return self
+
+    async def __aexit__(self, *exc_info: Any) -> None:
+        try:
+            await self._stack.aclose()
+        finally:
+            await self.on_shutdown()
+
+    async def enter_async_context(self, cm: Any) -> Any:
+        return await self._stack.enter_async_context(cm)
 
     @property
     def registry(self) -> TaskRegistry:
@@ -75,12 +73,19 @@ class TaskManager(NodeWorkers):
     def type(self) -> str:
         return underscore(self.__class__.__name__)
 
-    async def setup(self) -> None:
-        await self._queue_tasks_worker.start_app(self.app)
+    async def execute(self, task: Task | str, **params: Any) -> TaskRun:
+        """Execute a task and wait for it to finish"""
+        task_run = self.create_task_run(task, **params)
+        await task_run.execute()
+        return task_run
 
-    async def teardown(self) -> None:
-        await self._queue_tasks_worker.close()
+    async def on_shutdown(self) -> None:
         await self.broker.close()
+
+    def execute_sync(self, task: Task | str, **params: Any) -> TaskRun:
+        return asyncio.get_event_loop().run_until_complete(
+            self._execute_and_exit(task, **params)
+        )
 
     def register_task(self, task: Task) -> None:
         """Register a task with the task manager
@@ -89,159 +94,178 @@ class TaskManager(NodeWorkers):
         """
         self.broker.register_task(task)
 
-    def queue(
+    async def queue(
         self,
-        task: str,
-        priority: Optional[TaskPriority] = None,
+        task: str | Task,
+        priority: TaskPriority | None = None,
         **params: Any,
-    ) -> QueuedTask:
-        """Queue a Task for execution and return schedule_tasksthe QueuedTask object"""
-        queued_task = QueuedTask(
-            run_id=self.broker.new_uuid(),
+    ) -> TaskRun:
+        """Queue a task for execution
+
+        This methods fires two events:
+
+        - queue: when the task is about to be queued
+        - queued: after the task is queued
+        """
+        task_run = self.create_task_run(task, priority=priority, **params)
+        self.dispatcher.dispatch(task_run)
+        task_run.set_state(TaskState.queued)
+        await self.broker.queue_task(task_run)
+        return task_run
+
+    def create_task_run(
+        self,
+        task: str | Task,
+        run_id: str = "",
+        priority: TaskPriority | None = None,
+        **params: Any,
+    ) -> TaskRun:
+        """Create a TaskRun in `init` state"""
+        if isinstance(task, str):
+            task = self.broker.task_from_registry(task)
+        run_id = run_id or self.broker.new_uuid()
+        return TaskRun(
+            id=run_id,
             task=task,
-            priority=priority,
+            priority=priority or task.priority,
             params=params,
+            task_manager=self,
         )
-        self._task_to_queue.appendleft(queued_task)
-        return queued_task
 
-    def dispatch(self, task_run: TaskRun, event_type: str) -> None:
-        """Dispatch a message to the registered handlers."""
-        if handlers := self._msg_handlers.get(event_type):
-            for handler in handlers.values():
-                handler(task_run, self)
+    def register_from_module(self, module: Any) -> None:
+        for name in dir(module):
+            if name.startswith("_"):
+                continue
+            if isinstance(obj := getattr(module, name), Task):
+                self.register_task(obj)
 
-    def register_handler(self, event_name: str, handler: ConsumerCallback) -> None:
-        event = Event.from_string(event_name)
-        self._msg_handlers[event.type][event.tag] = handler
-
-    def unregister_handler(self, event_name: str) -> None:
-        event = Event.from_string(event_name)
-        self._msg_handlers[event.type].pop(event.tag, None)
-
-    def execute_async(self, async_callable: AsyncExecutor, *args: Any) -> None:
-        self._consumer.submit((async_callable, args))
-
-    # process tasks from the internal queue
-    async def _queue_tasks(self) -> None:
-        while self.is_running():
-            try:
-                queued_task = self._task_to_queue.pop()
-            except IndexError:
-                await asyncio.sleep(0.1)
-            else:
-                task_run = await self.broker.queue_task(queued_task)
-                self.dispatch(task_run, "queued")
-                await asyncio.sleep(0)
-
-    async def _execute_async(self, message: AsyncMessage) -> None:
+    def cli(self, **kwargs: Any) -> Any:
+        """Create the task manager command line interface"""
         try:
-            executable, args = message
-            await executable(*args)
-        except Exception:
-            self.logger.exception("unhandled exception while executing async callaback")
+            from fluid.scheduler.cli import TaskManagerCLI
+        except ImportError:
+            raise ImportError(
+                "TaskManagerCLI is not available - "
+                "install with `pip install aio-fluid[cli]`"
+            ) from None
+        return TaskManagerCLI(self, **kwargs)
+
+    async def _execute_and_exit(self, task: Task | str, **params: Any) -> TaskRun:
+        async with self:
+            return await self.execute(task, **params)
 
 
-class TaskConsumer(TaskManager):
-    """The Task Consumer is responsible for consuming tasks from a task queue"""
+class TaskConsumer(TaskManager, Workers):
+    """The Task Consumer is a Task Manager responsible for consuming tasks
+    from a task queue
+    """
 
     def __init__(self, **config: Any) -> None:
         super().__init__(**config)
+        Workers.__init__(self)
         self._concurrent_tasks: dict[str, dict[str, TaskRun]] = defaultdict(dict)
+        self._task_to_queue: deque[str | Task] = deque()
         self._priority_task_run_queue: deque[TaskRun] = deque()
+        self._queue_tasks_worker = WorkerFunction(
+            self._queue_task, name="queue-task-worker"
+        )
         for i in range(self.config.max_concurrent_tasks):
+            worker_name = f"task-worker-{i+1}"
             self.add_workers(
-                Worker(
-                    self._consume_tasks, logger=self.logger.getChild(f"worker-{i+1}")
+                WorkerFunction(
+                    partial(self._consume_tasks, worker_name), name=worker_name
                 )
             )
 
     @property
     def num_concurrent_tasks(self) -> int:
-        """The number of concurrent_tasks"""
+        """The number of concurrent_tasks running in the consumer"""
         return sum(len(v) for v in self._concurrent_tasks.values())
+
+    def sync_queue(self, task: str | Task) -> None:
+        self._task_to_queue.appendleft(task)
+
+    def sync_priority_queue(self, task: str | Task) -> None:
+        self._priority_task_run_queue.appendleft(self.create_task_run(task))
 
     def num_concurrent_tasks_for(self, task_name: str) -> int:
         """The number of concurrent tasks for a given task_name"""
         return len(self._concurrent_tasks[task_name])
 
-    async def queue_and_wait(self, task: str, **params: Any) -> Any:
-        """Execute a task by-passing the broker task queue and wait for result"""
-        return await self.execute(task, **params).waiter
-
-    def execute(self, task: str, **params: Any) -> TaskRun:
-        """Execute a Task by-passing the broker task queue"""
-        queued_task = QueuedTask(
-            run_id=self.broker.new_uuid(),
-            task=task,
-            params=params,
-        )
-        data = self.broker.task_run_data(queued_task, TaskState.queued)
-        task_run = self.broker.task_run_from_data(data)
-        self._priority_task_run_queue.appendleft(task_run)
-        return task_run
+    async def queue_and_wait(
+        self, task: str, *, timeout: int = 2, **params: Any
+    ) -> TaskRun:
+        """Queue a task and wait for it to finish"""
+        with TaskRunWaiter(self) as waiter:
+            return await waiter.wait(await self.queue(task, **params), timeout=timeout)
 
     # Internals
-    async def _consume_tasks(self) -> None:
-        while self.is_running():
-            if not self.config.consume_tasks:
-                await asyncio.sleep(self.config.sleep)
-                continue
-            if self._priority_task_run_queue:
-                task_run = self._priority_task_run_queue.pop()
-            else:
-                try:
-                    maybe_task_run = await self.broker.get_task_run()
-                except UnknownTask as exc:
-                    self.logger.error(
-                        "unknown task %s - it looks like it is not "
-                        "registered with this consumer",
-                        exc,
-                    )
-                    maybe_task_run = None
-                if not maybe_task_run:
-                    await asyncio.sleep(self.config.sleep)
-                    continue
-                else:
-                    task_run = maybe_task_run
-            task_name = task_run.name
-            task_run.start = microseconds()
-            task_run.set_state(TaskState.running)
-            task_context = task_run.task.create_context(self, task_run=task_run)
-            self._concurrent_tasks[task_name][task_run.id] = task_run
-            #
-            if task_run.task.max_concurrency < self.num_concurrent_tasks_for(task_name):
-                task_run.set_state(TaskState.rate_limited)
-                task_run.waiter.set_result(None)
-            elif not (await self.broker.get_tasks_info(task_name))[0].enabled:
-                task_run.set_state(TaskState.aborted)
-                task_run.waiter.set_result(None)
-            #
-            else:
-                task_context.logger.info("start")
-                self.dispatch(task_run, "start")
-                try:
-                    result = await task_run.task.executor(task_context)
-                except Exception as exc:
-                    task_run.waiter.set_exception(exc)
-                    task_run.set_state(TaskState.failure)
-                else:
-                    if task_run.is_failure:
-                        task_run.waiter.set_exception(TaskFailure())
-                    else:
-                        task_run.waiter.set_result(result)
-                        if not task_run.in_finish_state:
-                            task_run.set_state(TaskState.success)
+
+    # process tasks from the internal queue
+    async def _queue_task(self) -> None:
+        try:
+            task = self._task_to_queue.pop()
+        except IndexError:
+            await asyncio.sleep(0.1)
+        else:
+            await self.queue(task)
+            await asyncio.sleep(0)
+
+    async def _consume_tasks(self, worker_name: str) -> None:
+        if not self.config.consume_tasks:
+            await asyncio.sleep(self.config.sleep)
+            return
+        if self._priority_task_run_queue:
+            task_run = self._priority_task_run_queue.pop()
+        else:
             try:
-                await task_run.waiter
-            except TaskFailure:
-                # task_context.logger.warning("CPU bound task failure")
-                # no need to log here, the log is already done from the CPU bound script
-                pass
+                maybe_task_run = await self.broker.get_task_run(self)
+            except UnknownTaskError as exc:
+                logger.error(
+                    "%s unknown task %s - it looks like it is not "
+                    "registered with this consumer",
+                    worker_name,
+                    exc,
+                )
+                maybe_task_run = None
+            if not maybe_task_run:
+                return
+            else:
+                task_run = maybe_task_run
+        task_name = task_run.name
+        self._concurrent_tasks[task_name][task_run.id] = task_run
+        #
+        if (
+            task_run.task.max_concurrency > 0
+            and task_run.task.max_concurrency < self.num_concurrent_tasks_for(task_name)
+        ):
+            task_run.set_state(TaskState.rate_limited)
+        elif not (await self.broker.get_tasks_info(task_name))[0].enabled:
+            task_run.set_state(TaskState.aborted)
+        #
+        else:
+            try:
+                params = task_run.params_dump_json()
             except Exception:
-                task_context.logger.exception("critical exception while executing")
-            task_run.end = microseconds()
-            self._concurrent_tasks[task_name].pop(task_run.id, None)
+                task_run.logger.exception("%s - start - params exeception", task_run.id)
+            else:
+                task_run.logger.info("%s - %s - start", task_run.id, params)
+            try:
+                async with async_timeout.timeout(task_run.task.timeout_seconds):
+                    await task_run.execute()
+            except TaskRunError:
+                # no logging as this was a controlled exception
+                pass
+            except TaskAbortedError as exc:
+                task_run.logger.info("%s - %s - aborted - %s", task_run.id, params, exc)
+            except asyncio.TimeoutError:
+                task_run.logger.error("task run %s - %s - timeout", task_run.id, params)
+            except Exception:
+                task_run.logger.exception("critical exception while executing")
+
+        self._concurrent_tasks[task_name].pop(task_run.id, None)
+        duration_ms = task_run.duration_ms
+        if duration_ms is not None:
             await self.broker.update_task(
                 task_run.task,
                 dict(
@@ -250,11 +274,13 @@ class TaskConsumer(TaskManager):
                     last_run_state=task_run.state,
                 ),
             )
-            self.dispatch(task_run, "end")
-            task_context.logger.log(
+            task_run.logger.log(
                 logging.WARNING if task_run.is_failure else logging.INFO,
                 "end - %s - milliseconds - %s",
                 task_run.state,
-                round(0.001 * task_run.duration, 3),
+                duration_ms,
             )
-            await asyncio.sleep(0)
+
+
+# required by pydantic to avoid `Class not fully defined` error
+TaskRun.model_rebuild()

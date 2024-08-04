@@ -12,7 +12,21 @@
             "env": {},
             "args": [
                 "-x",
-                "tests/scheduler/test_every.py"
+                "tests/scheduler/test_scheduler.py::test_disabled_execution"
+            ],
+            "debugOptions": [
+                "RedirectOutput"
+            ]
+        },
+        {
+            "name": "API Serve",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples/main.py",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            "args": [
+                "ls"
             ],
             "debugOptions": [
                 "RedirectOutput"

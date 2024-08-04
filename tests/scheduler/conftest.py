@@ -1,39 +1,32 @@
 import os
+from contextlib import asynccontextmanager
 from typing import AsyncIterator, cast
 
 import pytest
+from fastapi import FastAPI
 from redis.asyncio import Redis
 
-from fluid.node import WorkerApplication
-from fluid.scheduler import TaskConsumer, TaskScheduler
-from fluid.scheduler.broker import RedisBroker
-
-from .tasks import add_task_manager, task_application
+from fluid.scheduler import TaskManager, TaskScheduler
+from fluid.scheduler.broker import RedisTaskBroker
+from fluid.scheduler.endpoints import get_task_manger, setup_fastapi
+from tests.scheduler.tasks import task_application
 
 os.environ["TASK_MANAGER_APP"] = "tests.scheduler.tasks:task_application"
 
 
-@pytest.fixture(scope="module")
-async def task_app() -> AsyncIterator[WorkerApplication]:
-    app = task_application(TaskConsumer())
-    add_task_manager(app, TaskScheduler())
-    await app.startup()
-    try:
+@asynccontextmanager
+async def start_fastapi(app: FastAPI) -> AsyncIterator:
+    async with app.router.lifespan_context(app):
         yield app
-    finally:
-        await app.shutdown()
 
 
 @pytest.fixture
-def task_consumer(task_app: WorkerApplication) -> TaskConsumer:
-    return cast(TaskConsumer, task_app["task_consumer"])
+async def task_scheduler() -> AsyncIterator[TaskManager]:
+    task_manager = task_application(TaskScheduler())
+    async with start_fastapi(setup_fastapi(task_manager)) as app:
+        yield get_task_manger(app)
 
 
 @pytest.fixture
-def task_scheduler(task_app: WorkerApplication) -> TaskScheduler:
-    return cast(TaskScheduler, task_app["task_scheduler"])
-
-
-@pytest.fixture
-def redis(task_consumer: TaskConsumer) -> Redis:  # type: ignore
-    return cast(RedisBroker, task_consumer.broker).redis.cli
+def redis(task_scheduler: TaskScheduler) -> Redis:  # type: ignore
+    return cast(RedisTaskBroker, task_scheduler.broker).redis.redis_cli

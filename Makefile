@@ -1,8 +1,9 @@
-.PHONY: help clean install lint mypy test test-lint publish
 
+.PHONY: help
 help:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
+.PHONY: clean
 clean:			## remove python cache files
 	find . -name '__pycache__' | xargs rm -rf
 	find . -name '*.pyc' -delete
@@ -13,37 +14,52 @@ clean:			## remove python cache files
 	rm -rf .mypy_cache
 	rm -rf .coverage
 
+.PHONY: install
+install: 		## install all packages via poetry
+	@./.dev/install
 
-install: 		## install packages in virtualenv
-	@./dev/install
-
-
+.PHONY: lint
 lint: 			## run linters
-	poetry run ./dev/lint
+	poetry run ./.dev/lint fix
 
+.PHONY: lint-test
+lint-test:		## run test linters
+	poetry run ./.dev/lint
 
-mypy:			## run mypy
-	@poetry run mypy fluid
-
-
+.PHONY: test
 test:			## test with coverage
 	@poetry run \
 		pytest -x --log-cli-level error \
 		-m "not flaky" \
 		--cov --cov-report xml --cov-report html
 
-
-test-lint:		## run linters
-	poetry run ./dev/lint --check
-
-
+.PHONY: test-version
 test-version:		## check version compatibility
 	@./dev/test-version
 
 
+.PHONY: publish
 publish:		## release to pypi and github tag
 	@poetry publish --build -u lsbardel -p $(PYPI_PASSWORD)
 
-
+.PHONY: outdated
 outdated:		## Show outdated packages
-	poetry show -o
+	poetry show -o -a
+
+
+.PHONY: example
+example:		## run task scheduler example
+	@poetry run python -m examples.main
+
+
+.PHONY: docs
+docs:			## build documentation
+	@poetry run mkdocs build
+
+.PHONY: docs-publish
+docs-publish:		## publish the book to github pages
+	poetry run mkdocs gh-deploy
+
+.PHONY: docs-serve
+docs-serve:		## serve documentation
+	@poetry run mkdocs serve
