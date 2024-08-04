@@ -47,6 +47,17 @@ async def get_tasks(task_manager: TaskManagerDep) -> list[TaskInfo]:
     return await task_manager.broker.get_tasks_info()
 
 
+@router.get(
+    "/tasks/status",
+    response_model=dict,
+    summary="Task consumer status",
+    description="Retrieve a list of tasks runs",
+)
+async def get_task_status(task_manager: TaskManagerDep) -> dict:
+    if isinstance(task_manager, Worker):
+        return await task_manager.status()
+    return {}
+
 @router.post(
     "/tasks",
     response_model=TaskRun,

@@ -169,6 +169,7 @@ class TaskConsumer(TaskManager, Workers):
         self._queue_tasks_worker = WorkerFunction(
             self._queue_task, name="queue-task-worker"
         )
+        self.add_workers(self._queue_tasks_worker)
         for i in range(self.config.max_concurrent_tasks):
             worker_name = f"task-worker-{i+1}"
             self.add_workers(

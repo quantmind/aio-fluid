@@ -19,14 +19,14 @@
             ]
         },
         {
-            "name": "API Serve",
+            "name": "AIO-FLUID EXAMPLE Serve",
             "type": "python",
             "request": "launch",
             "program": "${workspaceFolder}/examples/main.py",
             "cwd": "${workspaceFolder}",
             "justMyCode": false,
             "args": [
-                "ls"
+                "serve"
             ],
             "debugOptions": [
                 "RedirectOutput"
