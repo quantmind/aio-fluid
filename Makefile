@@ -63,3 +63,8 @@ docs-publish:		## publish the book to github pages
 .PHONY: docs-serve
 docs-serve:		## serve documentation
 	@poetry run mkdocs serve
+
+
+.PHONY: readme
+readme:			## generate readme.md
+	cp docs/index.md readme.md

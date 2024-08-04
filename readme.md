@@ -1,10 +1,14 @@
-# Tools for backend python services
+Aio Fluid
+
+Async utilities for backend python services
 
 [![PyPI version](https://badge.fury.io/py/aio-fluid.svg)](https://badge.fury.io/py/aio-fluid)
 [![Python versions](https://img.shields.io/pypi/pyversions/aio-fluid.svg)](https://pypi.org/project/aio-fluid)
 [![build](https://github.com/quantmind/fluid/workflows/build/badge.svg)](https://github.com/quantmind/aio-fluid/actions?query=workflow%3Abuild)
-[![codecov](https://codecov.io/gh/quantmind/aio-fluid/branch/main/graph/badge.svg?token=81oWUoyEVp)](https://codecov.io/gh/quantmind/aio-fluid)
-[![Downloads](https://img.shields.io/pypi/dd/aio-fluid.svg)](https://pypi.org/project/aio-fluid/)
+
+**Documentation**: [https://quantmind.github.io/aio-fluid](https://quantmind.github.io/aio-fluid)
+**Source Code**: [https://github.com/quantmind/aio-fluid](https://github.com/quantmind/aio-fluid)
+
 
 ## Installation
 
@@ -14,20 +18,14 @@ This is a simple python package you can install via pip:
 pip install aio-fluid
 ```
 
-## Modules
+To install all the dependencies, you can use the `all` extra:
 
-### [scheduler](./fluid/scheduler)
+```
+pip install aio-fluid[all]
+```
+this includes the following extra dependencies:
 
-A simple asynchronous task queue with a scheduler
-
-### [kernel](./fluid/kernel)
-
-Async utility for executing commands in sub-processes
-
-## AWS
-
-packages for AWS interaction are installed via
-
-- [aiobotocore](https://github.com/aio-libs/aiobotocore)
-- [s3fs](https://github.com/fsspec/s3fs) (which depends on aiobotocore and therefore versions must be compatible)
-- [boto3](https://boto3.amazonaws.com/v1/documentation/api/latest/guide/quickstart.html) is installed as extra dependency of aiobotocore so versioning is compatible
+- `cli` for the command line interface
+- `db` for database support
+- `http` for http client support
+- `log` for JSON logging support
