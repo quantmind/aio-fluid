@@ -18,10 +18,10 @@ This is a simple python package you can install via pip:
 pip install aio-fluid
 ```
 
-To install all the dependencies, you can use the `all` extra:
+To install all the dependencies, you can use the `full` extra:
 
 ```
-pip install aio-fluid[all]
+pip install aio-fluid[full]
 ```
 this includes the following extra dependencies:
 
