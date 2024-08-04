@@ -58,6 +58,9 @@ docs:			## build documentation
 
 .PHONY: docs-publish
 docs-publish:		## publish the book to github pages
+	git checkout gh-pages
+    git pull origin gh-pages
+    git checkout -
 	poetry run mkdocs gh-deploy
 
 .PHONY: docs-serve
