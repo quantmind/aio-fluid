@@ -30,6 +30,6 @@ class FastapiAppWorkers(Workers):
 
     def get_active_worker(self, *, worker_name: str) -> Worker | None:
         worker = self._workers.get_worker_by_name(worker_name)
-        if worker and not worker.stopping:
+        if worker and not worker.is_stopping():
             return worker
         return None

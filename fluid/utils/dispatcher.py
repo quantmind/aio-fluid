@@ -1,37 +1,43 @@
 import asyncio
 from abc import ABC, abstractmethod
 from collections import defaultdict
-from typing import Awaitable, Callable, Dict, Generic, TypeVar
+from typing import Awaitable, Callable, Generic, NamedTuple, Self, TypeVar
 
 MessageType = TypeVar("MessageType")
 MessageHandlerType = TypeVar("MessageHandlerType")
 
 
+class Event(NamedTuple):
+    type: str
+    tag: str
+
+    @classmethod
+    def from_string(cls, event: str) -> Self:
+        bits = event.split(".")
+        return cls(bits[0], bits[1] if len(bits) > 1 else "")
+
+
 class BaseDispatcher(Generic[MessageType, MessageHandlerType], ABC):
     def __init__(self) -> None:
-        self._msg_handlers: Dict[str, dict[str, MessageHandlerType]] = defaultdict(
-            dict,
+        self._msg_handlers: defaultdict[str, dict[str, MessageHandlerType]] = (
+            defaultdict(
+                dict,
+            )
         )
 
     def register_handler(
         self,
         message_type: str,
         handler: MessageHandlerType,
-        tag: str = "",
     ) -> MessageHandlerType | None:
-        previous = self._msg_handlers[message_type].get(tag)
-        self._msg_handlers[message_type][tag] = handler
+        event = Event.from_string(message_type)
+        previous = self._msg_handlers[event.type].get(event.tag)
+        self._msg_handlers[message_type][event.tag] = handler
         return previous
 
-    def unregister_handler(
-        self, message_type: str, tag: str = ""
-    ) -> MessageHandlerType | None:
-        return self._msg_handlers[message_type].pop(tag, None)
-
-    def on(
-        self, handler: MessageHandlerType, tag: str = ""
-    ) -> MessageHandlerType | None:
-        return self.register_handler("*", handler, tag)
+    def unregister_handler(self, message_type: str) -> MessageHandlerType | None:
+        event = Event.from_string(message_type)
+        return self._msg_handlers[event.type].pop(event.tag, None)
 
     def get_handlers(
         self,

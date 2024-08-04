@@ -20,7 +20,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from .consumer import TaskManager
 
 
-_brokers: dict[str, type[Broker]] = {}
+_brokers: dict[str, type[TaskBroker]] = {}
 
 
 def broker_url_from_env() -> URL:
@@ -33,7 +33,7 @@ class TaskRegistry(dict[str, Task]):
             yield task
 
 
-class Broker(ABC):
+class TaskBroker(ABC):
     def __init__(self, url: URL) -> None:
         self.url: URL = url
         self.registry: TaskRegistry = TaskRegistry()
@@ -110,19 +110,19 @@ class Broker(ABC):
         return await self.update_task(task, dict(enabled=enable))
 
     @classmethod
-    def from_url(cls, url: str = "") -> Broker:
+    def from_url(cls, url: str = "") -> TaskBroker:
         p = URL(url or broker_url_from_env())
         if factory := _brokers.get(p.scheme):
             return factory(p)
         raise RuntimeError(f"Invalid broker {p}")
 
     @classmethod
-    def register_broker(cls, name: str, factory: type[Broker]) -> None:
+    def register_broker(cls, name: str, factory: type[TaskBroker]) -> None:
         _brokers[name] = factory
 
 
-class RedisBroker(Broker):
-    """A simple broker based on redis lists"""
+class RedisTaskBroker(TaskBroker):
+    """A simple task broker based on redis lists"""
 
     @cached_property
     def redis(self) -> FluidRedis:
@@ -220,5 +220,5 @@ class RedisBroker(Broker):
         return task.info(**info)
 
 
-Broker.register_broker("redis", RedisBroker)
-Broker.register_broker("rediss", RedisBroker)
+TaskBroker.register_broker("redis", RedisTaskBroker)
+TaskBroker.register_broker("rediss", RedisTaskBroker)

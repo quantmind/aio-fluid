@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from redis.asyncio import Redis
 
 from fluid.scheduler import TaskManager, TaskScheduler
-from fluid.scheduler.broker import RedisBroker
+from fluid.scheduler.broker import RedisTaskBroker
 from fluid.scheduler.endpoints import get_task_manger, setup_fastapi
 from tests.scheduler.tasks import task_application
 
@@ -29,4 +29,4 @@ async def task_scheduler() -> AsyncIterator[TaskManager]:
 
 @pytest.fixture
 def redis(task_scheduler: TaskScheduler) -> Redis:  # type: ignore
-    return cast(RedisBroker, task_scheduler.broker).redis.cli
+    return cast(RedisTaskBroker, task_scheduler.broker).redis.redis_cli

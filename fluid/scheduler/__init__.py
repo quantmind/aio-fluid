@@ -1,4 +1,4 @@
-from .broker import Broker
+from .broker import TaskBroker
 from .consumer import TaskConsumer, TaskManager
 from .crontab import Scheduler, crontab
 from .every import every
@@ -17,7 +17,7 @@ __all__ = [
     "TaskInfo",
     "TaskRun",
     "QueuedTask",
-    "Broker",
+    "TaskBroker",
     "crontab",
     "every",
 ]

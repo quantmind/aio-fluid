@@ -1,9 +1,7 @@
 import asyncio
 from dataclasses import dataclass, field
 
-import pytest
-
-from fluid.utils.worker import QueueConsumerWorker
+from fluid.utils.worker import QueueConsumerWorker, Workers
 
 
 @dataclass
@@ -19,13 +17,12 @@ class Waiter:
 async def test_consumer() -> None:
     process = Waiter()
     consumer = QueueConsumerWorker(process)
-    assert consumer.qsize() == 0
-    with pytest.raises(RuntimeError):
-        consumer.submit("test")
-    await consumer.start()
+    assert consumer.queue_size() == 0
+    consumer.send("test")
+    assert consumer.queue_size() == 1
+    runner = Workers(consumer)
+    await runner.startup()
     assert consumer.is_running()
-    consumer.submit("test")
-    assert consumer.qsize() == 1
     assert await process.waiter == "test"
-    assert consumer.qsize() == 0
-    await consumer.close()
+    assert consumer.queue_size() == 0
+    runner.gracefully_stop()

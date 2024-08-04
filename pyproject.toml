@@ -92,4 +92,4 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
-disable_error_code = ["attr-defined", "return"]
+disable_error_code = ["return"]

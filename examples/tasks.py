@@ -5,7 +5,7 @@ from datetime import timedelta
 from typing import cast
 
 from fluid.scheduler import TaskRun, every, task
-from fluid.scheduler.broker import RedisBroker
+from fluid.scheduler.broker import RedisTaskBroker
 
 
 @task
@@ -35,6 +35,6 @@ async def disabled(context: TaskRun) -> float:
 async def cpu_bound(context: TaskRun) -> None:
     """A CPU bound task running on subprocess"""
     time.sleep(1)
-    broker = cast(RedisBroker, context.task_manager.broker)
+    broker = cast(RedisTaskBroker, context.task_manager.broker)
     redis = broker.redis_cli
     await redis.setex(context.id, os.getpid(), 10)

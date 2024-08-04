@@ -10,8 +10,8 @@ if [ "$1" = "fix" ] ; then
 fi
 
 echo "run black"
-black fluid tests ${BLACK_ARG}
+black fluid tests examples ${BLACK_ARG}
 echo "run ruff"
-ruff check fluid tests ${RUFF_ARG}
+ruff check fluid tests examples ${RUFF_ARG}
 echo "run mypy"
-mypy fluid
+mypy fluid tests examples

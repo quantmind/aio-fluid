@@ -20,6 +20,10 @@ def to_bool(v: str | bool | int | None) -> bool:
     return str(v).lower() in TRUE_VALUES if v else False
 
 
+def create_uid() -> str:
+    return uuid.uuid4().hex
+
+
 def as_uuid(uid: Any) -> str | None:
     if uid:
         if hasattr(uid, "hex"):

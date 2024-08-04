@@ -3,13 +3,14 @@ from __future__ import annotations
 import asyncio
 import logging
 import random
-from abc import ABC, abstractmethod, abstractproperty
-from contextlib import asynccontextmanager
+from abc import ABC, abstractmethod
+from contextlib import asynccontextmanager, contextmanager
 from dataclasses import dataclass, field
 from typing import (
     AsyncGenerator,
     Awaitable,
     Callable,
+    Generator,
     Iterator,
     Protocol,
     Sequence,
@@ -54,8 +55,12 @@ class Worker(ABC):
     def gracefully_stop(self) -> None:
         "gracefully stop the worker"
 
-    @abstractproperty
-    def stopping(self) -> bool:
+    @abstractmethod
+    def is_running(self) -> bool:
+        """Is the worker running?"""
+
+    @abstractmethod
+    def is_stopping(self) -> bool:
         """Is the worker stopping?"""
 
     @abstractmethod
@@ -63,20 +68,41 @@ class Worker(ABC):
         """run the worker"""
 
 
-class StoppingWorker(Worker):
+class RunningWorker(Worker):
+
+    def __init__(self, name: str = "") -> None:
+        super().__init__(name)
+        self._running: bool = False
+
+    def is_running(self) -> bool:
+        return self._running
+
+    @contextmanager
+    def start_running(self) -> Generator:
+        if self._running:
+            raise RuntimeError("Worker is already running")
+        self._running = True
+        try:
+            logger.info("%s started running", self.worker_name)
+            yield
+        finally:
+            self._running = False
+            logger.warning("%s stopped running", self.worker_name)
+
+
+class StoppingWorker(RunningWorker):
     def __init__(self, name: str = "") -> None:
         super().__init__(name)
         self._stopping: bool = False
 
-    @property
-    def stopping(self) -> bool:
+    def is_stopping(self) -> bool:
         return self._stopping
 
     def gracefully_stop(self) -> None:
         self._stopping = True
 
     async def status(self) -> dict:
-        return {"stopping": self.stopping}
+        return {"stopping": self.is_stopping(), "running": self.is_running()}
 
 
 class WorkerFunction(StoppingWorker):
@@ -91,11 +117,10 @@ class WorkerFunction(StoppingWorker):
         self._heartbeat = heartbeat
 
     async def run(self) -> None:
-        logger.info("%s started running", self.worker_name)
-        while not self.stopping:
-            await self._run_function()
-            await asyncio.sleep(self._heartbeat)
-        logger.warning("%s stopped running", self.worker_name)
+        with self.start_running():
+            while not self.is_stopping():
+                await self._run_function()
+                await asyncio.sleep(self._heartbeat)
 
 
 T = TypeVar("T", contravariant=True)
@@ -119,7 +144,7 @@ class QueueConsumer(StoppingWorker, MessageProducer[MessageType]):
         except asyncio.TimeoutError:
             return None
         except (asyncio.CancelledError, RuntimeError):
-            if not self.stopping:
+            if not self.is_stopping():
                 raise
         return None
 
@@ -146,11 +171,11 @@ class QueueConsumerWorker(QueueConsumer[MessageType]):
         self.on_message = on_message
 
     async def run(self) -> None:
-        while not self.stopping:
-            message = await self.get_message()
-            if message is not None:
-                await self.on_message(message)
-        logger.warning("%s stopped running", self.worker_name)
+        with self.start_running():
+            while not self.is_stopping():
+                message = await self.get_message()
+                if message is not None:
+                    await self.on_message(message)
 
 
 class AsyncConsumer(QueueConsumer[MessageType]):
@@ -165,11 +190,11 @@ class AsyncConsumer(QueueConsumer[MessageType]):
         self.dispatcher: AsyncDispatcher[MessageType] = dispatcher
 
     async def run(self) -> None:
-        while not self.stopping:
-            message = await self.get_message()
-            if message is not None:
-                await self.dispatcher.dispatch(message)
-        logger.warning("%s stopped running", self.worker_name)
+        with self.start_running():
+            while not self.is_stopping():
+                message = await self.get_message()
+                if message is not None:
+                    await self.dispatcher.dispatch(message)
 
 
 @dataclass
@@ -177,9 +202,8 @@ class WorkerTasks:
     workers: Sequence[Worker] = field(default_factory=list)
     tasks: Sequence[asyncio.Task] = field(default_factory=list)
 
-    @property
-    def stopping(self) -> bool:
-        return any(worker.stopping for worker in self.workers)
+    def is_stopping(self) -> bool:
+        return any(worker.is_stopping() for worker in self.workers)
 
     @property
     def num_workers(self) -> int:
@@ -220,7 +244,7 @@ class WorkerTasks:
             task.cancel()
 
 
-class MultipleWorkers(Worker):
+class MultipleWorkers(RunningWorker):
     """A worker managing several workers"""
 
     def __init__(
@@ -244,9 +268,8 @@ class MultipleWorkers(Worker):
     @abstractmethod
     async def wait_for_exit(self) -> None: ...
 
-    @property
-    def stopping(self) -> bool:
-        return self._workers.stopping
+    def is_stopping(self) -> bool:
+        return self._workers.is_stopping()
 
     @property
     def num_workers(self) -> int:
@@ -342,20 +365,20 @@ class DynamicWorkers(MultipleWorkers):
             tasks_.append(self.create_task(worker))
 
     async def run(self) -> None:
-        while not self.stopping:
-            for worker, task in zip(self._workers.workers, self._workers.tasks):
-                if worker.stopping or task.done():
-                    break
-            await asyncio.sleep(self._heartbeat)
-        await self.shutdown()
-        logger.warning("%s stopped running", self.worker_name)
+        with self.start_running():
+            while not self.is_stopping():
+                for worker, task in zip(self._workers.workers, self._workers.tasks):
+                    if worker.is_stopping() or task.done():
+                        break
+                await asyncio.sleep(self._heartbeat)
+            await self.shutdown()
 
     async def wait_for_exit(self) -> None:
         await asyncio.gather(*self._workers.tasks)
 
 
 class Workers(MultipleWorkers):
-    """A worker managing several workers and protobuf dispatcher"""
+    """A worker managing several workers"""
 
     def __init__(
         self,
@@ -385,13 +408,15 @@ class Workers(MultipleWorkers):
 
     async def run(self) -> None:
         """run the workers"""
-        async with self.safe_run():
-            workers, _ = self._workers.workers_tasks()
-            self._workers.workers = tuple(workers)
-            self._workers.tasks = tuple(self.create_task(worker) for worker in workers)
-            await asyncio.gather(*self._workers.tasks)
-        await self.shutdown()
-        logger.warning("%s stopped running", self.worker_name)
+        with self.start_running():
+            async with self.safe_run():
+                workers, _ = self._workers.workers_tasks()
+                self._workers.workers = tuple(workers)
+                self._workers.tasks = tuple(
+                    self.create_task(worker) for worker in workers
+                )
+                await asyncio.gather(*self._workers.tasks)
+            await self.shutdown()
 
     async def wait_for_exit(self) -> None:
         if self._workers_task is not None:

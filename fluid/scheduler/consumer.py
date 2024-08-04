@@ -5,17 +5,25 @@ import logging
 from collections import defaultdict, deque
 from contextlib import AsyncExitStack
 from functools import cached_property, partial
-from typing import Any, Callable, Coroutine, NamedTuple, Self
+from typing import Any, Callable, Coroutine, Self
 
+import async_timeout
 from inflection import underscore
 
 from fluid.utils import log
-from fluid.utils.dates import utcnow
+from fluid.utils.dispatcher import Dispatcher
 from fluid.utils.worker import WorkerFunction, Workers
 
-from .broker import Broker, TaskRegistry
-from .errors import TaskRunError, UnknownTaskError
-from .models import Task, TaskManagerConfig, TaskPriority, TaskRun, TaskState
+from .broker import TaskBroker, TaskRegistry
+from .errors import TaskAbortedError, TaskRunError, UnknownTaskError
+from .models import (
+    Task,
+    TaskManagerConfig,
+    TaskPriority,
+    TaskRun,
+    TaskRunWaiter,
+    TaskState,
+)
 
 try:
     from .cli import TaskManagerCLI
@@ -23,21 +31,16 @@ except ImportError:
     TaskManagerCLI = None  # type: ignore[assignment,misc]
 
 
-ConsumerCallback = Callable[[TaskRun, "TaskManager"], None]
 AsyncExecutor = Callable[..., Coroutine[Any, Any, None]]
 AsyncMessage = tuple[AsyncExecutor, tuple[Any, ...]]
 
 logger = log.get_logger(__name__)
 
 
-class Event(NamedTuple):
-    type: str
-    tag: str
+class TaskDispatcher(Dispatcher[TaskRun]):
 
-    @classmethod
-    def from_string(cls, event: str) -> "Event":
-        bits = event.split(".")
-        return cls(bits[0], bits[1] if len(bits) > 1 else "")
+    def message_type(self, message: TaskRun) -> str:
+        return message.state
 
 
 class TaskManager:
@@ -46,7 +49,7 @@ class TaskManager:
     def __init__(self, **kwargs: Any) -> None:
         self.state: dict[str, Any] = {}
         self.config: TaskManagerConfig = TaskManagerConfig(**kwargs)
-        self._msg_handlers: dict[str, dict[str, ConsumerCallback]] = defaultdict(dict)
+        self.dispatcher = TaskDispatcher()
         self._stack = AsyncExitStack()
 
     async def __aenter__(self) -> Self:
@@ -62,8 +65,8 @@ class TaskManager:
         return await self._stack.enter_async_context(cm)
 
     @cached_property
-    def broker(self) -> Broker:
-        return Broker.from_url(self.config.broker_url)
+    def broker(self) -> TaskBroker:
+        return TaskBroker.from_url(self.config.broker_url)
 
     @property
     def registry(self) -> TaskRegistry:
@@ -100,9 +103,17 @@ class TaskManager:
         priority: TaskPriority | None = None,
         **params: Any,
     ) -> TaskRun:
+        """Queue a task for execution
+
+        This methods fires two events:
+
+        - queue: when the task is about to be queued
+        - queued: after the task is queued
+        """
         task_run = self.create_task_run(task, priority=priority, **params)
+        self.dispatcher.dispatch(task_run)
+        task_run.set_state(TaskState.queued)
         await self.broker.queue_task(task_run)
-        self.dispatch(task_run, "queued")
         return task_run
 
     def create_task_run(
@@ -112,7 +123,7 @@ class TaskManager:
         priority: TaskPriority | None = None,
         **params: Any,
     ) -> TaskRun:
-        """Create a TaskRun"""
+        """Create a TaskRun in `init` state"""
         if isinstance(task, str):
             task = self.broker.task_from_registry(task)
         run_id = run_id or self.broker.new_uuid()
@@ -120,25 +131,9 @@ class TaskManager:
             id=run_id,
             task=task,
             priority=priority or task.priority,
-            state=TaskState.queued,
             params=params,
-            queued=utcnow(),
             task_manager=self,
         )
-
-    def dispatch(self, task_run: TaskRun, event_type: str) -> None:
-        """Dispatch a message to the registered handlers."""
-        if handlers := self._msg_handlers.get(event_type):
-            for handler in handlers.values():
-                handler(task_run, self)
-
-    def register_handler(self, event_name: str, handler: ConsumerCallback) -> None:
-        event = Event.from_string(event_name)
-        self._msg_handlers[event.type][event.tag] = handler
-
-    def unregister_handler(self, event_name: str) -> None:
-        event = Event.from_string(event_name)
-        self._msg_handlers[event.type].pop(event.tag, None)
 
     def register_from_module(self, module: Any) -> None:
         for name in dir(module):
@@ -187,7 +182,7 @@ class TaskConsumer(TaskManager, Workers):
 
     @property
     def num_concurrent_tasks(self) -> int:
-        """The number of concurrent_tasks"""
+        """The number of concurrent_tasks running in the consumer"""
         return sum(len(v) for v in self._concurrent_tasks.values())
 
     def sync_queue(self, task: str | Task) -> None:
@@ -200,11 +195,12 @@ class TaskConsumer(TaskManager, Workers):
         """The number of concurrent tasks for a given task_name"""
         return len(self._concurrent_tasks[task_name])
 
-    def queue_and_wait(self, task: str, **params: Any) -> TaskRun:
-        """Execute a Task by-passing the broker task queue"""
-        task_run = self.create_task_run(task, **params)
-        self._priority_task_run_queue.appendleft(task_run)
-        return task_run
+    async def queue_and_wait(
+        self, task: str, *, timeout: int = 2, **params: Any
+    ) -> TaskRun:
+        """Queue a task and wait for it to finish"""
+        with TaskRunWaiter(self) as waiter:
+            return await waiter.wait(await self.queue(task, **params), timeout=timeout)
 
     # Internals
 
@@ -251,32 +247,41 @@ class TaskConsumer(TaskManager, Workers):
             task_run.set_state(TaskState.aborted)
         #
         else:
-            task_run.logger.info("start")
-            self.dispatch(task_run, "start")
-        try:
-            await task_run.execute()
-        except TaskRunError:
-            # no logging as this was a controlled exception
-            pass
-        except Exception:
-            task_run.logger.exception("critical exception while executing")
+            try:
+                params = task_run.params_dump_json()
+            except Exception:
+                task_run.logger.exception("%s - start - params exeception", task_run.id)
+            else:
+                task_run.logger.info("%s - %s - start", task_run.id, params)
+            try:
+                async with async_timeout.timeout(task_run.task.timeout_seconds):
+                    await task_run.execute()
+            except TaskRunError:
+                # no logging as this was a controlled exception
+                pass
+            except TaskAbortedError as exc:
+                task_run.logger.info("%s - %s - aborted - %s", task_run.id, params, exc)
+            except asyncio.TimeoutError:
+                task_run.logger.error("task run %s - %s - timeout", task_run.id, params)
+            except Exception:
+                task_run.logger.exception("critical exception while executing")
+
         self._concurrent_tasks[task_name].pop(task_run.id, None)
-        await self.broker.update_task(
-            task_run.task,
-            dict(
-                last_run_end=task_run.end,
-                last_run_duration=task_run.duration,
-                last_run_state=task_run.state,
-            ),
-        )
-        duration = task_run.duration_ms
-        if duration is not None:
-            self.dispatch(task_run, "end")
+        duration_ms = task_run.duration_ms
+        if duration_ms is not None:
+            await self.broker.update_task(
+                task_run.task,
+                dict(
+                    last_run_end=task_run.end,
+                    last_run_duration=task_run.duration,
+                    last_run_state=task_run.state,
+                ),
+            )
             task_run.logger.log(
                 logging.WARNING if task_run.is_failure else logging.INFO,
                 "end - %s - milliseconds - %s",
                 task_run.state,
-                duration,
+                duration_ms,
             )
 
 
