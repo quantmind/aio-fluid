@@ -7,7 +7,6 @@ Async utilities for backend python services
 [![build](https://github.com/quantmind/fluid/workflows/build/badge.svg)](https://github.com/quantmind/aio-fluid/actions?query=workflow%3Abuild)
 
 **Documentation**: [https://quantmind.github.io/aio-fluid](https://quantmind.github.io/aio-fluid)
-
 **Source Code**: [https://github.com/quantmind/aio-fluid](https://github.com/quantmind/aio-fluid)
 
 
@@ -19,10 +18,10 @@ This is a simple python package you can install via pip:
 pip install aio-fluid
 ```
 
-To install all the dependencies, you can use the `all` extra:
+To install all the dependencies, you can use the `full` extra:
 
 ```
-pip install aio-fluid[all]
+pip install aio-fluid[full]
 ```
 this includes the following extra dependencies:
 
