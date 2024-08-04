@@ -30,3 +30,12 @@ this includes the following extra dependencies:
 - `db` for database support
 - `http` for http client support
 - `log` for JSON logging support
+
+
+## Development
+
+You can run the examples via
+
+```
+poetry run python -m examples.main
+```

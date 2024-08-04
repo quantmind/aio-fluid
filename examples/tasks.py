@@ -10,6 +10,7 @@ from fluid.scheduler.broker import RedisTaskBroker
 
 @task
 async def dummy(context: TaskRun) -> float:
+    """A task that sleeps for a while or errors"""
     sleep = cast(float, context.params.get("sleep", 0.1))
     await asyncio.sleep(sleep)
     if context.params.get("error"):
@@ -26,6 +27,7 @@ async def scheduled(context: TaskRun) -> str:
 
 @task
 async def disabled(context: TaskRun) -> float:
+    """A task that sleeps for a while"""
     sleep = cast(float, context.params.get("sleep", 0.1))
     await asyncio.sleep(sleep)
     return sleep

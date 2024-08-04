@@ -34,17 +34,17 @@ There are two types of tasks implemented
 
 * **CPU bound tasks** - they run on a subprocess
 
-  ```python
-    from fluid.scheduler import task, TaskRun
+```python
+from fluid.scheduler import task, TaskRun
 
-    @task(cpu_bound=True)
-    async def heavy_calculation(ctx: TaskRun):
-        # perform some heavy calculation
-        data = await datastore_cli.get(ctx.params["data_id"])
-        ...
-        # trigger another task
-        ctx.task_manager.queue("fetch_data")
-  ```
+@task(cpu_bound=True)
+async def heavy_calculation(ctx: TaskRun):
+    data = await datastore_cli.get(ctx.params["data_id"])
+    # perform some heavy calculation
+    ...
+    # trigger another task
+    ctx.task_manager.queue("fetch_data")
+```
 
 Both tasks can be periodically scheduled via the `schedule` keyword argument:
 
