@@ -38,11 +38,14 @@ jobs:
       - name: tests
         run: make test
       - name: upload coverage
-        if: matrix.python-version == '3.11'
+        if: matrix.python-version == '3.12'
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./build/coverage.xml
+      - name: publish-docs
+        if: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.12' }}
+        run: make docs-publish
       - name: publish
-        if: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.11' && github.event.head_commit.message == 'release' }}
+        if: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.12' && github.event.head_commit.message == 'release' }}
         run: make publish
