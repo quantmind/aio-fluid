@@ -1,4 +1,4 @@
-# Distributed Task Producer/Consumer
+# Task Queue
 
 This module has a lightweight implementation of a distributed task producer (TaskScheduler) and consumer (TaskConsumer).
 The middleware for distributing tasks can be configured via the Broker interface.

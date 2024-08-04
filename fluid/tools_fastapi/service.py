@@ -12,11 +12,9 @@ logger = log.get_logger(__name__)
 
 
 class FastapiAppWorkers(Workers):
-    """An aiohttp runner"""
 
     @classmethod
     def setup(cls, app: FastAPI, **kwargs: Any) -> Self:
-        """Setup the app runner"""
         workers = cls(**kwargs)
         app.state.workers = workers
         app.add_event_handler("startup", workers.startup)
