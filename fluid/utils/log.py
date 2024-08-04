@@ -1,6 +1,6 @@
 import logging
 from logging.config import dictConfig
-from typing import Dict, Sequence
+from typing import Any, Sequence
 
 try:
     import pythonjsonlogger
@@ -32,8 +32,8 @@ def log_config(
     app_names: Sequence[str] = (settings.APP_NAME,),
     log_handler: str = settings.LOG_HANDLER,
     log_format: str = settings.PYTHON_LOG_FORMAT,
-    formatters: Dict[str, Dict[str, str]] | None = None,
-) -> Dict:
+    formatters: dict[str, dict[str, str]] | None = None,
+) -> dict:
     other_level = max(level, other_level)
     log_handlers = {
         "plain": {
@@ -69,6 +69,9 @@ def log_config(
         )
     if formatters:
         log_formatters.update(formatters)
+    app_name_set = set(app_names)
+    if settings.APP_NAME not in app_name_set:
+        app_name_set.add(settings.APP_NAME)
     return {
         "version": 1,
         "disable_existing_loggers": False,
@@ -76,13 +79,13 @@ def log_config(
         "handlers": log_handlers,
         "loggers": {
             app_name: {"level": level, "handlers": [log_handler], "propagate": 0}
-            for app_name in app_names
+            for app_name in app_name_set
         },
         "root": {"level": other_level, "handlers": [log_handler]},
     }
 
 
-def config() -> dict:
-    cfg = log_config(level_num(settings.LOG_LEVEL))
+def config(**kwargs: Any) -> dict:
+    cfg = log_config(level_num(settings.LOG_LEVEL), **kwargs)
     dictConfig(cfg)
     return cfg

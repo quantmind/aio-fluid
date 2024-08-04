@@ -8,5 +8,5 @@ task_manager_cli = task_manager.cli()
 
 
 if __name__ == "__main__":
-    log.config()
+    log.config(app_names=["fluid"])
     task_manager_cli()
