@@ -26,5 +26,5 @@ async def test_consumer() -> None:
     assert consumer.is_stopping() is False
     assert await process.waiter == "test"
     assert consumer.queue_size() == 0
-    runner.gracefully_stop()
+    await runner.shutdown()
     await wait_for(lambda: not runner.is_running())
