@@ -43,10 +43,13 @@ publish:		## release to pypi and github tag
 	@poetry publish --build -u lsbardel -p $(PYPI_PASSWORD)
 
 
+.PHONY: publish-docs
+publish-docs:		## publish the book to github pages
+	poetry run mkdocs gh-deploy
+
 .PHONY: outdated
 outdated:		## Show outdated packages
 	poetry show -o -a
-
 
 
 .PHONY: example
