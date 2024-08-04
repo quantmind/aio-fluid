@@ -1,6 +1,7 @@
 import asyncio
 from dataclasses import dataclass, field
 
+from fluid.utils.waiter import wait_for
 from fluid.utils.worker import QueueConsumerWorker, Workers
 
 
@@ -22,7 +23,8 @@ async def test_consumer() -> None:
     assert consumer.queue_size() == 1
     runner = Workers(consumer)
     await runner.startup()
-    assert consumer.is_running()
+    assert consumer.is_stopping() is False
     assert await process.waiter == "test"
     assert consumer.queue_size() == 0
     runner.gracefully_stop()
+    await wait_for(lambda: not runner.is_running())

@@ -32,7 +32,7 @@ class BaseDispatcher(Generic[MessageType, MessageHandlerType], ABC):
     ) -> MessageHandlerType | None:
         event = Event.from_string(message_type)
         previous = self._msg_handlers[event.type].get(event.tag)
-        self._msg_handlers[message_type][event.tag] = handler
+        self._msg_handlers[event.type][event.tag] = handler
         return previous
 
     def unregister_handler(self, message_type: str) -> MessageHandlerType | None:
