@@ -58,6 +58,7 @@ async def get_task_status(task_manager: TaskManagerDep) -> dict:
         return await task_manager.status()
     return {}
 
+
 @router.post(
     "/tasks",
     response_model=TaskRun,
