@@ -1,11 +1,9 @@
-import uuid
 from datetime import date
 
 import sqlalchemy as sa
-from sqlalchemy_utils import UUIDType
 
-from openapi.db.columns import UUIDColumn
-from openapi.tz import utcnow
+from fluid.utils.dates import utcnow
+from fluid.utils.text import create_uid
 
 
 def additional_meta(meta=None):
@@ -17,11 +15,18 @@ def additional_meta(meta=None):
         "randoms",
         meta,
         sa.Column(
-            "id", UUIDType(), primary_key=True, nullable=False, default=uuid.uuid4
+            "id",
+            sa.String(32),
+            primary_key=True,
+            nullable=False,
+            default=create_uid,
         ),
         sa.Column("randomdate", sa.Date, nullable=False, default=date.today),
         sa.Column(
-            "timestamp", sa.DateTime(timezone=True), nullable=False, default=utcnow
+            "timestamp",
+            sa.DateTime(timezone=True),
+            nullable=False,
+            default=utcnow,
         ),
         sa.Column("price", sa.Numeric(precision=100, scale=4), nullable=False),
         sa.Column("tenor", sa.String(3), nullable=False),
@@ -55,6 +60,12 @@ def extra(meta):
     sa.Table(
         "extras",
         meta,
-        UUIDColumn("id", make_default=True, doc="Unique ID"),
+        sa.Column(
+            "id",
+            sa.String(32),
+            primary_key=True,
+            nullable=False,
+            default=create_uid,
+        ),
         sa.Column("name", sa.String(64), nullable=False),
     )
