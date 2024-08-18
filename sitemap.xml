@@ -2,42 +2,42 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://aio-fluid.com/</loc>
-         <lastmod>2024-08-04</lastmod>
+         <lastmod>2024-08-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aio-fluid.com/reference/</loc>
-         <lastmod>2024-08-04</lastmod>
+         <lastmod>2024-08-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aio-fluid.com/reference/task_broker/</loc>
-         <lastmod>2024-08-04</lastmod>
+         <lastmod>2024-08-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aio-fluid.com/reference/task_manager/</loc>
-         <lastmod>2024-08-04</lastmod>
+         <lastmod>2024-08-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aio-fluid.com/reference/task_run/</loc>
-         <lastmod>2024-08-04</lastmod>
+         <lastmod>2024-08-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aio-fluid.com/tutorials/</loc>
-         <lastmod>2024-08-04</lastmod>
+         <lastmod>2024-08-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aio-fluid.com/tutorials/db/</loc>
-         <lastmod>2024-08-04</lastmod>
+         <lastmod>2024-08-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
     <url>
          <loc>https://aio-fluid.com/tutorials/scheduler/</loc>
-         <lastmod>2024-08-04</lastmod>
+         <lastmod>2024-08-18</lastmod>
          <changefreq>daily</changefreq>
     </url>
 </urlset>
