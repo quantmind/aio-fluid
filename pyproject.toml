@@ -31,6 +31,7 @@ alembic = {version = "^1.13.2", optional = true}
 sqlalchemy-utils = {version = "^0.41.2", optional = true}
 python-dateutil = {version = "^2.9.0.post0", optional = true}
 asyncpg = {version = "^0.29.0", optional = true}
+psycopg2-binary = {version = "^2.9.9", optional = true}
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"
@@ -42,6 +43,7 @@ pytest-asyncio = "^0.23.6"
 ruff = "^0.5.1"
 types-redis = "^4.6.0.3"
 types-python-dateutil = "^2.9.0.20240316"
+python-dotenv = "^1.0.1"
 
 
 [tool.poetry.group.docs]
@@ -55,7 +57,7 @@ mkdocstrings = {version = "^0.25.1", extras = ["python"]}
 
 [tool.poetry.extras]
 cli = ["click", "rich"]
-db = ["sqlalchemy", "sqlalchemy-utils", "alembic", "python-dateutil", "asyncpg"]
+db = ["sqlalchemy", "sqlalchemy-utils", "alembic", "python-dateutil", "psycopg2-binary", "asyncpg"]
 http = ["aiohttp"]
 log = ["python-json-logger"]
 full = ["cli", "db", "http", "log"]
@@ -79,9 +81,13 @@ profile = "black"
 [tool.ruff]
 lint.select = ["A", "E", "W", "F", "I", "B", "N"]
 line-length = 88
+exclude = [
+    "examples/db/migrations",
+]
 
 [tool.mypy]
 warn_no_return = true
+exclude = "examples/db/migrations"
 
 [[tool.mypy.overrides]]
 module = [

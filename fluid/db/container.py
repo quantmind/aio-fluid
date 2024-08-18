@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
-from typing import Any, AsyncIterator
+from typing import Any, AsyncIterator, Self
 
 import sqlalchemy as sa
 from sqlalchemy.engine import Engine, create_engine
@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_en
 
 from fluid import settings
 
+from .cli import DbGroup
 from .migration import Migration
 
 
@@ -35,7 +36,7 @@ class Database:
         dsn: str = settings.DATABASE,
         schema: str | None = settings.DATABASE_SCHEMA,
         **kwargs: Any,
-    ) -> Database:
+    ) -> Self:
         """Create a new database conatiner from environment variables as defaults"""
         return cls(dsn=dsn, metadata=sa.MetaData(schema=schema), **kwargs)
 
@@ -60,6 +61,10 @@ class Database:
     def sync_engine(self) -> Engine:
         """The :class:`sqlalchemy.engine.Engine` for synchrouns operations"""
         return create_engine(self.dsn.replace("+asyncpg", ""))
+
+    def cli(self, **kwargs: Any) -> DbGroup:
+        """Create a new click group for database commands"""
+        return DbGroup(self, **kwargs)
 
     @asynccontextmanager
     async def connection(self) -> AsyncIterator[AsyncConnection]:

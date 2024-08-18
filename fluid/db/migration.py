@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from io import StringIO
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
@@ -13,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class Migration:
-    def __init__(self, db: "Database") -> None:
+    def __init__(self, db: Database) -> None:
         self.db = db
         self.cfg = create_config(db)
 

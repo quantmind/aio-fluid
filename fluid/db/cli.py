@@ -1,9 +1,12 @@
-from typing import Any, Optional, Union
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Optional, Union
 
 import click
 from sqlalchemy import func, inspect, select, text
 
-from .container import Database
+if TYPE_CHECKING:
+    from .container import Database
 
 
 class DbGroup(click.Group):
