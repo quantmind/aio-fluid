@@ -13,7 +13,7 @@ packages = [
 "Issues" = "https://github.com/quantmind/aio-fluid/issues"
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.13"
+python = ">=3.11"
 async-timeout = "^4.0.3"
 inflection = "^0.5.1"
 redis = {version = "^5.0.1", extras = ["hiredis"] }
