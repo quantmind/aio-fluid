@@ -40,7 +40,7 @@ test-version:		## check version compatibility
 
 .PHONY: publish
 publish:		## release to pypi and github tag
-	@poetry publish --build -u lsbardel -p $(PYPI_PASSWORD)
+	@poetry publish --build -u __token__ -p $(PYPI_TOKEN)
 
 .PHONY: outdated
 outdated:		## Show outdated packages

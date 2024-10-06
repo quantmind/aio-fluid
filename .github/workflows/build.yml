@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 5
     env:
       PYTHON_ENV: ci
-      PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
     strategy:
       matrix:
         python-version: ["3.11", "3.12"]
@@ -55,9 +55,9 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./build/coverage.xml
-      - name: publish
-        if: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.12' && github.event.head_commit.message == 'release' }}
-        run: make publish
       - name: publish-docs
         if: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.12' }}
         run: make docs-publish
+      - name: publish
+        if: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.12' && github.event.head_commit.message == 'release' }}
+        run: make publish

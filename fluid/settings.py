@@ -24,7 +24,6 @@ REDIS_DEFAULT_URL = os.getenv("REDIS_DEFAULT_URL", "redis://localhost:6379")
 REDIS_MAX_CONNECTIONS = int(os.getenv("MAX_REDIS_CONNECTIONS", "5"))
 
 # Database
-# Database
 DATABASE = os.getenv(
     "DATABASE", "postgresql+asyncpg://postgres:postgres@localhost:5432/fluid"
 )
@@ -32,6 +31,9 @@ DATABASE_SCHEMA: str | None = os.getenv("DATABASE_SCHEMA")
 DBPOOL_MAX_SIZE: int = int(os.getenv("FLUID_DBPOOL_MAX_SIZE") or "10")
 DBPOOL_MAX_OVERFLOW: int = int(os.getenv("FLUID_DBPOOL_MAX_OVERFLOW") or "10")
 DBECHO: bool = to_bool(os.getenv("FLUID_DBECHO") or "no")
+
+# HTTP
+HTTP_USER_AGENT = os.getenv("HTTP_USER_AGENT", f"python/{APP_NAME}")
 
 # Pagination
 DEFAULT_PAGINATION_LIMIT = int(os.getenv("DEFAULT_PAGINATION_LIMIT") or "250")
