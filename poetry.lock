@@ -2896,12 +2896,11 @@ propcache = ">=0.2.0"
 
 [extras]
 cli = ["click", "rich"]
-db = ["alembic", "asyncpg", "psycopg2-binary", "python-dateutil", "sqlalchemy", "sqlalchemy-utils"]
-full = []
+db = ["alembic", "asyncpg", "click", "psycopg2-binary", "python-dateutil", "rich", "sqlalchemy", "sqlalchemy-utils"]
 http = ["aiohttp", "httpx", "prometheus-client"]
 log = ["python-json-logger"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.11"
-content-hash = "a5ca918362fc7f9a89fe542c94fad4e27388cf98721ee52a2962dc7e2ce7c808"
+content-hash = "e39bfea99e09f0c8640b81b462346f4a034a8635766e6041e2febd8637eedbfa"
