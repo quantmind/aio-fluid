@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any
 
 import click
+from fastapi import FastAPI
 from rich.console import Console
 from rich.table import Table
 
@@ -16,14 +17,21 @@ if TYPE_CHECKING:
 
 
 class TaskManagerCLI(click.Group):
-    def __init__(self, task_manager: TaskManager, **kwargs: Any):
+    def __init__(
+        self, task_manager: TaskManager, *, app: FastAPI | None = None, **kwargs: Any
+    ):
         kwargs.setdefault("commands", DEFAULT_COMMANDS)
         super().__init__(**kwargs)
         self.task_manager = task_manager
+        self.app = app
 
 
 def ctx_task_manager(ctx: click.Context) -> TaskManager:
     return ctx.parent.command.task_manager  # type: ignore
+
+
+def ctx_app(ctx: click.Context) -> FastAPI | None:
+    return ctx.parent.command.app  # type: ignore
 
 
 @click.command()
@@ -91,7 +99,7 @@ def execute(ctx: click.Context, task: str, dry_run: bool) -> None:
 def serve(ctx: click.Context, host: str, port: int, reload: bool) -> None:
     """Run the service."""
     task_manager = ctx_task_manager(ctx)
-    app = setup_fastapi(task_manager)
+    app = setup_fastapi(task_manager, app=ctx_app(ctx))
     serve_app(app, host, port, reload)
 
 

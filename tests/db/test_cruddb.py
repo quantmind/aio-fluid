@@ -4,7 +4,7 @@ import pytest
 
 from fluid.db import CrudDB
 
-pytestmark = pytest.mark.asyncio(scope="module")
+pytestmark = pytest.mark.asyncio(loop_scope="module")
 
 
 async def test_upsert(db: CrudDB) -> None:

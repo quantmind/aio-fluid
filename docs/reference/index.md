@@ -1,6 +1,4 @@
-# Reference - Code API
+# Introduction
 
-Here's the reference or code API, the classes, functions, parameters, attributes, and all the Aio Fluid parts you can use in your applications.
+Here's the reference or code API, the classes, functions, parameters, attributes, and all the `aio-fluid` parts you can use in your applications.
 
-If you want to **learn Aio Fluid** you are much better off reading the
-[Api Fluid Tutorials](/tutorials).

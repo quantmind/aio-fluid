@@ -34,6 +34,8 @@ class HasWorkers(ABC):
 
 
 class Worker(ABC):
+    """The base class of a worker that can be run"""
+
     def __init__(self, name: str = "") -> None:
         self._name: str = name or underscore(type(self).__name__)
 
@@ -48,7 +50,7 @@ class Worker(ABC):
     @abstractmethod
     async def status(self) -> dict:
         """
-        Get the status of the strategy.
+        Get the status of the worker.
         """
 
     @abstractmethod
@@ -91,6 +93,8 @@ class RunningWorker(Worker):
 
 
 class StoppingWorker(RunningWorker):
+    """A Worker that can be stopped"""
+
     def __init__(self, name: str = "") -> None:
         super().__init__(name)
         self._stopping: bool = False

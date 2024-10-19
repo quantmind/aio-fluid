@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aio-fluid"
-version = "1.1.0"
+version = "1.1.1"
 description = "Tools for backend python services"
 license = "BSD"
 authors = ["Luca <luca@quantmind.com>"]
@@ -55,14 +55,13 @@ optional = true
 mkdocs-material = "^9.5.15"
 mkdocs-macros-plugin = "^1.0.5"
 mkdocs-redirects = "^1.2.1"
-mkdocstrings = {version = "^0.25.1", extras = ["python"]}
+mkdocstrings = {version = "0.26.2", extras = ["python"]}
 
 [tool.poetry.extras]
 cli = ["click", "rich"]
-db = ["sqlalchemy", "sqlalchemy-utils", "alembic", "python-dateutil", "psycopg2-binary", "asyncpg"]
+db = ["click", "rich", "sqlalchemy", "sqlalchemy-utils", "alembic", "python-dateutil", "psycopg2-binary", "asyncpg"]
 http = ["aiohttp", "httpx", "prometheus_client"]
 log = ["python-json-logger"]
-full = ["cli", "db", "http", "log"]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
