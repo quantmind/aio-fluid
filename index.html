@@ -366,7 +366,7 @@
         
   
   <span class="md-ellipsis">
-    Reference - Code API
+    Introduction
   </span>
   
 
@@ -430,6 +430,48 @@
   
   <span class="md-ellipsis">
     Task Run
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/tast_consumer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Consumer
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="reference/workers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Workers
   </span>
   
 
@@ -513,7 +555,7 @@
         
   
   <span class="md-ellipsis">
-    Database
+    Async Database
   </span>
   
 
@@ -614,7 +656,7 @@
   <h1>Home</h1>
 
 <p>Aio Fluid</p>
-<p>Async utilities for backend python services</p>
+<p>Async utilities for backend python services developed by <a href="https://quantmind.com">Quantmind</a>.</p>
 <p><a href="https://badge.fury.io/py/aio-fluid"><img alt="PyPI version" src="https://badge.fury.io/py/aio-fluid.svg" /></a>
 <a href="https://pypi.org/project/aio-fluid"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/aio-fluid.svg" /></a>
 <a href="https://github.com/quantmind/aio-fluid/actions?query=workflow%3Abuild"><img alt="build" src="https://github.com/quantmind/fluid/workflows/build/badge.svg" /></a></p>
@@ -625,16 +667,16 @@
 <div class="codehilite"><pre><span></span><code>pip install aio-fluid
 </code></pre></div>
 
-<p>To install all the dependencies, you can use the <code>full</code> extra:</p>
-<div class="codehilite"><pre><span></span><code>pip install aio-fluid[full]
+<p>To install all the dependencies:</p>
+<div class="codehilite"><pre><span></span><code>pip install aio-fluid[cli, db, http, log]
 </code></pre></div>
 
 <p>this includes the following extra dependencies:</p>
 <ul>
-<li><code>cli</code> for the command line interface</li>
-<li><code>db</code> for database support</li>
-<li><code>http</code> for http client support</li>
-<li><code>log</code> for JSON logging support</li>
+<li><code>cli</code> for the command line interface using <a href="https://click.palletsprojects.com/">click</a> and <a href="https://github.com/Textualize/rich">rich</a></li>
+<li><code>db</code> for database support with <a href="https://github.com/MagicStack/asyncpg">asyncpg</a> and <a href="https://www.sqlalchemy.org/">sqlalchemy</a></li>
+<li><code>http</code> for http client support with <a href="https://www.python-httpx.org/">httpx</a> and <a href="https://docs.aiohttp.org/en/stable/">aiohttp</a></li>
+<li><code>log</code> for JSON logging support with <a href="https://github.com/madzak/python-json-logger">python-json-logger</a></li>
 </ul>
 <h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h2>
 <p>You can run the examples via</p>
