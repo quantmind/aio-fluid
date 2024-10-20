@@ -41,10 +41,12 @@ class Worker(ABC):
 
     @property
     def worker_name(self) -> str:
+        """The name of the worker"""
         return self._name
 
     @property
     def num_workers(self) -> int:
+        """The number of workers in this worker"""
         return 1
 
     @abstractmethod
@@ -71,6 +73,7 @@ class Worker(ABC):
 
 
 class RunningWorker(Worker):
+    """A Worker that can be started"""
 
     def __init__(self, name: str = "") -> None:
         super().__init__(name)
@@ -110,6 +113,8 @@ class StoppingWorker(RunningWorker):
 
 
 class WorkerFunction(StoppingWorker):
+    """A Worker that runs a coroutine function"""
+
     def __init__(
         self,
         run_function: Callable[[], Awaitable[None]],
@@ -135,7 +140,10 @@ class MessageProducer(Protocol[T]):
 
 
 class QueueConsumer(StoppingWorker, MessageProducer[MessageType]):
-    """A Worker that can receive messages"""
+    """A Worker that can receive messages
+
+    This worker can receive messages but not consume them.
+    """
 
     def __init__(self, name: str = "") -> None:
         super().__init__(name=name)
@@ -143,7 +151,7 @@ class QueueConsumer(StoppingWorker, MessageProducer[MessageType]):
 
     async def get_message(self, timeout: float = 0.5) -> MessageType | None:
         try:
-            async with async_timeout.timeout(timeout):
+            async with asyncio.timeout(timeout):
                 return await self._queue.get()
         except asyncio.TimeoutError:
             return None
@@ -166,6 +174,8 @@ class QueueConsumer(StoppingWorker, MessageProducer[MessageType]):
 
 
 class QueueConsumerWorker(QueueConsumer[MessageType]):
+    """A Worker that can receive and consume messages"""
+
     def __init__(
         self,
         on_message: Callable[[MessageType], Awaitable[None]],

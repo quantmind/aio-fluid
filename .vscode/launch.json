@@ -12,7 +12,7 @@
             "env": {},
             "args": [
                 "-x",
-                "tests/scheduler/test_scheduler.py::test_disabled_execution"
+                "tests/scheduler/test_scheduler.py::test_async_handler"
             ],
             "debugOptions": [
                 "RedirectOutput"

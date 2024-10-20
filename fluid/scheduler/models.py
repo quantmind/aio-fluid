@@ -18,7 +18,7 @@ from redis.asyncio.lock import Lock
 from fluid import settings
 from fluid.utils import kernel, log
 from fluid.utils.data import compact_dict
-from fluid.utils.dates import utcnow
+from fluid.utils.dates import as_utc
 from fluid.utils.text import create_uid, trim_docstring
 
 from .crontab import Scheduler
@@ -223,7 +223,7 @@ class TaskRun(BaseModel, arbitrary_types_allowed=True):
     ) -> None:
         if self.state == state:
             return
-        state_time = state_time or utcnow()
+        state_time = as_utc(state_time)
         match (self.state, state):
             case (TaskState.init, TaskState.queued):
                 self.queued = state_time
@@ -262,7 +262,7 @@ class TaskRun(BaseModel, arbitrary_types_allowed=True):
         return self.task_manager.broker.lock(self.name, timeout=timeout)
 
     def _dispatch(self) -> None:
-        self.task_manager.dispatcher.dispatch(self)
+        self.task_manager.dispatcher.dispatch(self.model_copy())
 
 
 @dataclass

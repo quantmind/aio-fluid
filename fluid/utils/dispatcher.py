@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 from abc import ABC, abstractmethod
 from collections import defaultdict
@@ -10,6 +12,12 @@ MessageHandlerType = TypeVar("MessageHandlerType")
 class Event(NamedTuple):
     type: str
     tag: str
+
+    @classmethod
+    def from_string_or_event(cls, event: str | Self) -> Self:
+        if isinstance(event, str):
+            return cls.from_string(event)
+        return event
 
     @classmethod
     def from_string(cls, event: str) -> Self:
@@ -27,23 +35,23 @@ class BaseDispatcher(Generic[MessageType, MessageHandlerType], ABC):
 
     def register_handler(
         self,
-        message_type: str,
+        event: Event | str,
         handler: MessageHandlerType,
     ) -> MessageHandlerType | None:
-        event = Event.from_string(message_type)
+        event = Event.from_string_or_event(event)
         previous = self._msg_handlers[event.type].get(event.tag)
         self._msg_handlers[event.type][event.tag] = handler
         return previous
 
-    def unregister_handler(self, message_type: str) -> MessageHandlerType | None:
-        event = Event.from_string(message_type)
+    def unregister_handler(self, event: Event | str) -> MessageHandlerType | None:
+        event = Event.from_string_or_event(event)
         return self._msg_handlers[event.type].pop(event.tag, None)
 
     def get_handlers(
         self,
         message: MessageType,
     ) -> dict[str, MessageHandlerType] | None:
-        message_type = self.message_type(message)
+        message_type = str(self.message_type(message))
         return self._msg_handlers.get(message_type)
 
     @abstractmethod
@@ -52,6 +60,8 @@ class BaseDispatcher(Generic[MessageType, MessageHandlerType], ABC):
 
 
 class Dispatcher(BaseDispatcher[MessageType, Callable[[MessageType], None]]):
+    """Dispatcher for sync handlers"""
+
     def dispatch(self, message: MessageType) -> int:
         """dispatch the message"""
         handlers = self.get_handlers(message)
@@ -64,8 +74,10 @@ class Dispatcher(BaseDispatcher[MessageType, Callable[[MessageType], None]]):
 class AsyncDispatcher(
     BaseDispatcher[MessageType, Callable[[MessageType], Awaitable[None]]],
 ):
+    """Dispatcher for async handlers"""
+
     async def dispatch(self, message: MessageType) -> int:
-        """Dispatch the message"""
+        """Dispatch the message and wait for all handlers to complete"""
         handlers = self.get_handlers(message)
         if handlers:
             await asyncio.gather(*[handler(message) for handler in handlers.values()])

@@ -5,14 +5,15 @@ import logging
 from collections import defaultdict, deque
 from contextlib import AsyncExitStack
 from functools import partial
-from typing import Any, Callable, Coroutine, Self
+from typing import Any, Awaitable, Callable, Self
 
 import async_timeout
 from inflection import underscore
+from typing_extensions import Annotated, Doc
 
 from fluid.utils import log
-from fluid.utils.dispatcher import Dispatcher
-from fluid.utils.worker import WorkerFunction, Workers
+from fluid.utils.dispatcher import AsyncDispatcher, Dispatcher, Event
+from fluid.utils.worker import AsyncConsumer, WorkerFunction, Workers
 
 from .broker import TaskBroker, TaskRegistry
 from .errors import TaskAbortedError, TaskRunError, UnknownTaskError
@@ -31,13 +32,19 @@ except ImportError:
     TaskManagerCLI = None  # type: ignore[assignment,misc]
 
 
-AsyncExecutor = Callable[..., Coroutine[Any, Any, None]]
-AsyncMessage = tuple[AsyncExecutor, tuple[Any, ...]]
+AsyncHandler = Callable[[TaskRun], Awaitable[None]]
 
 logger = log.get_logger(__name__)
 
 
 class TaskDispatcher(Dispatcher[TaskRun]):
+    """The task dispatcher is responsible for dispatching task run messages"""
+
+    def message_type(self, message: TaskRun) -> str:
+        return message.state
+
+
+class AsyncTaskDispatcher(AsyncDispatcher[TaskRun]):
 
     def message_type(self, message: TaskRun) -> str:
         return message.state
@@ -49,7 +56,16 @@ class TaskManager:
     def __init__(self, **kwargs: Any) -> None:
         self.state: dict[str, Any] = {}
         self.config: TaskManagerConfig = TaskManagerConfig(**kwargs)
-        self.dispatcher = TaskDispatcher()
+        self.dispatcher: Annotated[
+            TaskDispatcher,
+            Doc(
+                """
+                A dispatcher of task run events.
+
+                Register handlers to listen for task run events.
+                """
+            ),
+        ] = TaskDispatcher()
         self.broker = TaskBroker.from_url(self.config.broker_url)
         self._stack = AsyncExitStack()
 
@@ -83,9 +99,7 @@ class TaskManager:
         await self.broker.close()
 
     def execute_sync(self, task: Task | str, **params: Any) -> TaskRun:
-        return asyncio.get_event_loop().run_until_complete(
-            self._execute_and_exit(task, **params)
-        )
+        return asyncio.run(self._execute_and_exit(task, **params))
 
     def register_task(self, task: Task) -> None:
         """Register a task with the task manager
@@ -139,6 +153,19 @@ class TaskManager:
             if isinstance(obj := getattr(module, name), Task):
                 self.register_task(obj)
 
+    def register_async_handler(self, event: str, handler: AsyncHandler) -> None:
+        """Register an async handler for a given event
+
+        This method is a no op for a TaskManager that is not a worker
+        """
+
+    def unregister_async_handler(self, event: Event | str) -> AsyncHandler | None:
+        """Unregister an async handler for a given event
+
+        This method is a no op for a TaskManager that is not a worker
+        """
+        return None
+
     def cli(self, **kwargs: Any) -> Any:
         """Create the task manager command line interface"""
         try:
@@ -163,6 +190,7 @@ class TaskConsumer(TaskManager, Workers):
     def __init__(self, **config: Any) -> None:
         super().__init__(**config)
         Workers.__init__(self)
+        self._async_dispatcher_worker = AsyncConsumer(AsyncTaskDispatcher())
         self._concurrent_tasks: dict[str, dict[str, TaskRun]] = defaultdict(dict)
         self._task_to_queue: deque[str | Task] = deque()
         self._priority_task_run_queue: deque[TaskRun] = deque()
@@ -170,6 +198,7 @@ class TaskConsumer(TaskManager, Workers):
             self._queue_task, name="queue-task-worker"
         )
         self.add_workers(self._queue_tasks_worker)
+        self.add_workers(self._async_dispatcher_worker)
         for i in range(self.config.max_concurrent_tasks):
             worker_name = f"task-worker-{i+1}"
             self.add_workers(
@@ -199,6 +228,17 @@ class TaskConsumer(TaskManager, Workers):
         """Queue a task and wait for it to finish"""
         with TaskRunWaiter(self) as waiter:
             return await waiter.wait(await self.queue(task, **params), timeout=timeout)
+
+    def register_async_handler(self, event: Event | str, handler: AsyncHandler) -> None:
+        event = Event.from_string_or_event(event)
+        self.dispatcher.register_handler(
+            f"{event.type}.async_dispatch",
+            self._async_dispatcher_worker.send,
+        )
+        self._async_dispatcher_worker.dispatcher.register_handler(event, handler)
+
+    def unregister_async_handler(self, event: Event | str) -> AsyncHandler | None:
+        return self._async_dispatcher_worker.dispatcher.unregister_handler(event)
 
     # Internals
 

@@ -9,8 +9,18 @@ from fastapi.utils.worker import StoppingWorker
 
 ::: fluid.utils.worker.Worker
 
+::: fluid.utils.worker.RunningWorker
+
 ::: fluid.utils.worker.StoppingWorker
 
 ::: fluid.utils.worker.WorkerFunction
 
+::: fluid.utils.worker.QueueConsumer
+
+::: fluid.utils.worker.QueueConsumerWorker
+
+::: fluid.utils.worker.AsyncConsumer
+
 ::: fluid.utils.worker.Workers
+
+::: fluid.utils.worker.DynamicWorkers

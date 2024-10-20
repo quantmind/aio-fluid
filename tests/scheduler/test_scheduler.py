@@ -108,3 +108,23 @@ async def test_disabled_execution(task_scheduler: TaskScheduler) -> None:
     assert task_run.name == "disabled"
     assert task_run.end
     assert task_run.state == TaskState.aborted.name
+
+
+@dataclass
+class AsynHandler:
+    task_run: TaskRun | None = None
+
+    async def __call__(self, task_run: TaskRun) -> None:
+        await asyncio.sleep(0.1)
+        self.task_run = task_run
+
+
+async def test_async_handler(task_scheduler: TaskScheduler) -> None:
+    handler = AsynHandler()
+    task_scheduler.register_async_handler("running.test", handler)
+    task_run = await task_scheduler.queue_and_wait("dummy")
+    assert task_run.state == TaskState.success
+    await wait_for(lambda: handler.task_run is not None)
+    assert handler.task_run
+    assert handler.task_run.state == TaskState.running
+    assert task_scheduler.unregister_async_handler("running.test") is handler
