@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://aio-fluid.com/tutorials/scheduler/">
       
       
-        <link rel="prev" href="../db/">
+        <link rel="prev" href="../dispatchers/">
       
       
       
@@ -329,6 +329,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/dispatchers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Event Dispatchers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/task_broker/" class="md-nav__link">
         
   
@@ -517,6 +538,27 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../dispatchers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Event Dispatchers
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -667,72 +709,67 @@ The middleware for distributing tasks can be configured via the Broker interface
 A redis broker is provided for convenience.</p>
 <h2 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h2>
 <p>Tasks are standard python async functions decorated with the <code>task</code> decorator.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
-
-<span class="nd">@task</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">say_hi</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">):</span>
-    <span class="k">return</span> <span class="s2">&quot;Hi!&quot;</span>
-</code></pre></div>
-
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nd">@task</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">say_hi</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">):</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="k">return</span> <span class="s2">&quot;Hi!&quot;</span>
+</span></code></pre></div>
 <p>There are two types of tasks implemented</p>
 <ul>
 <li><strong>Simple concurrent tasks</strong> - they run concurrently with the task consumer - thy must be IO type tasks (no heavy CPU bound operations)</li>
 </ul>
-<div class="codehilite"><pre><span></span><code>  <span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
-
-  <span class="nd">@task</span>
-  <span class="k">async</span> <span class="k">def</span> <span class="nf">fecth_data</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">):</span>
-      <span class="c1"># fetch data</span>
-      <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">http_cli</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://...&quot;</span><span class="p">)</span>
-      <span class="n">data_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">datastore_cli</span><span class="o">.</span><span class="n">stote</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-      <span class="c1"># trigger another task</span>
-      <span class="n">ctx</span><span class="o">.</span><span class="n">task_manager</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;heavy_calculation&quot;</span><span class="p">,</span> <span class="n">data_id</span><span class="o">=</span><span class="n">data_id</span><span class="p">)</span>
-</code></pre></div>
-
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>  <span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>  <span class="nd">@task</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>  <span class="k">async</span> <span class="k">def</span> <span class="nf">fecth_data</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">):</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>      <span class="c1"># fetch data</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>      <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">http_cli</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://...&quot;</span><span class="p">)</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>      <span class="n">data_id</span> <span class="o">=</span> <span class="k">await</span> <span class="n">datastore_cli</span><span class="o">.</span><span class="n">stote</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>      <span class="c1"># trigger another task</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>      <span class="n">ctx</span><span class="o">.</span><span class="n">task_manager</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;heavy_calculation&quot;</span><span class="p">,</span> <span class="n">data_id</span><span class="o">=</span><span class="n">data_id</span><span class="p">)</span>
+</span></code></pre></div>
 <ul>
 <li><strong>CPU bound tasks</strong> - they run on a subprocess</li>
 </ul>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
-
-<span class="nd">@task</span><span class="p">(</span><span class="n">cpu_bound</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">heavy_calculation</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">):</span>
-    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">datastore_cli</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;data_id&quot;</span><span class="p">])</span>
-    <span class="c1"># perform some heavy calculation</span>
-    <span class="o">...</span>
-    <span class="c1"># trigger another task</span>
-    <span class="n">ctx</span><span class="o">.</span><span class="n">task_manager</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;fetch_data&quot;</span><span class="p">)</span>
-</code></pre></div>
-
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nd">@task</span><span class="p">(</span><span class="n">cpu_bound</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">heavy_calculation</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">):</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="n">data</span> <span class="o">=</span> <span class="k">await</span> <span class="n">datastore_cli</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">&quot;data_id&quot;</span><span class="p">])</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="c1"># perform some heavy calculation</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="o">...</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    <span class="c1"># trigger another task</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">task_manager</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;fetch_data&quot;</span><span class="p">)</span>
+</span></code></pre></div>
 <p>Both tasks can be periodically scheduled via the <code>schedule</code> keyword argument:</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
-<span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskContext</span><span class="p">,</span> <span class="n">every</span>
-
-<span class="nd">@task</span><span class="p">(</span><span class="n">schedule</span><span class="o">=</span><span class="n">every</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
-<span class="k">async</span> <span class="k">def</span> <span class="nf">scheduled</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">TaskContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-    <span class="k">return</span> <span class="s2">&quot;OK&quot;</span>
-</code></pre></div>
-
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">timedelta</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskContext</span><span class="p">,</span> <span class="n">every</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="nd">@task</span><span class="p">(</span><span class="n">schedule</span><span class="o">=</span><span class="n">every</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">async</span> <span class="k">def</span> <span class="nf">scheduled</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">TaskContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="k">return</span> <span class="s2">&quot;OK&quot;</span>
+</span></code></pre></div>
 <h2 id="broker">Broker<a class="headerlink" href="#broker" title="Permanent link">&para;</a></h2>
-<p>A Task broker needs to implement three abstract methods</p>
-<div class="codehilite"><pre><span></span><code>  <span class="nd">@abstractmethod</span>
-  <span class="k">async</span> <span class="k">def</span> <span class="nf">queue_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queued_task</span><span class="p">:</span> <span class="n">QueuedTask</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRun</span><span class="p">:</span>
-<span class="w">      </span><span class="sd">&quot;&quot;&quot;Queue a task&quot;&quot;&quot;</span>
-
-  <span class="nd">@abstractmethod</span>
-  <span class="k">async</span> <span class="k">def</span> <span class="nf">get_task_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TaskRun</span><span class="p">]:</span>
-<span class="w">      </span><span class="sd">&quot;&quot;&quot;Get a Task run from the task queue&quot;&quot;&quot;</span>
-
-  <span class="nd">@abstractmethod</span>
-  <span class="k">async</span> <span class="k">def</span> <span class="nf">queue_length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
-<span class="w">      </span><span class="sd">&quot;&quot;&quot;Length of task queues&quot;&quot;&quot;</span>
-</code></pre></div>
-
+<p>A Task broker needs to implement three abstract methods
+<div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>  <span class="nd">@abstractmethod</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  <span class="k">async</span> <span class="k">def</span> <span class="nf">queue_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">queued_task</span><span class="p">:</span> <span class="n">QueuedTask</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRun</span><span class="p">:</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">      </span><span class="sd">&quot;&quot;&quot;Queue a task&quot;&quot;&quot;</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>  <span class="nd">@abstractmethod</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  <span class="k">async</span> <span class="k">def</span> <span class="nf">get_task_run</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">TaskRun</span><span class="p">]:</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">      </span><span class="sd">&quot;&quot;&quot;Get a Task run from the task queue&quot;&quot;&quot;</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>  <span class="nd">@abstractmethod</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>  <span class="k">async</span> <span class="k">def</span> <span class="nf">queue_length</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">      </span><span class="sd">&quot;&quot;&quot;Length of task queues&quot;&quot;&quot;</span>
+</span></code></pre></div></p>
 <p>The library ships a Redis broker for convenience.</p>
-<div class="codehilite"><pre><span></span><code><span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">Broker</span>
-
-<span class="n">redis_broker</span> <span class="o">=</span> <span class="n">Broker</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span><span class="s2">&quot;redis://localhost:6349&quot;</span><span class="p">)</span>
-</code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span> <span class="nn">fluid.scheduler</span> <span class="kn">import</span> <span class="n">Broker</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">redis_broker</span> <span class="o">=</span> <span class="n">Broker</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span><span class="s2">&quot;redis://localhost:6349&quot;</span><span class="p">)</span>
+</span></code></pre></div>
 
 
 
@@ -779,7 +816,7 @@ A redis broker is provided for convenience.</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": [], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.copy"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
     
     
       <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
