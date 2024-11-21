@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from typing import Any, Callable
+
 import uvicorn
 from fastapi import FastAPI
 
+from fluid.utils import log
 from fluid.utils.worker import Workers
 
 from .service import FastapiAppWorkers
@@ -17,5 +20,17 @@ def app_workers(app: FastAPI) -> Workers:
         return workers
 
 
-def serve_app(app: FastAPI, host: str, port: int, reload: bool = False) -> None:
-    uvicorn.run(app, port=port, host=host, log_level="info", reload=reload)
+def serve_app(
+    app: FastAPI | Callable[..., Any] | str,
+    host: str,
+    port: int,
+    reload: bool = False,
+) -> None:
+    uvicorn.run(
+        app,
+        port=port,
+        host=host,
+        log_level="info",
+        reload=reload,
+        log_config=log.config(),
+    )

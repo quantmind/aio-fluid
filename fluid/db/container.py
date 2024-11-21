@@ -27,6 +27,7 @@ class Database:
     max_overflow: int = settings.DBPOOL_MAX_OVERFLOW
     metadata: sa.MetaData = field(default_factory=sa.MetaData)
     migration_path: str = ""
+    app_name: str = settings.APP_NAME
     _engine: AsyncEngine | None = None
 
     @classmethod
@@ -54,6 +55,7 @@ class Database:
                 echo=self.echo,
                 pool_size=self.pool_size,
                 max_overflow=self.max_overflow,
+                connect_args=dict(server_settings=dict(application_name=self.app_name)),
             )
         return self._engine
 
