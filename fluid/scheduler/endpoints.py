@@ -96,11 +96,13 @@ def setup_fastapi(
     task_manager: TaskManager,
     *,
     app: FastAPI | None = None,
+    include_router: bool = True,
     **kwargs: Any,
 ) -> FastAPI:
-    """Setup the FastAPI app"""
+    """Setup the FastAPI app and add the task manager to the state"""
     app = app or FastAPI(**kwargs)
-    app.include_router(router, tags=["Tasks"])
+    if include_router:
+        app.include_router(router, tags=["Tasks"])
     app.state.task_manager = task_manager
     if isinstance(task_manager, Worker):
         app_workers(app).add_workers(task_manager)

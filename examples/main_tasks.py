@@ -1,12 +1,7 @@
-from examples import tasks
-from fluid.scheduler import TaskScheduler
-from fluid.utils import log
+from fluid.scheduler.cli import TaskManagerCLI
 
-task_manager = TaskScheduler()
-task_manager.register_from_module(tasks)
-task_manager_cli = task_manager.cli()
+task_manager_cli = TaskManagerCLI("examples.tasks:task_app")
 
 
 if __name__ == "__main__":
-    log.config(app_names=["fluid"])
     task_manager_cli()
