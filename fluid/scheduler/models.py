@@ -11,7 +11,6 @@ from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import TYPE_CHECKING, Any, Callable, Coroutine, NamedTuple, overload
 
-import async_timeout
 from pydantic import BaseModel, Field, field_serializer
 from redis.asyncio.lock import Lock
 
@@ -284,7 +283,7 @@ class TaskRunWaiter:
         self._runs[task_run.id] = task_run
 
     async def wait(self, task_run: TaskRun, *, timeout: int = 2) -> TaskRun:
-        async with async_timeout.timeout(timeout):
+        async with asyncio.timeout(timeout):
             while task_run.id not in self._runs:
                 await asyncio.sleep(0.01)
         return self._runs[task_run.id]

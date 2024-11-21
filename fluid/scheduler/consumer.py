@@ -7,7 +7,6 @@ from contextlib import AsyncExitStack
 from functools import partial
 from typing import Any, Awaitable, Callable, Self
 
-import async_timeout
 from inflection import underscore
 from typing_extensions import Annotated, Doc
 
@@ -292,7 +291,7 @@ class TaskConsumer(TaskManager, Workers):
             else:
                 task_run.logger.info("%s - %s - start", task_run.id, params)
             try:
-                async with async_timeout.timeout(task_run.task.timeout_seconds):
+                async with asyncio.timeout(task_run.task.timeout_seconds):
                     await task_run.execute()
             except TaskRunError:
                 # no logging as this was a controlled exception

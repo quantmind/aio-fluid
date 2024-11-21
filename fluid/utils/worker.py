@@ -17,7 +17,6 @@ from typing import (
     TypeVar,
 )
 
-import async_timeout
 from inflection import underscore
 
 from fluid import settings
@@ -318,7 +317,7 @@ class MultipleWorkers(RunningWorker):
         )
         self.gracefully_stop()
         try:
-            async with async_timeout.timeout(self._stopping_grace_period):
+            async with asyncio.timeout(self._stopping_grace_period):
                 await self.wait_for_exit()
             await self.on_shutdown()
             return
