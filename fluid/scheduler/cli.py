@@ -1,37 +1,47 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Callable
 
 import click
+import uvicorn
 from fastapi import FastAPI
 from rich.console import Console
 from rich.table import Table
+from uvicorn.importer import import_from_string
 
-from fluid.tools_fastapi import serve_app
-
-from .endpoints import setup_fastapi
+from fluid.utils import log
 
 if TYPE_CHECKING:
     from .consumer import TaskManager
     from .models import TaskRun
 
 
+TaskManagerApp = FastAPI | Callable[..., Any] | str
+
+
 class TaskManagerCLI(click.Group):
-    def __init__(
-        self, task_manager: TaskManager, *, app: FastAPI | None = None, **kwargs: Any
-    ):
+    def __init__(self, task_manager_app: TaskManagerApp, **kwargs: Any):
         kwargs.setdefault("commands", DEFAULT_COMMANDS)
         super().__init__(**kwargs)
-        self.task_manager = task_manager
-        self.app = app
+        self.task_manager_app = task_manager_app
+
+
+def ctx_task_manager_app(ctx: click.Context) -> TaskManagerApp:
+    return ctx.parent.command.task_manager_app  # type: ignore
+
+
+def ctx_app(ctx: click.Context) -> FastAPI:
+    app = ctx_task_manager_app(ctx)  # type: ignore
+    if isinstance(app, str):
+        return import_from_string(app)()
+    elif isinstance(app, FastAPI):
+        return app
+    else:
+        return app()
 
 
 def ctx_task_manager(ctx: click.Context) -> TaskManager:
-    return ctx.parent.command.task_manager  # type: ignore
-
-
-def ctx_app(ctx: click.Context) -> FastAPI | None:
-    return ctx.parent.command.app  # type: ignore
+    return ctx_app(ctx).state.task_manager
 
 
 @click.command()
@@ -98,9 +108,15 @@ def execute(ctx: click.Context, task: str, dry_run: bool) -> None:
 @click.pass_context
 def serve(ctx: click.Context, host: str, port: int, reload: bool) -> None:
     """Run the service."""
-    task_manager = ctx_task_manager(ctx)
-    app = setup_fastapi(task_manager, app=ctx_app(ctx))
-    serve_app(app, host, port, reload)
+    task_manager_app = ctx_task_manager_app(ctx)
+    uvicorn.run(
+        task_manager_app,
+        port=port,
+        host=host,
+        log_level="info",
+        reload=reload,
+        log_config=log.config(),
+    )
 
 
 DEFAULT_COMMANDS = (ls, execute, serve)

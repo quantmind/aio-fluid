@@ -25,12 +25,6 @@ from .models import (
     TaskState,
 )
 
-try:
-    from .cli import TaskManagerCLI
-except ImportError:
-    TaskManagerCLI = None  # type: ignore[assignment,misc]
-
-
 AsyncHandler = Callable[[TaskRun], Awaitable[None]]
 
 logger = log.get_logger(__name__)
@@ -152,6 +146,13 @@ class TaskManager:
             if isinstance(obj := getattr(module, name), Task):
                 self.register_task(obj)
 
+    def register_from_dict(self, data: dict) -> None:
+        for name, obj in data.items():
+            if name.startswith("_"):
+                continue
+            if isinstance(obj, Task):
+                self.register_task(obj)
+
     def register_async_handler(self, event: str, handler: AsyncHandler) -> None:
         """Register an async handler for a given event
 
@@ -164,17 +165,6 @@ class TaskManager:
         This method is a no op for a TaskManager that is not a worker
         """
         return None
-
-    def cli(self, **kwargs: Any) -> Any:
-        """Create the task manager command line interface"""
-        try:
-            from fluid.scheduler.cli import TaskManagerCLI
-        except ImportError:
-            raise ImportError(
-                "TaskManagerCLI is not available - "
-                "install with `pip install aio-fluid[cli]`"
-            ) from None
-        return TaskManagerCLI(self, **kwargs)
 
     async def _execute_and_exit(self, task: Task | str, **params: Any) -> TaskRun:
         async with self:

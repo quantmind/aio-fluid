@@ -4,8 +4,17 @@ import time
 from datetime import timedelta
 from typing import cast
 
-from fluid.scheduler import TaskRun, every, task
+from fastapi import FastAPI
+
+from fluid.scheduler import TaskRun, TaskScheduler, every, task
 from fluid.scheduler.broker import RedisTaskBroker
+from fluid.scheduler.endpoints import setup_fastapi
+
+
+def task_app() -> FastAPI:
+    task_manager = TaskScheduler()
+    task_manager.register_from_dict(globals())
+    return setup_fastapi(task_manager)
 
 
 @task
