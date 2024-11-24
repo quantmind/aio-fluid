@@ -9,11 +9,13 @@ from redis.asyncio import Redis
 from fluid.scheduler import TaskManager, TaskScheduler
 from fluid.scheduler.broker import RedisTaskBroker
 from fluid.scheduler.endpoints import get_task_manger, setup_fastapi
+from fluid.tools_fastapi import backdoor
 from tests.scheduler.tasks import TaskClient, task_application
 
 
 @asynccontextmanager
 async def start_fastapi(app: FastAPI) -> AsyncIterator:
+    backdoor.setup(app, port=0)
     async with app.router.lifespan_context(app):
         yield app
 

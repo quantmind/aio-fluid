@@ -1,5 +1,6 @@
 import logging
 import sys
+from dataclasses import dataclass
 from functools import partial
 
 import aioconsole
@@ -22,16 +23,11 @@ class Console(aioconsole.AsynchronousConsole):
         return f"Python {sys.version} on {sys.platform}\n{cprt}\n{CONSOLE_MESSAGE}"
 
 
+@dataclass
 class ConsoleManager:
     aio_console = None
-
-    def __init__(
-        self,
-        port: int = settings.AIO_BACKDOOR_PORT,
-        host: str = "0.0.0.0",
-    ) -> None:
-        self.port = port
-        self.host = host
+    port: int = settings.AIO_BACKDOOR_PORT
+    host: str = "0.0.0.0"
 
     async def on_startup(self, app) -> None:
         self.aio_console = await aioconsole.start_interactive_server(
