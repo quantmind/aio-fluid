@@ -48,10 +48,26 @@ async def get_tasks(task_manager: TaskManagerDep) -> list[TaskInfo]:
 
 
 @router.get(
-    "/tasks/status",
+    "/tasks/{task_name}",
+    response_model=TaskInfo,
+    summary="Get a Task",
+    description="Retrieve information about a task",
+)
+async def get_task(
+    task_manager: TaskManagerDep,
+    task_name: str = Path(title="Task name"),
+) -> TaskInfo:
+    data = await task_manager.broker.get_tasks_info(task_name)
+    if not data:
+        raise HTTPException(status_code=404, detail="Task not found")
+    return data[0]
+
+
+@router.get(
+    "/tasks-status",
     response_model=dict,
     summary="Task consumer status",
-    description="Retrieve a list of tasks runs",
+    description="Status of the task consumer",
 )
 async def get_task_status(task_manager: TaskManagerDep) -> dict:
     if isinstance(task_manager, Worker):

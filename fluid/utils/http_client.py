@@ -268,11 +268,3 @@ class HttpxClient(HttpClient[httpx.AsyncClient, httpx.Response]):
         if self.session and self.session_owner:
             await self.session.aclose()
             self.session = None
-
-
-C = TypeVar("C", bound=HttpClient)
-
-
-class HttpComponent(Generic[C]):
-    def __init__(self, cli: C) -> None:
-        self.cli = cli

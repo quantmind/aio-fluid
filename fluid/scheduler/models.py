@@ -86,7 +86,7 @@ class TaskInfoUpdate(BaseModel):
     last_run_duration: timedelta | None = Field(
         default=None, description="Task last run duration in milliseconds"
     )
-    last_run_state: str | None = Field(
+    last_run_state: TaskState | None = Field(
         default=None, description="State of last task run"
     )
 

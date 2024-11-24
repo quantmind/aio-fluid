@@ -102,12 +102,10 @@ class TaskBroker(ABC):
     def register_task(self, task: Task) -> None:
         self.registry[task.name] = task
 
-    async def enable_task(self, task_name: str, enable: bool = True) -> TaskInfo:
+    async def enable_task(self, task: str | Task, enable: bool = True) -> TaskInfo:
         """Enable or disable a registered task"""
-        task = self.registry.get(task_name)
-        if not task:
-            raise UnknownTaskError(task_name)
-        return await self.update_task(task, dict(enabled=enable))
+        task_ = self.task_from_registry(task)
+        return await self.update_task(task_, dict(enabled=enable))
 
     @classmethod
     def from_url(cls, url: str = "") -> TaskBroker:
@@ -154,6 +152,13 @@ class RedisTaskBroker(TaskBroker):
     def task_queue_name(self, priority: TaskPriority) -> str:
         return f"{self.name}-queue-{priority.name}"
 
+    async def clear(self) -> int:
+        pipe = self.redis_cli.pipeline()
+        async for key in self.redis_cli.scan_iter(f"{self.name}-*"):
+            pipe.delete(key)
+        r = await pipe.execute()
+        return len(r)
+
     async def get_tasks_info(self, *task_names: str) -> list[TaskInfo]:
         pipe = self.redis_cli.pipeline()
         names = task_names or self.registry
@@ -170,14 +175,13 @@ class RedisTaskBroker(TaskBroker):
 
     async def update_task(self, task: Task, params: dict[str, Any]) -> TaskInfo:
         pipe = self.redis_cli.pipeline()
-        info = json.loads(TaskInfoUpdate(**params).model_dump_json())
-        pipe.hset(
-            self.task_hash_name(task.name),
-            mapping={name: json.dumps(value) for name, value in info.items()},
-        )
-        pipe.hgetall(self.task_hash_name(task.name))
-        _, info = await pipe.execute()
-        return self._decode_task(task, info)
+        info = json.loads(TaskInfoUpdate(**params).model_dump_json(exclude_unset=True))
+        update = {name: json.dumps(value) for name, value in info.items()}
+        key = self.task_hash_name(task.name)
+        pipe.hset(key, mapping=update)
+        pipe.hgetall(key)
+        _, data = await pipe.execute()
+        return self._decode_task(task, data)
 
     async def queue_length(self) -> dict[str, int]:
         if self.task_queue_names:
