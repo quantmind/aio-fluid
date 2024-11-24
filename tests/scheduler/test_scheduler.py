@@ -14,6 +14,8 @@ from fluid.scheduler import (
 from fluid.scheduler.errors import UnknownTaskError
 from fluid.utils.waiter import wait_for
 
+pytestmark = pytest.mark.asyncio(loop_scope="module")
+
 
 @dataclass
 class WaitFor:
@@ -26,7 +28,7 @@ class WaitFor:
             self.runs.append(task_run)
 
 
-def test_scheduler_manager(task_scheduler: TaskScheduler) -> None:
+async def test_scheduler_manager(task_scheduler: TaskScheduler) -> None:
     assert task_scheduler
     assert task_scheduler.broker.registry
     assert "dummy" in task_scheduler.registry
