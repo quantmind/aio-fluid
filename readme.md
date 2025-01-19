@@ -4,6 +4,7 @@ Async utilities for backend python services developed by [Quantmind](https://qua
 
 [![PyPI version](https://badge.fury.io/py/aio-fluid.svg)](https://badge.fury.io/py/aio-fluid)
 [![Python versions](https://img.shields.io/pypi/pyversions/aio-fluid.svg)](https://pypi.org/project/aio-fluid)
+[![Python downloads](https://img.shields.io/pypi/dd/aio-fluid.svg)](https://pypi.org/project/aio-fluid)
 [![build](https://github.com/quantmind/fluid/workflows/build/badge.svg)](https://github.com/quantmind/aio-fluid/actions?query=workflow%3Abuild)
 [![codecov](https://codecov.io/gh/quantmind/aio-fluid/graph/badge.svg?token=81oWUoyEVp)](https://codecov.io/gh/quantmind/aio-fluid)
 
@@ -38,5 +39,6 @@ this includes the following extra dependencies:
 You can run the examples via
 
 ```
-poetry run python -m examples.main
+poetry run python -m examples.main_tasks
+poetry run python -m examples.main_db
 ```

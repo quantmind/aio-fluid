@@ -4,7 +4,7 @@ Workers are the main building block for asynchronous programming with `aio-fluid
 There are several worker classes which can be imported from `fluid.utils.worker`:
 
 ```python
-from fastapi.utils.worker import StoppingWorker
+from fluid.utils.worker import StoppingWorker
 ```
 
 ::: fluid.utils.worker.Worker

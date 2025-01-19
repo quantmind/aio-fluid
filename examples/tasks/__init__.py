@@ -44,7 +44,10 @@ async def disabled(context: TaskRun) -> float:
 
 @task(cpu_bound=True, schedule=every(timedelta(seconds=5)))
 async def cpu_bound(context: TaskRun) -> None:
-    """A CPU bound task running on subprocess"""
+    """A CPU bound task running on subprocess
+
+    CPU bound tasks are executed on a subprocess to avoid blocking the event loop.
+    """
     time.sleep(1)
     broker = cast(RedisTaskBroker, context.task_manager.broker)
     redis = broker.redis_cli
