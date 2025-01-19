@@ -53,6 +53,8 @@ def ls(ctx: click.Context) -> None:
     table.add_column("Name", style="cyan", no_wrap=True)
     table.add_column("Schedule", style="magenta")
     table.add_column("CPU bound", style="magenta")
+    table.add_column("Timeout secs", style="green")
+    table.add_column("Priority", style="magenta")
     table.add_column("Description", style="green")
     for name in sorted(task_manager.registry):
         task = task_manager.registry[name]
@@ -60,7 +62,9 @@ def ls(ctx: click.Context) -> None:
             name,
             str(task.schedule),
             "yes" if task.cpu_bound else "no",
-            task.description,
+            str(task.timeout_seconds),
+            str(task.priority),
+            task.short_description,
         )
     console = Console()
     console.print(table)
