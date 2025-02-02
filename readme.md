@@ -8,9 +8,9 @@ Async utilities for backend python services developed by [Quantmind](https://qua
 [![build](https://github.com/quantmind/fluid/workflows/build/badge.svg)](https://github.com/quantmind/aio-fluid/actions?query=workflow%3Abuild)
 [![codecov](https://codecov.io/gh/quantmind/aio-fluid/graph/badge.svg?token=81oWUoyEVp)](https://codecov.io/gh/quantmind/aio-fluid)
 
-**Documentation**: [https://quantmind.github.io/aio-fluid](https://quantmind.github.io/aio-fluid)
+**Documentation**: [fluid.quantmind.com](https://fluid.quantmind.com/)
 
-**Source Code**: [https://github.com/quantmind/aio-fluid](https://github.com/quantmind/aio-fluid)
+**Source Code**: [github.com/quantmind/aio-fluid](https://github.com/quantmind/aio-fluid)
 
 
 ## Installation
