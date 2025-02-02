@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 set -e
 
+ISORT_ARGS="-c"
 BLACK_ARG="--check"
 RUFF_ARG=""
 
 if [ "$1" = "fix" ] ; then
+    ISORT_ARGS=""
     BLACK_ARG=""
     RUFF_ARG="--fix"
 fi
 
+echo isort
+isort fluid tests examples ${ISORT_ARGS}
 echo "run black"
 black fluid tests examples ${BLACK_ARG}
 echo "run ruff"

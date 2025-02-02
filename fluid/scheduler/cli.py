@@ -10,6 +10,7 @@ from rich.table import Table
 from uvicorn.importer import import_from_string
 
 from fluid.utils import log
+from fluid.utils.lazy import LazyGroup
 
 if TYPE_CHECKING:
     from .consumer import TaskManager
@@ -19,8 +20,12 @@ if TYPE_CHECKING:
 TaskManagerApp = FastAPI | Callable[..., Any] | str
 
 
-class TaskManagerCLI(click.Group):
-    def __init__(self, task_manager_app: TaskManagerApp, **kwargs: Any):
+class TaskManagerCLI(LazyGroup):
+    def __init__(
+        self,
+        task_manager_app: TaskManagerApp,
+        **kwargs: Any,
+    ):
         kwargs.setdefault("commands", DEFAULT_COMMANDS)
         super().__init__(**kwargs)
         self.task_manager_app = task_manager_app
