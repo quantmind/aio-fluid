@@ -1,5 +1,4 @@
-"""Originally from https://github.com/coleifer/huey
-"""
+"""Originally from https://github.com/coleifer/huey"""
 
 import re
 from abc import ABC, abstractmethod

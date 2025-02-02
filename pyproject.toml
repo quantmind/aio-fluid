@@ -1,6 +1,6 @@
 [project]
 name = "aio-fluid"
-version = "1.2.2"
+version = "1.2.3"
 description = "Tools for backend python services"
 authors = [
     { name = "Luca Sbardella", email = "luca@quantmind.com" }
@@ -26,8 +26,8 @@ yarl = "^1.15.5"
 fastapi = {version = "0.115.2"}
 uvicorn = {version = "0.32.0"}
 aioconsole = {version = "0.8.0" }
-sqlalchemy = {version = "^2.0.23", optional = true }
-python-json-logger = {version = "^2.0.7", optional = true}
+sqlalchemy = {version = "^2.0.23", optional = true}
+python-json-logger = {version = "3.2.1", optional = true}
 click = {version = "^8.1.7", optional = true}
 rich = {version = "^13.7.1", optional = true}
 aiohttp = {version = "3.10.10", optional = true}
@@ -42,8 +42,8 @@ typing-extensions = "^4.12.2"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.1.1"
-isort = "^5.9.3"
-black = "^24.10.0"
+isort = "^6.0.0"
+black = "^25.1.0"
 pytest-cov = "^6.0.0"
 mypy = "^1.12.0"
 pytest-asyncio = "^0.25.2"
