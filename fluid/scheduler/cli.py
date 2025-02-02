@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from importlib import import_module
 from typing import TYPE_CHECKING, Any, Callable
 
 import click
@@ -11,6 +10,7 @@ from rich.table import Table
 from uvicorn.importer import import_from_string
 
 from fluid.utils import log
+from fluid.utils.lazy import LazyGroup
 
 if TYPE_CHECKING:
     from .consumer import TaskManager
@@ -20,44 +20,15 @@ if TYPE_CHECKING:
 TaskManagerApp = FastAPI | Callable[..., Any] | str
 
 
-class TaskManagerCLI(click.Group):
+class TaskManagerCLI(LazyGroup):
     def __init__(
         self,
         task_manager_app: TaskManagerApp,
-        *,
-        lazy_subcommands: dict[str, str] | None = None,
         **kwargs: Any,
     ):
         kwargs.setdefault("commands", DEFAULT_COMMANDS)
         super().__init__(**kwargs)
         self.task_manager_app = task_manager_app
-        self.lazy_subcommands = lazy_subcommands or {}
-
-    def list_commands(self, ctx: click.Context) -> list[str]:
-        commands = super().list_commands(ctx)
-        commands.extend(self.lazy_subcommands)
-        return sorted(commands)
-
-    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
-        if cmd_name in self.lazy_subcommands:
-            return self._lazy_load(cmd_name)
-        return super().get_command(ctx, cmd_name)
-
-    def _lazy_load(self, cmd_name: str) -> click.Command:
-        # lazily loading a command, first get the module name and attribute name
-        import_path = self.lazy_subcommands[cmd_name]
-        modname, cmd_object_name = import_path.rsplit(":", 1)
-        # do the import
-        mod = import_module(modname)
-        # get the Command object from that module
-        cmd_object = getattr(mod, cmd_object_name)
-        # check the result to make debugging easier
-        if not isinstance(cmd_object, click.Command):
-            raise ValueError(
-                f"Lazy loading of {import_path} failed by returning "
-                "a non-command object"
-            )
-        return cmd_object
 
 
 def ctx_task_manager_app(ctx: click.Context) -> TaskManagerApp:
