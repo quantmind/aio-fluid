@@ -275,9 +275,9 @@ class TaskConsumer(TaskManager, Workers):
         #
         else:
             try:
-                params = task_run.params_dump_json()
+                params = task_run.params.model.dump_json()
             except Exception:
-                task_run.logger.exception("%s - start - params exeception", task_run.id)
+                task_run.logger.exception("%s - start - params exception", task_run.id)
             else:
                 task_run.logger.info("%s - %s - start", task_run.id, params)
             try:

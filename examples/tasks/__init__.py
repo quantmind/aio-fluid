@@ -5,6 +5,7 @@ from datetime import timedelta
 from typing import cast
 
 from fastapi import FastAPI
+from pydantic import BaseModel
 
 from fluid.scheduler import TaskRun, TaskScheduler, every, task
 from fluid.scheduler.broker import RedisTaskBroker
@@ -34,12 +35,16 @@ async def scheduled(context: TaskRun) -> str:
     return "OK"
 
 
-@task
-async def disabled(context: TaskRun) -> float:
+class AddValues(BaseModel):
+    a: float = 0
+    b: float = 0
+
+
+# @task
+async def add(context: TaskRun[AddValues]) -> None:
     """A task that sleeps for a while"""
-    sleep = cast(float, context.params.get("sleep", 0.1))
-    await asyncio.sleep(sleep)
-    return sleep
+    c = context.params.a + context.params.b
+    context.logger.info(f"Adding {context.params.a} + {context.params.b} = {c}")
 
 
 @task(cpu_bound=True, schedule=every(timedelta(seconds=5)))
