@@ -9,10 +9,11 @@
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "module": "pytest",
+            "justMyCode": false,
             "env": {},
             "args": [
                 "-x",
-                "tests/scheduler/test_endpoints.py"
+                "tests/scheduler/test_scheduler.py::test_disabled_execution"
             ],
             "debugOptions": [
                 "RedirectOutput"

@@ -34,7 +34,10 @@ class FluidRedis:
 
     def __str__(self) -> str:
         kwargs = self.redis_cli.connection_pool.connection_kwargs
-        return "%s:%s" % (kwargs.get("host"), kwargs.get("port", 6379))
+        host = kwargs.get("host")
+        port = kwargs.get("port", 6379)
+        db = kwargs.get("db", 0)
+        return f"{host}:{port}/{db}"
 
     async def close(self, *args: Any) -> None:
         await self.redis_cli.aclose(True)  # type: ignore[attr-defined]

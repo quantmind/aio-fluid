@@ -46,9 +46,11 @@ class AsyncTaskDispatcher(AsyncDispatcher[TaskRun]):
 class TaskManager:
     """The task manager is the main class for managing tasks"""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(
+        self, *, config: TaskManagerConfig | None = None, **kwargs: Any
+    ) -> None:
         self.state: dict[str, Any] = {}
-        self.config: TaskManagerConfig = TaskManagerConfig(**kwargs)
+        self.config: TaskManagerConfig = config or TaskManagerConfig(**kwargs)
         self.dispatcher: Annotated[
             TaskDispatcher,
             Doc(
@@ -113,7 +115,7 @@ class TaskManager:
 
         This methods fires two events:
 
-        - queue: when the task is about to be queued
+        - init: when the task run is created
         - queued: after the task is queued
         """
         task_run = self.create_task_run(task, priority=priority, **params)
@@ -213,11 +215,12 @@ class TaskConsumer(TaskManager, Workers):
         return len(self._concurrent_tasks[task_name])
 
     async def queue_and_wait(
-        self, task: str, *, timeout: int = 2, **params: Any
+        self, task: str | Task, *, timeout: int = 2, **params: Any
     ) -> TaskRun:
         """Queue a task and wait for it to finish"""
         with TaskRunWaiter(self) as waiter:
-            return await waiter.wait(await self.queue(task, **params), timeout=timeout)
+            task_run = await self.queue(task, **params)
+            return await waiter.wait(task_run, timeout=timeout)
 
     def register_async_handler(self, event: Event | str, handler: AsyncHandler) -> None:
         event = Event.from_string_or_event(event)

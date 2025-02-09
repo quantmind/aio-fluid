@@ -125,9 +125,9 @@ class TaskBroker(ABC):
 class RedisTaskBroker(TaskBroker):
     """A simple task broker based on redis lists"""
 
-    @cached_property
-    def redis(self) -> FluidRedis:
-        return FluidRedis.create(str(self.url.with_query({})), name=self.name)
+    def __init__(self, url: URL) -> None:
+        super().__init__(url)
+        self.redis = FluidRedis.create(str(self.url.with_query({})), name=self.name)
 
     @property
     def redis_cli(self) -> Redis[bytes]:
@@ -153,7 +153,7 @@ class RedisTaskBroker(TaskBroker):
         return f"{self.name}-tasks-{name}"
 
     def task_queue_name(self, priority: TaskPriority) -> str:
-        return f"{self.name}-queue-{priority.name}"
+        return f"{self.name}-queue-{priority}"
 
     async def clear(self) -> int:
         pipe = self.redis_cli.pipeline()

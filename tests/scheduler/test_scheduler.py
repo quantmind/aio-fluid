@@ -60,15 +60,15 @@ async def test_dummy_error(task_scheduler: TaskScheduler) -> None:
         await task_scheduler.execute("dummy", error=True)
 
 
-@pytest.mark.flaky
 async def test_dummy_rate_limit(task_scheduler: TaskScheduler) -> None:
     s1, s2 = await asyncio.gather(
-        task_scheduler.queue_and_wait("dummy", sleep=0.53),
-        task_scheduler.queue_and_wait("dummy", sleep=0.52),
+        task_scheduler.queue_and_wait("dummy", sleep=2, timeout=10),
+        task_scheduler.queue_and_wait("dummy", sleep=1, timeout=10),
     )
     assert task_scheduler.num_concurrent_tasks_for("dummy") == 0
     assert s1.is_done
     assert s2.is_done
+    assert s1.state is TaskState.rate_limited or s2.state is TaskState.rate_limited
 
 
 @pytest.mark.flaky
@@ -98,7 +98,7 @@ async def test_task_info(task_scheduler: TaskScheduler) -> None:
     info = await task_scheduler.broker.enable_task("scheduled")
     assert info.enabled is True
     assert info.name == "scheduled"
-    assert info.schedule == "every(0:00:01)"
+    assert info.schedule == "every(0:00:02)"
     assert info.description == "A simple scheduled task"
 
 
@@ -106,7 +106,12 @@ async def test_disabled_execution(task_scheduler: TaskScheduler) -> None:
     info = await task_scheduler.broker.enable_task("add", enable=False)
     assert info.enabled is False
     assert info.name == "add"
-    task_run = await task_scheduler.queue_and_wait("add", a=3, b=4)
+    task_run = await task_scheduler.queue_and_wait(
+        "add",
+        priority=TaskPriority.high,
+        a=3,
+        b=4,
+    )
     assert task_run.name == "add"
     assert task_run.params.a == 3
     assert task_run.params.b == 4

@@ -21,6 +21,7 @@ from typing import (
 
 from pydantic import BaseModel, Field, field_serializer
 from redis.asyncio.lock import Lock
+from typing_extensions import Annotated, Doc
 
 from fluid import settings
 from fluid.utils import kernel, log
@@ -177,11 +178,11 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
     This model is never initialized directly, it is created by the TaskManager
     """
 
-    id: str
-    task: Task
-    priority: TaskPriority
-    params: TP
-    state: TaskState = TaskState.init
+    id: str = Field(description="Unique task run id")
+    task: Task = Field(description="Task to be executed")
+    priority: TaskPriority = Field(description="Task priority")
+    params: TP = Field(description="Task parameters")
+    state: TaskState = Field(default=TaskState.init, description="Task state")
     task_manager: TaskManager = Field(exclude=True, repr=False)
     queued: datetime | None = None
     start: datetime | None = None
@@ -301,23 +302,28 @@ class TaskRunWaiter:
     uid: str = field(default_factory=create_uid)
     _runs: dict[str, TaskRun] = field(default_factory=dict)
 
+    def event(self, state: TaskState) -> str:
+        return f"{state}.{self.uid}"
+
     def __enter__(self) -> TaskRunWaiter:
         for state in FINISHED_STATES:
-            self.task_manager.dispatcher.register_handler(f"{state}.{self.uid}", self)
+            self.task_manager.dispatcher.register_handler(self.event(state), self)
         return self
 
     def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any) -> None:
         for state in FINISHED_STATES:
-            self.task_manager.dispatcher.unregister_handler(f"{state}.{self.uid}")
+            self.task_manager.dispatcher.unregister_handler(self.event(state))
 
     def __call__(self, task_run: TaskRun) -> None:
         self._runs[task_run.id] = task_run
 
     async def wait(self, task_run: TaskRun, *, timeout: int = 2) -> TaskRun:
         async with asyncio.timeout(timeout):
-            while task_run.id not in self._runs:
+            while True:
+                if tr := self._runs.get(task_run.id):
+                    if tr.is_done:
+                        return tr
                 await asyncio.sleep(0.01)
-        return self._runs[task_run.id]
 
 
 @overload
@@ -332,10 +338,13 @@ def task(
     short_description: str | None = None,
     description: str | None = None,
     randomize: RandomizeType | None = None,
-    max_concurrency: int = 1,
+    max_concurrency: int = 0,
     priority: TaskPriority = TaskPriority.medium,
     cpu_bound: bool = False,
-    timeout_seconds: int = 60,
+    timeout_seconds: Annotated[
+        int,
+        Doc("Task timeout in seconds - how long the task can run before being aborted"),
+    ] = 60,
 ) -> TaskConstructor: ...
 
 

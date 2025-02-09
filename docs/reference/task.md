@@ -19,3 +19,7 @@ def hello(ctx: TaskRun) -> None:
 ::: fluid.scheduler.task
 
 ::: fluid.scheduler.Task
+
+::: fluid.scheduler.TaskPriority
+
+::: fluid.scheduler.TaskState

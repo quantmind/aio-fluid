@@ -23,7 +23,7 @@ class Sleep(BaseModel):
     error: bool = False
 
 
-@task
+@task(max_concurrency=1)
 async def dummy(context: TaskRun[Sleep]) -> None:
     """A task that sleeps for a while or errors"""
     await asyncio.sleep(context.params.sleep)
@@ -31,7 +31,7 @@ async def dummy(context: TaskRun[Sleep]) -> None:
         raise RuntimeError("just an error")
 
 
-@task(schedule=every(timedelta(seconds=1)))
+@task(schedule=every(timedelta(seconds=2)))
 async def scheduled(context: TaskRun) -> None:
     """A simple scheduled task"""
     await asyncio.sleep(0.1)
@@ -49,7 +49,7 @@ async def add(context: TaskRun[AddValues]) -> None:
     context.logger.info(f"Adding {context.params.a} + {context.params.b} = {c}")
 
 
-@task(cpu_bound=True, schedule=every(timedelta(seconds=5)))
+@task(cpu_bound=True)
 async def cpu_bound(context: TaskRun) -> None:
     """A CPU bound task running on subprocess
 
