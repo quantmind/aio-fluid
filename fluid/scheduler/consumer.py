@@ -68,12 +68,11 @@ class TaskManager:
                 Each task can cast the dependencies to the required type.
                 """
             ),
-        ] = deps if deps is not None else State()
+        ] = (
+            deps if deps is not None else State()
+        )
         self.config: Annotated[
-            TaskManagerConfig,
-            Doc(
-                """Task manager configuration"""
-            )
+            TaskManagerConfig, Doc("""Task manager configuration""")
         ] = config or TaskManagerConfig(**kwargs)
         self.dispatcher: Annotated[
             TaskDispatcher,

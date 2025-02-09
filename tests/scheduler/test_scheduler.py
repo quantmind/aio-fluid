@@ -1,6 +1,6 @@
 import asyncio
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import pytest
 from redis.asyncio import Redis
