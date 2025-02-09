@@ -46,7 +46,39 @@ if __name__ == "__main__":
 You can test via the example provided
 
 ```bash
-python -m examples.simple_fastapi
+$ python -m examples.simple_fastapi
 ```
 
 and check the openapi UI at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
+
+
+## Task App Command Line
+
+The [TaskConsumer][fluid.scheduler.TaskConsumer] or [TaskScheduler][fluid.scheduler.TaskScheduler] can be run with the command line tool to allow for an even richer API.
+
+```python
+from fluid.scheduler.cli import TaskManagerCLI
+
+if __name__ == "__main__":
+    consumer = task_consumer()
+    TaskManagerCLI(setup_fastapi(consumer))()
+```
+
+This features requires to install the package with the `cli` extra.
+
+```bash
+$ pip install aio-fluid[cli]
+```
+
+```bash
+$ python -m examples.simple_cli
+Usage: python -m examples.simple_cli [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  execute  execute a task
+  ls       list all tasks
+  serve    Start app server.
+```

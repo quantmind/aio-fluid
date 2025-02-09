@@ -33,5 +33,22 @@
                 "RedirectOutput"
             ]
         },
+        {
+            "name": "AIO-FLUID EXAMPLE exec",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/examples",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
+            "args": [
+                "exec",
+                "add",
+                "--a",
+                "1",
+            ],
+            "debugOptions": [
+                "RedirectOutput"
+            ]
+        },
     ]
 }

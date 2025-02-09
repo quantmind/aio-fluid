@@ -5,6 +5,17 @@ import click
 
 
 class LazyGroup(click.Group):
+    """A click Group that can lazily load subcommands
+
+    This class extends the click.Group class to allow for subcommands to be
+    lazily loaded from a module path.
+
+    It is useful when you have a large number of subcommands that you don't
+    want to load until they are actually needed.
+
+    Available with the `cli` extra dependencies.
+    """
+
     def __init__(
         self,
         *,
