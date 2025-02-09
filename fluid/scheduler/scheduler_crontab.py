@@ -29,12 +29,14 @@ class CronRun(NamedTuple):
 
 
 class Scheduler(ABC):
+    """Base class for all schedulers."""
+
     def __str__(self) -> str:
         return f"{self.__class__.__name__}({self.info()})"
 
     @abstractmethod
     def info(self) -> str:
-        pass
+        """Return a string representation of the schedule."""
 
     @abstractmethod
     def __call__(

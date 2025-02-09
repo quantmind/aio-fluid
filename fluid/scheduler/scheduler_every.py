@@ -1,7 +1,7 @@
 import random
 from datetime import datetime, timedelta
 
-from .crontab import CronRun, Scheduler
+from .scheduler_crontab import CronRun, Scheduler
 
 
 class every(Scheduler):  # noqa: N801

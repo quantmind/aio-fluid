@@ -1,9 +1,9 @@
 from .broker import TaskBroker
-from .consumer import TaskConsumer, TaskManager
-from .crontab import Scheduler, crontab
-from .every import every
+from .consumer import TaskConsumer, TaskManager, TaskManagerConfig
 from .models import QueuedTask, Task, TaskInfo, TaskPriority, TaskRun, TaskState, task
 from .scheduler import TaskScheduler
+from .scheduler_crontab import Scheduler, crontab
+from .scheduler_every import every
 
 __all__ = [
     "Scheduler",
@@ -12,6 +12,7 @@ __all__ = [
     "TaskScheduler",
     "task",
     "Task",
+    "TaskManagerConfig",
     "TaskManager",
     "TaskConsumer",
     "TaskInfo",

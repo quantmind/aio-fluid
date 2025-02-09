@@ -28,8 +28,8 @@ from fluid.utils.data import compact_dict
 from fluid.utils.dates import as_utc
 from fluid.utils.text import create_uid, trim_docstring
 
-from .crontab import Scheduler
 from .errors import TaskDecoratorError, TaskRunError
+from .scheduler_crontab import Scheduler
 
 if TYPE_CHECKING:
     from .consumer import TaskManager
@@ -38,6 +38,10 @@ if TYPE_CHECKING:
 TaskExecutor = Callable[["TaskRun"], Coroutine[Any, Any, Any]]
 RandomizeType = Callable[[], float | int]
 TP = TypeVar("TP", bound=BaseModel)
+
+
+class EmptyParams(BaseModel):
+    pass
 
 
 class TaskPriority(enum.StrEnum):
@@ -70,12 +74,22 @@ FINISHED_STATES = frozenset(
 
 
 class TaskManagerConfig(BaseModel):
+    """Task manager configuration"""
+
     schedule_tasks: bool = True
-    consume_tasks: bool = True
-    max_concurrent_tasks: int = settings.MAX_CONCURRENT_TASKS
-    """number of coroutine workers"""
+    consume_tasks: bool = Field(default=True, description="Consume tasks or sleep")
+    max_concurrent_tasks: int = Field(
+        default=settings.MAX_CONCURRENT_TASKS,
+        description=(
+            "The number of coroutine workers consuming tasks. "
+            "Each worker consumes one task at a time, therefore, "
+            "this number is the maximum number of tasks that can run concurrently."
+            "It can be configured via the `FLUID_MAX_CONCURRENT_TASKS` environment "
+            "variable, and by default is set to 5."
+        ),
+    )
     sleep: float = 0.1
-    """amount to sleep after completion of a task"""
+    """amount to async sleep after completion of a task"""
     broker_url: str = ""
 
 
@@ -120,6 +134,8 @@ class Task(NamedTuple, Generic[TP]):
     """Task name - unique identifier"""
     executor: TaskExecutor
     """Task executor function"""
+    params_model: type[TP]
+    """Pydantic model for task parameters"""
     logger: logging.Logger
     """Task logger"""
     module: str = ""
@@ -132,8 +148,6 @@ class Task(NamedTuple, Generic[TP]):
     """Task schedule - None means the task is not scheduled"""
     randomize: RandomizeType | None = None
     """Randomize function for task schedule"""
-    params_model: type[TP] | None = None
-    """Pydantic model for task parameters"""
     max_concurrency: int = 0
     """how many tasks can run in each consumer concurrently - 0 means no limit"""
     timeout_seconds: int = 60
@@ -320,7 +334,6 @@ def task(
     randomize: RandomizeType | None = None,
     max_concurrency: int = 1,
     priority: TaskPriority = TaskPriority.medium,
-    params_model: BaseModel | None = None,
     cpu_bound: bool = False,
     timeout_seconds: int = 60,
 ) -> TaskConstructor: ...
@@ -391,14 +404,14 @@ class TaskConstructor:
             executor=executor,
         )
 
-    def get_params_model(self, executor: TaskExecutor) -> type[BaseModel] | None:
+    def get_params_model(self, executor: TaskExecutor) -> type[BaseModel]:
         signature = inspect.signature(executor)
         for p in signature.parameters.values():
             if is_subclass(p.annotation, TaskRun):
                 params_model = p.annotation.model_fields["params"]
                 a = params_model.annotation
-                return a if is_subclass(a, BaseModel) else None
-        return None
+                return a if is_subclass(a, BaseModel) else EmptyParams
+        return EmptyParams
 
 
 def get_name(o: Any) -> str:

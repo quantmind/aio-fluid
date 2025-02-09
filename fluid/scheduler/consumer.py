@@ -44,7 +44,7 @@ class AsyncTaskDispatcher(AsyncDispatcher[TaskRun]):
 
 
 class TaskManager:
-    """The task manager is the main entry point for managing tasks"""
+    """The task manager is the main class for managing tasks"""
 
     def __init__(self, **kwargs: Any) -> None:
         self.state: dict[str, Any] = {}
@@ -53,9 +53,10 @@ class TaskManager:
             TaskDispatcher,
             Doc(
                 """
-                A dispatcher of task run events.
+                A dispatcher of [TaskRun][fluid.scheduler.TaskRun] events.
 
-                Register handlers to listen for task run events.
+                Application can register handlers to listen for events
+                happening during the lifecycle of a task run.
                 """
             ),
         ] = TaskDispatcher()
@@ -76,6 +77,7 @@ class TaskManager:
 
     @property
     def registry(self) -> TaskRegistry:
+        """The task registry"""
         return self.broker.registry
 
     @property
@@ -128,14 +130,13 @@ class TaskManager:
         **params: Any,
     ) -> TaskRun:
         """Create a TaskRun in `init` state"""
-        if isinstance(task, str):
-            task = self.broker.task_from_registry(task)
+        task = self.broker.task_from_registry(task)
         run_id = run_id or self.broker.new_uuid()
         return TaskRun(
             id=run_id,
             task=task,
             priority=priority or task.priority,
-            params=params,
+            params=task.params_model(**params),
             task_manager=self,
         )
 
@@ -275,7 +276,7 @@ class TaskConsumer(TaskManager, Workers):
         #
         else:
             try:
-                params = task_run.params.model.dump_json()
+                params = task_run.params.model_dump_json()
             except Exception:
                 task_run.logger.exception("%s - start - params exception", task_run.id)
             else:

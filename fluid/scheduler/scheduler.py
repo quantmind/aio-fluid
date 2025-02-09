@@ -6,7 +6,7 @@ from fluid.utils.dates import utcnow
 from fluid.utils.worker import WorkerFunction
 
 from .consumer import TaskConsumer
-from .crontab import CronRun
+from .scheduler_crontab import CronRun
 
 
 class TaskScheduler(TaskConsumer):

@@ -103,17 +103,19 @@ async def test_task_info(task_scheduler: TaskScheduler) -> None:
 
 
 async def test_disabled_execution(task_scheduler: TaskScheduler) -> None:
-    info = await task_scheduler.broker.enable_task("disabled", enable=False)
+    info = await task_scheduler.broker.enable_task("add", enable=False)
     assert info.enabled is False
-    assert info.name == "disabled"
-    task_run = await task_scheduler.queue_and_wait("disabled")
-    assert task_run.name == "disabled"
+    assert info.name == "add"
+    task_run = await task_scheduler.queue_and_wait("add", a=3, b=4)
+    assert task_run.name == "add"
+    assert task_run.params.a == 3
+    assert task_run.params.b == 4
     assert task_run.end
     assert task_run.state == TaskState.aborted.name
 
 
 @dataclass
-class AsynHandler:
+class AsyncHandler:
     task_run: TaskRun | None = None
 
     async def __call__(self, task_run: TaskRun) -> None:
@@ -122,7 +124,7 @@ class AsynHandler:
 
 
 async def test_async_handler(task_scheduler: TaskScheduler) -> None:
-    handler = AsynHandler()
+    handler = AsyncHandler()
     task_scheduler.register_async_handler("running.test", handler)
     task_run = await task_scheduler.queue_and_wait("dummy")
     assert task_run.state == TaskState.success

@@ -21,7 +21,10 @@ class Database:
     """
 
     dsn: str
-    """data source name, aka connection string"""
+    """data source name, aka connection string
+
+    Example: "postgresql+asyncpg://user:password@localhost/dbname"
+    """
     echo: bool = settings.DBECHO
     pool_size: int = settings.DBPOOL_MAX_SIZE
     max_overflow: int = settings.DBPOOL_MAX_OVERFLOW
@@ -38,11 +41,12 @@ class Database:
         schema: str | None = settings.DATABASE_SCHEMA,
         **kwargs: Any,
     ) -> Self:
-        """Create a new database conatiner from environment variables as defaults"""
+        """Create a new database container from environment variables as defaults"""
         return cls(dsn=dsn, metadata=sa.MetaData(schema=schema), **kwargs)
 
     @property
     def tables(self) -> dict[str, sa.Table]:
+        """A dictionary of tables in the database"""
         return self.metadata.tables
 
     @property

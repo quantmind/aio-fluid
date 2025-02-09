@@ -5,7 +5,7 @@ from datetime import timedelta
 from typing import cast
 
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from fluid.scheduler import TaskRun, TaskScheduler, every, task
 from fluid.scheduler.broker import RedisTaskBroker
@@ -18,21 +18,23 @@ def task_app() -> FastAPI:
     return setup_fastapi(task_manager)
 
 
+class Sleep(BaseModel):
+    sleep: float = Field(default=0.1, ge=0, description="Sleep time")
+    error: bool = False
+
+
 @task
-async def dummy(context: TaskRun) -> float:
+async def dummy(context: TaskRun[Sleep]) -> None:
     """A task that sleeps for a while or errors"""
-    sleep = cast(float, context.params.get("sleep", 0.1))
-    await asyncio.sleep(sleep)
-    if context.params.get("error"):
+    await asyncio.sleep(context.params.sleep)
+    if context.params.error:
         raise RuntimeError("just an error")
-    return sleep
 
 
 @task(schedule=every(timedelta(seconds=1)))
-async def scheduled(context: TaskRun) -> str:
+async def scheduled(context: TaskRun) -> None:
     """A simple scheduled task"""
     await asyncio.sleep(0.1)
-    return "OK"
 
 
 class AddValues(BaseModel):
@@ -40,9 +42,9 @@ class AddValues(BaseModel):
     b: float = 0
 
 
-# @task
+@task
 async def add(context: TaskRun[AddValues]) -> None:
-    """A task that sleeps for a while"""
+    """Log the addition of two numbers"""
     c = context.params.a + context.params.b
     context.logger.info(f"Adding {context.params.a} + {context.params.b} = {c}")
 

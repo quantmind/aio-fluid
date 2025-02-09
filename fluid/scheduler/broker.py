@@ -14,7 +14,7 @@ from fluid import settings
 from fluid.utils.redis import FluidRedis
 
 from .errors import UnknownTaskError
-from .models import Task, TaskInfo, TaskInfoUpdate, TaskPriority, TaskRun
+from .models import TP, Task, TaskInfo, TaskInfoUpdate, TaskPriority, TaskRun
 
 if TYPE_CHECKING:  # pragma: no cover
     from .consumer import TaskManager
@@ -27,8 +27,11 @@ def broker_url_from_env() -> URL:
     return URL(settings.BROKER_URL)
 
 
-class TaskRegistry(dict[str, Task]):
+class TaskRegistry(dict[str, Task[TP]]):
+    """A registry of tasks"""
+
     def periodic(self) -> Iterable[Task]:
+        """Iterate over periodic tasks"""
         for task in self.values():
             yield task
 
@@ -203,8 +206,10 @@ class RedisTaskBroker(TaskBroker):
                 timeout=1,
             ):
                 data = json.loads(redis_data[1])
+                task = self.task_from_registry(data["task"])
                 data.update(
-                    task=self.task_from_registry(data["task"]),
+                    task=task,
+                    params=task.params_model(**data["params"]),
                     task_manager=task_manager,
                 )
                 return TaskRun(**data)
