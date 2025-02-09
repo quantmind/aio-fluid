@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://aio-fluid.com/reference/task_registry/">
+        <link rel="canonical" href="https://aio-fluid.com/tutorials/task_app/">
       
       
-        <link rel="prev" href="../task_manager/">
+        <link rel="prev" href="../dispatchers/">
       
       
-        <link rel="next" href="../task_run/">
+        <link rel="next" href="../task_broker/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Task Registry - Aio Fluid</title>
+        <title>Task Queue App - Aio Fluid</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#task-registry" class="md-skip">
+        <a href="#task-queue-app" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Task Registry
+              Task Queue App
             
           </span>
         </div>
@@ -273,8 +273,6 @@
       
   
   
-    
-  
   
   
     
@@ -315,16 +313,16 @@
     
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           
           <div class="md-nav__link md-nav__container">
-            <a href="../" class="md-nav__link ">
+            <a href="../../reference/" class="md-nav__link ">
               
   
   <span class="md-ellipsis">
@@ -342,7 +340,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             Reference
@@ -358,7 +356,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../db/" class="md-nav__link">
+      <a href="../../reference/db/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -380,11 +378,368 @@
   
   
     <li class="md-nav__item">
-      <a href="../db_crud/" class="md-nav__link">
+      <a href="../../reference/db_crud/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
     CrudDB
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/dispatchers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Event Dispatchers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/task/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/task_broker/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Broker
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/task_cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Manager Cli
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/task_manager/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Manager
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/task_registry/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Registry
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/task_run/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Run
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/task_scheduler/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Scheduler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/task_scheduling/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Scheduling
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/tast_consumer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Consumer
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/utils/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Utils
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/workers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Workers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Async Database
     
   </span>
   
@@ -421,19 +776,87 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../task/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Task Queue App
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
-    Task
+    Task Queue App
     
   </span>
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tasks-consumer" class="md-nav__link">
+    <span class="md-ellipsis">
+      Tasks Consumer
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fastapi-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      FastAPI Integration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-app-command-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      Task App Command Line
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -468,427 +891,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_cli/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Manager Cli
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../task_manager/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Manager
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-    
-  
-  
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Task Registry
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        
-  
-  <span class="md-ellipsis">
-    Task Registry
-    
-  </span>
-  
-
-      </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#fluid.scheduler.broker.TaskRegistry" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TaskRegistry
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" TaskRegistry">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.broker.TaskRegistry.periodic" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;periodic
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../task_run/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Run
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../task_scheduler/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Scheduler
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../task_scheduling/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Scheduling
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../tast_consumer/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Consumer
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../utils/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Utils
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../workers/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Workers
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
-        
-          
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../tutorials/" class="md-nav__link ">
-              
-  
-  <span class="md-ellipsis">
-    Tutorials
-    
-  </span>
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3">
-            <span class="md-nav__icon md-icon"></span>
-            Tutorials
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../tutorials/db/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Async Database
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../tutorials/dispatchers/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Event Dispatchers
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../tutorials/task_app/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Queue App
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../tutorials/task_broker/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Broker
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../tutorials/task_queue/" class="md-nav__link">
+      <a href="../task_queue/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -937,26 +940,29 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#fluid.scheduler.broker.TaskRegistry" class="md-nav__link">
+  <a href="#tasks-consumer" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TaskRegistry
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" TaskRegistry">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.broker.TaskRegistry.periodic" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;periodic
+      Tasks Consumer
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#fastapi-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      FastAPI Integration
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-app-command-line" class="md-nav__link">
+    <span class="md-ellipsis">
+      Task App Command Line
+    </span>
+  </a>
   
 </li>
       
@@ -979,82 +985,68 @@
   
 
 
-<h1 id="task-registry">Task Registry<a class="headerlink" href="#task-registry" title="Permanent link">&para;</a></h1>
-
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="fluid.scheduler.broker.TaskRegistry" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">fluid.scheduler.broker.TaskRegistry</span>
-
-
-<a href="#fluid.scheduler.broker.TaskRegistry" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents first">
-            <p class="doc doc-class-bases">
-              Bases: <code>dict[str, <a class="autorefs autorefs-internal" title="fluid.scheduler.models.Task" href="../task/#fluid.scheduler.Task">Task</a>[<span title="fluid.scheduler.models.TP">TP</span>]]</code></p>
-
-
-        <p>A registry of tasks</p>
-
-
-
-
-
-
-
-
-
-  <div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="fluid.scheduler.broker.TaskRegistry.periodic" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">periodic</span>
-
-
-<a href="#fluid.scheduler.broker.TaskRegistry.periodic" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">periodic</span><span class="p">()</span>
+<h1 id="task-queue-app">Task Queue App<a class="headerlink" href="#task-queue-app" title="Permanent link">&para;</a></h1>
+<p>The <code>fluid.scheduler</code> module is a simple yet powerful distributed task producer (<a class="autorefs autorefs-internal" href="../../reference/task_scheduler/#fluid.scheduler.TaskScheduler">TaskScheduler</a>) and consumer (<a class="autorefs autorefs-internal" href="../../reference/tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a>) system for executing tasks.
+The middleware for distributing tasks can be configured via the <a class="autorefs autorefs-internal" href="../../reference/task_broker/#fluid.scheduler.TaskBroker">TaskBroker</a> interface.</p>
+<p>A redis task broker is provided for convenience.</p>
+<h2 id="tasks-consumer">Tasks Consumer<a class="headerlink" href="#tasks-consumer" title="Permanent link">&para;</a></h2>
+<p>Create a task consumer, register tasks from modules, and run the consumer.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskConsumer</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">import</span><span class="w"> </span><span class="nn">task_module_a</span><span class="o">,</span><span class="w"> </span><span class="nn">task_module_b</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">def</span><span class="w"> </span><span class="nf">task_consumer</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskConsumer</span><span class="p">:</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">consumer</span> <span class="o">=</span> <span class="n">TaskConsumer</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">consumer</span><span class="o">.</span><span class="n">register_from_module</span><span class="p">(</span><span class="n">task_module_a</span><span class="p">)</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">consumer</span><span class="o">.</span><span class="n">register_from_module</span><span class="p">(</span><span class="n">task_module_b</span><span class="p">)</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="k">return</span> <span class="n">consumer</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">consumer</span> <span class="o">=</span> <span class="n">task_consumer</span><span class="p">()</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">consumer</span><span class="o">.</span><span class="n">run</span><span class="p">())</span>
 </span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Iterate over periodic tasks</p>
-
-            <details class="quote">
-              <summary>Source code in <code>fluid/scheduler/broker.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-33">33</a></span>
-<span class="normal"><a href="#__codelineno-0-34">34</a></span>
-<span class="normal"><a href="#__codelineno-0-35">35</a></span>
-<span class="normal"><a href="#__codelineno-0-36">36</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a><span class="k">def</span><span class="w"> </span><span class="nf">periodic</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterable</span><span class="p">[</span><span class="n">Task</span><span class="p">]:</span>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Iterate over periodic tasks&quot;&quot;&quot;</span>
-</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35"></a>    <span class="k">for</span> <span class="n">task</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a>        <span class="k">yield</span> <span class="n">task</span>
-</span></code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-
-
-  </div>
-
-    </div>
-
-</div>
+<h2 id="fastapi-integration">FastAPI Integration<a class="headerlink" href="#fastapi-integration" title="Permanent link">&para;</a></h2>
+<p>The <code>TaskConsumer</code> can be integrated with FastAPI so that
+tasks can be queued via HTTP requests.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">uvicorn</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler.endpoints</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_fastapi</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">consumer</span> <span class="o">=</span> <span class="n">task_consumer</span><span class="p">()</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">app</span> <span class="o">=</span> <span class="n">setup_fastapi</span><span class="p">(</span><span class="n">consumer</span><span class="p">)</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">uvicorn</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</span></code></pre></div>
+<p>You can test via the example provided</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>examples.simple_fastapi
+</span></code></pre></div>
+<p>and check the openapi UI at <a href="http://127.0.0.1:8000/docs">http://127.0.0.1:8000/docs</a>.</p>
+<h2 id="task-app-command-line">Task App Command Line<a class="headerlink" href="#task-app-command-line" title="Permanent link">&para;</a></h2>
+<p>The <a class="autorefs autorefs-internal" href="../../reference/tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> or <a class="autorefs autorefs-internal" href="../../reference/task_scheduler/#fluid.scheduler.TaskScheduler">TaskScheduler</a> can be run with the command line tool to allow for an even richer API.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskManagerCLI</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">consumer</span> <span class="o">=</span> <span class="n">task_consumer</span><span class="p">()</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">TaskManagerCLI</span><span class="p">(</span><span class="n">setup_fastapi</span><span class="p">(</span><span class="n">consumer</span><span class="p">))()</span>
+</span></code></pre></div>
+<p>This features requires to install the package with the <code>cli</code> extra.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>aio-fluid<span class="o">[</span>cli<span class="o">]</span>
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>$<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>examples.simple_cli
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>Usage:<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>examples.simple_cli<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span><span class="w"> </span>COMMAND<span class="w"> </span><span class="o">[</span>ARGS<span class="o">]</span>...
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>Options:
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">  </span>--help<span class="w">  </span>Show<span class="w"> </span>this<span class="w"> </span>message<span class="w"> </span>and<span class="w"> </span>exit.
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>Commands:
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">  </span><span class="nb">exec</span><span class="w">   </span>Execute<span class="w"> </span>a<span class="w"> </span>registered<span class="w"> </span>task
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">  </span>ls<span class="w">     </span>List<span class="w"> </span>all<span class="w"> </span>tasks<span class="w"> </span>with<span class="w"> </span>their<span class="w"> </span>schedules
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">  </span>serve<span class="w">  </span>Start<span class="w"> </span>app<span class="w"> </span>server
+</span></code></pre></div>
+<p>The command line tools provides a powerful interface to execute tasks, parameters are
+passed as optional arguments using he standard click interface.</p>
 
 
 
@@ -1084,7 +1076,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../task_manager/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Task Manager">
+          <a href="../dispatchers/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Event Dispatchers">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1094,20 +1086,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Task Manager
+                Event Dispatchers
               </div>
             </div>
           </a>
         
         
           
-          <a href="../task_run/" class="md-footer__link md-footer__link--next" aria-label="Next: Task Run">
+          <a href="../task_broker/" class="md-footer__link md-footer__link--next" aria-label="Next: Task Broker">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Task Run
+                Task Broker
               </div>
             </div>
             <div class="md-footer__button md-icon">

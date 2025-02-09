@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://aio-fluid.com/reference/tast_consumer/">
+        <link rel="canonical" href="https://aio-fluid.com/reference/task_scheduler/">
       
       
-        <link rel="prev" href="../task_scheduling/">
+        <link rel="prev" href="../task_run/">
       
       
-        <link rel="next" href="../utils/">
+        <link rel="next" href="../task_scheduling/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Task Consumer - Aio Fluid</title>
+        <title>Task Scheduler - Aio Fluid</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#task-consumer" class="md-skip">
+        <a href="#task-scheduler" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Task Consumer
+              Task Scheduler
             
           </span>
         </div>
@@ -553,10 +553,31 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../task_scheduler/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Task Scheduler
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -566,6 +587,401 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TaskScheduler
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" TaskScheduler">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.worker_name" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;worker_name
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.num_workers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;num_workers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.running" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;running
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.state" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;state
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.config" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;config
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.dispatcher" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;dispatcher
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.broker" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;broker
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;registry
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.type" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;type
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.num_concurrent_tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;num_concurrent_tasks
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.status" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;status
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.gracefully_stop" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;gracefully_stop
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.is_running" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;is_running
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.is_stopping" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;is_stopping
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.run" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;run
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.start_running" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;start_running
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.add_workers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;add_workers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.wait_for_exit" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;wait_for_exit
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.create_task" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;create_task
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.on_shutdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;on_shutdown
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.shutdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;shutdown
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.bail_out" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;bail_out
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.safe_run" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;safe_run
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.remove_workers" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;remove_workers
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.startup" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;startup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.register_callback" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_callback
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.enter_async_context" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;enter_async_context
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.execute" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;execute
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.execute_sync" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;execute_sync
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.register_task" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_task
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.queue" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;queue
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.create_task_run" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;create_task_run
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.register_from_module" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_from_module
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.register_from_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_from_dict
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.register_async_handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_async_handler
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.unregister_async_handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;unregister_async_handler
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.sync_queue" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;sync_queue
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.sync_priority_queue" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;sync_priority_queue
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.num_concurrent_tasks_for" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;num_concurrent_tasks_for
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.queue_and_wait" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;queue_and_wait
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -597,31 +1013,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  <span class="md-ellipsis">
-    Task Consumer
-    
-  </span>
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../tast_consumer/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -631,401 +1026,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TaskConsumer
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label=" TaskConsumer">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.worker_name" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;worker_name
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.num_workers" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;num_workers
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.running" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;running
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.state" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;state
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.config" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;config
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.dispatcher" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;dispatcher
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.broker" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;broker
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.registry" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;registry
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.type" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;type
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.num_concurrent_tasks" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;num_concurrent_tasks
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.status" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;status
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.gracefully_stop" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;gracefully_stop
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.is_running" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;is_running
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.is_stopping" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;is_stopping
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.run" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;run
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.start_running" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;start_running
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.add_workers" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;add_workers
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.wait_for_exit" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;wait_for_exit
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.create_task" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;create_task
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.on_shutdown" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;on_shutdown
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.shutdown" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;shutdown
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.bail_out" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;bail_out
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.safe_run" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;safe_run
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.remove_workers" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;remove_workers
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.startup" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;startup
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.register_callback" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_callback
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.enter_async_context" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;enter_async_context
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.execute" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;execute
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.execute_sync" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;execute_sync
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.register_task" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_task
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.queue" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;queue
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.create_task_run" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;create_task_run
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.register_from_module" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_from_module
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.register_from_dict" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_from_dict
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.sync_queue" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;sync_queue
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.sync_priority_queue" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;sync_priority_queue
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.num_concurrent_tasks_for" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;num_concurrent_tasks_for
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.queue_and_wait" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;queue_and_wait
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.register_async_handler" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_async_handler
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.unregister_async_handler" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;unregister_async_handler
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1288,17 +1288,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TaskConsumer
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;TaskScheduler
     </span>
   </a>
   
-    <nav class="md-nav" aria-label=" TaskConsumer">
+    <nav class="md-nav" aria-label=" TaskScheduler">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.worker_name" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.worker_name" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;worker_name
     </span>
@@ -1307,7 +1307,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.num_workers" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.num_workers" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;num_workers
     </span>
@@ -1316,7 +1316,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.running" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.running" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;running
     </span>
@@ -1325,7 +1325,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.state" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.state" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;state
     </span>
@@ -1334,7 +1334,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.config" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.config" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;config
     </span>
@@ -1343,7 +1343,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.dispatcher" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.dispatcher" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;dispatcher
     </span>
@@ -1352,7 +1352,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.broker" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.broker" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;broker
     </span>
@@ -1361,7 +1361,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.registry" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.registry" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;registry
     </span>
@@ -1370,7 +1370,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.type" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.type" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;type
     </span>
@@ -1379,7 +1379,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.num_concurrent_tasks" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.num_concurrent_tasks" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;num_concurrent_tasks
     </span>
@@ -1388,7 +1388,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.status" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.status" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;status
     </span>
@@ -1397,7 +1397,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.gracefully_stop" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.gracefully_stop" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;gracefully_stop
     </span>
@@ -1406,7 +1406,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.is_running" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.is_running" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;is_running
     </span>
@@ -1415,7 +1415,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.is_stopping" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.is_stopping" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;is_stopping
     </span>
@@ -1424,7 +1424,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.run" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.run" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;run
     </span>
@@ -1433,7 +1433,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.start_running" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.start_running" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;start_running
     </span>
@@ -1442,7 +1442,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.add_workers" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.add_workers" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;add_workers
     </span>
@@ -1451,7 +1451,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.wait_for_exit" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.wait_for_exit" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;wait_for_exit
     </span>
@@ -1460,7 +1460,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.create_task" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.create_task" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;create_task
     </span>
@@ -1469,7 +1469,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.on_shutdown" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.on_shutdown" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;on_shutdown
     </span>
@@ -1478,7 +1478,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.shutdown" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.shutdown" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;shutdown
     </span>
@@ -1487,7 +1487,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.bail_out" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.bail_out" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;bail_out
     </span>
@@ -1496,7 +1496,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.safe_run" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.safe_run" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;safe_run
     </span>
@@ -1505,7 +1505,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.remove_workers" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.remove_workers" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;remove_workers
     </span>
@@ -1514,7 +1514,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.startup" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.startup" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;startup
     </span>
@@ -1523,7 +1523,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.register_callback" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.register_callback" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_callback
     </span>
@@ -1532,7 +1532,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.enter_async_context" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.enter_async_context" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;enter_async_context
     </span>
@@ -1541,7 +1541,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.execute" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.execute" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;execute
     </span>
@@ -1550,7 +1550,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.execute_sync" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.execute_sync" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;execute_sync
     </span>
@@ -1559,7 +1559,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.register_task" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.register_task" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_task
     </span>
@@ -1568,7 +1568,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.queue" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.queue" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;queue
     </span>
@@ -1577,7 +1577,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.create_task_run" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.create_task_run" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;create_task_run
     </span>
@@ -1586,7 +1586,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.register_from_module" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.register_from_module" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_from_module
     </span>
@@ -1595,7 +1595,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.register_from_dict" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.register_from_dict" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_from_dict
     </span>
@@ -1604,43 +1604,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.sync_queue" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;sync_queue
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.sync_priority_queue" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;sync_priority_queue
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.num_concurrent_tasks_for" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;num_concurrent_tasks_for
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.queue_and_wait" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;queue_and_wait
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.register_async_handler" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.register_async_handler" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;register_async_handler
     </span>
@@ -1649,9 +1613,45 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskConsumer.unregister_async_handler" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskScheduler.unregister_async_handler" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;unregister_async_handler
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.sync_queue" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;sync_queue
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.sync_priority_queue" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;sync_priority_queue
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.num_concurrent_tasks_for" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;num_concurrent_tasks_for
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskScheduler.queue_and_wait" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;queue_and_wait
     </span>
   </a>
   
@@ -1681,9 +1681,12 @@
   
 
 
-<h1 id="task-consumer">Task Consumer<a class="headerlink" href="#task-consumer" title="Permanent link">&para;</a></h1>
-<p>The task consumer is a <a class="autorefs autorefs-internal" href="../task_manager/#fluid.scheduler.TaskManager">TaskManager</a> which is also a <a class="autorefs autorefs-internal" href="../workers/#fluid.utils.worker.Workers">Workers</a> that consumes tasks from the task queue and executes them. It can be imported from <code>fluid.scheduler</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskConsumer</span>
+<h1 id="task-scheduler">Task Scheduler<a class="headerlink" href="#task-scheduler" title="Permanent link">&para;</a></h1>
+<p>The task scheduler <a class="autorefs autorefs-internal" href="#fluid.scheduler.TaskScheduler">TaskScheduler</a> inherits
+from the <a class="autorefs autorefs-internal" href="../tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> to add scheduling of
+periodic tasks.</p>
+<p>It can be imported from <code>fluid.scheduler</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskScheduler</span>
 </span></code></pre></div>
 
 
@@ -1691,21 +1694,20 @@
 
 
 
-<h2 id="fluid.scheduler.TaskConsumer" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">fluid.scheduler.TaskConsumer</span>
+<h2 id="fluid.scheduler.TaskScheduler" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">fluid.scheduler.TaskScheduler</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer" class="headerlink" title="Permanent link">&para;</a></h2>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">TaskConsumer</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
+<a href="#fluid.scheduler.TaskScheduler" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">TaskScheduler</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="fluid.scheduler.consumer.TaskManager" href="../task_manager/#fluid.scheduler.TaskManager">TaskManager</a></code>, <code><a class="autorefs autorefs-internal" title="fluid.utils.worker.Workers" href="../workers/#fluid.utils.worker.Workers">Workers</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="fluid.scheduler.consumer.TaskConsumer" href="../tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a></code></p>
 
 
-        <p>The Task Consumer is a Task Manager responsible for consuming tasks
-from a task queue</p>
+        <p>A task manager for scheduling tasks</p>
 
         
 
@@ -1720,7 +1722,7 @@ from a task queue</p>
       <tbody>
           <tr class="doc-section-item">
             <td>
-                <code>**config</code>
+                <code>**kwargs</code>
             </td>
             <td class="doc-param-details">
               <div class="doc-md-description">
@@ -1747,44 +1749,12 @@ from a task queue</p>
 
 
                   <details class="quote">
-                    <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
-                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-182">182</a></span>
-<span class="normal"><a href="#__codelineno-0-183">183</a></span>
-<span class="normal"><a href="#__codelineno-0-184">184</a></span>
-<span class="normal"><a href="#__codelineno-0-185">185</a></span>
-<span class="normal"><a href="#__codelineno-0-186">186</a></span>
-<span class="normal"><a href="#__codelineno-0-187">187</a></span>
-<span class="normal"><a href="#__codelineno-0-188">188</a></span>
-<span class="normal"><a href="#__codelineno-0-189">189</a></span>
-<span class="normal"><a href="#__codelineno-0-190">190</a></span>
-<span class="normal"><a href="#__codelineno-0-191">191</a></span>
-<span class="normal"><a href="#__codelineno-0-192">192</a></span>
-<span class="normal"><a href="#__codelineno-0-193">193</a></span>
-<span class="normal"><a href="#__codelineno-0-194">194</a></span>
-<span class="normal"><a href="#__codelineno-0-195">195</a></span>
-<span class="normal"><a href="#__codelineno-0-196">196</a></span>
-<span class="normal"><a href="#__codelineno-0-197">197</a></span>
-<span class="normal"><a href="#__codelineno-0-198">198</a></span>
-<span class="normal"><a href="#__codelineno-0-199">199</a></span>
-<span class="normal"><a href="#__codelineno-0-200">200</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-182"><a id="__codelineno-0-182" name="__codelineno-0-182"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-183"><a id="__codelineno-0-183" name="__codelineno-0-183"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span>
-</span><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a>    <span class="n">Workers</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
-</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_async_dispatcher_worker</span> <span class="o">=</span> <span class="n">AsyncConsumer</span><span class="p">(</span><span class="n">AsyncTaskDispatcher</span><span class="p">())</span>
-</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_concurrent_tasks</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TaskRun</span><span class="p">]]</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
-</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_task_to_queue</span><span class="p">:</span> <span class="n">deque</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="n">Task</span><span class="p">]</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
-</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_priority_task_run_queue</span><span class="p">:</span> <span class="n">deque</span><span class="p">[</span><span class="n">TaskRun</span><span class="p">]</span> <span class="o">=</span> <span class="n">deque</span><span class="p">()</span>
-</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_queue_tasks_worker</span> <span class="o">=</span> <span class="n">WorkerFunction</span><span class="p">(</span>
-</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_queue_task</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;queue-task-worker&quot;</span>
-</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a>    <span class="p">)</span>
-</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">add_workers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_queue_tasks_worker</span><span class="p">)</span>
-</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">add_workers</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_async_dispatcher_worker</span><span class="p">)</span>
-</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a>    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_concurrent_tasks</span><span class="p">):</span>
-</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a>        <span class="n">worker_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;task-worker-</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
-</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_workers</span><span class="p">(</span>
-</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a>            <span class="n">WorkerFunction</span><span class="p">(</span>
-</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a>                <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_consume_tasks</span><span class="p">,</span> <span class="n">worker_name</span><span class="p">),</span> <span class="n">name</span><span class="o">=</span><span class="n">worker_name</span>
-</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a>            <span class="p">)</span>
-</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a>        <span class="p">)</span>
+                    <summary>Source code in <code>fluid/scheduler/scheduler.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-15">15</a></span>
+<span class="normal"><a href="#__codelineno-0-16">16</a></span>
+<span class="normal"><a href="#__codelineno-0-17">17</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">add_workers</span><span class="p">(</span><span class="n">ScheduleTasks</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
 </span></code></pre></div></td></tr></table></div>
                   </details>
 
@@ -1802,7 +1772,7 @@ from a task queue</p>
 
 
 
-<h3 id="fluid.scheduler.TaskConsumer.worker_name" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.worker_name" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">worker_name</span>
 
 
@@ -1810,7 +1780,7 @@ from a task queue</p>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.worker_name" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.worker_name" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">worker_name</span>
 </span></code></pre></div>
 
@@ -1825,7 +1795,7 @@ from a task queue</p>
 
 
 
-<h3 id="fluid.scheduler.TaskConsumer.num_workers" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.num_workers" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">num_workers</span>
 
 
@@ -1833,7 +1803,7 @@ from a task queue</p>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.num_workers" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.num_workers" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">num_workers</span>
 </span></code></pre></div>
 
@@ -1846,7 +1816,7 @@ from a task queue</p>
 
 
 
-<h3 id="fluid.scheduler.TaskConsumer.running" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.running" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">running</span>
 
 
@@ -1854,7 +1824,7 @@ from a task queue</p>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.running" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.running" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">running</span>
 </span></code></pre></div>
 
@@ -1867,7 +1837,7 @@ from a task queue</p>
 
 
 
-<h3 id="fluid.scheduler.TaskConsumer.state" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.state" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">state</span>
 
 
@@ -1875,7 +1845,7 @@ from a task queue</p>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.state" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.state" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">state</span> <span class="o">=</span> <span class="p">{}</span>
 </span></code></pre></div>
 
@@ -1888,7 +1858,7 @@ from a task queue</p>
 
 
 
-<h3 id="fluid.scheduler.TaskConsumer.config" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.config" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">config</span>
 
 
@@ -1896,7 +1866,7 @@ from a task queue</p>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.config" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.config" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">config</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.consumer.TaskManager.config" href="../task_manager/#fluid.scheduler.TaskManager.config">config</a></span> <span class="ow">or</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskManagerConfig" href="../task_manager/#fluid.scheduler.TaskManagerConfig">TaskManagerConfig</a></span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -1909,7 +1879,7 @@ from a task queue</p>
 
 
 
-<h3 id="fluid.scheduler.TaskConsumer.dispatcher" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.dispatcher" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">dispatcher</span>
 
 
@@ -1917,7 +1887,7 @@ from a task queue</p>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.dispatcher" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.dispatcher" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">dispatcher</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.consumer.TaskDispatcher" href="../task_manager/#fluid.scheduler.consumer.TaskDispatcher">TaskDispatcher</a></span><span class="p">()</span>
 </span></code></pre></div>
 
@@ -1934,7 +1904,7 @@ happening during the lifecycle of a task run.</p>
 
 
 
-<h3 id="fluid.scheduler.TaskConsumer.broker" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.broker" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">broker</span>
 
 
@@ -1942,7 +1912,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.broker" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.broker" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">broker</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.broker.TaskBroker.from_url" href="../task_broker/#fluid.scheduler.TaskBroker.from_url">from_url</a></span><span class="p">(</span><span class="n"><span title="self.config.broker_url">broker_url</span></span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -1955,7 +1925,7 @@ happening during the lifecycle of a task run.</p>
 
 
 
-<h3 id="fluid.scheduler.TaskConsumer.registry" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.registry" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">registry</span>
 
 
@@ -1963,7 +1933,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.registry" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.registry" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">registry</span>
 </span></code></pre></div>
 
@@ -1978,7 +1948,7 @@ happening during the lifecycle of a task run.</p>
 
 
 
-<h3 id="fluid.scheduler.TaskConsumer.type" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.type" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">type</span>
 
 
@@ -1986,7 +1956,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.type" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.type" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">type</span>
 </span></code></pre></div>
 
@@ -1999,7 +1969,7 @@ happening during the lifecycle of a task run.</p>
 
 
 
-<h3 id="fluid.scheduler.TaskConsumer.num_concurrent_tasks" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.num_concurrent_tasks" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">num_concurrent_tasks</span>
 
 
@@ -2007,7 +1977,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-property"><code>property</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.num_concurrent_tasks" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.num_concurrent_tasks" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">num_concurrent_tasks</span>
 </span></code></pre></div>
 
@@ -2023,7 +1993,7 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.status" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.status" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">status</span>
 
 
@@ -2031,7 +2001,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.status" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.status" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">status</span><span class="p">()</span>
 </span></code></pre></div>
 
@@ -2051,11 +2021,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.gracefully_stop" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.gracefully_stop" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">gracefully_stop</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.gracefully_stop" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.gracefully_stop" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">gracefully_stop</span><span class="p">()</span>
 </span></code></pre></div>
 
@@ -2075,11 +2045,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.is_running" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.is_running" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">is_running</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.is_running" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.is_running" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">is_running</span><span class="p">()</span>
 </span></code></pre></div>
 
@@ -2099,11 +2069,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.is_stopping" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.is_stopping" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">is_stopping</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.is_stopping" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.is_stopping" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">is_stopping</span><span class="p">()</span>
 </span></code></pre></div>
 
@@ -2123,7 +2093,7 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.run" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.run" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">run</span>
 
 
@@ -2131,7 +2101,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.run" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.run" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">run</span><span class="p">()</span>
 </span></code></pre></div>
 
@@ -2171,11 +2141,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.start_running" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.start_running" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">start_running</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.start_running" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.start_running" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">start_running</span><span class="p">()</span>
 </span></code></pre></div>
 
@@ -2213,11 +2183,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.add_workers" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.add_workers" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">add_workers</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.add_workers" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.add_workers" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">add_workers</span><span class="p">(</span><span class="o">*</span><span class="n">workers</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -2279,7 +2249,7 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.wait_for_exit" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.wait_for_exit" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">wait_for_exit</span>
 
 
@@ -2287,7 +2257,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.wait_for_exit" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.wait_for_exit" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">wait_for_exit</span><span class="p">()</span>
 </span></code></pre></div>
 
@@ -2309,11 +2279,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.create_task" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.create_task" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">create_task</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.create_task" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.create_task" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">create_task</span><span class="p">(</span><span class="n">worker</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -2367,7 +2337,7 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.on_shutdown" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.on_shutdown" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">on_shutdown</span>
 
 
@@ -2375,7 +2345,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.on_shutdown" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.on_shutdown" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">on_shutdown</span><span class="p">()</span>
 </span></code></pre></div>
 
@@ -2395,7 +2365,7 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.shutdown" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.shutdown" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">shutdown</span>
 
 
@@ -2403,7 +2373,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.shutdown" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.shutdown" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">shutdown</span><span class="p">()</span>
 </span></code></pre></div>
 
@@ -2489,11 +2459,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.bail_out" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.bail_out" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">bail_out</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.bail_out" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.bail_out" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">bail_out</span><span class="p">(</span><span class="n">reason</span><span class="p">,</span> <span class="n">code</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -2563,7 +2533,7 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.safe_run" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.safe_run" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">safe_run</span>
 
 
@@ -2571,7 +2541,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.safe_run" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.safe_run" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">safe_run</span><span class="p">()</span>
 </span></code></pre></div>
 
@@ -2625,11 +2595,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.remove_workers" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.remove_workers" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">remove_workers</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.remove_workers" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.remove_workers" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">remove_workers</span><span class="p">(</span><span class="o">*</span><span class="n">workers</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -2695,7 +2665,7 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.startup" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.startup" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">startup</span>
 
 
@@ -2703,7 +2673,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.startup" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.startup" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">startup</span><span class="p">()</span>
 </span></code></pre></div>
 
@@ -2735,11 +2705,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.register_callback" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.register_callback" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">register_callback</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.register_callback" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.register_callback" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">register_callback</span><span class="p">(</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">callback</span><span class="p">,</span> <span class="n">seconds</span><span class="p">,</span> <span class="n">jitter</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span> <span class="n">periodic</span><span class="o">=</span><span class="kc">False</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
@@ -2886,7 +2856,7 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.enter_async_context" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.enter_async_context" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">enter_async_context</span>
 
 
@@ -2894,7 +2864,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.enter_async_context" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.enter_async_context" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">enter_async_context</span><span class="p">(</span><span class="n">cm</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -2944,7 +2914,7 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.execute" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.execute" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">execute</span>
 
 
@@ -2952,7 +2922,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.execute" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.execute" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">execute</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -3028,11 +2998,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.execute_sync" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.execute_sync" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">execute_sync</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.execute_sync" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.execute_sync" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">execute_sync</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -3102,11 +3072,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.register_task" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.register_task" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">register_task</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.register_task" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.register_task" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">register_task</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -3165,7 +3135,7 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.queue" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.queue" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">queue</span>
 
 
@@ -3173,7 +3143,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.queue" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.queue" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">queue</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -3300,11 +3270,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.create_task_run" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.create_task_run" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">create_task_run</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.create_task_run" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.create_task_run" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">create_task_run</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="n">run_id</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -3444,11 +3414,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.register_from_module" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.register_from_module" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">register_from_module</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.register_from_module" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.register_from_module" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">register_from_module</span><span class="p">(</span><span class="n">module</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -3506,11 +3476,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.register_from_dict" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.register_from_dict" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">register_from_dict</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.register_from_dict" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.register_from_dict" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">register_from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -3568,11 +3538,145 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.sync_queue" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.register_async_handler" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">register_async_handler</span>
+
+
+<a href="#fluid.scheduler.TaskScheduler.register_async_handler" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">register_async_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>event</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="fluid.utils.dispatcher.Event">Event</span> | str</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>handler</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="fluid.scheduler.consumer.AsyncHandler">AsyncHandler</span></code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-225">225</a></span>
+<span class="normal"><a href="#__codelineno-0-226">226</a></span>
+<span class="normal"><a href="#__codelineno-0-227">227</a></span>
+<span class="normal"><a href="#__codelineno-0-228">228</a></span>
+<span class="normal"><a href="#__codelineno-0-229">229</a></span>
+<span class="normal"><a href="#__codelineno-0-230">230</a></span>
+<span class="normal"><a href="#__codelineno-0-231">231</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="k">def</span><span class="w"> </span><span class="nf">register_async_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">handler</span><span class="p">:</span> <span class="n">AsyncHandler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>    <span class="n">event</span> <span class="o">=</span> <span class="n">Event</span><span class="o">.</span><span class="n">from_string_or_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+</span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">register_handler</span><span class="p">(</span>
+</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">.async_dispatch&quot;</span><span class="p">,</span>
+</span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_async_dispatcher_worker</span><span class="o">.</span><span class="n">send</span><span class="p">,</span>
+</span><span id="__span-0-230"><a id="__codelineno-0-230" name="__codelineno-0-230"></a>    <span class="p">)</span>
+</span><span id="__span-0-231"><a id="__codelineno-0-231" name="__codelineno-0-231"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_async_dispatcher_worker</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">register_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="fluid.scheduler.TaskScheduler.unregister_async_handler" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">unregister_async_handler</span>
+
+
+<a href="#fluid.scheduler.TaskScheduler.unregister_async_handler" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">unregister_async_handler</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        
+
+
+<table>
+      <thead>
+        <tr>
+          <th><span class="doc-section-title">PARAMETER</span></th>
+          <th><span>DESCRIPTION</span></th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>event</code>
+            </td>
+            <td class="doc-param-details">
+              <div class="doc-md-description">
+                
+              </div>
+              <p>
+                  <span class="doc-param-annotation">
+                    <b>TYPE:</b>
+                      <code><span title="fluid.utils.dispatcher.Event">Event</span> | str</code>
+                  </span>
+              </p>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+            <details class="quote">
+              <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-233">233</a></span>
+<span class="normal"><a href="#__codelineno-0-234">234</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a><span class="k">def</span><span class="w"> </span><span class="nf">unregister_async_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncHandler</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_async_dispatcher_worker</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">unregister_handler</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="fluid.scheduler.TaskScheduler.sync_queue" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">sync_queue</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.sync_queue" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.sync_queue" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">sync_queue</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -3622,11 +3726,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.sync_priority_queue" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.sync_priority_queue" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">sync_priority_queue</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.sync_priority_queue" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.sync_priority_queue" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">sync_priority_queue</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -3676,11 +3780,11 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.num_concurrent_tasks_for" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.num_concurrent_tasks_for" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">num_concurrent_tasks_for</span>
 
 
-<a href="#fluid.scheduler.TaskConsumer.num_concurrent_tasks_for" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.num_concurrent_tasks_for" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">num_concurrent_tasks_for</span><span class="p">(</span><span class="n">task_name</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -3732,7 +3836,7 @@ happening during the lifecycle of a task run.</p>
 <div class="doc doc-object doc-function">
 
 
-<h3 id="fluid.scheduler.TaskConsumer.queue_and_wait" class="doc doc-heading">
+<h3 id="fluid.scheduler.TaskScheduler.queue_and_wait" class="doc doc-heading">
 <code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">queue_and_wait</span>
 
 
@@ -3740,7 +3844,7 @@ happening during the lifecycle of a task run.</p>
       <small class="doc doc-label doc-label-async"><code>async</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskConsumer.queue_and_wait" class="headerlink" title="Permanent link">&para;</a></h3>
+<a href="#fluid.scheduler.TaskScheduler.queue_and_wait" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">queue_and_wait</span><span class="p">(</span><span class="n">task</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
 </span></code></pre></div>
 
@@ -3837,140 +3941,6 @@ happening during the lifecycle of a task run.</p>
 
 </div>
 
-<div class="doc doc-object doc-function">
-
-
-<h3 id="fluid.scheduler.TaskConsumer.register_async_handler" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">register_async_handler</span>
-
-
-<a href="#fluid.scheduler.TaskConsumer.register_async_handler" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">register_async_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>event</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="fluid.utils.dispatcher.Event">Event</span> | str</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>handler</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="fluid.scheduler.consumer.AsyncHandler">AsyncHandler</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-            <details class="quote">
-              <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-225">225</a></span>
-<span class="normal"><a href="#__codelineno-0-226">226</a></span>
-<span class="normal"><a href="#__codelineno-0-227">227</a></span>
-<span class="normal"><a href="#__codelineno-0-228">228</a></span>
-<span class="normal"><a href="#__codelineno-0-229">229</a></span>
-<span class="normal"><a href="#__codelineno-0-230">230</a></span>
-<span class="normal"><a href="#__codelineno-0-231">231</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-225"><a id="__codelineno-0-225" name="__codelineno-0-225"></a><span class="k">def</span><span class="w"> </span><span class="nf">register_async_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">handler</span><span class="p">:</span> <span class="n">AsyncHandler</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-226"><a id="__codelineno-0-226" name="__codelineno-0-226"></a>    <span class="n">event</span> <span class="o">=</span> <span class="n">Event</span><span class="o">.</span><span class="n">from_string_or_event</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-</span><span id="__span-0-227"><a id="__codelineno-0-227" name="__codelineno-0-227"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">register_handler</span><span class="p">(</span>
-</span><span id="__span-0-228"><a id="__codelineno-0-228" name="__codelineno-0-228"></a>        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">event</span><span class="o">.</span><span class="n">type</span><span class="si">}</span><span class="s2">.async_dispatch&quot;</span><span class="p">,</span>
-</span><span id="__span-0-229"><a id="__codelineno-0-229" name="__codelineno-0-229"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_async_dispatcher_worker</span><span class="o">.</span><span class="n">send</span><span class="p">,</span>
-</span><span id="__span-0-230"><a id="__codelineno-0-230" name="__codelineno-0-230"></a>    <span class="p">)</span>
-</span><span id="__span-0-231"><a id="__codelineno-0-231" name="__codelineno-0-231"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">_async_dispatcher_worker</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">register_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">handler</span><span class="p">)</span>
-</span></code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="fluid.scheduler.TaskConsumer.unregister_async_handler" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">unregister_async_handler</span>
-
-
-<a href="#fluid.scheduler.TaskConsumer.unregister_async_handler" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">unregister_async_handler</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>event</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="fluid.utils.dispatcher.Event">Event</span> | str</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-            <details class="quote">
-              <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-233">233</a></span>
-<span class="normal"><a href="#__codelineno-0-234">234</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-233"><a id="__codelineno-0-233" name="__codelineno-0-233"></a><span class="k">def</span><span class="w"> </span><span class="nf">unregister_async_handler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">:</span> <span class="n">Event</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncHandler</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-234"><a id="__codelineno-0-234" name="__codelineno-0-234"></a>    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_async_dispatcher_worker</span><span class="o">.</span><span class="n">dispatcher</span><span class="o">.</span><span class="n">unregister_handler</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
-</span></code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
 
 
   </div>
@@ -4007,7 +3977,7 @@ happening during the lifecycle of a task run.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../task_scheduling/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Task Scheduling">
+          <a href="../task_run/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Task Run">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4017,20 +3987,20 @@ happening during the lifecycle of a task run.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Task Scheduling
+                Task Run
               </div>
             </div>
           </a>
         
         
           
-          <a href="../utils/" class="md-footer__link md-footer__link--next" aria-label="Next: Utils">
+          <a href="../task_scheduling/" class="md-footer__link md-footer__link--next" aria-label="Next: Task Scheduling">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Utils
+                Task Scheduling
               </div>
             </div>
             <div class="md-footer__button md-icon">
