@@ -2,54 +2,74 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
          <loc>https://aio-fluid.com/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <lastmod>2025-02-09</lastmod>
     </url>
     <url>
          <loc>https://aio-fluid.com/reference/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <lastmod>2025-02-09</lastmod>
+    </url>
+    <url>
+         <loc>https://aio-fluid.com/reference/db/</loc>
+         <lastmod>2025-02-09</lastmod>
+    </url>
+    <url>
+         <loc>https://aio-fluid.com/reference/db_crud/</loc>
+         <lastmod>2025-02-09</lastmod>
     </url>
     <url>
          <loc>https://aio-fluid.com/reference/dispatchers/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <lastmod>2025-02-09</lastmod>
     </url>
     <url>
          <loc>https://aio-fluid.com/reference/task/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <lastmod>2025-02-09</lastmod>
     </url>
     <url>
          <loc>https://aio-fluid.com/reference/task_broker/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <lastmod>2025-02-09</lastmod>
     </url>
     <url>
          <loc>https://aio-fluid.com/reference/task_manager/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <lastmod>2025-02-09</lastmod>
+    </url>
+    <url>
+         <loc>https://aio-fluid.com/reference/task_registry/</loc>
+         <lastmod>2025-02-09</lastmod>
     </url>
     <url>
          <loc>https://aio-fluid.com/reference/task_run/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <lastmod>2025-02-09</lastmod>
+    </url>
+    <url>
+         <loc>https://aio-fluid.com/reference/task_scheduling/</loc>
+         <lastmod>2025-02-09</lastmod>
     </url>
     <url>
          <loc>https://aio-fluid.com/reference/tast_consumer/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <lastmod>2025-02-09</lastmod>
     </url>
     <url>
          <loc>https://aio-fluid.com/reference/workers/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <lastmod>2025-02-09</lastmod>
     </url>
     <url>
          <loc>https://aio-fluid.com/tutorials/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <lastmod>2025-02-09</lastmod>
     </url>
     <url>
          <loc>https://aio-fluid.com/tutorials/db/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <lastmod>2025-02-09</lastmod>
     </url>
     <url>
          <loc>https://aio-fluid.com/tutorials/dispatchers/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <lastmod>2025-02-09</lastmod>
     </url>
     <url>
-         <loc>https://aio-fluid.com/tutorials/scheduler/</loc>
-         <lastmod>2025-02-02</lastmod>
+         <loc>https://aio-fluid.com/tutorials/task_broker/</loc>
+         <lastmod>2025-02-09</lastmod>
+    </url>
+    <url>
+         <loc>https://aio-fluid.com/tutorials/task_queue/</loc>
+         <lastmod>2025-02-09</lastmod>
     </url>
 </urlset>
