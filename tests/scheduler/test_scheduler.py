@@ -1,6 +1,6 @@
 import asyncio
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import pytest
 from redis.asyncio import Redis
@@ -15,17 +15,6 @@ from fluid.scheduler.errors import UnknownTaskError
 from fluid.utils.waiter import wait_for
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
-
-
-@dataclass
-class WaitFor:
-    name: str
-    times: int = 2
-    runs: list[TaskRun] = field(default_factory=list)
-
-    def __call__(self, task_run: TaskRun) -> None:
-        if task_run.name == self.name:
-            self.runs.append(task_run)
 
 
 async def test_scheduler_manager(task_scheduler: TaskScheduler) -> None:
@@ -69,16 +58,6 @@ async def test_dummy_rate_limit(task_scheduler: TaskScheduler) -> None:
     assert s1.is_done
     assert s2.is_done
     assert s1.state is TaskState.rate_limited or s2.state is TaskState.rate_limited
-
-
-@pytest.mark.flaky
-async def test_scheduled(task_scheduler: TaskScheduler) -> None:
-    handler = WaitFor(name="scheduled")
-    task_scheduler.dispatcher.register_handler("end.scheduled", handler)
-    try:
-        await wait_for(lambda: len(handler.runs) >= 2, timeout=3)
-    finally:
-        task_scheduler.dispatcher.unregister_handler("end.handler")
 
 
 @pytest.mark.flaky

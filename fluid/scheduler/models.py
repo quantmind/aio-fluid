@@ -191,7 +191,7 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
     async def execute(self) -> None:
         try:
             self.set_state(TaskState.running)
-            await self.task.executor(self)
+            await self.task.executor(self)  # type: ignore [arg-type]
         except Exception:
             self.set_state(TaskState.failure)
             raise
@@ -247,6 +247,10 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
     def is_failure(self) -> bool:
         return self.state.is_failure
 
+    @property
+    def deps(self) -> Any:
+        return self.task_manager.deps
+
     def set_state(
         self,
         state: TaskState,
@@ -293,7 +297,7 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
         return self.task_manager.broker.lock(self.name, timeout=timeout)
 
     def _dispatch(self) -> None:
-        self.task_manager.dispatcher.dispatch(self.model_copy())
+        self.task_manager.dispatcher.dispatch(self.model_copy())  # type: ignore [arg-type]
 
 
 @dataclass

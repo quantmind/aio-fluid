@@ -8,6 +8,7 @@ from functools import partial
 from typing import Any, Awaitable, Callable, Self
 
 from inflection import underscore
+from starlette.datastructures import State
 from typing_extensions import Annotated, Doc
 
 from fluid.utils import log
@@ -47,10 +48,32 @@ class TaskManager:
     """The task manager is the main class for managing tasks"""
 
     def __init__(
-        self, *, config: TaskManagerConfig | None = None, **kwargs: Any
+        self,
+        *,
+        deps: Any = None,
+        config: TaskManagerConfig | None = None,
+        **kwargs: Any,
     ) -> None:
-        self.state: dict[str, Any] = {}
-        self.config: TaskManagerConfig = config or TaskManagerConfig(**kwargs)
+        self.deps: Annotated[
+            Any,
+            Doc(
+                """
+                Dependencies for the task manager.
+
+                Production applications requires global dependencies to be
+                available to all tasks. This can be achieved by setting
+                the `deps` attribute of the task manager to an object
+                with the required dependencies.
+
+                Each task can cast the dependencies to the required type.
+                """
+            ),
+        ] = (
+            deps if deps is not None else State()
+        )
+        self.config: Annotated[
+            TaskManagerConfig, Doc("""Task manager configuration""")
+        ] = config or TaskManagerConfig(**kwargs)
         self.dispatcher: Annotated[
             TaskDispatcher,
             Doc(

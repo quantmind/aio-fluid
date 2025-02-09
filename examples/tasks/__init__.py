@@ -1,8 +1,9 @@
 import asyncio
 import os
 import time
+from dataclasses import dataclass, field
 from datetime import timedelta
-from typing import cast
+from typing import Self, cast
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
@@ -10,10 +11,20 @@ from pydantic import BaseModel, Field
 from fluid.scheduler import TaskRun, TaskScheduler, every, task
 from fluid.scheduler.broker import RedisTaskBroker
 from fluid.scheduler.endpoints import setup_fastapi
+from fluid.utils.http_client import HttpxClient
+
+
+@dataclass
+class Deps:
+    http_client: HttpxClient = field(default_factory=HttpxClient)
+
+    @classmethod
+    def get(cls, context: TaskRun) -> Self:
+        return context.deps
 
 
 def task_scheduler() -> TaskScheduler:
-    task_manager = TaskScheduler()
+    task_manager = TaskScheduler(deps=Deps())
     task_manager.register_from_dict(globals())
     return task_manager
 
@@ -63,3 +74,16 @@ async def cpu_bound(context: TaskRun) -> None:
     broker = cast(RedisTaskBroker, context.task_manager.broker)
     redis = broker.redis_cli
     await redis.setex(context.id, os.getpid(), 10)
+
+
+class Scrape(BaseModel):
+    url: str = Field(default="https://httpbin.org/get", description="URL to scrape")
+
+
+@task
+async def scrape(context: TaskRun[Scrape]) -> None:
+    """Scrape a website"""
+    deps = Deps.get(context)
+    response = await deps.http_client.get(context.params.url, callback=True)
+    text = await response.text()
+    context.logger.info(text)
