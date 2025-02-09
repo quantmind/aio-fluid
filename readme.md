@@ -39,5 +39,5 @@ this includes the following extra dependencies:
 You can run the examples via
 
 ```
-poetry run python -m examples
+poetry run python -m examples.main
 ```

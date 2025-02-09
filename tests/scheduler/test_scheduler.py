@@ -60,15 +60,15 @@ async def test_dummy_error(task_scheduler: TaskScheduler) -> None:
         await task_scheduler.execute("dummy", error=True)
 
 
-@pytest.mark.flaky
 async def test_dummy_rate_limit(task_scheduler: TaskScheduler) -> None:
     s1, s2 = await asyncio.gather(
-        task_scheduler.queue_and_wait("dummy", sleep=0.53),
-        task_scheduler.queue_and_wait("dummy", sleep=0.52),
+        task_scheduler.queue_and_wait("dummy", sleep=2, timeout=10),
+        task_scheduler.queue_and_wait("dummy", sleep=1, timeout=10),
     )
     assert task_scheduler.num_concurrent_tasks_for("dummy") == 0
     assert s1.is_done
     assert s2.is_done
+    assert s1.state is TaskState.rate_limited or s2.state is TaskState.rate_limited
 
 
 @pytest.mark.flaky
@@ -98,22 +98,29 @@ async def test_task_info(task_scheduler: TaskScheduler) -> None:
     info = await task_scheduler.broker.enable_task("scheduled")
     assert info.enabled is True
     assert info.name == "scheduled"
-    assert info.schedule == "every(0:00:01)"
+    assert info.schedule == "every(0:00:02)"
     assert info.description == "A simple scheduled task"
 
 
 async def test_disabled_execution(task_scheduler: TaskScheduler) -> None:
-    info = await task_scheduler.broker.enable_task("disabled", enable=False)
+    info = await task_scheduler.broker.enable_task("add", enable=False)
     assert info.enabled is False
-    assert info.name == "disabled"
-    task_run = await task_scheduler.queue_and_wait("disabled")
-    assert task_run.name == "disabled"
+    assert info.name == "add"
+    task_run = await task_scheduler.queue_and_wait(
+        "add",
+        priority=TaskPriority.high,
+        a=3,
+        b=4,
+    )
+    assert task_run.name == "add"
+    assert task_run.params.a == 3
+    assert task_run.params.b == 4
     assert task_run.end
     assert task_run.state == TaskState.aborted.name
 
 
 @dataclass
-class AsynHandler:
+class AsyncHandler:
     task_run: TaskRun | None = None
 
     async def __call__(self, task_run: TaskRun) -> None:
@@ -122,7 +129,7 @@ class AsynHandler:
 
 
 async def test_async_handler(task_scheduler: TaskScheduler) -> None:
-    handler = AsynHandler()
+    handler = AsyncHandler()
     task_scheduler.register_async_handler("running.test", handler)
     task_run = await task_scheduler.queue_and_wait("dummy")
     assert task_run.state == TaskState.success

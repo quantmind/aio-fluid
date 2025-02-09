@@ -22,14 +22,14 @@ async def test_get_tasks_status(cli: TaskClient) -> None:
 
 async def test_run_task_404(cli: TaskClient) -> None:
     with pytest.raises(HttpResponseError):
-        await cli.post(f"{cli.url}/tasks", json=dict(name="whatever"))
+        await cli.post(f"{cli.url}/tasks/whatever")
 
 
 async def test_run_task(cli: TaskClient) -> None:
     task = await cli.get_task("dummy")
     assert task.last_run_end is None
     task = await cli.get_task("dummy")
-    data = await cli.post(f"{cli.url}/tasks", json=dict(name="dummy"))
+    data = await cli.post(f"{cli.url}/tasks/dummy")
     assert data["task"] == "dummy"
     # wait for task
     task = await cli.wait_for_task("dummy")
@@ -46,7 +46,7 @@ async def test_patch_task(cli: TaskClient) -> None:
     assert data["enabled"] is False
     task = await cli.get_task("dummy")
     assert task.enabled is False
-    data = await cli.post(f"{cli.url}/tasks", json=dict(name="dummy"))
+    data = await cli.post(f"{cli.url}/tasks/dummy")
     task = await cli.wait_for_task("dummy", last_run_end=task.last_run_end)
     assert task.enabled is False
     assert task.last_run_state == TaskState.aborted

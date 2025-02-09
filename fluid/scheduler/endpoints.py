@@ -1,9 +1,10 @@
-from typing import Annotated, Any, cast
+from typing import Annotated, Any, Callable, cast
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Path, Request
 from pydantic import BaseModel, Field
 
 from fluid.scheduler import (
+    Task,
     TaskInfo,
     TaskManager,
     TaskPriority,
@@ -12,8 +13,6 @@ from fluid.scheduler import (
 from fluid.scheduler.errors import UnknownTaskError
 from fluid.tools_fastapi import app_workers
 from fluid.utils.worker import Worker
-
-router = APIRouter()
 
 
 def get_task_manger_from_request(request: Request) -> TaskManager:
@@ -37,22 +36,81 @@ class TaskCreate(BaseModel):
     priority: TaskPriority | None = Field(default=None, description="Task priority")
 
 
-@router.get(
-    "/tasks",
-    response_model=list[TaskInfo],
-    summary="List Tasks",
-    description="Retrieve a list of tasks runs",
-)
+def get_router(task_manager: TaskManager) -> APIRouter:
+    router = APIRouter()
+
+    router.add_api_route(
+        "/tasks",
+        get_tasks,
+        methods=["GET"],
+        response_model=list[TaskInfo],
+        summary="List Tasks",
+        description="Retrieve a list of tasks runs",
+    )
+
+    router.add_api_route(
+        "/tasks-status",
+        get_task_status,
+        methods=["GET"],
+        response_model=dict,
+        summary="Task consumer status",
+        description="Status of the task consumer",
+    )
+
+    router.add_api_route(
+        "/tasks/{task_name}",
+        get_task,
+        methods=["GET"],
+        response_model=TaskInfo,
+        summary="Get a Task",
+        description="Retrieve information about a task",
+    )
+
+    router.add_api_route(
+        "/tasks/{task_name}",
+        patch_task,
+        methods=["PATCH"],
+        response_model=TaskInfo,
+        summary="Update a task",
+        description="Update a task configuration and enable/disable it",
+    )
+
+    for task in task_manager.registry.values():
+        router.add_api_route(
+            f"/tasks/{task.name}",
+            create_queue_task(task),
+            methods=["POST"],
+            response_model=TaskRun,
+            summary=f"Queue a new {task.name} task",
+            description=f"Queue a new {task.name} task to be run",
+        )
+
+    return router
+
+
+def create_queue_task(task: Task) -> Callable:
+    TaskParams = task.params_model or BaseModel  # noqa
+
+    async def queue_task(
+        task_manager: TaskManagerDep,
+        params: TaskParams | None = None,  # type: ignore [valid-type]
+    ) -> TaskRun:
+        try:
+            return await task_manager.queue(
+                task.name,
+                task.priority,
+                params=params.model_dump() if params is not None else {},  # type: ignore
+            )
+        except UnknownTaskError as exc:
+            raise HTTPException(status_code=404, detail="Task not found") from exc
+
+    return queue_task
+
+
 async def get_tasks(task_manager: TaskManagerDep) -> list[TaskInfo]:
     return await task_manager.broker.get_tasks_info()
 
 
-@router.get(
-    "/tasks/{task_name}",
-    response_model=TaskInfo,
-    summary="Get a Task",
-    description="Retrieve information about a task",
-)
 async def get_task(
     task_manager: TaskManagerDep,
     task_name: str = Path(title="Task name"),
@@ -63,40 +121,12 @@ async def get_task(
     return data[0]
 
 
-@router.get(
-    "/tasks-status",
-    response_model=dict,
-    summary="Task consumer status",
-    description="Status of the task consumer",
-)
 async def get_task_status(task_manager: TaskManagerDep) -> dict:
     if isinstance(task_manager, Worker):
         return await task_manager.status()
     return {}
 
 
-@router.post(
-    "/tasks",
-    response_model=TaskRun,
-    summary="Queue a new Tasks",
-    description="Queue a new task to be run",
-)
-async def queue_task(
-    task_manager: TaskManagerDep,
-    task: TaskCreate,
-) -> TaskRun:
-    try:
-        return await task_manager.queue(task.name, task.priority, **task.params)
-    except UnknownTaskError as exc:
-        raise HTTPException(status_code=404, detail="Task not found") from exc
-
-
-@router.patch(
-    "/tasks/{task_name}",
-    response_model=TaskInfo,
-    summary="Update a task",
-    description="Update a task configuration and enable/disable it",
-)
 async def patch_task(
     task_manager: TaskManagerDep,
     task_update: TaskUpdate,
@@ -118,7 +148,7 @@ def setup_fastapi(
     """Setup the FastAPI app and add the task manager to the state"""
     app = app or FastAPI(**kwargs)
     if include_router:
-        app.include_router(router, tags=["Tasks"])
+        app.include_router(get_router(task_manager), tags=["Tasks"])
     app.state.task_manager = task_manager
     if isinstance(task_manager, Worker):
         app_workers(app).add_workers(task_manager)

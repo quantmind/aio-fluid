@@ -26,15 +26,16 @@ def redis_broker(task_manager: TaskManager) -> RedisTaskBroker:
 
 @pytest.fixture(scope="module")
 async def task_app():
-    task_manager = task_application(TaskScheduler())
+    scheduler = TaskScheduler(max_concurrent_tasks=2, schedule_tasks=False)
+    task_manager = task_application(scheduler)
+    broker = redis_broker(task_manager)
+    await broker.clear()
     async with start_fastapi(setup_fastapi(task_manager)) as app:
-        broker = redis_broker(task_manager)
-        await broker.clear()
         yield app
 
 
 @pytest.fixture(scope="module")
-async def task_scheduler(task_app) -> TaskManager:
+async def task_scheduler(task_app: FastAPI) -> TaskManager:
     return get_task_manger(task_app)
 
 

@@ -44,18 +44,21 @@ class AsyncTaskDispatcher(AsyncDispatcher[TaskRun]):
 
 
 class TaskManager:
-    """The task manager is the main entry point for managing tasks"""
+    """The task manager is the main class for managing tasks"""
 
-    def __init__(self, **kwargs: Any) -> None:
+    def __init__(
+        self, *, config: TaskManagerConfig | None = None, **kwargs: Any
+    ) -> None:
         self.state: dict[str, Any] = {}
-        self.config: TaskManagerConfig = TaskManagerConfig(**kwargs)
+        self.config: TaskManagerConfig = config or TaskManagerConfig(**kwargs)
         self.dispatcher: Annotated[
             TaskDispatcher,
             Doc(
                 """
-                A dispatcher of task run events.
+                A dispatcher of [TaskRun][fluid.scheduler.TaskRun] events.
 
-                Register handlers to listen for task run events.
+                Application can register handlers to listen for events
+                happening during the lifecycle of a task run.
                 """
             ),
         ] = TaskDispatcher()
@@ -76,6 +79,7 @@ class TaskManager:
 
     @property
     def registry(self) -> TaskRegistry:
+        """The task registry"""
         return self.broker.registry
 
     @property
@@ -111,7 +115,7 @@ class TaskManager:
 
         This methods fires two events:
 
-        - queue: when the task is about to be queued
+        - init: when the task run is created
         - queued: after the task is queued
         """
         task_run = self.create_task_run(task, priority=priority, **params)
@@ -128,14 +132,13 @@ class TaskManager:
         **params: Any,
     ) -> TaskRun:
         """Create a TaskRun in `init` state"""
-        if isinstance(task, str):
-            task = self.broker.task_from_registry(task)
+        task = self.broker.task_from_registry(task)
         run_id = run_id or self.broker.new_uuid()
         return TaskRun(
             id=run_id,
             task=task,
             priority=priority or task.priority,
-            params=params,
+            params=task.params_model(**params),
             task_manager=self,
         )
 
@@ -212,11 +215,12 @@ class TaskConsumer(TaskManager, Workers):
         return len(self._concurrent_tasks[task_name])
 
     async def queue_and_wait(
-        self, task: str, *, timeout: int = 2, **params: Any
+        self, task: str | Task, *, timeout: int = 2, **params: Any
     ) -> TaskRun:
         """Queue a task and wait for it to finish"""
         with TaskRunWaiter(self) as waiter:
-            return await waiter.wait(await self.queue(task, **params), timeout=timeout)
+            task_run = await self.queue(task, **params)
+            return await waiter.wait(task_run, timeout=timeout)
 
     def register_async_handler(self, event: Event | str, handler: AsyncHandler) -> None:
         event = Event.from_string_or_event(event)
@@ -275,9 +279,9 @@ class TaskConsumer(TaskManager, Workers):
         #
         else:
             try:
-                params = task_run.params_dump_json()
+                params = task_run.params.model_dump_json()
             except Exception:
-                task_run.logger.exception("%s - start - params exeception", task_run.id)
+                task_run.logger.exception("%s - start - params exception", task_run.id)
             else:
                 task_run.logger.info("%s - %s - start", task_run.id, params)
             try:

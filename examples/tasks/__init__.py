@@ -5,6 +5,7 @@ from datetime import timedelta
 from typing import cast
 
 from fastapi import FastAPI
+from pydantic import BaseModel, Field
 
 from fluid.scheduler import TaskRun, TaskScheduler, every, task
 from fluid.scheduler.broker import RedisTaskBroker
@@ -17,32 +18,38 @@ def task_app() -> FastAPI:
     return setup_fastapi(task_manager)
 
 
-@task
-async def dummy(context: TaskRun) -> float:
+class Sleep(BaseModel):
+    sleep: float = Field(default=0.1, ge=0, description="Sleep time")
+    error: bool = False
+
+
+@task(max_concurrency=1)
+async def dummy(context: TaskRun[Sleep]) -> None:
     """A task that sleeps for a while or errors"""
-    sleep = cast(float, context.params.get("sleep", 0.1))
-    await asyncio.sleep(sleep)
-    if context.params.get("error"):
+    await asyncio.sleep(context.params.sleep)
+    if context.params.error:
         raise RuntimeError("just an error")
-    return sleep
 
 
-@task(schedule=every(timedelta(seconds=1)))
-async def scheduled(context: TaskRun) -> str:
+@task(schedule=every(timedelta(seconds=2)))
+async def scheduled(context: TaskRun) -> None:
     """A simple scheduled task"""
     await asyncio.sleep(0.1)
-    return "OK"
+
+
+class AddValues(BaseModel):
+    a: float = 0
+    b: float = 0
 
 
 @task
-async def disabled(context: TaskRun) -> float:
-    """A task that sleeps for a while"""
-    sleep = cast(float, context.params.get("sleep", 0.1))
-    await asyncio.sleep(sleep)
-    return sleep
+async def add(context: TaskRun[AddValues]) -> None:
+    """Log the addition of two numbers"""
+    c = context.params.a + context.params.b
+    context.logger.info(f"Adding {context.params.a} + {context.params.b} = {c}")
 
 
-@task(cpu_bound=True, schedule=every(timedelta(seconds=5)))
+@task(cpu_bound=True)
 async def cpu_bound(context: TaskRun) -> None:
     """A CPU bound task running on subprocess
 

@@ -9,10 +9,11 @@
             "cwd": "${workspaceFolder}",
             "console": "integratedTerminal",
             "module": "pytest",
+            "justMyCode": false,
             "env": {},
             "args": [
                 "-x",
-                "tests/scheduler/test_endpoints.py"
+                "tests/scheduler/test_scheduler.py::test_disabled_execution"
             ],
             "debugOptions": [
                 "RedirectOutput"
@@ -22,7 +23,7 @@
             "name": "AIO-FLUID EXAMPLE Serve",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/examples/main.py",
+            "program": "${workspaceFolder}/examples",
             "cwd": "${workspaceFolder}",
             "justMyCode": false,
             "args": [

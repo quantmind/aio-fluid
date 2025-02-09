@@ -14,7 +14,7 @@ from fluid import settings
 from fluid.utils.redis import FluidRedis
 
 from .errors import UnknownTaskError
-from .models import Task, TaskInfo, TaskInfoUpdate, TaskPriority, TaskRun
+from .models import TP, Task, TaskInfo, TaskInfoUpdate, TaskPriority, TaskRun
 
 if TYPE_CHECKING:  # pragma: no cover
     from .consumer import TaskManager
@@ -27,8 +27,11 @@ def broker_url_from_env() -> URL:
     return URL(settings.BROKER_URL)
 
 
-class TaskRegistry(dict[str, Task]):
+class TaskRegistry(dict[str, Task[TP]]):
+    """A registry of tasks"""
+
     def periodic(self) -> Iterable[Task]:
+        """Iterate over periodic tasks"""
         for task in self.values():
             yield task
 
@@ -122,9 +125,9 @@ class TaskBroker(ABC):
 class RedisTaskBroker(TaskBroker):
     """A simple task broker based on redis lists"""
 
-    @cached_property
-    def redis(self) -> FluidRedis:
-        return FluidRedis.create(str(self.url.with_query({})), name=self.name)
+    def __init__(self, url: URL) -> None:
+        super().__init__(url)
+        self.redis = FluidRedis.create(str(self.url.with_query({})), name=self.name)
 
     @property
     def redis_cli(self) -> Redis[bytes]:
@@ -150,7 +153,7 @@ class RedisTaskBroker(TaskBroker):
         return f"{self.name}-tasks-{name}"
 
     def task_queue_name(self, priority: TaskPriority) -> str:
-        return f"{self.name}-queue-{priority.name}"
+        return f"{self.name}-queue-{priority}"
 
     async def clear(self) -> int:
         pipe = self.redis_cli.pipeline()
@@ -203,8 +206,10 @@ class RedisTaskBroker(TaskBroker):
                 timeout=1,
             ):
                 data = json.loads(redis_data[1])
+                task = self.task_from_registry(data["task"])
                 data.update(
-                    task=self.task_from_registry(data["task"]),
+                    task=task,
+                    params=task.params_model(**data["params"]),
                     task_manager=task_manager,
                 )
                 return TaskRun(**data)
