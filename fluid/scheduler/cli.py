@@ -21,6 +21,13 @@ TaskManagerApp = FastAPI | Callable[..., Any] | str
 
 
 class TaskManagerCLI(LazyGroup):
+    """CLI for TaskManager
+
+    This class provides a CLI for a TaskManager Application.
+
+    It requires to install the `cli` extra dependencies.
+    """
+
     def __init__(
         self,
         task_manager_app: TaskManagerApp,

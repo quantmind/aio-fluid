@@ -12,10 +12,14 @@ from fluid.scheduler.broker import RedisTaskBroker
 from fluid.scheduler.endpoints import setup_fastapi
 
 
-def task_app() -> FastAPI:
+def task_scheduler() -> TaskScheduler:
     task_manager = TaskScheduler()
     task_manager.register_from_dict(globals())
-    return setup_fastapi(task_manager)
+    return task_manager
+
+
+def task_app() -> FastAPI:
+    return setup_fastapi(task_scheduler())
 
 
 class Sleep(BaseModel):
