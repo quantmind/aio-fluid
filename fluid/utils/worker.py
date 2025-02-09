@@ -68,7 +68,10 @@ class Worker(ABC):
 
     @abstractmethod
     async def run(self) -> None:
-        """run the worker"""
+        """run the worker
+
+        THis is the main entry point of the worker.
+        """
 
 
 class RunningWorker(Worker):

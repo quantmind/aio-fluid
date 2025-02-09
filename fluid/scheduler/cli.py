@@ -5,11 +5,13 @@ from typing import TYPE_CHECKING, Any, Callable
 import click
 import uvicorn
 from fastapi import FastAPI
+from pydanclick import from_pydantic
+from pydantic import BaseModel
 from rich.console import Console
 from rich.table import Table
 from uvicorn.importer import import_from_string
 
-from fluid.utils import log
+from fluid.utils import log as log_
 from fluid.utils.lazy import LazyGroup
 
 if TYPE_CHECKING:
@@ -21,6 +23,13 @@ TaskManagerApp = FastAPI | Callable[..., Any] | str
 
 
 class TaskManagerCLI(LazyGroup):
+    """CLI for TaskManager
+
+    This class provides a CLI for a TaskManager Application.
+
+    It requires to install the `cli` extra dependencies.
+    """
+
     def __init__(
         self,
         task_manager_app: TaskManagerApp,
@@ -49,10 +58,38 @@ def ctx_task_manager(ctx: click.Context) -> TaskManager:
     return ctx_app(ctx).state.task_manager
 
 
+class ExecuteTasks(click.Group):
+    def list_commands(self, ctx: click.Context) -> list[str]:
+        task_manager = ctx_task_manager(ctx)
+        return sorted(task_manager.registry)
+
+    def get_command(self, ctx: click.Context, cmd_name: str) -> click.Command | None:
+        task_manager = ctx_task_manager(ctx)
+        task = task_manager.registry.get(cmd_name)
+        if task is None:
+            raise click.ClickException(f"Task {cmd_name} not found")
+
+        @click.command(cmd_name, help=task.short_description)
+        @click.option("--log", is_flag=True, help="Show logs")
+        @from_pydantic(task.params_model)
+        def execute_task(log: bool, **kwargs: Any) -> None:
+            if log:
+                log_.config()
+            params = {}
+            for value in kwargs.values():
+                if isinstance(value, BaseModel):
+                    params.update(value.model_dump())
+            run = task_manager.execute_sync(cmd_name, **params)
+            console = Console()
+            console.print(task_run_table(run))
+
+        return execute_task
+
+
 @click.command()
 @click.pass_context
 def ls(ctx: click.Context) -> None:
-    """list all tasks"""
+    """List all tasks with their schedules"""
     task_manager = ctx_task_manager(ctx)
     table = Table(title="Tasks")
     table.add_column("Name", style="cyan", no_wrap=True)
@@ -73,23 +110,6 @@ def ls(ctx: click.Context) -> None:
         )
     console = Console()
     console.print(table)
-
-
-@click.command()
-@click.pass_context
-@click.argument("task")
-@click.option(
-    "--dry-run",
-    is_flag=True,
-    help="dry run (if the tasks supports it)",
-    default=False,
-)
-def execute(ctx: click.Context, task: str, dry_run: bool) -> None:
-    """execute a task"""
-    task_manager = ctx_task_manager(ctx)
-    run = task_manager.execute_sync(task, dry_run=dry_run)
-    console = Console()
-    console.print(task_run_table(run))
 
 
 @click.command("serve", short_help="Start app server.")
@@ -116,7 +136,7 @@ def execute(ctx: click.Context, task: str, dry_run: bool) -> None:
 )
 @click.pass_context
 def serve(ctx: click.Context, host: str, port: int, reload: bool) -> None:
-    """Run the service."""
+    """Run the service"""
     task_manager_app = ctx_task_manager_app(ctx)
     uvicorn.run(
         task_manager_app,
@@ -124,9 +144,11 @@ def serve(ctx: click.Context, host: str, port: int, reload: bool) -> None:
         host=host,
         log_level="info",
         reload=reload,
-        log_config=log.config(),
+        log_config=log_.config(),
     )
 
+
+execute = ExecuteTasks(name="exec", help="Execute a registered task")
 
 DEFAULT_COMMANDS = (ls, execute, serve)
 

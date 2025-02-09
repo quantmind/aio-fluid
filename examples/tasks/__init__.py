@@ -12,10 +12,14 @@ from fluid.scheduler.broker import RedisTaskBroker
 from fluid.scheduler.endpoints import setup_fastapi
 
 
-def task_app() -> FastAPI:
+def task_scheduler() -> TaskScheduler:
     task_manager = TaskScheduler()
     task_manager.register_from_dict(globals())
-    return setup_fastapi(task_manager)
+    return task_manager
+
+
+def task_app() -> FastAPI:
+    return setup_fastapi(task_scheduler())
 
 
 class Sleep(BaseModel):
@@ -38,8 +42,8 @@ async def scheduled(context: TaskRun) -> None:
 
 
 class AddValues(BaseModel):
-    a: float = 0
-    b: float = 0
+    a: float = Field(default=0, description="First number to add")
+    b: float = Field(default=0, description="Second number to add")
 
 
 @task

@@ -1,10 +1,4 @@
-# Task Queue
-
-The `fluid.scheduler` module is a simple yet powerful distributed task producer (TaskScheduler) and consumer (TaskConsumer) system for executing tasks.
-The middleware for distributing tasks can be configured via the Broker interface.
-A redis broker is provided for convenience.
-
-## Tasks
+# Tasks
 
 Tasks are standard python async functions decorated with the [@task][fluid.scheduler.task] decorator.
 
@@ -42,7 +36,7 @@ async def say_hi(ctx: TaskRun[TaskParams]) -> None:
 
 ## Task Types
 
-There are two types of tasks implemented
+There are few types of tasks implemented, lets take a look at them.
 
 ### IO Bound Tasks
 
@@ -89,10 +83,22 @@ Both IO and CPU bound tasks can be periodically scheduled via the `schedule` key
 There are two types of scheduling, the most common is the [every][fluid.scheduler.every] function that takes a `timedelta` object.
 
 ```python
+import asyncio
 from datetime import timedelta
-from fluid.scheduler import task, TaskContext, every
+from fluid.scheduler import task, TaskRun, every
 
 @task(schedule=every(timedelta(seconds=1)))
+async def scheduled(ctx: TaskRun) -> None:
+    await asyncio.sleep(0.1)
+```
+
+You can also use the [crontab][fluid.scheduler.crontab] function to schedule tasks using cron expressions.
+
+```python
+import asyncio
+from fluid.scheduler import task, TaskRun, crontab
+
+@task(schedule=crontab(hours='*/2'))
 async def scheduled(ctx: TaskRun) -> None:
     await asyncio.sleep(0.1)
 ```

@@ -20,6 +20,10 @@ theme:
       icon: material/lightbulb-outline
       name: Switch to light mode
   features:
+    - navigation.instant
+    - navigation.footer
+    - navigation.indexes
+    - navigation.path
     - content.code.copy
 plugins:
 - search
