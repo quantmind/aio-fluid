@@ -89,7 +89,7 @@ class ExecuteTasks(click.Group):
 @click.command()
 @click.pass_context
 def ls(ctx: click.Context) -> None:
-    """List all tasks with their schedules."""
+    """List all tasks with their schedules"""
     task_manager = ctx_task_manager(ctx)
     table = Table(title="Tasks")
     table.add_column("Name", style="cyan", no_wrap=True)
@@ -136,7 +136,7 @@ def ls(ctx: click.Context) -> None:
 )
 @click.pass_context
 def serve(ctx: click.Context, host: str, port: int, reload: bool) -> None:
-    """Run the service."""
+    """Run the service"""
     task_manager_app = ctx_task_manager_app(ctx)
     uvicorn.run(
         task_manager_app,

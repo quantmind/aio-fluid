@@ -78,7 +78,10 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  execute  execute a task
-  ls       list all tasks
-  serve    Start app server.
+  exec   Execute a registered task
+  ls     List all tasks with their schedules
+  serve  Start app server
 ```
+
+The command line tools provides a powerful interface to execute tasks, parameters are
+passed as optional arguments using he standard click interface.
