@@ -83,5 +83,5 @@ Commands:
   serve  Start app server
 ```
 
-The command line tools provides a powerful interface to execute tasks, parameters are
-passed as optional arguments using he standard click interface.
+The command line tool provides a powerful interface to execute tasks, parameters are
+passed as optional arguments using the standard click interface.

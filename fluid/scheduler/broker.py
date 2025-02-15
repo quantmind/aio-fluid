@@ -149,15 +149,21 @@ class RedisTaskBroker(TaskBroker):
         else:
             return ()
 
+    @property
+    def prefix(self) -> str:
+        """Prefix for the keys - use {...} for redis hash tags"""
+        return "{%s}" % self.name
+
     def task_hash_name(self, name: str) -> str:
-        return f"{self.name}-tasks-{name}"
+        """name of the key containing the task info"""
+        return f"{self.prefix}-tasks-{name}"
 
     def task_queue_name(self, priority: TaskPriority) -> str:
-        return f"{self.name}-queue-{priority}"
+        return f"{self.prefix}-queue-{priority}"
 
     async def clear(self) -> int:
         pipe = self.redis_cli.pipeline()
-        async for key in self.redis_cli.scan_iter(f"{self.name}-*"):
+        async for key in self.redis_cli.scan_iter(f"{self.prefix}-*"):
             pipe.delete(key)
         r = await pipe.execute()
         return len(r)

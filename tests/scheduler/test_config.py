@@ -14,6 +14,7 @@ async def test_no_queues() -> None:
     assert task_consumer.config.max_concurrent_tasks == 5
     assert task_consumer.broker.task_queue_names == ()
     assert await task_consumer.broker.queue_length() == {}
+    assert task_consumer.broker.prefix == "{redis-task-broker}"
 
 
 async def test_two_queues() -> None:
@@ -22,8 +23,8 @@ async def test_two_queues() -> None:
     )
     assert task_consumer.config.max_concurrent_tasks == 5
     assert task_consumer.broker.task_queue_names == (
-        "test-queue-medium",
-        "test-queue-high",
+        "{test}-queue-medium",
+        "{test}-queue-high",
     )
 
 

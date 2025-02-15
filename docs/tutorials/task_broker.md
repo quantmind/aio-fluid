@@ -35,3 +35,10 @@ from fluid.scheduler import Broker
 
 redis_broker = Broker.from_url("redis://localhost:6349")
 ```
+
+By default the broker uses the url provided in the `FLUID_BROKER_URL` environment variable and falls back to `redis://localhost:6349`.
+
+```python
+broker = Broker.from_url()
+broker.url == "redis://localhost:6349"
+```
