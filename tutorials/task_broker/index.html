@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.4">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.d7758b05.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.8608ea7d.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -310,6 +310,8 @@
       
         
       
+        
+      
     
     
     
@@ -383,6 +385,28 @@
   
   <span class="md-ellipsis">
     CrudDB
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/db_pagination/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pagination
     
   </span>
   
@@ -922,6 +946,10 @@
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">Broker</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">redis_broker</span> <span class="o">=</span> <span class="n">Broker</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span><span class="s2">&quot;redis://localhost:6349&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<p>By default the broker uses the url provided in the <code>FLUID_BROKER_URL</code> environment variable and falls back to <code>redis://localhost:6349</code>.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">broker</span> <span class="o">=</span> <span class="n">Broker</span><span class="o">.</span><span class="n">from_url</span><span class="p">()</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">broker</span><span class="o">.</span><span class="n">url</span> <span class="o">==</span> <span class="s2">&quot;redis://localhost:6349&quot;</span>
 </span></code></pre></div>
 
 

@@ -18,7 +18,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.4">
     
     
       
@@ -26,7 +26,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.d7758b05.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.8608ea7d.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
@@ -312,6 +312,8 @@
       
         
       
+        
+      
     
     
     
@@ -385,6 +387,28 @@
   
   <span class="md-ellipsis">
     CrudDB
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db_pagination/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Pagination
     
   </span>
   
@@ -1846,7 +1870,7 @@ periodic tasks.</p>
   </span>
 
 <a href="#fluid.scheduler.TaskScheduler.deps" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">deps</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.consumer.TaskManager.deps" href="../task_manager/#fluid.scheduler.TaskManager.deps">deps</a></span> <span class="k">if</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.consumer.TaskManager.deps" href="../task_manager/#fluid.scheduler.TaskManager.deps">deps</a></span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n"><span title="starlette.datastructures.State">State</span></span><span class="p">()</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">deps</span> <span class="o">=</span> <span class="n"><span title="fluid.scheduler.consumer.TaskManager(deps)">deps</span></span> <span class="k">if</span> <span class="n"><span title="fluid.scheduler.consumer.TaskManager(deps)">deps</span></span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n"><span title="starlette.datastructures.State">State</span></span><span class="p">()</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1874,7 +1898,7 @@ with the required dependencies.</p>
   </span>
 
 <a href="#fluid.scheduler.TaskScheduler.config" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">config</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.consumer.TaskManager.config" href="../task_manager/#fluid.scheduler.TaskManager.config">config</a></span> <span class="ow">or</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskManagerConfig" href="../task_manager/#fluid.scheduler.TaskManagerConfig">TaskManagerConfig</a></span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">config</span> <span class="o">=</span> <span class="n"><span title="fluid.scheduler.consumer.TaskManager(config)">config</span></span> <span class="ow">or</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskManagerConfig" href="../task_manager/#fluid.scheduler.TaskManagerConfig">TaskManagerConfig</a></span><span class="p">(</span><span class="o">**</span><span class="n"><span title="fluid.scheduler.consumer.TaskManager(kwargs)">kwargs</span></span><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -1922,7 +1946,7 @@ happening during the lifecycle of a task run.</p>
   </span>
 
 <a href="#fluid.scheduler.TaskScheduler.broker" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">broker</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.broker.TaskBroker.from_url" href="../task_broker/#fluid.scheduler.TaskBroker.from_url">from_url</a></span><span class="p">(</span><span class="n"><span title="self.config.broker_url">broker_url</span></span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">broker</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.broker.TaskBroker.from_url" href="../task_broker/#fluid.scheduler.TaskBroker.from_url">from_url</a></span><span class="p">(</span><span class="n"><span title="fluid.scheduler.consumer.TaskManager(self).config.broker_url">broker_url</span></span><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
