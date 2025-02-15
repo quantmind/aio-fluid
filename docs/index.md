@@ -13,6 +13,11 @@ Async utilities for backend python services developed by [Quantmind](https://qua
 **Source Code**: [github.com/quantmind/aio-fluid](https://github.com/quantmind/aio-fluid)
 
 
+## Features
+
+- **Async tasks scheduler and consumer**: A task scheduler and consumer for async and CPU bound tasks.
+- **Async CRUD database operations**: An async CRUD interface for postgres databases.
+
 ## Installation
 
 This is a simple python package you can install via pip:

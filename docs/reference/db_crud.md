@@ -6,7 +6,7 @@ provide standard CRUD operations for a database table.
 It can be imported from `fluid.db`:
 
 ```python
-from fastapi.db import CrudDB
+from fluid.db import CrudDB
 ```
 
 ::: fluid.db.CrudDB

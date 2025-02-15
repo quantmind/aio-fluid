@@ -17,10 +17,8 @@ MAX_CONCURRENT_TASKS: int = int(os.getenv("FLUID_MAX_CONCURRENT_TASKS") or "5")
 SCHEDULER_HEARTBEAT_MILLIS: int = int(
     os.getenv("FLUID_SCHEDULER_HEARTBEAT_MILLIS", "100")
 )
-BROKER_URL: str = os.getenv("FLUID_BROKER_URL", "redis://localhost:6379/3")
-
-
 REDIS_DEFAULT_URL = os.getenv("REDIS_DEFAULT_URL", "redis://localhost:6379")
+BROKER_URL: str = os.getenv("FLUID_BROKER_URL", REDIS_DEFAULT_URL)
 REDIS_MAX_CONNECTIONS = int(os.getenv("MAX_REDIS_CONNECTIONS", "5"))
 
 # Database
