@@ -1,6 +1,9 @@
+from typing import cast
+
 from pydantic import BaseModel
 
 from fluid.scheduler import TaskConsumer
+from fluid.scheduler.broker import RedisTaskBroker
 from tests.scheduler.tasks import task_application
 
 
@@ -14,7 +17,8 @@ async def test_no_queues() -> None:
     assert task_consumer.config.max_concurrent_tasks == 5
     assert task_consumer.broker.task_queue_names == ()
     assert await task_consumer.broker.queue_length() == {}
-    assert task_consumer.broker.prefix == "{redis-task-broker}"
+    rb = cast(RedisTaskBroker, task_consumer.broker)
+    assert rb.prefix == "{redis-task-broker}"
 
 
 async def test_two_queues() -> None:
