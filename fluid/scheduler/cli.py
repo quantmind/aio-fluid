@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 from typing import TYPE_CHECKING, Any, Callable
 
 import click
@@ -91,23 +92,7 @@ class ExecuteTasks(click.Group):
 def ls(ctx: click.Context) -> None:
     """List all tasks with their schedules"""
     task_manager = ctx_task_manager(ctx)
-    table = Table(title="Tasks")
-    table.add_column("Name", style="cyan", no_wrap=True)
-    table.add_column("Schedule", style="magenta")
-    table.add_column("CPU bound", style="magenta")
-    table.add_column("Timeout secs", style="green")
-    table.add_column("Priority", style="magenta")
-    table.add_column("Description", style="green")
-    for name in sorted(task_manager.registry):
-        task = task_manager.registry[name]
-        table.add_row(
-            name,
-            str(task.schedule),
-            "yes" if task.cpu_bound else "no",
-            str(task.timeout_seconds),
-            str(task.priority),
-            task.short_description,
-        )
+    table = asyncio.run(tasks_table(task_manager))
     console = Console()
     console.print(table)
 
@@ -148,9 +133,25 @@ def serve(ctx: click.Context, host: str, port: int, reload: bool) -> None:
     )
 
 
+@click.command()
+@click.argument("task")
+@click.option(
+    "--disable",
+    is_flag=True,
+    default=False,
+    help="Disable the task",
+    show_default=True,
+)
+@click.pass_context
+def enable(ctx: click.Context, task: str, disable: bool) -> None:
+    """Enable or disable a task"""
+    task_manager = ctx_task_manager(ctx)
+    asyncio.run(enable_task(task_manager, task, not disable))
+
+
 execute = ExecuteTasks(name="exec", help="Execute a registered task")
 
-DEFAULT_COMMANDS = (ls, execute, serve)
+DEFAULT_COMMANDS = (ls, execute, serve, enable)
 
 
 def task_run_table(task_run: TaskRun) -> Table:
@@ -167,4 +168,33 @@ def task_run_table(task_run: TaskRun) -> Table:
     if task_run.end:
         table.add_row("completed", task_run.end.isoformat())
     table.add_row("duration ms", str(task_run.duration_ms))
+    return table
+
+
+async def enable_task(task_manager: TaskManager, task: str, enable: bool) -> None:
+    await task_manager.broker.enable_task(task, enable=enable)
+
+
+async def tasks_table(task_manager: TaskManager) -> Table:
+    task_info = await task_manager.broker.get_tasks_info()
+    dynamic = {t.name: t for t in task_info}
+    table = Table(title="Tasks")
+    table.add_column("Name", style="cyan", no_wrap=True)
+    table.add_column("Enabled")
+    table.add_column("Schedule", style="magenta")
+    table.add_column("CPU bound", style="magenta")
+    table.add_column("Timeout secs", style="green")
+    table.add_column("Priority", style="magenta")
+    table.add_column("Description", style="green")
+    for name in sorted(task_manager.registry):
+        task = task_manager.registry[name]
+        table.add_row(
+            name,
+            ":white_check_mark:" if dynamic[name].enabled else "[red]:x:",
+            str(task.schedule),
+            ":white_check_mark:" if task.cpu_bound else "[red]:x:",
+            str(task.timeout_seconds),
+            str(task.priority),
+            task.short_description,
+        )
     return table
