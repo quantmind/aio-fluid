@@ -78,9 +78,10 @@ Options:
   --help  Show this message and exit.
 
 Commands:
-  exec   Execute a registered task
-  ls     List all tasks with their schedules
-  serve  Start app server
+  enable  Enable or disable a task
+  exec    Execute a registered task
+  ls      List all tasks with their schedules
+  serve   Start app server.
 ```
 
 The command line tool provides a powerful interface to execute tasks, parameters are

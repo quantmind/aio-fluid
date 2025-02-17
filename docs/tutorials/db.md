@@ -12,4 +12,4 @@ from fluid.db import Database
 db = Database("postgresql+asyncpg://postgres:postgres@localhost:5432/fluid")
 ```
 
-Note the use of the `postgresql+asyncpg` driver in the connection string. THis is required to use the asyncpg driver.
+Note the use of the `postgresql+asyncpg` driver in the connection string. This is required to use the asyncpg driver.

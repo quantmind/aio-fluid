@@ -38,7 +38,7 @@ class Sleep(BaseModel):
     error: bool = False
 
 
-@task(max_concurrency=1)
+@task(max_concurrency=1, timeout_seconds=120)
 async def dummy(context: TaskRun[Sleep]) -> None:
     """A task that sleeps for a while or errors"""
     await asyncio.sleep(context.params.sleep)
