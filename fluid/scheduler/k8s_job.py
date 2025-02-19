@@ -15,6 +15,11 @@ if TYPE_CHECKING:
 
 
 async def run_on_k8s_job(ctx: TaskRun) -> None:
+    """Run a task on a k8s job
+
+    This is available when running inside a Kubernetes cluster.
+    Only task consumer/scheduler with command line client can use this
+    """
     task = ctx.task
     job_name = slugify(f"task-{ctx.name}-{ctx.id}")[:63]
     config.load_incluster_config()
@@ -49,6 +54,7 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
                                 args=[
                                     "exec",
                                     ctx.name,
+                                    "--log",
                                     "--run-id",
                                     ctx.id,
                                     "--params",

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import json
 from typing import TYPE_CHECKING, Any, Callable
 
 import click
@@ -14,6 +15,8 @@ from uvicorn.importer import import_from_string
 
 from fluid.utils import log as log_
 from fluid.utils.lazy import LazyGroup
+
+from .common import is_in_subprocess
 
 if TYPE_CHECKING:
     from .consumer import TaskManager
@@ -72,15 +75,21 @@ class ExecuteTasks(click.Group):
 
         @click.command(cmd_name, help=task.short_description)
         @click.option("--log", is_flag=True, help="Show logs")
+        @click.option("--run-id", help="run id")
+        @click.option("--params", help="optional parameters as JSON string")
         @from_pydantic(task.params_model)
-        def execute_task(log: bool, **kwargs: Any) -> None:
+        def execute_task(log: bool, run_id: str, params: str, **extra: Any) -> None:
             if log:
                 log_.config()
-            params = {}
-            for value in kwargs.values():
+            kwargs = json.loads(params or "{}")
+            for value in extra.values():
                 if isinstance(value, BaseModel):
-                    params.update(value.model_dump())
-            run = task_manager.execute_sync(cmd_name, **params)
+                    kwargs.update(value.model_dump())
+            if run_id:
+                kwargs.update(run_id=run_id)
+            run = task_manager.execute_sync(cmd_name, **kwargs)
+            if is_in_subprocess():
+                return
             console = Console()
             console.print(task_run_table(run))
 

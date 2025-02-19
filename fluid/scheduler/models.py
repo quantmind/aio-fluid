@@ -29,8 +29,15 @@ from fluid.utils.data import compact_dict
 from fluid.utils.dates import as_utc
 from fluid.utils.text import create_uid, trim_docstring
 
+from .common import is_in_subprocess
 from .errors import TaskDecoratorError, TaskRunError
 from .scheduler_crontab import Scheduler
+
+try:
+    from .k8s_job import run_on_k8s_job
+except ImportError:
+    run_on_k8s_job = None  # type: ignore[assignment]
+
 
 if TYPE_CHECKING:
     from .consumer import TaskManager
@@ -367,6 +374,10 @@ def task(
     max_concurrency: int = 0,
     priority: TaskPriority = TaskPriority.medium,
     cpu_bound: bool = False,
+    k8s_config: Annotated[
+        K8sConfig | None,
+        Doc("Kubernetes configuration - None means use the default configuration"),
+    ] = None,
     timeout_seconds: Annotated[
         int,
         Doc("Task timeout in seconds - how long the task can run before being aborted"),
@@ -412,7 +423,7 @@ class TaskConstructor:
         kwargs: dict[str, Any] = self.kwargs_defaults(executor)
         if defaults:
             kwargs.update(defaults)
-        kwargs.update(self.kwargs)
+        kwargs.update(compact_dict(self.kwargs))
         name = kwargs["name"]
         kwargs.update(
             executor=executor,
@@ -425,7 +436,7 @@ class TaskConstructor:
         if is_in_subprocess():
             return self.create_task(executor)
         else:
-            return self.create_task(run_in_subprocess, self.kwargs_defaults(executor))
+            return self.create_task(run_cpu_bound, self.kwargs_defaults(executor))
 
     def kwargs_defaults(self, executor: TaskExecutor) -> dict[str, Any]:
         module = inspect.getmodule(executor)
@@ -456,10 +467,6 @@ def get_name(o: Any) -> str:
         return str(o.__class__.__name__)
     else:
         return str(o)
-
-
-def is_in_subprocess() -> bool:
-    return os.getenv("TASK_MANAGER_SPAWN") == "true"
 
 
 def is_subclass(cls: Any, parent: type) -> bool:
@@ -497,3 +504,8 @@ async def run_in_subprocess(ctx: TaskRun[TP]) -> None:
     )
     if result:
         raise TaskRunError(result)
+
+
+run_cpu_bound = run_in_subprocess
+if os.getenv("KUBERNETES_SERVICE_HOST") and run_on_k8s_job is not None:
+    run_cpu_bound = run_on_k8s_job
