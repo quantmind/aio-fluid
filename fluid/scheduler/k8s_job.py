@@ -23,7 +23,15 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
         tasks = await v1.read_namespaced_deployment(
             task.k8s_config.deployment, task.k8s_config.namespace
         )
-        container = tasks.spec.template.spec.containers[0]
+        container = None
+        for container in tasks.spec.template.spec.containers:
+            if container.name == task.k8s_config.container:
+                break
+        if container is None:
+            raise TaskRunError(f"Container {task.k8s_config.container} not found")
+        command = list(container.command or [])
+        if command and command[-1] == "serve":
+            command.pop()
         batch = client.BatchV1Api(api)
         env = container.env or []
         env.append(k8s.V1EnvVar(name="TASK_MANAGER_SPAWN", value="true"))
@@ -37,10 +45,9 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
                             k8s.V1Container(
                                 name=task.k8s_config.container,
                                 image=container.image,
-                                command=["python", "main.py"],
+                                command=command,
                                 args=[
-                                    "tasks",
-                                    "execute",
+                                    "exec",
                                     ctx.name,
                                     "--run-id",
                                     ctx.id,
