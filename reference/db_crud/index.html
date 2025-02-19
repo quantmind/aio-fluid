@@ -1864,78 +1864,6 @@ and transactions</p>
 
         <p>Create a new database container from environment variables as defaults</p>
 
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>dsn</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>str</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code><span title="fluid.settings.DATABASE">DATABASE</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>schema</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>str | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code><span title="fluid.settings.DATABASE_SCHEMA">DATABASE_SCHEMA</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>**kwargs</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="typing.Any">Any</span></code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>{}</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-36">36</a></span>
@@ -1977,38 +1905,6 @@ and transactions</p>
     <div class="doc doc-contents ">
 
         <p>Create a new click group for database commands</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>**kwargs</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="typing.Any">Any</span></code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>{}</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
@@ -2077,38 +1973,6 @@ and transactions</p>
     <div class="doc doc-contents ">
 
         <p>Context manager for obtaining an asynchronous connection</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>conn</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.ext.asyncio.AsyncConnection">AsyncConnection</span> | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
@@ -2194,38 +2058,6 @@ and transactions</p>
 
         <p>Context manager for ensuring we a connection has initialized
 a database transaction</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>conn</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.ext.asyncio.AsyncConnection">AsyncConnection</span> | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
@@ -2391,90 +2223,6 @@ a database transaction</p>
 :param conn: optional db connection
 :param consumer: optional consumer (see :meth:<code>.get_query</code>)</p>
 
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>table</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.sql.FromClause">FromClause</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>filters</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>dict</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>order_by</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>tuple[str, ...] | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>conn</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.ext.asyncio.AsyncConnection">AsyncConnection</span> | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
             <details class="quote">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-22">22</a></span>
@@ -2542,70 +2290,6 @@ a database transaction</p>
 :param data: key-value pairs for columns values
 :param conn: optional db connection</p>
 
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>table</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.Table">Table</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>data</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>list[dict] | dict</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>conn</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.ext.asyncio.AsyncConnection">AsyncConnection</span> | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
             <details class="quote">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-42">42</a></span>
@@ -2666,86 +2350,6 @@ a database transaction</p>
 :param data: key-value pairs for updating columns values of selected rows
 :param conn: optional db connection
 :param consumer: optional consumer (see :meth:<code>.get_query</code>)</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>table</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.Table">Table</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>filters</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>dict</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>data</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>dict</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>conn</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.ext.asyncio.AsyncConnection">AsyncConnection</span> | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
@@ -2829,90 +2433,6 @@ a database transaction</p>
 :param data: key-value pairs for updating columns values of selected rows
 :param conn: optional db connection
 :param consumer: optional consumer (see :meth:<code>.get_query</code>)</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>table</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.Table">Table</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>filters</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>dict</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>data</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>dict | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>conn</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.ext.asyncio.AsyncConnection">AsyncConnection</span> | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
@@ -2998,70 +2518,6 @@ a database transaction</p>
 :param conn: optional db connection
 :param consumer: optional consumer (see :meth:<code>.get_query</code>)</p>
 
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>table</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.Table">Table</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>filters</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>dict</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>conn</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.ext.asyncio.AsyncConnection">AsyncConnection</span> | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
             <details class="quote">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-113">113</a></span>
@@ -3131,70 +2587,6 @@ a database transaction</p>
 :param filters: key-value pairs for filtering rows
 :param conn: optional db connection
 :param consumer: optional consumer (see :meth:<code>.get_query</code>)</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>table</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.sql.FromClause">FromClause</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>filters</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>dict</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>conn</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.ext.asyncio.AsyncConnection">AsyncConnection</span> | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
@@ -3268,52 +2660,6 @@ a database transaction</p>
 
     <div class="doc doc-contents ">
 
-        
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>table</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.Table">Table</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>records</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>list[dict] | dict</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
             <details class="quote">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-163">163</a></span>
@@ -3373,70 +2719,6 @@ a database transaction</p>
 :param sql_query: sqlalchemy query type
 :param params: key-value pairs for the query
 :param consumer: optional consumer for manipulating parameters</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>table</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.sql.FromClause">FromClause</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>sql_query</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="fluid.db.crud.QueryType">QueryType</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>params</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>dict | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
@@ -3520,36 +2802,6 @@ a database transaction</p>
 
     <div class="doc doc-contents ">
 
-        
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>sql_query</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.sql.Select">Select</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
             <details class="quote">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-213">213</a></span>
@@ -3575,66 +2827,6 @@ a database transaction</p>
     <div class="doc doc-contents ">
 
         <p>Apply ordering to a sql_query</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>table</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.sql.FromClause">FromClause</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>sql_query</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.sql.Select">Select</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>order_by</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>tuple[str, ...]</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
@@ -3673,50 +2865,6 @@ a database transaction</p>
     <div class="doc doc-contents ">
 
         <p>Apply ordering to a sql_query</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>table</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.sql.FromClause">FromClause</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>order_by</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>tuple[str, ...]</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
@@ -3773,82 +2921,6 @@ a database transaction</p>
     <div class="doc doc-contents ">
 
         <p>Apply search to a sql_query</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>table</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.sql.FromClause">FromClause</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>sql_query</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.sql.Select">Select</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>search_fields</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>tuple[str, ...]</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>search</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>str</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
@@ -3912,66 +2984,6 @@ http://docs.sqlalchemy.org/en/rel_1_0/core/sqlelement.html
 :param op: 'eq', 'ne', 'gt', 'lt', 'ge', 'le' or 'search'
 :param value: comparison value, string or list/tuple
 :return:</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>column</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.Column">Column</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>op</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>str</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>value</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="typing.Any">Any</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>

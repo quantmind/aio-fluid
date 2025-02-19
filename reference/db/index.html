@@ -1627,78 +1627,6 @@ and transactions</p>
 
         <p>Create a new database container from environment variables as defaults</p>
 
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>dsn</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>str</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code><span title="fluid.settings.DATABASE">DATABASE</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>schema</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>str | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code><span title="fluid.settings.DATABASE_SCHEMA">DATABASE_SCHEMA</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>**kwargs</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="typing.Any">Any</span></code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>{}</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-36">36</a></span>
@@ -1740,38 +1668,6 @@ and transactions</p>
     <div class="doc doc-contents ">
 
         <p>Create a new click group for database commands</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>**kwargs</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="typing.Any">Any</span></code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>{}</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
@@ -1840,38 +1736,6 @@ and transactions</p>
     <div class="doc doc-contents ">
 
         <p>Context manager for obtaining an asynchronous connection</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>conn</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.ext.asyncio.AsyncConnection">AsyncConnection</span> | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
@@ -1957,38 +1821,6 @@ and transactions</p>
 
         <p>Context manager for ensuring we a connection has initialized
 a database transaction</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>conn</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="sqlalchemy.ext.asyncio.AsyncConnection">AsyncConnection</span> | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>

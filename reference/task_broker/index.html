@@ -1314,36 +1314,6 @@
               Bases: <code><span title="abc.ABC">ABC</span></code></p>
 
 
-        
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>url</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><span title="yarl.URL">URL</span></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
 
 
 
@@ -1457,34 +1427,6 @@
 
         <p>Queue a task</p>
 
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>task_run</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskRun" href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
             <details class="quote">
               <summary>Source code in <code>fluid/scheduler/broker.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-49">49</a></span>
@@ -1517,34 +1459,6 @@
     <div class="doc doc-contents ">
 
         <p>Get a Task run from the task queue</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>task_manager</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="fluid.scheduler.consumer.TaskManager" href="../task_manager/#fluid.scheduler.TaskManager">TaskManager</a></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/scheduler/broker.py</code></summary>
@@ -1612,38 +1526,6 @@
 
         <p>List of TaskInfo objects</p>
 
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>*task_names</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>str</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>()</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
             <details class="quote">
               <summary>Source code in <code>fluid/scheduler/broker.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-61">61</a></span>
@@ -1676,50 +1558,6 @@
     <div class="doc doc-contents ">
 
         <p>Update a task dynamic parameters</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>task</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.Task" href="../task/#fluid.scheduler.Task">Task</a></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>params</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>dict[str, <span title="typing.Any">Any</span>]</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/scheduler/broker.py</code></summary>
@@ -1786,54 +1624,6 @@
 
         <p>Create a lock</p>
 
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>name</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>str</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>timeout</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>float | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
             <details class="quote">
               <summary>Source code in <code>fluid/scheduler/broker.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-73">73</a></span>
@@ -1888,60 +1678,6 @@
 
     <div class="doc doc-contents ">
 
-        
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>scheduled</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>bool | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>enabled</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>bool | None</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>None</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
             <details class="quote">
               <summary>Source code in <code>fluid/scheduler/broker.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-80">80</a></span>
@@ -1992,36 +1728,6 @@
 
     <div class="doc doc-contents ">
 
-        
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>task</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>str | <a class="autorefs autorefs-internal" title="fluid.scheduler.models.Task" href="../task/#fluid.scheduler.Task">Task</a></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
             <details class="quote">
               <summary>Source code in <code>fluid/scheduler/broker.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-96"> 96</a></span>
@@ -2058,36 +1764,6 @@
 
     <div class="doc doc-contents ">
 
-        
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>task</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.Task" href="../task/#fluid.scheduler.Task">Task</a></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
             <details class="quote">
               <summary>Source code in <code>fluid/scheduler/broker.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-105">105</a></span>
@@ -2117,54 +1793,6 @@
     <div class="doc doc-contents ">
 
         <p>Enable or disable a registered task</p>
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>task</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>str | <a class="autorefs autorefs-internal" title="fluid.scheduler.models.Task" href="../task/#fluid.scheduler.Task">Task</a></code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>enable</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>bool</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>True</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/scheduler/broker.py</code></summary>
@@ -2197,40 +1825,6 @@
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
-
-        
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>url</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>str</code>
-                  </span>
-                  <span class="doc-param-default">
-                    <b>DEFAULT:</b>
-                      <code>&#39;&#39;</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/scheduler/broker.py</code></summary>
@@ -2267,52 +1861,6 @@
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
-
-        
-
-
-<table>
-      <thead>
-        <tr>
-          <th><span class="doc-section-title">PARAMETER</span></th>
-          <th><span>DESCRIPTION</span></th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>name</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>str</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>factory</code>
-            </td>
-            <td class="doc-param-details">
-              <div class="doc-md-description">
-                
-              </div>
-              <p>
-                  <span class="doc-param-annotation">
-                    <b>TYPE:</b>
-                      <code>type[<a class="autorefs autorefs-internal" title="fluid.scheduler.broker.TaskBroker" href="#fluid.scheduler.TaskBroker">TaskBroker</a>]</code>
-                  </span>
-              </p>
-            </td>
-          </tr>
-      </tbody>
-    </table>
 
             <details class="quote">
               <summary>Source code in <code>fluid/scheduler/broker.py</code></summary>
