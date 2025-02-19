@@ -24,7 +24,7 @@ pip install aio-fluid
 To install all the dependencies:
 
 ```
-pip install aio-fluid[cli, db, http, log]
+pip install aio-fluid[cli, db, http, log, k8s]
 ```
 this includes the following extra dependencies:
 
@@ -32,6 +32,7 @@ this includes the following extra dependencies:
 - `db` for database support with [asyncpg](https://github.com/MagicStack/asyncpg) and [sqlalchemy](https://www.sqlalchemy.org/)
 - `http` for http client support with [httpx](https://www.python-httpx.org/) and [aiohttp](https://docs.aiohttp.org/en/stable/)
 - `log` for JSON logging support with [python-json-logger](https://github.com/madzak/python-json-logger)
+- `k8s` for Kubernetes support for CPU bound tasks
 
 
 ## Development
