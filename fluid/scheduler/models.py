@@ -128,6 +128,27 @@ class QueuedTask(BaseModel):
     priority: TaskPriority | None = Field(default=None, description="Task priority")
 
 
+class K8sConfig(NamedTuple):
+    """Kubernetes configuration"""
+
+    namespace: str = "default"
+    """Kubernetes namespace where the task consumer deployment run"""
+    deployment: str = "fluid-task"
+    """Kubernetes deployment of the task consumer"""
+    container: str = "main"
+    """Kubernetes container"""
+    sleep: float = 2.0
+    """Amount to async sleep while waiting for completion of k8s Job"""
+
+    @classmethod
+    def from_env(cls) -> K8sConfig:
+        return cls(
+            namespace=os.getenv("FLUID_TASK_CONSUMER_K8S_NAMESPACE", "default"),
+            deployment=os.getenv("FLUID_TASK_CONSUMER_K8S_DEPLOYMENT", "fluid-task"),
+            container=os.getenv("FLUID_TASK_CONSUMER_K8S_CONTAINER", "main"),
+        )
+
+
 class Task(NamedTuple, Generic[TP]):
     """A Task executes any time it is invoked"""
 
@@ -155,6 +176,7 @@ class Task(NamedTuple, Generic[TP]):
     """Task timeout in seconds - how long the task can run before being aborted"""
     priority: TaskPriority = TaskPriority.medium
     """Task priority - high, medium, low"""
+    k8s_config: K8sConfig = K8sConfig.from_env()
 
     @property
     def cpu_bound(self) -> bool:
