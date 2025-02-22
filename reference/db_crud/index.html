@@ -11,10 +11,10 @@
         <link rel="canonical" href="https://aio-fluid.com/reference/db_crud/">
       
       
-        <link rel="prev" href="../db/">
+        <link rel="prev" href="../db_cli/">
       
       
-        <link rel="next" href="../db_pagination/">
+        <link rel="next" href="../db_migrations/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -314,6 +314,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -365,6 +369,28 @@
   
   <span class="md-ellipsis">
     Database
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db_cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DB CLI
     
   </span>
   
@@ -533,15 +559,6 @@
   <a href="#fluid.db.CrudDB.from_env" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;from_env
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.db.CrudDB.cli" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;cli
     </span>
   </a>
   
@@ -748,11 +765,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../db_migrations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DB Migration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../db_pagination/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Pagination
+    DB Pagination
     
   </span>
   
@@ -1349,15 +1388,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.db.CrudDB.cli" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;cli
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#fluid.db.CrudDB.connection" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;connection
@@ -1599,7 +1629,7 @@ provide standard CRUD operations for a database table.</p>
               Bases: <code><a class="autorefs autorefs-internal" title="fluid.db.container.Database" href="../db/#fluid.db.Database">Database</a></code></p>
 
 
-        <p>A :class:<code>.Database</code> with additional methods for CRUD operations</p>
+        <p>A Database with additional methods for CRUD operations</p>
 
 
 
@@ -1636,7 +1666,8 @@ provide standard CRUD operations for a database table.</p>
     <div class="doc doc-contents ">
 
         <p>data source name, aka connection string</p>
-<p>Example: "postgresql+asyncpg://user:password@localhost/dbname"</p>
+<p>Example: <code>postgresql+asyncpg://user:password@localhost/dbname</code></p>
+<p>not the <code>+asyncpg</code> part is important for the sync engine</p>
     </div>
 
 </div>
@@ -1659,6 +1690,9 @@ provide standard CRUD operations for a database table.</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
+        <p>Echo SQL queries to stdout</p>
+<p>It defaults to the <code>DBECHO</code> setting in the settings module</p>
     </div>
 
 </div>
@@ -1838,7 +1872,7 @@ and transactions</p>
 
     <div class="doc doc-contents ">
 
-        <p>The :class:<code>sqlalchemy.engine.Engine</code> for synchrouns operations</p>
+        <p>The sqlalchemy Engine object for synchrouns operations</p>
     </div>
 
 </div>
@@ -1866,53 +1900,25 @@ and transactions</p>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-36">36</a></span>
-<span class="normal"><a href="#__codelineno-0-37">37</a></span>
-<span class="normal"><a href="#__codelineno-0-38">38</a></span>
-<span class="normal"><a href="#__codelineno-0-39">39</a></span>
-<span class="normal"><a href="#__codelineno-0-40">40</a></span>
-<span class="normal"><a href="#__codelineno-0-41">41</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-41">41</a></span>
 <span class="normal"><a href="#__codelineno-0-42">42</a></span>
 <span class="normal"><a href="#__codelineno-0-43">43</a></span>
 <span class="normal"><a href="#__codelineno-0-44">44</a></span>
-<span class="normal"><a href="#__codelineno-0-45">45</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="nd">@classmethod</span>
-</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a><span class="k">def</span><span class="w"> </span><span class="nf">from_env</span><span class="p">(</span>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="bp">cls</span><span class="p">,</span>
-</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="o">*</span><span class="p">,</span>
-</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40"></a>    <span class="n">dsn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">,</span>
-</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a>    <span class="n">schema</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">DATABASE_SCHEMA</span><span class="p">,</span>
-</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
-</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
-</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new database container from environment variables as defaults&quot;&quot;&quot;</span>
-</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a>    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">dsn</span><span class="o">=</span><span class="n">dsn</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span></code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="fluid.db.CrudDB.cli" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">cli</span>
-
-
-<a href="#fluid.db.CrudDB.cli" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">cli</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-        <p>Create a new click group for database commands</p>
-
-            <details class="quote">
-              <summary>Source code in <code>fluid/db/container.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-71">71</a></span>
-<span class="normal"><a href="#__codelineno-0-72">72</a></span>
-<span class="normal"><a href="#__codelineno-0-73">73</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-71"><a id="__codelineno-0-71" name="__codelineno-0-71"></a><span class="k">def</span><span class="w"> </span><span class="nf">cli</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DbGroup</span><span class="p">:</span>
-</span><span id="__span-0-72"><a id="__codelineno-0-72" name="__codelineno-0-72"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new click group for database commands&quot;&quot;&quot;</span>
-</span><span id="__span-0-73"><a id="__codelineno-0-73" name="__codelineno-0-73"></a>    <span class="k">return</span> <span class="n">DbGroup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-45">45</a></span>
+<span class="normal"><a href="#__codelineno-0-46">46</a></span>
+<span class="normal"><a href="#__codelineno-0-47">47</a></span>
+<span class="normal"><a href="#__codelineno-0-48">48</a></span>
+<span class="normal"><a href="#__codelineno-0-49">49</a></span>
+<span class="normal"><a href="#__codelineno-0-50">50</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41"></a><span class="nd">@classmethod</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42"></a><span class="k">def</span><span class="w"> </span><span class="nf">from_env</span><span class="p">(</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43"></a>    <span class="bp">cls</span><span class="p">,</span>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44"></a>    <span class="o">*</span><span class="p">,</span>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45"></a>    <span class="n">dsn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">DATABASE</span><span class="p">,</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46"></a>    <span class="n">schema</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">DATABASE_SCHEMA</span><span class="p">,</span>
+</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Self</span><span class="p">:</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new database container from environment variables as defaults&quot;&quot;&quot;</span>
+</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50"></a>    <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">dsn</span><span class="o">=</span><span class="n">dsn</span><span class="p">,</span> <span class="n">metadata</span><span class="o">=</span><span class="n">sa</span><span class="o">.</span><span class="n">MetaData</span><span class="p">(</span><span class="n">schema</span><span class="o">=</span><span class="n">schema</span><span class="p">),</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1940,15 +1946,15 @@ and transactions</p>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-75">75</a></span>
-<span class="normal"><a href="#__codelineno-0-76">76</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-76">76</a></span>
 <span class="normal"><a href="#__codelineno-0-77">77</a></span>
 <span class="normal"><a href="#__codelineno-0-78">78</a></span>
-<span class="normal"><a href="#__codelineno-0-79">79</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-75"><a id="__codelineno-0-75" name="__codelineno-0-75"></a><span class="nd">@asynccontextmanager</span>
-</span><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">connection</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AsyncConnection</span><span class="p">]:</span>
-</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager for obtaining an asynchronous connection&quot;&quot;&quot;</span>
-</span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a>    <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
-</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a>        <span class="k">yield</span> <span class="n">conn</span>
+<span class="normal"><a href="#__codelineno-0-79">79</a></span>
+<span class="normal"><a href="#__codelineno-0-80">80</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-76"><a id="__codelineno-0-76" name="__codelineno-0-76"></a><span class="nd">@asynccontextmanager</span>
+</span><span id="__span-0-77"><a id="__codelineno-0-77" name="__codelineno-0-77"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">connection</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AsyncConnection</span><span class="p">]:</span>
+</span><span id="__span-0-78"><a id="__codelineno-0-78" name="__codelineno-0-78"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager for obtaining an asynchronous connection&quot;&quot;&quot;</span>
+</span><span id="__span-0-79"><a id="__codelineno-0-79" name="__codelineno-0-79"></a>    <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+</span><span id="__span-0-80"><a id="__codelineno-0-80" name="__codelineno-0-80"></a>        <span class="k">yield</span> <span class="n">conn</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -1976,8 +1982,7 @@ and transactions</p>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-81">81</a></span>
-<span class="normal"><a href="#__codelineno-0-82">82</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-82">82</a></span>
 <span class="normal"><a href="#__codelineno-0-83">83</a></span>
 <span class="normal"><a href="#__codelineno-0-84">84</a></span>
 <span class="normal"><a href="#__codelineno-0-85">85</a></span>
@@ -1986,17 +1991,18 @@ and transactions</p>
 <span class="normal"><a href="#__codelineno-0-88">88</a></span>
 <span class="normal"><a href="#__codelineno-0-89">89</a></span>
 <span class="normal"><a href="#__codelineno-0-90">90</a></span>
-<span class="normal"><a href="#__codelineno-0-91">91</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-81"><a id="__codelineno-0-81" name="__codelineno-0-81"></a><span class="nd">@asynccontextmanager</span>
-</span><span id="__span-0-82"><a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ensure_connection</span><span class="p">(</span>
-</span><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a>    <span class="n">conn</span><span class="p">:</span> <span class="n">AsyncConnection</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AsyncConnection</span><span class="p">]:</span>
-</span><span id="__span-0-86"><a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager for obtaining an asynchronous connection&quot;&quot;&quot;</span>
-</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a>    <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
-</span><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88"></a>        <span class="k">yield</span> <span class="n">conn</span>
-</span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89"></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90"></a>        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
-</span><span id="__span-0-91"><a id="__codelineno-0-91" name="__codelineno-0-91"></a>            <span class="k">yield</span> <span class="n">conn</span>
+<span class="normal"><a href="#__codelineno-0-91">91</a></span>
+<span class="normal"><a href="#__codelineno-0-92">92</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-82"><a id="__codelineno-0-82" name="__codelineno-0-82"></a><span class="nd">@asynccontextmanager</span>
+</span><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ensure_connection</span><span class="p">(</span>
+</span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a>    <span class="bp">self</span><span class="p">,</span>
+</span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a>    <span class="n">conn</span><span class="p">:</span> <span class="n">AsyncConnection</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-86"><a id="__codelineno-0-86" name="__codelineno-0-86"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AsyncConnection</span><span class="p">]:</span>
+</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager for obtaining an asynchronous connection&quot;&quot;&quot;</span>
+</span><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88"></a>    <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+</span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89"></a>        <span class="k">yield</span> <span class="n">conn</span>
+</span><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90"></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-91"><a id="__codelineno-0-91" name="__codelineno-0-91"></a>        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+</span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92"></a>            <span class="k">yield</span> <span class="n">conn</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2024,15 +2030,15 @@ and transactions</p>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-93">93</a></span>
-<span class="normal"><a href="#__codelineno-0-94">94</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-94">94</a></span>
 <span class="normal"><a href="#__codelineno-0-95">95</a></span>
 <span class="normal"><a href="#__codelineno-0-96">96</a></span>
-<span class="normal"><a href="#__codelineno-0-97">97</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a><span class="nd">@asynccontextmanager</span>
-</span><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AsyncConnection</span><span class="p">]:</span>
-</span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager for initializing an asynchronous database transaction&quot;&quot;&quot;</span>
-</span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a>    <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
-</span><span id="__span-0-97"><a id="__codelineno-0-97" name="__codelineno-0-97"></a>        <span class="k">yield</span> <span class="n">conn</span>
+<span class="normal"><a href="#__codelineno-0-97">97</a></span>
+<span class="normal"><a href="#__codelineno-0-98">98</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94"></a><span class="nd">@asynccontextmanager</span>
+</span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">transaction</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AsyncConnection</span><span class="p">]:</span>
+</span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager for initializing an asynchronous database transaction&quot;&quot;&quot;</span>
+</span><span id="__span-0-97"><a id="__codelineno-0-97" name="__codelineno-0-97"></a>    <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span><span class="o">.</span><span class="n">begin</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+</span><span id="__span-0-98"><a id="__codelineno-0-98" name="__codelineno-0-98"></a>        <span class="k">yield</span> <span class="n">conn</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2061,8 +2067,7 @@ a database transaction</p>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-99"> 99</a></span>
-<span class="normal"><a href="#__codelineno-0-100">100</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-100">100</a></span>
 <span class="normal"><a href="#__codelineno-0-101">101</a></span>
 <span class="normal"><a href="#__codelineno-0-102">102</a></span>
 <span class="normal"><a href="#__codelineno-0-103">103</a></span>
@@ -2076,22 +2081,23 @@ a database transaction</p>
 <span class="normal"><a href="#__codelineno-0-111">111</a></span>
 <span class="normal"><a href="#__codelineno-0-112">112</a></span>
 <span class="normal"><a href="#__codelineno-0-113">113</a></span>
-<span class="normal"><a href="#__codelineno-0-114">114</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-99"><a id="__codelineno-0-99" name="__codelineno-0-99"></a><span class="nd">@asynccontextmanager</span>
-</span><span id="__span-0-100"><a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ensure_transaction</span><span class="p">(</span>
-</span><span id="__span-0-101"><a id="__codelineno-0-101" name="__codelineno-0-101"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-102"><a id="__codelineno-0-102" name="__codelineno-0-102"></a>    <span class="n">conn</span><span class="p">:</span> <span class="n">AsyncConnection</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-103"><a id="__codelineno-0-103" name="__codelineno-0-103"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AsyncConnection</span><span class="p">]:</span>
-</span><span id="__span-0-104"><a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager for ensuring we a connection has initialized</span>
-</span><span id="__span-0-105"><a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="sd">    a database transaction&quot;&quot;&quot;</span>
-</span><span id="__span-0-106"><a id="__codelineno-0-106" name="__codelineno-0-106"></a>    <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
-</span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">conn</span><span class="o">.</span><span class="n">in_transaction</span><span class="p">():</span>
-</span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a>            <span class="k">async</span> <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">begin</span><span class="p">():</span>
-</span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a>                <span class="k">yield</span> <span class="n">conn</span>
-</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a>        <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a>            <span class="k">yield</span> <span class="n">conn</span>
-</span><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-113"><a id="__codelineno-0-113" name="__codelineno-0-113"></a>        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">transaction</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
-</span><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a>            <span class="k">yield</span> <span class="n">conn</span>
+<span class="normal"><a href="#__codelineno-0-114">114</a></span>
+<span class="normal"><a href="#__codelineno-0-115">115</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-100"><a id="__codelineno-0-100" name="__codelineno-0-100"></a><span class="nd">@asynccontextmanager</span>
+</span><span id="__span-0-101"><a id="__codelineno-0-101" name="__codelineno-0-101"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ensure_transaction</span><span class="p">(</span>
+</span><span id="__span-0-102"><a id="__codelineno-0-102" name="__codelineno-0-102"></a>    <span class="bp">self</span><span class="p">,</span>
+</span><span id="__span-0-103"><a id="__codelineno-0-103" name="__codelineno-0-103"></a>    <span class="n">conn</span><span class="p">:</span> <span class="n">AsyncConnection</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-104"><a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AsyncIterator</span><span class="p">[</span><span class="n">AsyncConnection</span><span class="p">]:</span>
+</span><span id="__span-0-105"><a id="__codelineno-0-105" name="__codelineno-0-105"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Context manager for ensuring we a connection has initialized</span>
+</span><span id="__span-0-106"><a id="__codelineno-0-106" name="__codelineno-0-106"></a><span class="sd">    a database transaction&quot;&quot;&quot;</span>
+</span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a>    <span class="k">if</span> <span class="n">conn</span><span class="p">:</span>
+</span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a>        <span class="k">if</span> <span class="ow">not</span> <span class="n">conn</span><span class="o">.</span><span class="n">in_transaction</span><span class="p">():</span>
+</span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a>            <span class="k">async</span> <span class="k">with</span> <span class="n">conn</span><span class="o">.</span><span class="n">begin</span><span class="p">():</span>
+</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a>                <span class="k">yield</span> <span class="n">conn</span>
+</span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a>            <span class="k">yield</span> <span class="n">conn</span>
+</span><span id="__span-0-113"><a id="__codelineno-0-113" name="__codelineno-0-113"></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a>        <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">transaction</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+</span><span id="__span-0-115"><a id="__codelineno-0-115" name="__codelineno-0-115"></a>            <span class="k">yield</span> <span class="n">conn</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2119,15 +2125,15 @@ a database transaction</p>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-116">116</a></span>
-<span class="normal"><a href="#__codelineno-0-117">117</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-117">117</a></span>
 <span class="normal"><a href="#__codelineno-0-118">118</a></span>
 <span class="normal"><a href="#__codelineno-0-119">119</a></span>
-<span class="normal"><a href="#__codelineno-0-120">120</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-116"><a id="__codelineno-0-116" name="__codelineno-0-116"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-117"><a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Close the asynchronous db engine if opened&quot;&quot;&quot;</span>
-</span><span id="__span-0-118"><a id="__codelineno-0-118" name="__codelineno-0-118"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-119"><a id="__codelineno-0-119" name="__codelineno-0-119"></a>        <span class="n">engine</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">,</span> <span class="kc">None</span>
-</span><span id="__span-0-120"><a id="__codelineno-0-120" name="__codelineno-0-120"></a>        <span class="k">await</span> <span class="n">engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
+<span class="normal"><a href="#__codelineno-0-120">120</a></span>
+<span class="normal"><a href="#__codelineno-0-121">121</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-117"><a id="__codelineno-0-117" name="__codelineno-0-117"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-118"><a id="__codelineno-0-118" name="__codelineno-0-118"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Close the asynchronous db engine if opened&quot;&quot;&quot;</span>
+</span><span id="__span-0-119"><a id="__codelineno-0-119" name="__codelineno-0-119"></a>    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-120"><a id="__codelineno-0-120" name="__codelineno-0-120"></a>        <span class="n">engine</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_engine</span><span class="p">,</span> <span class="kc">None</span>
+</span><span id="__span-0-121"><a id="__codelineno-0-121" name="__codelineno-0-121"></a>        <span class="k">await</span> <span class="n">engine</span><span class="o">.</span><span class="n">dispose</span><span class="p">()</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2155,17 +2161,17 @@ a database transaction</p>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-122">122</a></span>
-<span class="normal"><a href="#__codelineno-0-123">123</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-123">123</a></span>
 <span class="normal"><a href="#__codelineno-0-124">124</a></span>
 <span class="normal"><a href="#__codelineno-0-125">125</a></span>
 <span class="normal"><a href="#__codelineno-0-126">126</a></span>
-<span class="normal"><a href="#__codelineno-0-127">127</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-122"><a id="__codelineno-0-122" name="__codelineno-0-122"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="__span-0-123"><a id="__codelineno-0-123" name="__codelineno-0-123"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Ping the database&quot;&quot;&quot;</span>
-</span><span id="__span-0-124"><a id="__codelineno-0-124" name="__codelineno-0-124"></a>    <span class="c1"># TODO: we need a custom ping query</span>
-</span><span id="__span-0-125"><a id="__codelineno-0-125" name="__codelineno-0-125"></a>    <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
-</span><span id="__span-0-126"><a id="__codelineno-0-126" name="__codelineno-0-126"></a>        <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;SELECT 1&quot;</span><span class="p">))</span>
-</span><span id="__span-0-127"><a id="__codelineno-0-127" name="__codelineno-0-127"></a>    <span class="k">return</span> <span class="s2">&quot;ok&quot;</span>
+<span class="normal"><a href="#__codelineno-0-127">127</a></span>
+<span class="normal"><a href="#__codelineno-0-128">128</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-123"><a id="__codelineno-0-123" name="__codelineno-0-123"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">ping</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="__span-0-124"><a id="__codelineno-0-124" name="__codelineno-0-124"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Ping the database&quot;&quot;&quot;</span>
+</span><span id="__span-0-125"><a id="__codelineno-0-125" name="__codelineno-0-125"></a>    <span class="c1"># TODO: we need a custom ping query</span>
+</span><span id="__span-0-126"><a id="__codelineno-0-126" name="__codelineno-0-126"></a>    <span class="k">async</span> <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">connection</span><span class="p">()</span> <span class="k">as</span> <span class="n">conn</span><span class="p">:</span>
+</span><span id="__span-0-127"><a id="__codelineno-0-127" name="__codelineno-0-127"></a>        <span class="k">await</span> <span class="n">conn</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sa</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="s2">&quot;SELECT 1&quot;</span><span class="p">))</span>
+</span><span id="__span-0-128"><a id="__codelineno-0-128" name="__codelineno-0-128"></a>    <span class="k">return</span> <span class="s2">&quot;ok&quot;</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2185,15 +2191,15 @@ a database transaction</p>
 
     <div class="doc doc-contents ">
 
-        <p>Create a new migration manager for this database</p>
+        <p>The migration manager for this database</p>
 
             <details class="quote">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-129">129</a></span>
-<span class="normal"><a href="#__codelineno-0-130">130</a></span>
-<span class="normal"><a href="#__codelineno-0-131">131</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-129"><a id="__codelineno-0-129" name="__codelineno-0-129"></a><span class="k">def</span><span class="w"> </span><span class="nf">migration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Migration</span><span class="p">:</span>
-</span><span id="__span-0-130"><a id="__codelineno-0-130" name="__codelineno-0-130"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a new migration manager for this database&quot;&quot;&quot;</span>
-</span><span id="__span-0-131"><a id="__codelineno-0-131" name="__codelineno-0-131"></a>    <span class="k">return</span> <span class="n">Migration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-130">130</a></span>
+<span class="normal"><a href="#__codelineno-0-131">131</a></span>
+<span class="normal"><a href="#__codelineno-0-132">132</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-130"><a id="__codelineno-0-130" name="__codelineno-0-130"></a><span class="k">def</span><span class="w"> </span><span class="nf">migration</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Migration</span><span class="p">:</span>
+</span><span id="__span-0-131"><a id="__codelineno-0-131" name="__codelineno-0-131"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;The migration manager for this database&quot;&quot;&quot;</span>
+</span><span id="__span-0-132"><a id="__codelineno-0-132" name="__codelineno-0-132"></a>    <span class="k">return</span> <span class="n">Migration</span><span class="p">(</span><span class="n">db</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3124,7 +3130,7 @@ http://docs.sqlalchemy.org/en/rel_1_0/core/sqlelement.html
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../db/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Database">
+          <a href="../db_cli/" class="md-footer__link md-footer__link--prev" aria-label="Previous: DB CLI">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -3134,20 +3140,20 @@ http://docs.sqlalchemy.org/en/rel_1_0/core/sqlelement.html
                 Previous
               </span>
               <div class="md-ellipsis">
-                Database
+                DB CLI
               </div>
             </div>
           </a>
         
         
           
-          <a href="../db_pagination/" class="md-footer__link md-footer__link--next" aria-label="Next: Pagination">
+          <a href="../db_migrations/" class="md-footer__link md-footer__link--next" aria-label="Next: DB Migration">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Pagination
+                DB Migration
               </div>
             </div>
             <div class="md-footer__button md-icon">

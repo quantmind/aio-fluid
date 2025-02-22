@@ -314,6 +314,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -382,6 +386,28 @@
   
   
     <li class="md-nav__item">
+      <a href="../db_cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DB CLI
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../db_crud/" class="md-nav__link">
         
   
@@ -404,11 +430,33 @@
   
   
     <li class="md-nav__item">
+      <a href="../db_migrations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DB Migration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../db_pagination/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Pagination
+    DB Pagination
     
   </span>
   
@@ -1618,10 +1666,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 
             <details class="quote">
               <summary>Source code in <code>fluid/scheduler/models.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-389">389</a></span>
-<span class="normal"><a href="#__codelineno-0-390">390</a></span>
-<span class="normal"><a href="#__codelineno-0-391">391</a></span>
-<span class="normal"><a href="#__codelineno-0-392">392</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-392">392</a></span>
 <span class="normal"><a href="#__codelineno-0-393">393</a></span>
 <span class="normal"><a href="#__codelineno-0-394">394</a></span>
 <span class="normal"><a href="#__codelineno-0-395">395</a></span>
@@ -1633,22 +1678,25 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 <span class="normal"><a href="#__codelineno-0-401">401</a></span>
 <span class="normal"><a href="#__codelineno-0-402">402</a></span>
 <span class="normal"><a href="#__codelineno-0-403">403</a></span>
-<span class="normal"><a href="#__codelineno-0-404">404</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-389"><a id="__codelineno-0-389" name="__codelineno-0-389"></a><span class="k">def</span><span class="w"> </span><span class="nf">task</span><span class="p">(</span><span class="n">executor</span><span class="p">:</span> <span class="n">TaskExecutor</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Task</span> <span class="o">|</span> <span class="n">TaskConstructor</span><span class="p">:</span>
-</span><span id="__span-0-390"><a id="__codelineno-0-390" name="__codelineno-0-390"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator to create a Task</span>
-</span><span id="__span-0-391"><a id="__codelineno-0-391" name="__codelineno-0-391"></a>
-</span><span id="__span-0-392"><a id="__codelineno-0-392" name="__codelineno-0-392"></a><span class="sd">    This decorator can be used in two ways:</span>
-</span><span id="__span-0-393"><a id="__codelineno-0-393" name="__codelineno-0-393"></a>
-</span><span id="__span-0-394"><a id="__codelineno-0-394" name="__codelineno-0-394"></a><span class="sd">    - As a simple decorator of the executor function</span>
-</span><span id="__span-0-395"><a id="__codelineno-0-395" name="__codelineno-0-395"></a><span class="sd">    - As a function with keyword arguments</span>
-</span><span id="__span-0-396"><a id="__codelineno-0-396" name="__codelineno-0-396"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-397"><a id="__codelineno-0-397" name="__codelineno-0-397"></a>    <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">executor</span><span class="p">:</span>
-</span><span id="__span-0-398"><a id="__codelineno-0-398" name="__codelineno-0-398"></a>        <span class="k">raise</span> <span class="n">TaskDecoratorError</span><span class="p">(</span><span class="s2">&quot;cannot use positional parameters&quot;</span><span class="p">)</span>
-</span><span id="__span-0-399"><a id="__codelineno-0-399" name="__codelineno-0-399"></a>    <span class="k">elif</span> <span class="n">kwargs</span><span class="p">:</span>
-</span><span id="__span-0-400"><a id="__codelineno-0-400" name="__codelineno-0-400"></a>        <span class="k">return</span> <span class="n">TaskConstructor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="__span-0-401"><a id="__codelineno-0-401" name="__codelineno-0-401"></a>    <span class="k">elif</span> <span class="ow">not</span> <span class="n">executor</span><span class="p">:</span>
-</span><span id="__span-0-402"><a id="__codelineno-0-402" name="__codelineno-0-402"></a>        <span class="k">raise</span> <span class="n">TaskDecoratorError</span><span class="p">(</span><span class="s2">&quot;this is a decorator cannot be invoked in this way&quot;</span><span class="p">)</span>
-</span><span id="__span-0-403"><a id="__codelineno-0-403" name="__codelineno-0-403"></a>    <span class="k">else</span><span class="p">:</span>
-</span><span id="__span-0-404"><a id="__codelineno-0-404" name="__codelineno-0-404"></a>        <span class="k">return</span> <span class="n">TaskConstructor</span><span class="p">()(</span><span class="n">executor</span><span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-404">404</a></span>
+<span class="normal"><a href="#__codelineno-0-405">405</a></span>
+<span class="normal"><a href="#__codelineno-0-406">406</a></span>
+<span class="normal"><a href="#__codelineno-0-407">407</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-392"><a id="__codelineno-0-392" name="__codelineno-0-392"></a><span class="k">def</span><span class="w"> </span><span class="nf">task</span><span class="p">(</span><span class="n">executor</span><span class="p">:</span> <span class="n">TaskExecutor</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Task</span> <span class="o">|</span> <span class="n">TaskConstructor</span><span class="p">:</span>
+</span><span id="__span-0-393"><a id="__codelineno-0-393" name="__codelineno-0-393"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Decorator to create a Task</span>
+</span><span id="__span-0-394"><a id="__codelineno-0-394" name="__codelineno-0-394"></a>
+</span><span id="__span-0-395"><a id="__codelineno-0-395" name="__codelineno-0-395"></a><span class="sd">    This decorator can be used in two ways:</span>
+</span><span id="__span-0-396"><a id="__codelineno-0-396" name="__codelineno-0-396"></a>
+</span><span id="__span-0-397"><a id="__codelineno-0-397" name="__codelineno-0-397"></a><span class="sd">    - As a simple decorator of the executor function</span>
+</span><span id="__span-0-398"><a id="__codelineno-0-398" name="__codelineno-0-398"></a><span class="sd">    - As a function with keyword arguments</span>
+</span><span id="__span-0-399"><a id="__codelineno-0-399" name="__codelineno-0-399"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-400"><a id="__codelineno-0-400" name="__codelineno-0-400"></a>    <span class="k">if</span> <span class="n">kwargs</span> <span class="ow">and</span> <span class="n">executor</span><span class="p">:</span>
+</span><span id="__span-0-401"><a id="__codelineno-0-401" name="__codelineno-0-401"></a>        <span class="k">raise</span> <span class="n">TaskDecoratorError</span><span class="p">(</span><span class="s2">&quot;cannot use positional parameters&quot;</span><span class="p">)</span>
+</span><span id="__span-0-402"><a id="__codelineno-0-402" name="__codelineno-0-402"></a>    <span class="k">elif</span> <span class="n">kwargs</span><span class="p">:</span>
+</span><span id="__span-0-403"><a id="__codelineno-0-403" name="__codelineno-0-403"></a>        <span class="k">return</span> <span class="n">TaskConstructor</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="__span-0-404"><a id="__codelineno-0-404" name="__codelineno-0-404"></a>    <span class="k">elif</span> <span class="ow">not</span> <span class="n">executor</span><span class="p">:</span>
+</span><span id="__span-0-405"><a id="__codelineno-0-405" name="__codelineno-0-405"></a>        <span class="k">raise</span> <span class="n">TaskDecoratorError</span><span class="p">(</span><span class="s2">&quot;this is a decorator cannot be invoked in this way&quot;</span><span class="p">)</span>
+</span><span id="__span-0-406"><a id="__codelineno-0-406" name="__codelineno-0-406"></a>    <span class="k">else</span><span class="p">:</span>
+</span><span id="__span-0-407"><a id="__codelineno-0-407" name="__codelineno-0-407"></a>        <span class="k">return</span> <span class="n">TaskConstructor</span><span class="p">()(</span><span class="n">executor</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2035,23 +2083,23 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 
             <details class="quote">
               <summary>Source code in <code>fluid/scheduler/models.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-193">193</a></span>
-<span class="normal"><a href="#__codelineno-0-194">194</a></span>
-<span class="normal"><a href="#__codelineno-0-195">195</a></span>
-<span class="normal"><a href="#__codelineno-0-196">196</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-196">196</a></span>
 <span class="normal"><a href="#__codelineno-0-197">197</a></span>
 <span class="normal"><a href="#__codelineno-0-198">198</a></span>
 <span class="normal"><a href="#__codelineno-0-199">199</a></span>
 <span class="normal"><a href="#__codelineno-0-200">200</a></span>
-<span class="normal"><a href="#__codelineno-0-201">201</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a><span class="k">def</span><span class="w"> </span><span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskInfo</span><span class="p">:</span>
-</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a>    <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
-</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a>        <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a>        <span class="n">description</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
-</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a>        <span class="n">module</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="p">,</span>
-</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a>        <span class="n">priority</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span>
-</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a>        <span class="n">schedule</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a>    <span class="p">)</span>
-</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a>    <span class="k">return</span> <span class="n">TaskInfo</span><span class="p">(</span><span class="o">**</span><span class="n">compact_dict</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
+<span class="normal"><a href="#__codelineno-0-201">201</a></span>
+<span class="normal"><a href="#__codelineno-0-202">202</a></span>
+<span class="normal"><a href="#__codelineno-0-203">203</a></span>
+<span class="normal"><a href="#__codelineno-0-204">204</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a><span class="k">def</span><span class="w"> </span><span class="nf">info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskInfo</span><span class="p">:</span>
+</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a>    <span class="n">params</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a>        <span class="n">name</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a>        <span class="n">description</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">description</span><span class="p">,</span>
+</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a>        <span class="n">module</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">module</span><span class="p">,</span>
+</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a>        <span class="n">priority</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">priority</span><span class="p">,</span>
+</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a>        <span class="n">schedule</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">schedule</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">schedule</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a>    <span class="p">)</span>
+</span><span id="__span-0-204"><a id="__codelineno-0-204" name="__codelineno-0-204"></a>    <span class="k">return</span> <span class="n">TaskInfo</span><span class="p">(</span><span class="o">**</span><span class="n">compact_dict</span><span class="p">(</span><span class="n">params</span><span class="p">))</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>

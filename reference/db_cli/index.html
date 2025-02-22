@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://aio-fluid.com/tutorials/db/">
+        <link rel="canonical" href="https://aio-fluid.com/reference/db_cli/">
       
       
-        <link rel="prev" href="../">
+        <link rel="prev" href="../db/">
       
       
-        <link rel="next" href="../dispatchers/">
+        <link rel="next" href="../db_crud/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +22,7 @@
     
     
       
-        <title>Async Database - Aio Fluid</title>
+        <title>DB CLI - Aio Fluid</title>
       
     
     
@@ -76,7 +76,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#async-database" class="md-skip">
+        <a href="#db-cli" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +112,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Async Database
+              DB CLI
             
           </span>
         </div>
@@ -273,473 +273,6 @@
       
   
   
-  
-  
-    
-    
-      
-        
-          
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-        
-      
-    
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
-        
-          
-          
-          <div class="md-nav__link md-nav__container">
-            <a href="../../reference/" class="md-nav__link ">
-              
-  
-  <span class="md-ellipsis">
-    Reference
-    
-  </span>
-  
-
-            </a>
-            
-              
-              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
-                <span class="md-nav__icon md-icon"></span>
-              </label>
-            
-          </div>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2">
-            <span class="md-nav__icon md-icon"></span>
-            Reference
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/db/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Database
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/db_cli/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    DB CLI
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/db_crud/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    CrudDB
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/db_migrations/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    DB Migration
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/db_pagination/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    DB Pagination
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/dispatchers/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Event Dispatchers
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/task/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/task_broker/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Broker
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/task_cli/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Manager Cli
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/task_manager/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Manager
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/task_registry/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Registry
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/task_run/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Run
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/task_scheduler/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Scheduler
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/task_scheduling/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Scheduling
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/tast_consumer/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Task Consumer
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/utils/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Utils
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/workers/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Workers
-    
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
     
   
   
@@ -749,6 +282,30 @@
       
         
           
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
         
       
         
@@ -768,7 +325,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           
@@ -777,7 +334,7 @@
               
   
   <span class="md-ellipsis">
-    Tutorials
+    Reference
     
   </span>
   
@@ -785,19 +342,41 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
-            Tutorials
+            Reference
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
             
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Database
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
               
             
               
@@ -820,7 +399,7 @@
           
   
   <span class="md-ellipsis">
-    Async Database
+    DB CLI
     
   </span>
   
@@ -832,7 +411,7 @@
         
   
   <span class="md-ellipsis">
-    Async Database
+    DB CLI
     
   </span>
   
@@ -855,20 +434,44 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#database" class="md-nav__link">
+  <a href="#fluid.db.cli.DbGroup" class="md-nav__link">
     <span class="md-ellipsis">
-      Database
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;DbGroup
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" DbGroup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fluid.db.cli.DbGroup.db" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;db
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#register-a-table" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#fluid.db.cli.DbGroup.get_command" class="md-nav__link">
     <span class="md-ellipsis">
-      Register a Table
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_command
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.db.cli.DbGroup.list_commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;list_commands
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -876,6 +479,72 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db_crud/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    CrudDB
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db_migrations/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DB Migration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db_pagination/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    DB Pagination
+    
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -910,11 +579,11 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_app/" class="md-nav__link">
+      <a href="../task/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
-    Task Queue App
+    Task
     
   </span>
   
@@ -954,7 +623,362 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_queue/" class="md-nav__link">
+      <a href="../task_cli/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Manager Cli
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_manager/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Manager
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_registry/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Registry
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_run/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Run
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_scheduler/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Scheduler
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_scheduling/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Scheduling
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tast_consumer/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Consumer
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Utils
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Workers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../tutorials/" class="md-nav__link ">
+              
+  
+  <span class="md-ellipsis">
+    Tutorials
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Tutorials
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/db/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Async Database
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/dispatchers/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Event Dispatchers
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/task_app/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Queue App
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/task_broker/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Task Broker
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/task_queue/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1003,20 +1027,44 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#database" class="md-nav__link">
+  <a href="#fluid.db.cli.DbGroup" class="md-nav__link">
     <span class="md-ellipsis">
-      Database
+      <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;DbGroup
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" DbGroup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fluid.db.cli.DbGroup.db" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;db
     </span>
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#register-a-table" class="md-nav__link">
+        
+          <li class="md-nav__item">
+  <a href="#fluid.db.cli.DbGroup.get_command" class="md-nav__link">
     <span class="md-ellipsis">
-      Register a Table
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;get_command
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.db.cli.DbGroup.list_commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;list_commands
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1039,26 +1087,164 @@
   
 
 
-<h1 id="async-database">Async Database<a class="headerlink" href="#async-database" title="Permanent link">&para;</a></h1>
-<p>The <code>fluid.db</code> module provides a simple asynchronous interface to interact with postgres databases. It is built on top of the <a href="https://www.sqlalchemy.org/">sqlalchemy</a> and <a href="https://github.com/MagicStack/asyncpg">asyncpg</a> libraries.</p>
-<h2 id="database">Database<a class="headerlink" href="#database" title="Permanent link">&para;</a></h2>
-<p>Create a database container with the <a class="autorefs autorefs-internal" href="../../reference/db/#fluid.db.Database">Database</a> class:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">Database</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">db</span> <span class="o">=</span> <span class="n">Database</span><span class="p">(</span><span class="s2">&quot;postgresql+asyncpg://postgres:postgres@localhost:5432/fluid&quot;</span><span class="p">)</span>
+<h1 id="db-cli">DB CLI<a class="headerlink" href="#db-cli" title="Permanent link">&para;</a></h1>
+<p>The <a class="autorefs autorefs-internal" href="../db/#fluid.db.Database">Database</a> command line interface (CLI) is a tool for managing database migrations and other database operations. It requires to install the additional <code>cli</code> extra:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>aio-fluid<span class="o">[</span>db,cli<span class="o">]</span>
 </span></code></pre></div>
-<p>Note the use of the <code>postgresql+asyncpg</code> driver in the connection string. This is required to use the asyncpg driver.</p>
-<h2 id="register-a-table">Register a Table<a class="headerlink" href="#register-a-table" title="Permanent link">&para;</a></h2>
-<p>To interact with a table, you need to register it with the database container:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">sqlalchemy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sa</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">users</span> <span class="o">=</span> <span class="n">sa</span><span class="o">.</span><span class="n">Table</span><span class="p">(</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="s2">&quot;users&quot;</span><span class="p">,</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">db</span><span class="o">.</span><span class="n">metadata</span><span class="p">,</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">Integer</span><span class="p">,</span> <span class="n">primary_key</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">sa</span><span class="o">.</span><span class="n">Column</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="n">sa</span><span class="o">.</span><span class="n">String</span><span class="p">),</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="p">)</span>
+<p>It can be imported from <code>fluid.db.cli</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">DbGroup</span>
 </span></code></pre></div>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="fluid.db.cli.DbGroup" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">fluid.db.cli.DbGroup</span>
+
+
+<a href="#fluid.db.cli.DbGroup" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">DbGroup</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">db</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;db&quot;</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Manage database and migrations&quot;</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="o">**</span><span class="n">kwargs</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents first">
+            <p class="doc doc-class-bases">
+              Bases: <code><span title="click.Group">Group</span></code></p>
+
+
+        <p>A click group for database commands</p>
+<p>This class provides a CLI for a Database Application.</p>
+<p>It requires to install the <code>cli</code> extra dependencies.</p>
+
+
+
+
+
+
+                  <details class="quote">
+                    <summary>Source code in <code>fluid/db/cli.py</code></summary>
+                    <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-20">20</a></span>
+<span class="normal"><a href="#__codelineno-0-21">21</a></span>
+<span class="normal"><a href="#__codelineno-0-22">22</a></span>
+<span class="normal"><a href="#__codelineno-0-23">23</a></span>
+<span class="normal"><a href="#__codelineno-0-24">24</a></span>
+<span class="normal"><a href="#__codelineno-0-25">25</a></span>
+<span class="normal"><a href="#__codelineno-0-26">26</a></span>
+<span class="normal"><a href="#__codelineno-0-27">27</a></span>
+<span class="normal"><a href="#__codelineno-0-28">28</a></span>
+<span class="normal"><a href="#__codelineno-0-29">29</a></span>
+<span class="normal"><a href="#__codelineno-0-30">30</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21"></a>    <span class="bp">self</span><span class="p">,</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22"></a>    <span class="n">db</span><span class="p">:</span> <span class="n">Database</span><span class="p">,</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23"></a>    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;db&quot;</span><span class="p">,</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24"></a>    <span class="n">help</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;Manage database and migrations&quot;</span><span class="p">,</span>  <span class="c1"># noqa: A002</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25"></a>    <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27"></a>    <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="n">help</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28"></a>    <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29"></a>    <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">_db</span><span class="o">.</span><span class="n">commands</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">add_command</span><span class="p">(</span><span class="n">command</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+                  </details>
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="fluid.db.cli.DbGroup.db" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">db</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#fluid.db.cli.DbGroup.db" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">db</span> <span class="o">=</span> <span class="n"><span title="fluid.db.cli.DbGroup(db)">db</span></span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+    </div>
+
+</div>
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="fluid.db.cli.DbGroup.get_command" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">get_command</span>
+
+
+<a href="#fluid.db.cli.DbGroup.get_command" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">get_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+            <details class="quote">
+              <summary>Source code in <code>fluid/db/cli.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-32">32</a></span>
+<span class="normal"><a href="#__codelineno-0-33">33</a></span>
+<span class="normal"><a href="#__codelineno-0-34">34</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_command</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">click</span><span class="o">.</span><span class="n">Command</span><span class="p">]:</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;db&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">}</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34"></a>    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_command</span><span class="p">(</span><span class="n">ctx</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="fluid.db.cli.DbGroup.list_commands" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">list_commands</span>
+
+
+<a href="#fluid.db.cli.DbGroup.list_commands" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">list_commands</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+            <details class="quote">
+              <summary>Source code in <code>fluid/db/cli.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-36">36</a></span>
+<span class="normal"><a href="#__codelineno-0-37">37</a></span>
+<span class="normal"><a href="#__codelineno-0-38">38</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36"></a><span class="k">def</span><span class="w"> </span><span class="nf">list_commands</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ctx</span><span class="p">:</span> <span class="n">click</span><span class="o">.</span><span class="n">Context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;db&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">}</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a>    <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">list_commands</span><span class="p">(</span><span class="n">ctx</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
 
 
 
@@ -1088,7 +1274,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../" class="md-footer__link md-footer__link--prev" aria-label="Previous: Tutorials">
+          <a href="../db/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Database">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1098,20 +1284,20 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Tutorials
+                Database
               </div>
             </div>
           </a>
         
         
           
-          <a href="../dispatchers/" class="md-footer__link md-footer__link--next" aria-label="Next: Event Dispatchers">
+          <a href="../db_crud/" class="md-footer__link md-footer__link--next" aria-label="Next: CrudDB">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Event Dispatchers
+                CrudDB
               </div>
             </div>
             <div class="md-footer__button md-icon">
