@@ -1,4 +1,4 @@
-# Pagination
+# DB Pagination
 
 The [Pagination][fluid.db.Pagination] class is a tool for managing paginated rows from the database.
 

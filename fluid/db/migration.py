@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from io import StringIO
 from pathlib import Path
 from typing import TYPE_CHECKING, cast
@@ -14,10 +15,15 @@ if TYPE_CHECKING:
     from .container import Database
 
 
+@dataclass
 class Migration:
-    def __init__(self, db: Database) -> None:
-        self.db = db
-        self.cfg = create_config(db)
+    """A wrapper around Alembic commands to perform database migrations"""
+
+    db: Database
+    cfg: Config = field(init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        self.cfg = create_config(self.db)
 
     @property
     def metadata(self) -> sa.MetaData:

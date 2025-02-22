@@ -8,6 +8,7 @@ from kubernetes_asyncio import client, config
 from kubernetes_asyncio.client.api_client import ApiClient
 from slugify import slugify
 
+from .common import cpu_env
 from .errors import TaskRunError
 
 if TYPE_CHECKING:
@@ -39,11 +40,12 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
             command.pop()
         batch = client.BatchV1Api(api)
         env = container.env or []
-        env.append(k8s.V1EnvVar(name="TASK_MANAGER_SPAWN", value="true"))
+        for name, value in cpu_env().items():
+            env.append(k8s.V1EnvVar(name=name, value=value))
         job = k8s.V1Job(
             metadata=k8s.V1ObjectMeta(name=job_name),
             spec=k8s.V1JobSpec(
-                ttl_seconds_after_finished=300,
+                ttl_seconds_after_finished=task.k8s_config.job_ttl,
                 template=k8s.V1PodTemplateSpec(
                     spec=k8s.V1PodSpec(
                         containers=[

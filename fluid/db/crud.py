@@ -17,7 +17,7 @@ QueryType: TypeAlias = Delete | Select | Update
 
 
 class CrudDB(Database):
-    """A :class:`.Database` with additional methods for CRUD operations"""
+    """A Database with additional methods for CRUD operations"""
 
     async def db_select(
         self,

@@ -16,7 +16,7 @@ from uvicorn.importer import import_from_string
 from fluid.utils import log as log_
 from fluid.utils.lazy import LazyGroup
 
-from .common import is_in_subprocess
+from .common import is_in_cpu_process
 
 if TYPE_CHECKING:
     from .consumer import TaskManager
@@ -88,7 +88,7 @@ class ExecuteTasks(click.Group):
             if run_id:
                 kwargs.update(run_id=run_id)
             run = task_manager.execute_sync(cmd_name, **kwargs)
-            if is_in_subprocess():
+            if is_in_cpu_process():
                 return
             console = Console()
             console.print(task_run_table(run))

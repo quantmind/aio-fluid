@@ -10,7 +10,6 @@ from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_en
 
 from fluid import settings
 
-from .cli import DbGroup
 from .migration import Migration
 
 
@@ -23,9 +22,15 @@ class Database:
     dsn: str
     """data source name, aka connection string
 
-    Example: "postgresql+asyncpg://user:password@localhost/dbname"
+    Example: `postgresql+asyncpg://user:password@localhost/dbname`
+
+    not the `+asyncpg` part is important for the sync engine
     """
     echo: bool = settings.DBECHO
+    """Echo SQL queries to stdout
+
+    It defaults to the `DBECHO` setting in the settings module
+    """
     pool_size: int = settings.DBPOOL_MAX_SIZE
     max_overflow: int = settings.DBPOOL_MAX_OVERFLOW
     metadata: sa.MetaData = field(default_factory=sa.MetaData)
@@ -65,12 +70,8 @@ class Database:
 
     @property
     def sync_engine(self) -> Engine:
-        """The :class:`sqlalchemy.engine.Engine` for synchrouns operations"""
+        """The sqlalchemy Engine object for synchrouns operations"""
         return create_engine(self.dsn.replace("+asyncpg", ""))
-
-    def cli(self, **kwargs: Any) -> DbGroup:
-        """Create a new click group for database commands"""
-        return DbGroup(self, **kwargs)
 
     @asynccontextmanager
     async def connection(self) -> AsyncIterator[AsyncConnection]:
@@ -127,5 +128,5 @@ class Database:
         return "ok"
 
     def migration(self) -> Migration:
-        """Create a new migration manager for this database"""
-        return Migration(self)
+        """The migration manager for this database"""
+        return Migration(db=self)

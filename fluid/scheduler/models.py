@@ -29,7 +29,7 @@ from fluid.utils.data import compact_dict
 from fluid.utils.dates import as_utc
 from fluid.utils.text import create_uid, trim_docstring
 
-from .common import is_in_subprocess
+from .common import cpu_env, is_in_cpu_process
 from .errors import TaskDecoratorError, TaskRunError
 from .scheduler_crontab import Scheduler
 
@@ -144,6 +144,8 @@ class K8sConfig(NamedTuple):
     """Kubernetes deployment of the task consumer"""
     container: str = "main"
     """Kubernetes container"""
+    job_ttl: int = 300
+    """Time to live for k8s Job after completion"""
     sleep: float = 2.0
     """Amount to async sleep while waiting for completion of k8s Job"""
 
@@ -153,6 +155,7 @@ class K8sConfig(NamedTuple):
             namespace=os.getenv("FLUID_TASK_CONSUMER_K8S_NAMESPACE", "default"),
             deployment=os.getenv("FLUID_TASK_CONSUMER_K8S_DEPLOYMENT", "fluid-task"),
             container=os.getenv("FLUID_TASK_CONSUMER_K8S_CONTAINER", "main"),
+            job_ttl=int(os.getenv("FLUID_TASK_CONSUMER_K8S_JOB_TTL", "300")),
         )
 
 
@@ -433,7 +436,7 @@ class TaskConstructor:
         return Task(**kwargs)
 
     def cpu_bound_task(self, executor: TaskExecutor) -> Task:
-        if is_in_subprocess():
+        if is_in_cpu_process():
             return self.create_task(executor)
         else:
             return self.create_task(run_cpu_bound, self.kwargs_defaults(executor))
@@ -486,7 +489,7 @@ class RemoteLog:
 
 async def run_in_subprocess(ctx: TaskRun[TP]) -> None:
     env = dict(os.environ)
-    env["TASK_MANAGER_SPAWN"] = "true"
+    env.update(cpu_env())
     result = await kernel.run_python(
         "-W",
         "ignore",
