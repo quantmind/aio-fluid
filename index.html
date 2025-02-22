@@ -1060,11 +1060,12 @@
 <p><strong>Source Code</strong>: <a href="https://github.com/quantmind/aio-fluid">github.com/quantmind/aio-fluid</a></p>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
 <ul>
+<li><strong>Async workers</strong>: workers with start/stop capabilities.</li>
 <li><strong>Async tasks scheduler and consumer</strong>: A task scheduler and consumer for async and CPU bound tasks.</li>
 <li><strong>Async CRUD database operations</strong>: An async CRUD interface for postgres databases.</li>
 </ul>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
-<p>This is a simple python package you can install via pip:</p>
+<p>This is a python package you can install via pip:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip install aio-fluid
 </span></code></pre></div>
 <p>To install all the dependencies:</p>
@@ -1076,6 +1077,7 @@ this includes the following extra dependencies:</p>
 <li><code>db</code> for database support with <a href="https://github.com/MagicStack/asyncpg">asyncpg</a> and <a href="https://www.sqlalchemy.org/">sqlalchemy</a></li>
 <li><code>http</code> for http client support with <a href="https://www.python-httpx.org/">httpx</a> and <a href="https://docs.aiohttp.org/en/stable/">aiohttp</a></li>
 <li><code>log</code> for JSON logging support with <a href="https://github.com/madzak/python-json-logger">python-json-logger</a></li>
+<li><code>k8s</code> for Kubernetes support for CPU bound tasks</li>
 </ul>
 <h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h2>
 <p>You can run the examples via</p>
