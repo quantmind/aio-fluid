@@ -90,9 +90,11 @@ http = [
 ]
 k8s = [
     "kubernetes",
-    "kubernetes-asyncio"
+    "kubernetes-asyncio",
+    "python-slugify"
 ]
 log = ["python-json-logger"]
+
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

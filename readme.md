@@ -13,9 +13,15 @@ Async utilities for backend python services developed by [Quantmind](https://qua
 **Source Code**: [github.com/quantmind/aio-fluid](https://github.com/quantmind/aio-fluid)
 
 
+## Features
+
+- **Async workers**: workers with start/stop capabilities.
+- **Async tasks scheduler and consumer**: A task scheduler and consumer for async and CPU bound tasks.
+- **Async CRUD database operations**: An async CRUD interface for postgres databases.
+
 ## Installation
 
-This is a simple python package you can install via pip:
+This is a python package you can install via pip:
 
 ```
 pip install aio-fluid
@@ -24,7 +30,7 @@ pip install aio-fluid
 To install all the dependencies:
 
 ```
-pip install aio-fluid[cli, db, http, log, k8s]
+pip install aio-fluid[cli, db, http, log]
 ```
 this includes the following extra dependencies:
 
@@ -33,7 +39,6 @@ this includes the following extra dependencies:
 - `http` for http client support with [httpx](https://www.python-httpx.org/) and [aiohttp](https://docs.aiohttp.org/en/stable/)
 - `log` for JSON logging support with [python-json-logger](https://github.com/madzak/python-json-logger)
 - `k8s` for Kubernetes support for CPU bound tasks
-
 
 ## Development
 
