@@ -10,6 +10,13 @@ if TYPE_CHECKING:
 
 
 class DbGroup(click.Group):
+    """A click group for database commands
+
+    This class provides a CLI for a Database Application.
+
+    It requires to install the `cli` extra dependencies.
+    """
+
     def __init__(
         self,
         db: Database,
