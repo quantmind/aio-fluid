@@ -2711,7 +2711,7 @@ description = "A Python slugify application that also handles Unicode"
 optional = true
 python-versions = ">=3.7"
 groups = ["main"]
-markers = "extra == \"http\""
+markers = "extra == \"http\" or extra == \"k8s\""
 files = [
     {file = "python-slugify-8.0.4.tar.gz", hash = "sha256:59202371d1d05b54a9e7720c5e038f928f45daaffe41dd10822f3907b937c856"},
     {file = "python_slugify-8.0.4-py2.py3-none-any.whl", hash = "sha256:276540b79961052b66b7d116620b36518847f52d5fd9e3a70164fc8c50faa6b8"},
@@ -3263,7 +3263,7 @@ description = "The most basic Text::Unidecode port"
 optional = true
 python-versions = "*"
 groups = ["main"]
-markers = "extra == \"http\""
+markers = "extra == \"http\" or extra == \"k8s\""
 files = [
     {file = "text-unidecode-1.3.tar.gz", hash = "sha256:bad6603bb14d279193107714b288be206cac565dfa49aa5b105294dd5c4aab93"},
     {file = "text_unidecode-1.3-py2.py3-none-any.whl", hash = "sha256:1311f10e8b895935241623731c2ba64f4c455287888b18189350b67134a822e8"},
@@ -3580,10 +3580,10 @@ propcache = ">=0.2.0"
 cli = ["click", "pydanclick", "rich"]
 db = ["alembic", "asyncpg", "click", "psycopg2-binary", "pydanclick", "python-dateutil", "rich", "sqlalchemy", "sqlalchemy-utils"]
 http = ["aiohttp", "httpx", "prometheus-client", "python-slugify"]
-k8s = ["kubernetes", "kubernetes-asyncio"]
+k8s = ["kubernetes", "kubernetes-asyncio", "python-slugify"]
 log = ["python-json-logger"]
 
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4.0"
-content-hash = "b421eca05c2169963c823ba23d778de35e21a34a325d9d91441b8e208b082950"
+content-hash = "0070ffc7f0a3b05f6794b1f834250a100cf6cdba4ea8ce71360d86865b5812f7"
