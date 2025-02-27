@@ -2,8 +2,7 @@ import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 
-from examples import tasks
-from fluid.scheduler import TaskInfo, TaskManager
+from fluid.scheduler import TaskInfo
 from fluid.utils.http_client import HttpxClient
 
 
@@ -32,10 +31,3 @@ class TaskClient(HttpxClient):
                 if task.last_run_end != last_run_end:
                     return task
                 await asyncio.sleep(sleep)
-
-
-def task_application(manager: TaskManager | None = None) -> TaskManager:
-    if manager is None:
-        manager = TaskManager()
-    manager.register_from_module(tasks)
-    return manager

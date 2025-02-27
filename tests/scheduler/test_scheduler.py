@@ -21,7 +21,7 @@ async def test_scheduler_manager(task_scheduler: TaskScheduler) -> None:
     assert task_scheduler
     assert task_scheduler.broker.registry
     assert "dummy" in task_scheduler.registry
-    assert "scheduled" in task_scheduler.registry
+    assert "ping" in task_scheduler.registry
     with pytest.raises(UnknownTaskError):
         task_scheduler.broker.task_from_registry("bbdjchbjch")
 
@@ -74,11 +74,11 @@ async def test_cpubound_execution(
 async def test_task_info(task_scheduler: TaskScheduler) -> None:
     with pytest.raises(UnknownTaskError):
         await task_scheduler.broker.enable_task("hfgfhgfhfh")
-    info = await task_scheduler.broker.enable_task("scheduled")
+    info = await task_scheduler.broker.enable_task("ping")
     assert info.enabled is True
-    assert info.name == "scheduled"
+    assert info.name == "ping"
     assert info.schedule == "every(0:00:02)"
-    assert info.description == "A simple scheduled task"
+    assert info.description == "A simple scheduled task that ping the broker"
 
 
 async def test_disabled_execution(task_scheduler: TaskScheduler) -> None:

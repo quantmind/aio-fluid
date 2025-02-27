@@ -1,8 +1,13 @@
 import asyncio
 from dataclasses import dataclass, field
 
-from fluid.utils.waiter import wait_for
-from fluid.utils.worker import QueueConsumerWorker, Workers
+from fluid.utils.worker import QueueConsumerWorker, Worker, Workers, WorkerState
+
+
+class BadWorker(Worker):
+    async def run(self):
+        while True:
+            await asyncio.sleep(0.1)
 
 
 @dataclass
@@ -27,4 +32,13 @@ async def test_consumer() -> None:
     assert await process.waiter == "test"
     assert consumer.queue_size() == 0
     await runner.shutdown()
-    await wait_for(lambda: not runner.is_running())
+    assert runner.is_stopped()
+
+
+async def test_froce_shutdown() -> None:
+    worker = BadWorker(stopping_grace_period=2)
+    await worker.startup()
+    assert worker.is_running()
+    await worker.shutdown()
+    assert worker.is_stopped()
+    assert worker.worker_state is WorkerState.FORCE_STOPPED
