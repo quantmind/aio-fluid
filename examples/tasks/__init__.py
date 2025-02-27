@@ -3,7 +3,7 @@ import os
 import time
 from dataclasses import dataclass, field
 from datetime import timedelta
-from typing import Self, cast
+from typing import Any, Self, cast
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
@@ -23,8 +23,10 @@ class Deps:
         return context.deps
 
 
-def task_scheduler() -> TaskScheduler:
-    task_manager = TaskScheduler(deps=Deps())
+def task_scheduler(*, deps: Deps | None = None, **kwargs: Any) -> TaskScheduler:
+    deps = deps or Deps()
+    task_manager = TaskScheduler(deps=deps, **kwargs)
+    task_manager.add_async_context_manager(deps.http_client)
     task_manager.register_from_dict(globals())
     return task_manager
 
@@ -47,9 +49,10 @@ async def dummy(context: TaskRun[Sleep]) -> None:
 
 
 @task(schedule=every(timedelta(seconds=2)))
-async def scheduled(context: TaskRun) -> None:
-    """A simple scheduled task"""
-    await asyncio.sleep(0.1)
+async def ping(context: TaskRun) -> None:
+    """A simple scheduled task that ping the broker"""
+    redis_cli = cast(RedisTaskBroker, context.task_manager.broker).redis_cli
+    await redis_cli.ping()
 
 
 class AddValues(BaseModel):

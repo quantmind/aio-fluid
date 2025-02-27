@@ -6,7 +6,7 @@ from fastapi import FastAPI
 
 from fluid import settings
 from fluid.utils import log
-from fluid.utils.worker import Worker, Workers
+from fluid.utils.worker import Workers
 
 logger = log.get_logger(__name__)
 
@@ -21,13 +21,6 @@ class FastapiAppWorkers(Workers):
         app.add_event_handler("shutdown", workers.shutdown)
         return workers
 
-    def bail_out(self, reason: str, code: int = 1) -> None:
+    def after_shutdown(self, reason: str, code: int = 1) -> None:
         if settings.ENV != "test":
-            logger.warning("shutting down due to %s", reason)
             os.kill(os.getpid(), signal.SIGTERM)
-
-    def get_active_worker(self, *, worker_name: str) -> Worker | None:
-        worker = self._workers.get_worker_by_name(worker_name)
-        if worker and not worker.is_stopping():
-            return worker
-        return None

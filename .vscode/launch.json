@@ -13,7 +13,7 @@
             "env": {},
             "args": [
                 "-x",
-                "tests/scheduler/test_scheduler.py::test_disabled_execution"
+                "tests/scheduler/test_scheduler.py"
             ],
             "debugOptions": [
                 "RedirectOutput"
@@ -46,6 +46,17 @@
                 "--a",
                 "1",
             ],
+            "debugOptions": [
+                "RedirectOutput"
+            ]
+        },
+        {
+            "name": "AIO-FLUID simple_worker",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/docs_src/simple_worker.py",
+            "cwd": "${workspaceFolder}",
+            "justMyCode": false,
             "debugOptions": [
                 "RedirectOutput"
             ]

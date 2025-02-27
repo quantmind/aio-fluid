@@ -86,19 +86,28 @@ class TaskManager:
             ),
         ] = TaskDispatcher()
         self.broker = TaskBroker.from_url(self.config.broker_url)
+        self._async_contexts: list[Any] = []
         self._stack = AsyncExitStack()
 
     async def __aenter__(self) -> Self:
+        for cm in self._async_contexts:
+            await self._stack.enter_async_context(cm)
         return self
 
     async def __aexit__(self, *exc_info: Any) -> None:
         try:
-            await self._stack.aclose()
+            await self._stack.__aexit__(*exc_info)
         finally:
-            await self.on_shutdown()
+            await self.broker.close()
 
-    async def enter_async_context(self, cm: Any) -> Any:
-        return await self._stack.enter_async_context(cm)
+    async def on_startup(self) -> None:
+        await self.__aenter__()
+
+    async def on_shutdown(self) -> None:
+        await self.__aexit__(None, None, None)
+
+    def add_async_context_manager(self, cm: Any) -> None:
+        self._async_contexts.append(cm)
 
     @property
     def registry(self) -> TaskRegistry:
@@ -114,9 +123,6 @@ class TaskManager:
         task_run = self.create_task_run(task, **params)
         await task_run.execute()
         return task_run
-
-    async def on_shutdown(self) -> None:
-        await self.broker.close()
 
     def execute_sync(self, task: Task | str, **params: Any) -> TaskRun:
         return asyncio.run(self._execute_and_exit(task, **params))
@@ -263,10 +269,9 @@ class TaskConsumer(TaskManager, Workers):
         try:
             task = self._task_to_queue.pop()
         except IndexError:
-            await asyncio.sleep(0.1)
+            pass
         else:
             await self.queue(task)
-            await asyncio.sleep(0)
 
     async def _consume_tasks(self, worker_name: str) -> None:
         if not self.config.consume_tasks:

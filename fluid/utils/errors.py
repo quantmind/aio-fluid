@@ -22,3 +22,7 @@ class ValidationError(FluidValueError):
 
     def __str__(self) -> str:
         return self.msg
+
+
+class WorkerStartError(FluidError):
+    """Worker start error"""
