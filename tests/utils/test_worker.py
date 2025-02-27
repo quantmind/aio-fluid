@@ -35,7 +35,7 @@ async def test_consumer() -> None:
     assert runner.is_stopped()
 
 
-async def test_froce_shutdown() -> None:
+async def test_force_shutdown() -> None:
     worker = BadWorker(stopping_grace_period=2)
     await worker.startup()
     assert worker.is_running()
