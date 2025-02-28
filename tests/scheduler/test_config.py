@@ -2,9 +2,9 @@ from typing import cast
 
 from pydantic import BaseModel
 
+from examples.tasks import task_scheduler
 from fluid.scheduler import TaskConsumer
 from fluid.scheduler.broker import RedisTaskBroker
-from tests.scheduler.tasks import task_application
 
 
 def test_no_workers() -> None:
@@ -33,7 +33,7 @@ async def test_two_queues() -> None:
 
 
 def test_params() -> None:
-    tasks = list(task_application().registry.values())
+    tasks = list(task_scheduler().registry.values())
     for task in tasks:
         assert task.params_model is not None
         assert issubclass(task.params_model, BaseModel)

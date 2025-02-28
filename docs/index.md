@@ -30,7 +30,7 @@ pip install aio-fluid
 To install all the dependencies:
 
 ```
-pip install aio-fluid[cli, db, http, log]
+pip install aio-fluid[cli, db, http, log, k8s]
 ```
 this includes the following extra dependencies:
 

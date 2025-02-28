@@ -7,11 +7,9 @@ There are several worker classes which can be imported from `fluid.utils.worker`
 from fluid.utils.worker import StoppingWorker
 ```
 
+::: fluid.utils.worker.WorkerState
+
 ::: fluid.utils.worker.Worker
-
-::: fluid.utils.worker.RunningWorker
-
-::: fluid.utils.worker.StoppingWorker
 
 ::: fluid.utils.worker.WorkerFunction
 
@@ -22,5 +20,3 @@ from fluid.utils.worker import StoppingWorker
 ::: fluid.utils.worker.AsyncConsumer
 
 ::: fluid.utils.worker.Workers
-
-::: fluid.utils.worker.DynamicWorkers
