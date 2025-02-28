@@ -8,13 +8,11 @@
       
       
       
-        <link rel="canonical" href="https://aio-fluid.com/tutorials/dispatchers/">
+        <link rel="canonical" href="https://aio-fluid.com/tutorials/workers/">
       
       
-        <link rel="prev" href="../db/">
+        <link rel="prev" href="../task_queue/">
       
-      
-        <link rel="next" href="../task_app/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -22,7 +20,7 @@
     
     
       
-        <title>Event Dispatchers - Aio Fluid</title>
+        <title>Workers - Aio Fluid</title>
       
     
     
@@ -76,7 +74,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#event-dispatchers" class="md-skip">
+        <a href="#workers" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +110,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Event Dispatchers
+              Workers
             
           </span>
         </div>
@@ -828,19 +826,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../dispatchers/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -850,7 +839,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -926,10 +914,31 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../workers/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Workers
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -939,6 +948,59 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#worker-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Worker Lifecycle
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Worker Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#startup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Startup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shutdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shutdown
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -971,6 +1033,47 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#worker-lifecycle" class="md-nav__link">
+    <span class="md-ellipsis">
+      Worker Lifecycle
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Worker Lifecycle">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#startup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Startup
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shutdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      Shutdown
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -988,14 +1091,48 @@
   
 
 
-<h1 id="event-dispatchers">Event Dispatchers<a class="headerlink" href="#event-dispatchers" title="Permanent link">&para;</a></h1>
-<p>Event dispatchers are a way to decouple the event source from the event handler. This is useful when you want to have multiple handlers for the same event, or when you want to have a single handler for multiple events.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.utils.dispatcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleDispatcher</span>
+<h1 id="workers">Workers<a class="headerlink" href="#workers" title="Permanent link">&para;</a></h1>
+<p>Workers are the main building block for asynchronous programming with <code>aio-fluid</code>. They are responsible for running tasks and managing their lifecycle.
+All workers implemented derive from the base abstract class <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker">Worker</a> where the main method to implement is the <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.run">Worker.run</a> method.</p>
+<h2 id="worker-lifecycle">Worker Lifecycle<a class="headerlink" href="#worker-lifecycle" title="Permanent link">&para;</a></h2>
+<p>The lifecycle of a worker is managed by the <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.WorkerState">WorkerState</a> class which provides a set of states that a worker can be in. The worker starts in an inital state and than it can be started and stopped.</p>
+<h3 id="startup">Startup<a class="headerlink" href="#startup" title="Permanent link">&para;</a></h3>
+<p>To start a worker one uses the async method <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.startup">Worker.startup</a> which create the task running the worker. The task will transition the worker from <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.WorkerState.INIT">WorkerState.INIT</a> to the <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.WorkerState.RUNNING">WorkerState.RUNNING</a> state. The worker will then run the <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.on_startup">Worker.on_startup</a> coroutine method (which by default is a no-op) follow by the main worker coroutine method <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.run">Worker.run</a> method until it is stopped.</p>
+<p>This is a very simple example of a worker that prints a message every second until it is stopped:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">simple</span> <span class="o">=</span> <span class="n">SimpleDispatcher</span><span class="p">[</span><span class="n">Any</span><span class="p">]()</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.utils.worker</span><span class="w"> </span><span class="kn">import</span> <span class="n">Worker</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="n">simple</span><span class="o">.</span><span class="n">dispatch</span><span class="p">(</span><span class="s2">&quot;you can dispatch anything to this generic dispatcher&quot;</span><span class="p">)</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">SimpleWorker</span><span class="p">(</span><span class="n">Worker</span><span class="p">):</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">print_message</span><span class="p">()</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">print_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hello from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_name</span><span class="si">}</span><span class="s2"> in state </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_state</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">worker</span> <span class="o">=</span> <span class="n">SimpleWorker</span><span class="p">()</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">worker</span><span class="o">.</span><span class="n">print_message</span><span class="p">()</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="k">await</span> <span class="n">worker</span><span class="o">.</span><span class="n">startup</span><span class="p">()</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span><span class="o">.</span><span class="n">call_later</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">worker</span><span class="o">.</span><span class="n">gracefully_stop</span><span class="p">)</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="k">await</span> <span class="n">worker</span><span class="o">.</span><span class="n">wait_for_shutdown</span><span class="p">()</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">worker</span><span class="o">.</span><span class="n">print_message</span><span class="p">()</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
 </span></code></pre></div>
+<h3 id="shutdown">Shutdown<a class="headerlink" href="#shutdown" title="Permanent link">&para;</a></h3>
+<p>To shut down a worker there are few possibilities.</p>
+<ul>
+<li>Direct call to the async <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.shutdown">Worker.shutdown</a> method which will trigger the graceful shutdown and wait for the worker to finish its work.</li>
+<li>Call the <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.gracefully_stop">Worker.gracefully_stop</a> method which will trigger the graceful shutdown. Importantly, this method does not wait for the worker to finish its work, ti simply transition from the <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.WorkerState.RUNNING">WorkerState.RUNNING</a> to <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.WorkerState.STOPPING">WorkerState.STOPPING</a> state. To wait for the worker exit one should call the async <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.wait_for_shutdown">Worker.wait_for_shutdown</a> method (as in the example above)</li>
+</ul>
 
 
 
@@ -1025,7 +1162,7 @@
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../db/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Async Database">
+          <a href="../task_queue/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Tasks">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1035,27 +1172,11 @@
                 Previous
               </span>
               <div class="md-ellipsis">
-                Async Database
+                Tasks
               </div>
             </div>
           </a>
         
-        
-          
-          <a href="../task_app/" class="md-footer__link md-footer__link--next" aria-label="Next: Task Queue App">
-            <div class="md-footer__title">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              <div class="md-ellipsis">
-                Task Queue App
-              </div>
-            </div>
-            <div class="md-footer__button md-icon">
-              
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
-            </div>
-          </a>
         
       </nav>
     
