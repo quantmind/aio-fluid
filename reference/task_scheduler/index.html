@@ -911,15 +911,6 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskScheduler.wrokers" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;wrokers
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
   <a href="#fluid.scheduler.TaskScheduler.add_async_context_manager" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;add_async_context_manager
@@ -1613,15 +1604,6 @@
   <a href="#fluid.scheduler.TaskScheduler.add_workers" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;add_workers
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskScheduler.wrokers" class="md-nav__link">
-    <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;wrokers
     </span>
   </a>
   
@@ -2472,15 +2454,11 @@ try to gracefully stop it nor force shutdown.</p>
 
     <div class="doc doc-contents ">
 
-        <p>An iterator of workers in this worker</p>
-
             <details class="quote">
               <summary>Source code in <code>fluid/utils/worker.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-246">246</a></span>
-<span class="normal"><a href="#__codelineno-0-247">247</a></span>
-<span class="normal"><a href="#__codelineno-0-248">248</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-246"><a id="__codelineno-0-246" name="__codelineno-0-246"></a><span class="k">def</span><span class="w"> </span><span class="nf">workers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Worker</span><span class="p">]:</span>
-</span><span id="__span-0-247"><a id="__codelineno-0-247" name="__codelineno-0-247"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;An iterator of workers in this worker&quot;&quot;&quot;</span>
-</span><span id="__span-0-248"><a id="__codelineno-0-248" name="__codelineno-0-248"></a>    <span class="k">yield</span> <span class="bp">self</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-434">434</a></span>
+<span class="normal"><a href="#__codelineno-0-435">435</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-434"><a id="__codelineno-0-434" name="__codelineno-0-434"></a><span class="k">def</span><span class="w"> </span><span class="nf">workers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Worker</span><span class="p">]:</span>
+</span><span id="__span-0-435"><a id="__codelineno-0-435" name="__codelineno-0-435"></a>    <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_workers</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2564,30 +2542,6 @@ try to gracefully stop it nor force shutdown.</p>
 </span><span id="__span-0-426"><a id="__codelineno-0-426" name="__codelineno-0-426"></a>    <span class="k">for</span> <span class="n">worker</span> <span class="ow">in</span> <span class="n">workers</span><span class="p">:</span>
 </span><span id="__span-0-427"><a id="__codelineno-0-427" name="__codelineno-0-427"></a>        <span class="k">if</span> <span class="n">worker</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_workers</span><span class="p">:</span>
 </span><span id="__span-0-428"><a id="__codelineno-0-428" name="__codelineno-0-428"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_workers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">worker</span><span class="p">)</span>
-</span></code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="fluid.scheduler.TaskScheduler.wrokers" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">wrokers</span>
-
-
-<a href="#fluid.scheduler.TaskScheduler.wrokers" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">wrokers</span><span class="p">()</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-            <details class="quote">
-              <summary>Source code in <code>fluid/utils/worker.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-434">434</a></span>
-<span class="normal"><a href="#__codelineno-0-435">435</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-434"><a id="__codelineno-0-434" name="__codelineno-0-434"></a><span class="k">def</span><span class="w"> </span><span class="nf">wrokers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Worker</span><span class="p">]:</span>
-</span><span id="__span-0-435"><a id="__codelineno-0-435" name="__codelineno-0-435"></a>    <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_workers</span><span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
