@@ -1,6 +1,9 @@
 import asyncio
 from dataclasses import dataclass, field
 
+import pytest
+
+from fluid.utils.errors import WorkerStartError
 from fluid.utils.worker import QueueConsumerWorker, Worker, Workers, WorkerState
 
 
@@ -8,6 +11,18 @@ class BadWorker(Worker):
     async def run(self):
         while True:
             await asyncio.sleep(0.1)
+
+
+class BadWorker2(Worker):
+    async def run(self):
+        await asyncio.sleep(0.1)
+        raise RuntimeError("I'm so bad")
+
+
+class BadWorker3(Worker):
+    async def run(self):
+        await asyncio.sleep(0.1)
+        raise asyncio.CancelledError
 
 
 @dataclass
@@ -35,10 +50,37 @@ async def test_consumer() -> None:
     assert runner.is_stopped()
 
 
+async def test_metadata() -> None:
+    worker = BadWorker(stopping_grace_period=2)
+    assert worker.num_workers == 1
+    assert list(worker.workers()) == [worker]
+    await worker.wait_for_shutdown()
+    assert worker.worker_state is WorkerState.INIT
+
+
 async def test_force_shutdown() -> None:
     worker = BadWorker(stopping_grace_period=2)
     await worker.startup()
+    with pytest.raises(WorkerStartError):
+        await worker.startup()
     assert worker.is_running()
     await worker.shutdown()
     assert worker.is_stopped()
     assert worker.worker_state is WorkerState.FORCE_STOPPED
+
+
+async def test_exeception2() -> None:
+    worker = BadWorker2()
+    await worker.startup()
+    with pytest.raises(RuntimeError) as exc:
+        await worker.wait_for_shutdown()
+    assert str(exc.value) == "I'm so bad"
+    assert worker.is_stopped()
+
+
+async def test_exeception3() -> None:
+    worker = BadWorker3()
+    await worker.startup()
+    with pytest.raises(asyncio.CancelledError):
+        await worker.wait_for_shutdown()
+    assert worker.is_stopped()
