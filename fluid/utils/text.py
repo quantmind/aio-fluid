@@ -1,4 +1,3 @@
-import json
 import uuid
 from typing import Any
 
@@ -32,12 +31,6 @@ def as_uuid(uid: Any) -> str | None:
         except ValueError:
             return None
     return None
-
-
-def nice_json(data: Any) -> str:
-    if not isinstance(data, str):
-        return json.dumps(data, indent=4)
-    return data
 
 
 def trim_docstring(docstring: str) -> str:

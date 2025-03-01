@@ -60,7 +60,7 @@ class WorkerTaskRunner:
         return await waiter
 
     async def shutdown(self) -> None:
-        if self.task is None:
+        if self.task is None:   # pragma: no cover
             return
         elif not self.started_shutdown:
             self.started_shutdown = True
@@ -426,16 +426,6 @@ class Workers(Worker):
         for worker in workers:
             if worker not in self._workers:
                 self._workers.append(worker)
-
-    def remove_workers(self, *workers: Worker) -> None:
-        "remove workers from the workers"
-        for worker in workers:
-            try:
-                self._workers.remove(worker)
-            except ValueError:
-                pass
-            else:
-                worker.gracefully_stop()
 
     @property
     def num_workers(self) -> int:
