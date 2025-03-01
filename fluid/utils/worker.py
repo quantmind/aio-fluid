@@ -70,14 +70,7 @@ class WorkerTaskRunner:
     async def wait_for_shutdown(self) -> None:
         if self.task is None:
             return
-        try:
-            await self.task
-        except asyncio.CancelledError:
-            if self.force_shutdown:
-                # we are shutting down, this is expected
-                pass
-            else:
-                raise
+        await self.task
 
     async def gracefully_shutdown(self) -> None:
         self.started_shutdown = True
@@ -193,9 +186,6 @@ class Worker(ABC):
     def is_stopped(self) -> bool:
         return self._worker_state in (WorkerState.STOPPED, WorkerState.FORCE_STOPPED)
 
-    def is_task(self) -> bool:
-        return self._worker_task_runner is not None
-
     def gracefully_stop(self) -> None:
         if self.is_running():
             self._worker_state = WorkerState.STOPPING
@@ -245,6 +235,11 @@ class Worker(ABC):
             await self._worker_task_runner.shutdown()
 
     async def wait_for_shutdown(self) -> None:
+        """Wait for the worker to stop
+
+        This method will wait for the worker to stop running, but doesn't
+        try to gracefully stop it nor force shutdown.
+        """
         if self._worker_task_runner is not None:
             await self._worker_task_runner.wait_for_shutdown()
 

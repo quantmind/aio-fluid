@@ -12,6 +12,7 @@ from fluid.scheduler import (
     TaskState,
 )
 from fluid.scheduler.errors import UnknownTaskError
+from fluid.utils.stacksampler import Sampler
 from fluid.utils.waiter import wait_for
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
@@ -116,3 +117,9 @@ async def test_async_handler(task_scheduler: TaskScheduler) -> None:
     assert handler.task_run
     assert handler.task_run.state == TaskState.running
     assert task_scheduler.unregister_async_handler("running.test") is handler
+
+
+def test_sampler(sampler: Sampler) -> None:
+    assert sampler.started
+    stats = sampler.stats()
+    assert stats
