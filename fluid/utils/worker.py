@@ -235,6 +235,11 @@ class Worker(ABC):
             await self._worker_task_runner.shutdown()
 
     async def wait_for_shutdown(self) -> None:
+        """Wait for the worker to stop
+
+        This method will wait for the worker to stop running, but doesn't
+        try to gracefully stop it nor force shutdown.
+        """
         if self._worker_task_runner is not None:
             await self._worker_task_runner.wait_for_shutdown()
 

@@ -26,3 +26,7 @@ class ValidationError(FluidValueError):
 
 class WorkerStartError(FluidError):
     """Worker start error"""
+
+
+class FlamegraphError(FluidError):
+    pass

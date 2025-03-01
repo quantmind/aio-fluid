@@ -1,5 +1,5 @@
 from contextlib import asynccontextmanager
-from typing import AsyncIterator, cast
+from typing import AsyncIterator, Iterator, cast
 
 import pytest
 from fastapi import FastAPI
@@ -11,6 +11,7 @@ from fluid.scheduler import TaskManager, TaskScheduler
 from fluid.scheduler.broker import RedisTaskBroker
 from fluid.scheduler.endpoints import get_task_manger, setup_fastapi
 from fluid.tools_fastapi import backdoor
+from fluid.utils.stacksampler import Sampler
 from tests.scheduler.tasks import TaskClient
 
 
@@ -23,6 +24,14 @@ async def start_fastapi(app: FastAPI) -> AsyncIterator:
 
 def redis_broker(task_manager: TaskManager) -> RedisTaskBroker:
     return cast(RedisTaskBroker, task_manager.broker)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def sampler() -> Iterator[Sampler]:
+    sampler = Sampler()
+    sampler.start()
+    yield sampler
+    sampler.stop()
 
 
 @pytest.fixture(scope="module")

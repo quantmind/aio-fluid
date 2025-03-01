@@ -1,5 +1,4 @@
 import json
-import os
 import uuid
 from typing import Any
 
@@ -35,17 +34,6 @@ def as_uuid(uid: Any) -> str | None:
     return None
 
 
-def nice_env_str(space: int = 4, trim_length: int = 100) -> str:
-    lt = max(len(k) for k in os.environ) + space
-    values = []
-    for key, value in os.environ.items():
-        if len(value) > trim_length + 3:
-            value = f"{value[:trim_length]}..."
-        k = f"{key}:".ljust(lt)
-        values.append(f"{k}{value}")
-    return "\n".join(values)
-
-
 def nice_json(data: Any) -> str:
     if not isinstance(data, str):
         return json.dumps(data, indent=4)
@@ -53,10 +41,7 @@ def nice_json(data: Any) -> str:
 
 
 def trim_docstring(docstring: str) -> str:
-    """Uniformly trims leading/trailing whitespace from docstrings.
-    Based on
-    http://www.python.org/peps/pep-0257.html#handling-docstring-indentation
-    """
+    """Uniformly trims leading/trailing whitespace from doc-strings"""
     if not docstring or not docstring.strip():
         return ""
     # Convert tabs to spaces and split into lines
