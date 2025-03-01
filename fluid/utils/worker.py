@@ -60,7 +60,7 @@ class WorkerTaskRunner:
         return await waiter
 
     async def shutdown(self) -> None:
-        if self.task is None:   # pragma: no cover
+        if self.task is None:  # pragma: no cover
             return
         elif not self.started_shutdown:
             self.started_shutdown = True
