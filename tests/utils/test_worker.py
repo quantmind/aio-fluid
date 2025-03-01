@@ -7,6 +7,12 @@ from fluid.utils.errors import WorkerStartError
 from fluid.utils.worker import QueueConsumerWorker, Worker, Workers, WorkerState
 
 
+class NiceWorker(Worker):
+    async def run(self):
+        while self.is_running():
+            await asyncio.sleep(0.1)
+
+
 class BadWorker(Worker):
     async def run(self):
         while True:
@@ -84,3 +90,20 @@ async def test_exeception3() -> None:
     with pytest.raises(asyncio.CancelledError):
         await worker.wait_for_shutdown()
     assert worker.is_stopped()
+
+
+async def test_workers() -> None:
+    workers = Workers(NiceWorker())
+    assert workers.num_workers == 1
+    assert workers.has_started() is False
+    await workers.startup()
+    assert workers.has_started()
+    status = await workers.status()
+    assert status
+    assert workers.is_running()
+    [nice] = list(workers.workers())
+    assert nice.is_running()
+    nice.gracefully_stop()
+    assert nice.is_stopping()
+    await workers.wait_for_shutdown()
+    assert workers.is_stopped()
