@@ -431,7 +431,7 @@ class Workers(Worker):
     def num_workers(self) -> int:
         return len(self._workers)
 
-    def wrokers(self) -> Iterator[Worker]:
+    def workers(self) -> Iterator[Worker]:
         return iter(self._workers)
 
     def gracefully_stop(self) -> None:

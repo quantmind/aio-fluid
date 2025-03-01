@@ -93,17 +93,18 @@ async def test_exeception3() -> None:
 
 
 async def test_workers() -> None:
-    workers = Workers(NiceWorker())
-    assert workers.num_workers == 1
+    workers = Workers(NiceWorker(), BadWorker(stopping_grace_period=2))
+    assert workers.num_workers == 2
     assert workers.has_started() is False
     await workers.startup()
     assert workers.has_started()
     status = await workers.status()
     assert status
     assert workers.is_running()
-    [nice] = list(workers.workers())
+    [nice, bad] = list(workers.workers())
     assert nice.is_running()
     nice.gracefully_stop()
     assert nice.is_stopping()
+    assert bad.is_running()
     await workers.wait_for_shutdown()
     assert workers.is_stopped()
