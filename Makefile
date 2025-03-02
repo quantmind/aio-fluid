@@ -62,7 +62,7 @@ docs-publish:		## publish the book to github pages
 
 .PHONY: docs-serve
 docs-serve:		## serve documentation
-	@poetry run mkdocs serve -w fluid
+	@poetry run mkdocs serve -w fluid -w docs_src
 
 
 .PHONY: readme

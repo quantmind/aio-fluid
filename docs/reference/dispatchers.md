@@ -6,6 +6,8 @@ A set of classes for dispatching events, they can be imported from `fluid.utils.
 from fluid.utils.dispatcher import Dispatcher
 ```
 
+::: fluid.utils.dispatcher.Event
+
 ::: fluid.utils.dispatcher.BaseDispatcher
 
 ::: fluid.utils.dispatcher.Dispatcher

@@ -97,8 +97,7 @@ def create_queue_task(task: Task) -> Callable:
     ) -> TaskRun:
         try:
             return await task_manager.queue(
-                task.name,
-                task.priority,
+                task,
                 params=params.model_dump() if params is not None else {},  # type: ignore
             )
         except UnknownTaskError as exc:

@@ -9,7 +9,7 @@ pytestmark = pytest.mark.asyncio(loop_scope="module")
 
 async def test_get_tasks(cli: TaskClient) -> None:
     data = await cli.get(f"{cli.url}/tasks")
-    assert len(data) == 5
+    assert len(data) == 6
     tasks = {task["name"]: TaskInfo(**task) for task in data}
     dummy = tasks["dummy"]
     assert dummy.name == "dummy"

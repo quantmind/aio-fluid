@@ -99,6 +99,12 @@ async def test_disabled_execution(task_scheduler: TaskScheduler) -> None:
     assert task_run.state == TaskState.aborted.name
 
 
+async def test_timeout(task_scheduler: TaskScheduler) -> None:
+    task_run = await task_scheduler.queue_and_wait("fast", sleep=5, timeout=5)
+    assert task_run.state == TaskState.failure
+    assert task_run.end
+
+
 @dataclass
 class AsyncHandler:
     task_run: TaskRun | None = None
@@ -119,7 +125,9 @@ async def test_async_handler(task_scheduler: TaskScheduler) -> None:
     assert task_scheduler.unregister_async_handler("running.test") is handler
 
 
-def test_sampler(sampler: Sampler) -> None:
+async def test_sampler(sampler: Sampler) -> None:
     assert sampler.started
     stats = sampler.stats()
     assert stats
+    async with sampler.flamegraph_file("test", stats) as data:
+        assert data
