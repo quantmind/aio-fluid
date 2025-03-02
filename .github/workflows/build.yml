@@ -43,6 +43,8 @@ jobs:
           redis-version: 7
       - name: Install dependencies
         run: make install
+      - name: Install flamegraph
+        run: make flamegraph-install
       - name: run lint
         run: make lint-test
       - name: build docs
