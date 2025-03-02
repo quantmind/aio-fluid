@@ -21,6 +21,7 @@ pytestmark = pytest.mark.asyncio(loop_scope="module")
 async def test_scheduler_manager(task_scheduler: TaskScheduler) -> None:
     assert task_scheduler
     assert task_scheduler.broker.registry
+    assert task_scheduler.type == "task_scheduler"
     assert "dummy" in task_scheduler.registry
     assert "ping" in task_scheduler.registry
     with pytest.raises(UnknownTaskError):
@@ -61,11 +62,10 @@ async def test_dummy_rate_limit(task_scheduler: TaskScheduler) -> None:
     assert s1.state is TaskState.rate_limited or s2.state is TaskState.rate_limited
 
 
-@pytest.mark.flaky
-async def test_cpubound_execution(
+async def test_cpu_bound_execution(
     task_scheduler: TaskScheduler, redis: Redis  # type: ignore
 ) -> None:
-    task_run = await task_scheduler.queue_and_wait("cpu_bound")
+    task_run = await task_scheduler.queue_and_wait("cpu_bound", timeout=5)
     assert task_run.end
     result = await redis.get(task_run.id)
     assert result

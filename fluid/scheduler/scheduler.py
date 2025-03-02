@@ -40,9 +40,6 @@ class ScheduleTasks(WorkerFunction):
                 if run:
                     self.last_run[task.name] = run
                     from_now = task.randomize() if task.randomize else 0
-                    if from_now:
-                        asyncio.get_event_loop().call_later(
-                            from_now, self.task_manager.sync_queue, task
-                        )
-                    else:
-                        self.task_manager.sync_queue(task)
+                    asyncio.get_event_loop().call_later(
+                        from_now, self.task_manager.sync_queue, task
+                    )

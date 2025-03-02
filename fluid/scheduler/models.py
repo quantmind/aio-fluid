@@ -35,7 +35,7 @@ from .scheduler_crontab import Scheduler
 
 try:
     from .k8s_job import run_on_k8s_job
-except ImportError:
+except ImportError:  # pragma: no cover
     run_on_k8s_job = None  # type: ignore[assignment]
 
 
@@ -221,6 +221,7 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
     end: datetime | None = None
 
     async def execute(self) -> None:
+        """Execute the task"""
         try:
             self.set_state(TaskState.running)
             await self.task.executor(self)  # type: ignore [arg-type]
@@ -231,7 +232,7 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
             self.set_state(TaskState.success)
 
     @field_serializer("task")
-    def serialize_task(self, task: Task, _info: Any) -> str:
+    def _serialize_task(self, task: Task, _info: Any) -> str:
         return task.name
 
     @property
