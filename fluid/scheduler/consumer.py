@@ -125,6 +125,11 @@ class TaskManager:
         return task_run
 
     def execute_sync(self, task: Task | str, **params: Any) -> TaskRun:
+        """Execute a task synchronously
+
+        This method is a blocking method that should be used in a synchronous
+        context.
+        """
         return asyncio.run(self._execute_and_exit(task, **params))
 
     def register_task(self, task: Task) -> None:
@@ -136,7 +141,13 @@ class TaskManager:
 
     async def queue(
         self,
-        task: str | Task,
+        task: Annotated[
+            str | Task,
+            Doc(
+                "The task or task name,"
+                " if a task name it must be registered with the task manager."
+            ),
+        ],
         priority: TaskPriority | None = None,
         **params: Any,
     ) -> TaskRun:
@@ -144,8 +155,10 @@ class TaskManager:
 
         This methods fires two events:
 
-        - init: when the task run is created
-        - queued: after the task is queued
+        - `init`: when the task run is created
+        - `queued`: after the task is queued
+
+        It returns the [TaskRun][fluid.scheduler.TaskRun] object
         """
         task_run = self.create_task_run(task, priority=priority, **params)
         self.dispatcher.dispatch(task_run)
@@ -155,12 +168,23 @@ class TaskManager:
 
     def create_task_run(
         self,
-        task: str | Task,
-        run_id: str = "",
-        priority: TaskPriority | None = None,
+        task: Annotated[
+            str | Task,
+            Doc(
+                "The task or task name,"
+                " if a task name it must be registered with the task manager."
+            ),
+        ],
+        run_id: Annotated[
+            str,
+            Doc("Unique ID for the task run. If not provided a new UUID is generated."),
+        ] = "",
+        priority: Annotated[
+            TaskPriority | None, Doc("Overrise the default task priority if provided")
+        ] = None,
         **params: Any,
     ) -> TaskRun:
-        """Create a TaskRun in `init` state"""
+        """Create a [TaskRun][fluid.scheduler.TaskRun] in `init` state"""
         task = self.broker.task_from_registry(task)
         run_id = run_id or self.broker.new_uuid()
         return TaskRun(
@@ -214,7 +238,6 @@ class TaskConsumer(TaskManager, Workers):
         self._async_dispatcher_worker = AsyncConsumer(AsyncTaskDispatcher())
         self._concurrent_tasks: dict[str, dict[str, TaskRun]] = defaultdict(dict)
         self._task_to_queue: deque[str | Task] = deque()
-        self._priority_task_run_queue: deque[TaskRun] = deque()
         self._queue_tasks_worker = WorkerFunction(
             self._queue_task, name="queue-task-worker"
         )
@@ -234,10 +257,8 @@ class TaskConsumer(TaskManager, Workers):
         return sum(len(v) for v in self._concurrent_tasks.values())
 
     def sync_queue(self, task: str | Task) -> None:
+        """Queue a task synchronously"""
         self._task_to_queue.appendleft(task)
-
-    def sync_priority_queue(self, task: str | Task) -> None:
-        self._priority_task_run_queue.appendleft(self.create_task_run(task))
 
     def num_concurrent_tasks_for(self, task_name: str) -> int:
         """The number of concurrent tasks for a given task_name"""
@@ -277,23 +298,18 @@ class TaskConsumer(TaskManager, Workers):
         if not self.config.consume_tasks:
             await asyncio.sleep(self.config.sleep)
             return
-        if self._priority_task_run_queue:
-            task_run = self._priority_task_run_queue.pop()
-        else:
-            try:
-                maybe_task_run = await self.broker.get_task_run(self)
-            except UnknownTaskError as exc:
-                logger.error(
-                    "%s unknown task %s - it looks like it is not "
-                    "registered with this consumer",
-                    worker_name,
-                    exc,
-                )
-                maybe_task_run = None
-            if not maybe_task_run:
+        try:
+            task_run = await self.broker.get_task_run(self)
+            if task_run is None:
                 return
-            else:
-                task_run = maybe_task_run
+        except UnknownTaskError as exc:
+            logger.error(
+                "%s unknown task %s - it looks like it is not "
+                "registered with this consumer",
+                worker_name,
+                exc,
+            )
+            return
         task_name = task_run.name
         self._concurrent_tasks[task_name][task_run.id] = task_run
         #

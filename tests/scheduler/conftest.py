@@ -36,7 +36,7 @@ def sampler() -> Iterator[Sampler]:
 
 @pytest.fixture(scope="module")
 async def task_app():
-    task_manager = tasks.task_scheduler(max_concurrent_tasks=2, schedule_tasks=False)
+    task_manager = tasks.task_scheduler(max_concurrent_tasks=2, schedule_tasks=True)
     broker = redis_broker(task_manager)
     await broker.clear()
     async with start_fastapi(setup_fastapi(task_manager)) as app:

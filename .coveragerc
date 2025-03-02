@@ -8,6 +8,8 @@ directory = build/coverage/html
 exclude_lines =
     pragma: no cover
     raise NotImplementedError
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
 
 [xml]
 output = build/coverage.xml
