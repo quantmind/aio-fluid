@@ -166,8 +166,7 @@ class Task(NamedTuple, Generic[TP]):
     """Task name - unique identifier"""
     executor: TaskExecutor
     """Task executor function"""
-    params_model: type[TP]
-    """Pydantic model for task parameters"""
+    params_model: Annotated[type[TP], Doc("Pydantic model for task parameters")]
     logger: logging.Logger
     """Task logger"""
     module: str = ""
@@ -224,7 +223,8 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
         """Execute the task"""
         try:
             self.set_state(TaskState.running)
-            await self.task.executor(self)  # type: ignore [arg-type]
+            async with asyncio.timeout(self.task.timeout_seconds):
+                await self.task.executor(self)  # type: ignore [arg-type]
         except Exception:
             self.set_state(TaskState.failure)
             raise
@@ -354,7 +354,8 @@ class TaskRunWaiter:
     def __call__(self, task_run: TaskRun) -> None:
         self._runs[task_run.id] = task_run
 
-    async def wait(self, task_run: TaskRun, *, timeout: int = 2) -> TaskRun:
+    async def wait(self, task_run: TaskRun, *, timeout: int | None = None) -> TaskRun:
+        timeout = timeout or task_run.task.timeout_seconds
         async with asyncio.timeout(timeout):
             while True:
                 if tr := self._runs.get(task_run.id):

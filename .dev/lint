@@ -4,6 +4,7 @@ set -e
 ISORT_ARGS="-c"
 BLACK_ARG="--check"
 RUFF_ARG=""
+MODULES="fluid tests examples docs_src"
 
 if [ "$1" = "fix" ] ; then
     ISORT_ARGS=""
@@ -12,10 +13,10 @@ if [ "$1" = "fix" ] ; then
 fi
 
 echo isort
-isort fluid tests examples ${ISORT_ARGS}
+isort ${MODULES} ${ISORT_ARGS}
 echo "run black"
-black fluid tests examples ${BLACK_ARG}
+black ${MODULES} ${BLACK_ARG}
 echo "run ruff"
-ruff check fluid tests examples ${RUFF_ARG}
+ruff check ${MODULES} ${RUFF_ARG}
 echo "run mypy"
-mypy fluid tests examples
+mypy ${MODULES}

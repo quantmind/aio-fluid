@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+set -e
+
+INSTALLATION_PATH=${FG_PATH:-/usr/bin}
+
+wget -nv https://raw.githubusercontent.com/brendangregg/FlameGraph/master/flamegraph.pl -O ${INSTALLATION_PATH}/flamegraph.pl
+chmod +x ${INSTALLATION_PATH}/flamegraph.pl

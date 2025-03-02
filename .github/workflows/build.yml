@@ -14,6 +14,7 @@ jobs:
     env:
       PYTHON_ENV: ci
       PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      FLUID_FLAMEGRAPH_EXECUTABLE: "./flamegraph.pl"
     strategy:
       matrix:
         python-version: ["3.11", "3.12", "3.13"]
@@ -43,6 +44,10 @@ jobs:
           redis-version: 7
       - name: Install dependencies
         run: make install
+      - name: Install flamegraph
+        env:
+          FG_PATH: "."
+        run: ./.dev/install-flamegraph
       - name: run lint
         run: make lint-test
       - name: build docs

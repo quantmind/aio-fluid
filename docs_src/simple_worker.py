@@ -13,7 +13,6 @@ class SimpleWorker(Worker):
         print(f"Hello from {self.worker_name} in state {self.worker_state}")
 
 
-
 async def main():
     worker = SimpleWorker()
     worker.print_message()

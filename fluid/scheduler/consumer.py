@@ -5,6 +5,7 @@ import logging
 from collections import defaultdict, deque
 from contextlib import AsyncExitStack
 from functools import partial
+from types import ModuleType
 from typing import Any, Awaitable, Callable, Self
 
 from inflection import underscore
@@ -34,13 +35,13 @@ logger = log.get_logger(__name__)
 class TaskDispatcher(Dispatcher[TaskRun]):
     """The task dispatcher is responsible for dispatching task run messages"""
 
-    def message_type(self, message: TaskRun) -> str:
+    def event_type(self, message: TaskRun) -> str:
         return message.state
 
 
 class AsyncTaskDispatcher(AsyncDispatcher[TaskRun]):
 
-    def message_type(self, message: TaskRun) -> str:
+    def event_type(self, message: TaskRun) -> str:
         return message.state
 
 
@@ -107,6 +108,10 @@ class TaskManager:
         await self.__aexit__(None, None, None)
 
     def add_async_context_manager(self, cm: Any) -> None:
+        """Add an async context manager to the task manager
+
+        These context managers are entered when the task manager starts
+        """
         self._async_contexts.append(cm)
 
     @property
@@ -116,28 +121,86 @@ class TaskManager:
 
     @property
     def type(self) -> str:
+        """The type of the task manager"""
         return underscore(self.__class__.__name__)
 
-    async def execute(self, task: Task | str, **params: Any) -> TaskRun:
+    def register_task(self, task: Annotated[Task, Doc("Task to register")]) -> None:
+        """Register a task with the task manager"""
+        self.broker.register_task(task)
+
+    async def execute(
+        self,
+        task: Annotated[
+            str | Task,
+            Doc(
+                "The task or task name,"
+                " if a task name it must be registered with the task manager."
+            ),
+        ],
+        *,
+        run_id: Annotated[
+            str,
+            Doc("Unique ID for the task run. If not provided a new UUID is generated."),
+        ] = "",
+        priority: Annotated[
+            TaskPriority | None, Doc("Override the default task priority if provided")
+        ] = None,
+        **params: Annotated[
+            Any,
+            Doc(
+                "The optional parameters for the task run. "
+                "They must match the task params model"
+            ),
+        ],
+    ) -> TaskRun:
         """Execute a task and wait for it to finish"""
-        task_run = self.create_task_run(task, **params)
+        task_run = self.create_task_run(
+            task,
+            run_id=run_id,
+            priority=priority,
+            **params,
+        )
         await task_run.execute()
         return task_run
 
-    def execute_sync(self, task: Task | str, **params: Any) -> TaskRun:
+    def execute_sync(
+        self,
+        task: Annotated[
+            str | Task,
+            Doc(
+                "The task or task name,"
+                " if a task name it must be registered with the task manager."
+            ),
+        ],
+        *,
+        run_id: Annotated[
+            str,
+            Doc("Unique ID for the task run. If not provided a new UUID is generated."),
+        ] = "",
+        priority: Annotated[
+            TaskPriority | None, Doc("Override the default task priority if provided")
+        ] = None,
+        **params: Annotated[
+            Any,
+            Doc(
+                "The optional parameters for the task run. "
+                "They must match the task params model"
+            ),
+        ],
+    ) -> TaskRun:
         """Execute a task synchronously
 
         This method is a blocking method that should be used in a synchronous
         context.
         """
-        return asyncio.run(self._execute_and_exit(task, **params))
-
-    def register_task(self, task: Task) -> None:
-        """Register a task with the task manager
-
-        Only tasks registered can be executed by a task manager
-        """
-        self.broker.register_task(task)
+        return asyncio.run(
+            self._execute_and_exit(
+                task,
+                run_id=run_id,
+                priority=priority,
+                **params,
+            )
+        )
 
     async def queue(
         self,
@@ -148,8 +211,21 @@ class TaskManager:
                 " if a task name it must be registered with the task manager."
             ),
         ],
-        priority: TaskPriority | None = None,
-        **params: Any,
+        *,
+        run_id: Annotated[
+            str,
+            Doc("Unique ID for the task run. If not provided a new UUID is generated."),
+        ] = "",
+        priority: Annotated[
+            TaskPriority | None, Doc("Override the default task priority if provided")
+        ] = None,
+        **params: Annotated[
+            Any,
+            Doc(
+                "The optional parameters for the task run. "
+                "They must match the task params model"
+            ),
+        ],
     ) -> TaskRun:
         """Queue a task for execution
 
@@ -160,7 +236,12 @@ class TaskManager:
 
         It returns the [TaskRun][fluid.scheduler.TaskRun] object
         """
-        task_run = self.create_task_run(task, priority=priority, **params)
+        task_run = self.create_task_run(
+            task,
+            run_id=run_id,
+            priority=priority,
+            **params,
+        )
         self.dispatcher.dispatch(task_run)
         task_run.set_state(TaskState.queued)
         await self.broker.queue_task(task_run)
@@ -175,14 +256,21 @@ class TaskManager:
                 " if a task name it must be registered with the task manager."
             ),
         ],
+        *,
         run_id: Annotated[
             str,
             Doc("Unique ID for the task run. If not provided a new UUID is generated."),
         ] = "",
         priority: Annotated[
-            TaskPriority | None, Doc("Overrise the default task priority if provided")
+            TaskPriority | None, Doc("Override the default task priority if provided")
         ] = None,
-        **params: Any,
+        **params: Annotated[
+            Any,
+            Doc(
+                "The optional parameters for the task run. "
+                "They must match the task params model"
+            ),
+        ],
     ) -> TaskRun:
         """Create a [TaskRun][fluid.scheduler.TaskRun] in `init` state"""
         task = self.broker.task_from_registry(task)
@@ -195,14 +283,32 @@ class TaskManager:
             task_manager=self,
         )
 
-    def register_from_module(self, module: Any) -> None:
+    def register_from_module(
+        self,
+        module: Annotated[
+            ModuleType,
+            Doc(
+                "Python module with tasks implementations "
+                "- can contain any object, only instances of Task are registered"
+            ),
+        ],
+    ) -> None:
         for name in dir(module):
             if name.startswith("_"):
                 continue
             if isinstance(obj := getattr(module, name), Task):
                 self.register_task(obj)
 
-    def register_from_dict(self, data: dict) -> None:
+    def register_from_dict(
+        self,
+        data: Annotated[
+            dict[str, Any],
+            Doc(
+                "Python dictionary with tasks implementations "
+                "- can contain any object, only instances of Task are registered"
+            ),
+        ],
+    ) -> None:
         for name, obj in data.items():
             if name.startswith("_"):
                 continue
@@ -220,7 +326,6 @@ class TaskManager:
 
         This method is a no op for a TaskManager that is not a worker
         """
-        return None
 
     async def _execute_and_exit(self, task: Task | str, **params: Any) -> TaskRun:
         async with self:
@@ -265,7 +370,7 @@ class TaskConsumer(TaskManager, Workers):
         return len(self._concurrent_tasks[task_name])
 
     async def queue_and_wait(
-        self, task: str | Task, *, timeout: int = 2, **params: Any
+        self, task: str | Task, *, timeout: int | None = None, **params: Any
     ) -> TaskRun:
         """Queue a task and wait for it to finish"""
         with TaskRunWaiter(self) as waiter:
@@ -329,8 +434,7 @@ class TaskConsumer(TaskManager, Workers):
             else:
                 task_run.logger.info("%s - %s - start", task_run.id, params)
             try:
-                async with asyncio.timeout(task_run.task.timeout_seconds):
-                    await task_run.execute()
+                await task_run.execute()
             except TaskRunError:
                 # no logging as this was a controlled exception
                 pass

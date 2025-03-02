@@ -40,6 +40,14 @@ class Sleep(BaseModel):
     error: bool = False
 
 
+@task(max_concurrency=1, timeout_seconds=2)
+async def fast(context: TaskRun[Sleep]) -> None:
+    """A task that sleeps for a while but has a 2 seconds timeout"""
+    await asyncio.sleep(context.params.sleep)
+    if context.params.error:
+        raise RuntimeError("just an error")
+
+
 @task(max_concurrency=1, timeout_seconds=120)
 async def dummy(context: TaskRun[Sleep]) -> None:
     """A task that sleeps for a while or errors"""
