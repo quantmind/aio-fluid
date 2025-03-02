@@ -68,8 +68,3 @@ docs-serve:		## serve documentation
 .PHONY: readme
 readme:			## generate readme.md
 	cp docs/index.md readme.md
-
-
-.PHONY: flamegraph
-flamegraph-install:	## install flamegraph
-	@./.dev/install-flamegraph
