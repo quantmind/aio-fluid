@@ -47,7 +47,7 @@ jobs:
       - name: Install flamegraph
         env:
           FG_PATH: "."
-        run: ./.dev/install_flamegraph
+        run: ./.dev/install-flamegraph
       - name: run lint
         run: make lint-test
       - name: build docs
