@@ -9,7 +9,7 @@ import sqlalchemy as sa
 from alembic import command as alembic_cmd
 from alembic.config import Config
 from sqlalchemy.engine import Engine
-from sqlalchemy_utils import create_database, database_exists
+from sqlalchemy_utils import create_database, database_exists, drop_database
 
 if TYPE_CHECKING:
     from .container import Database
@@ -93,6 +93,15 @@ class Migration:
             return False
         create_database(url)
         return True
+
+    def db_drop(self, dbname: str = "") -> bool:
+        url = self.sync_engine.url
+        if dbname:
+            url = url.set(database=dbname)
+        if database_exists(url):
+            drop_database(url)
+            return True
+        return False
 
     def truncate_all(self) -> None:
         """Drop all tables from :attr:`metadata` in database"""

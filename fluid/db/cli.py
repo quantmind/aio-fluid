@@ -155,9 +155,24 @@ def current(ctx: click.Context, verbose: bool) -> None:
 def create(ctx: click.Context, dbname: str) -> None:
     """Creates a new database"""
     if get_db(ctx).migration().db_create(dbname):
-        click.echo(f"database {dbname} created")
+        click.echo(f"database '{dbname}' created")
     else:
-        click.echo(f"database {dbname} already available")
+        click.echo(f"database '{dbname}' already available")
+
+
+@_db.command()
+@click.argument("dbname", nargs=1)
+@click.option("-y", "--yes", is_flag=True, help="confirm")
+@click.pass_context
+def drop(ctx: click.Context, dbname: str, yes: bool) -> None:
+    """Drop an existing database"""
+    if not yes:
+        click.echo(f"Are you sure you want to drop database '{dbname}'?")
+        click.confirm("Please confirm", abort=True)
+    if get_db(ctx).migration().db_drop(dbname):
+        click.echo(f"database '{dbname}' dropped")
+    else:
+        click.echo(f"database '{dbname}' not found")
 
 
 @_db.command()
