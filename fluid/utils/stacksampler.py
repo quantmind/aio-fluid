@@ -30,7 +30,8 @@ class Sampler:
     interval: float = 0.005
     _started: float | None = None
     _stack_counts: defaultdict[str, int] = field(
-        default_factory=lambda: defaultdict(int)
+        default_factory=lambda: defaultdict(int),
+        repr=False,
     )
 
     @property
