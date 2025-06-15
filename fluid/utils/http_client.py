@@ -118,7 +118,7 @@ class HttpxResponse(GenericHttpResponse[httpx.Response]):
 
 
 @dataclass
-class HttpClient(Generic[S, R]):
+class HttpClient(Generic[S, R], ABC):
     """Base class for Http clients"""
 
     session: S | None = None
