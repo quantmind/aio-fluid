@@ -6,7 +6,7 @@ from examples.cli import task_manager_cli
 def test_cli():
     assert task_manager_cli.task_manager_app
     runner = CliRunner()
-    result = runner.invoke(task_manager_cli)
+    result = runner.invoke(task_manager_cli, ["--help"])
     assert result.exit_code == 0
 
 
