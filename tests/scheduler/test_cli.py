@@ -13,7 +13,7 @@ def test_cli():
 def test_cli_db():
     assert task_manager_cli.task_manager_app
     runner = CliRunner()
-    result = runner.invoke(task_manager_cli, ["db"])
+    result = runner.invoke(task_manager_cli, ["db", "--help"])
     assert result.exit_code == 0
     result = runner.invoke(task_manager_cli, ["db", "dsn"])
     assert result.exit_code == 0
@@ -28,7 +28,7 @@ def test_cli_ls():
 
 def test_cli_exec_empty():
     runner = CliRunner()
-    result = runner.invoke(task_manager_cli, ["exec"])
+    result = runner.invoke(task_manager_cli, ["exec", "--help"])
     assert result.exit_code == 0
     assert result.output.startswith(
         "\n".join(
