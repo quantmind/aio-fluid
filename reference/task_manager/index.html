@@ -840,9 +840,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskManagerConfig.sleep" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskManagerConfig.sleep_millis" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;sleep
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;sleep_millis
     </span>
   </a>
   
@@ -852,6 +852,15 @@
   <a href="#fluid.scheduler.TaskManagerConfig.broker_url" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;broker_url
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskManagerConfig.sleep" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;sleep
     </span>
   </a>
   
@@ -1550,9 +1559,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#fluid.scheduler.TaskManagerConfig.sleep" class="md-nav__link">
+  <a href="#fluid.scheduler.TaskManagerConfig.sleep_millis" class="md-nav__link">
     <span class="md-ellipsis">
-      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;sleep
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;sleep_millis
     </span>
   </a>
   
@@ -1562,6 +1571,15 @@
   <a href="#fluid.scheduler.TaskManagerConfig.broker_url" class="md-nav__link">
     <span class="md-ellipsis">
       <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;broker_url
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.TaskManagerConfig.sleep" class="md-nav__link">
+    <span class="md-ellipsis">
+      <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;sleep
     </span>
   </a>
   
@@ -3101,8 +3119,8 @@ context.</p>
                 (<code><span title="int">int</span></code>)
             </li>
             <li>
-              <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskManagerConfig.sleep" href="#fluid.scheduler.TaskManagerConfig.sleep">sleep</a></code>
-                (<code><span title="float">float</span></code>)
+              <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskManagerConfig.sleep_millis" href="#fluid.scheduler.TaskManagerConfig.sleep_millis">sleep_millis</a></code>
+                (<code><span title="int">int</span></code>)
             </li>
             <li>
               <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskManagerConfig.broker_url" href="#fluid.scheduler.TaskManagerConfig.broker_url">broker_url</a></code>
@@ -3138,6 +3156,8 @@ context.</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
+        <p>Schedule tasks or sleep</p>
     </div>
 
 </div>
@@ -3192,21 +3212,21 @@ context.</p>
 
 
 
-<h3 id="fluid.scheduler.TaskManagerConfig.sleep" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">sleep</span>
+<h3 id="fluid.scheduler.TaskManagerConfig.sleep_millis" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">sleep_millis</span>
 
 
   <span class="doc doc-labels">
       <small class="doc doc-label doc-label-pydantic-field"><code>pydantic-field</code></small>
   </span>
 
-<a href="#fluid.scheduler.TaskManagerConfig.sleep" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">sleep</span> <span class="o">=</span> <span class="mf">0.1</span>
+<a href="#fluid.scheduler.TaskManagerConfig.sleep_millis" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">sleep_millis</span> <span class="o">=</span> <span class="n"><span title="fluid.settings.SLEEP_MILLIS">SLEEP_MILLIS</span></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>amount to async sleep after completion of a task</p>
+        <p>Milliseconds to async sleep when no tasks available to consume.This value can be configured via the <code>FLUID_SLEEP_MILLIS</code> environment variable, and by default is set to 1000 milliseconds (1 second).</p>
     </div>
 
 </div>
@@ -3228,6 +3248,29 @@ context.</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="fluid.scheduler.TaskManagerConfig.sleep" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">sleep</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-property"><code>property</code></small>
+  </span>
+
+<a href="#fluid.scheduler.TaskManagerConfig.sleep" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">sleep</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Sleep time in seconds</p>
     </div>
 
 </div>
