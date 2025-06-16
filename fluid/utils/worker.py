@@ -445,7 +445,7 @@ class Workers(Worker):
         )
         return {
             worker.worker_name: status
-            for worker, status in zip(self._workers, status_workers)
+            for worker, status in zip(self._workers, status_workers, strict=False)
         }
 
     async def run(self) -> None:

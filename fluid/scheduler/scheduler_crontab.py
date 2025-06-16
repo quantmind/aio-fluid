@@ -143,7 +143,7 @@ class crontab(Scheduler):  # noqa N801
         if last_run == run:
             return None
 
-        for date_piece, selection in zip(run[1:], self.cron_settings):
+        for date_piece, selection in zip(run[1:], self.cron_settings, strict=False):
             if date_piece not in selection:
                 return None
         return run

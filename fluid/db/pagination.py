@@ -110,7 +110,9 @@ class Pagination(NamedTuple):
         if self.cursor:
             columns = []
             values = []
-            for name, entry in zip(self.order_by_fields, self.cursor.entries):
+            for name, entry in zip(
+                self.order_by_fields, self.cursor.entries, strict=False
+            ):
                 column = getattr(table.c, name)
                 values.append(column_value_to_python(column, entry.value))
                 columns.append(column)
