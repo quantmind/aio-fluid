@@ -179,7 +179,7 @@ class RedisTaskBroker(TaskBroker):
         tasks_info = await pipe.execute()
         return [
             self._decode_task(self.registry[name], task_info)
-            for name, task_info in zip(requested_task_names, tasks_info)
+            for name, task_info in zip(requested_task_names, tasks_info, strict=False)
         ]
 
     async def update_task(self, task: Task, params: dict[str, Any]) -> TaskInfo:
@@ -198,7 +198,7 @@ class RedisTaskBroker(TaskBroker):
             for name in self.task_queue_names:
                 pipe.llen(name)
             result = await pipe.execute()
-            return dict(zip(TaskPriority, result))
+            return dict(zip(TaskPriority, result, strict=False))
         return {}
 
     async def close(self) -> None:

@@ -406,6 +406,7 @@ class TaskConsumer(TaskManager, Workers):
         try:
             task_run = await self.broker.get_task_run(self)
             if task_run is None:
+                await asyncio.sleep(self.config.sleep)
                 return
         except UnknownTaskError as exc:
             logger.error(

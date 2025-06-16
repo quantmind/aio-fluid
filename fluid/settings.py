@@ -14,6 +14,7 @@ PYTHON_LOG_FORMAT = os.getenv(
 # Workers
 STOPPING_GRACE_PERIOD: int = int(os.getenv("FLUID_STOPPING_GRACE_PERIOD") or "10")
 MAX_CONCURRENT_TASKS: int = int(os.getenv("FLUID_MAX_CONCURRENT_TASKS") or "5")
+SLEEP_MILLIS: int = int(os.getenv("FLUID_SLEEP_MILLIS") or "1000")
 SCHEDULER_HEARTBEAT_MILLIS: int = int(
     os.getenv("FLUID_SCHEDULER_HEARTBEAT_MILLIS", "100")
 )

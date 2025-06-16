@@ -84,7 +84,7 @@ FINISHED_STATES = frozenset(
 class TaskManagerConfig(BaseModel):
     """Task manager configuration"""
 
-    schedule_tasks: bool = True
+    schedule_tasks: bool = Field(default=True, description="Schedule tasks or sleep")
     consume_tasks: bool = Field(default=True, description="Consume tasks or sleep")
     max_concurrent_tasks: int = Field(
         default=settings.MAX_CONCURRENT_TASKS,
@@ -96,9 +96,20 @@ class TaskManagerConfig(BaseModel):
             "variable, and by default is set to 5."
         ),
     )
-    sleep: float = 0.1
-    """amount to async sleep after completion of a task"""
+    sleep_millis: int = Field(
+        default=settings.SLEEP_MILLIS,
+        description=(
+            "Milliseconds to async sleep when no tasks available to consume."
+            "This value can be configured via the `FLUID_SLEEP_MILLIS` environment "
+            "variable, and by default is set to 1000 milliseconds (1 second)."
+        ),
+    )
     broker_url: str = ""
+
+    @property
+    def sleep(self) -> float:
+        """Sleep time in seconds"""
+        return self.sleep_millis / 1000.0
 
 
 class TaskInfoBase(BaseModel):
