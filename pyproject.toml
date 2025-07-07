@@ -1,6 +1,6 @@
 [project]
 name = "aio-fluid"
-version = "1.6.0"
+version = "1.6.1"
 description = "Tools for backend python services"
 authors = [{ name = "Luca Sbardella", email = "luca@quantmind.com" }]
 license = "BSD"

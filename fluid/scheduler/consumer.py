@@ -395,9 +395,10 @@ class TaskConsumer(TaskManager, Workers):
         try:
             task = self._task_to_queue.pop()
         except IndexError:
-            pass
+            await asyncio.sleep(self.config.sleep)
         else:
             await self.queue(task)
+            await asyncio.sleep(0)
 
     async def _consume_tasks(self, worker_name: str) -> None:
         if not self.config.consume_tasks:
