@@ -13,7 +13,7 @@
             "env": {},
             "args": [
                 "-x",
-                "tests/scheduler/test_scheduler.py"
+                "tests/db/test_paginate.py"
             ],
             "debugOptions": [
                 "RedirectOutput"

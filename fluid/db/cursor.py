@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import base64
-import json
 from typing import Any, NamedTuple, Self
 
+from fluid.utils import json2
 from fluid.utils.errors import ValidationError
 from fluid.utils.text import to_bytes
 
@@ -24,7 +24,7 @@ class Cursor(NamedTuple):
         try:
             base64_bytes = cursor.encode("ascii")
             cursor_bytes = base64.b64decode(base64_bytes)
-            values, limit, filters, search_text = json.loads(cursor_bytes)
+            values, limit, filters, search_text = json2.loads(cursor_bytes)
             if len(values) == len(field_names):
                 return cls(
                     entries=tuple(map(CursorEntry, field_names, values)),
@@ -39,7 +39,7 @@ class Cursor(NamedTuple):
     def encode(self) -> str:
         data = tuple(e.value for e in self.entries)
         cursor_bytes = to_bytes(
-            json.dumps((data, self.limit, self.filters, self.search_text))
+            json2.dumps((data, self.limit, self.filters, self.search_text))
         )
         base64_bytes = base64.b64encode(cursor_bytes)
         return base64_bytes.decode("ascii")
