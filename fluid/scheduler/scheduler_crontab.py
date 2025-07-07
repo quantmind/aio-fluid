@@ -2,11 +2,8 @@
 
 import re
 from abc import ABC, abstractmethod
-from datetime import datetime
+from datetime import datetime, timezone, tzinfo
 from typing import NamedTuple, Set, Union
-from zoneinfo import ZoneInfo
-
-from fluid.utils.dates import UTC
 
 dash_re = re.compile(r"(\d+)-(\d+)")
 every_re = re.compile(r"\*\/(\d+)")
@@ -21,7 +18,7 @@ class CronRun(NamedTuple):
     hour: int
     minute: int
     second: int = 0
-    tz: ZoneInfo = UTC
+    tz: tzinfo = timezone.utc
 
     @property
     def datetime(self) -> datetime:
@@ -65,9 +62,9 @@ class crontab(Scheduler):  # noqa N801
         day: CI = "*",
         month: CI = "*",
         day_of_week: CI = "*",
-        tz: ZoneInfo = UTC,
+        tz: tzinfo = timezone.utc,
     ) -> None:
-        self.tz: ZoneInfo = tz
+        self.tz: tzinfo = tz
         self._info = (
             f"minute {minute}; hour {hour}; day {day}; month {month}; "
             f"day_of_week {day_of_week}"

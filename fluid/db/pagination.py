@@ -39,7 +39,7 @@ class Pagination(NamedTuple):
         if limit < 0:
             raise ValidationError("limit must be greater than or equal to 0")
         if cursor:
-            if limit > 0:
+            if limit:
                 raise ValidationError("limit cannot be provided with cursor")
             if filters:
                 raise ValidationError("filters cannot be provided with cursor")
@@ -52,10 +52,8 @@ class Pagination(NamedTuple):
                 search = search._replace(search_text=decoded_cursor.search_text)
         else:
             decoded_cursor = None
-            limit = min(
-                limit or settings.DEFAULT_PAGINATION_LIMIT,
-                settings.DEFAULT_PAGINATION_MAX_LIMIT,
-            )
+            if limit >= 0:
+                limit = limit or settings.DEFAULT_PAGINATION_LIMIT
         return cls(
             order_by_fields=order_by_fields,
             cursor=decoded_cursor,
@@ -83,7 +81,7 @@ class Pagination(NamedTuple):
             result = await conn.execute(sql_query)
         data = result.all()
         cursor = ""
-        if len(data) > self.limit:
+        if self.limit > 0 and len(data) > self.limit:
             cursor = self._encode_cursor(data[-1])
             data = data[:-1]
         return data, cursor
@@ -104,7 +102,8 @@ class Pagination(NamedTuple):
         if start_clause is not None:
             sql_query = sql_query.where(start_clause)
         columns = db.order_by_columns(table, self.order_by_fields_sign)
-        return sql_query.order_by(*columns).limit(self.limit + 1)
+        ordered = sql_query.order_by(*columns)
+        return ordered.limit(self.limit + 1) if self.limit > 0 else ordered
 
     def _start_clause(self, table: FromClause) -> ColumnElement[bool] | None:
         if self.cursor:

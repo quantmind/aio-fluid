@@ -2,6 +2,7 @@ import enum
 
 import sqlalchemy as sa
 
+from fluid.utils.dates import utcnow
 from fluid.utils.text import create_uid
 
 
@@ -10,10 +11,8 @@ class TaskType(enum.Enum):
     issue = 1
 
 
-def meta(meta=None):
+def meta(meta: sa.MetaData) -> None:
     """Add task related tables"""
-    if meta is None:
-        meta = sa.MetaData()
 
     sa.Table(
         "tasks",
@@ -27,6 +26,7 @@ def meta(meta=None):
             nullable=False,
             info=dict(min_length=3),
         ),
+        sa.Column("created", sa.DateTime(timezone=True), default=utcnow),
         sa.Column("done", sa.DateTime(timezone=True)),
         sa.Column("severity", sa.Integer),
         sa.Column("created_by", sa.String, default="", nullable=False),
@@ -41,14 +41,3 @@ def meta(meta=None):
             default="",
         ),
     )
-
-    sa.Table(
-        "series",
-        meta,
-        sa.Column("date", sa.DateTime(timezone=True), nullable=False, index=True),
-        sa.Column("group", sa.String(32), nullable=False, index=True, default=""),
-        sa.Column("value", sa.Numeric(precision=20, scale=8)),
-        sa.UniqueConstraint("date", "group"),
-    )
-
-    return meta

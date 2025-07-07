@@ -1,21 +1,18 @@
 from datetime import date, datetime, timezone
 from typing import Any
-from zoneinfo import ZoneInfo
-
-UTC = ZoneInfo("UTC")
 
 
 def utcnow() -> datetime:
-    return datetime.now(tz=UTC)
+    return datetime.now(tz=timezone.utc)
 
 
 def as_utc(dt: date | None) -> datetime:
     if dt is None:
         return utcnow()
     elif isinstance(dt, datetime):
-        return dt.replace(tzinfo=UTC)
+        return dt.replace(tzinfo=timezone.utc)
     else:
-        return datetime(dt.year, dt.month, dt.day, tzinfo=UTC)
+        return datetime(dt.year, dt.month, dt.day, tzinfo=timezone.utc)
 
 
 def isoformat(dt: datetime, **kwargs: Any) -> str:

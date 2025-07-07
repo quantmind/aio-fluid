@@ -4,7 +4,7 @@ from examples.db import get_db
 from fluid.db import CrudDB
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="module")
 def db() -> CrudDB:
     db = get_db()
     mig = db.migration()
