@@ -19,7 +19,7 @@ def test_cli():
     assert isinstance(cli.db, CrudDB)
 
 
-def test_create_drop_db():
+def test_create_drop_db(db: CrudDB):
     runner = CliRunner()
     result = runner.invoke(cli, ["create", "test_db_abc"])
     assert result.exit_code == 0
@@ -35,7 +35,7 @@ def test_create_drop_db():
     assert "database 'test_db_abc' not found" in result.output
 
 
-def test_migrations_show(mig_id, mig_name):
+def test_migrations_show(mig_id: str, mig_name: str, db: CrudDB):
     runner = CliRunner()
     result = runner.invoke(cli, ["show"])
     assert result.exit_code == 0
@@ -43,7 +43,7 @@ def test_migrations_show(mig_id, mig_name):
     assert mig_name in result.output
 
 
-def test_migrations_history(mig_id, mig_name):
+def test_migrations_history(mig_id: str, mig_name: str, db: CrudDB):
     runner = CliRunner()
     result = runner.invoke(cli, ["history"])
     assert result.exit_code == 0
@@ -51,8 +51,16 @@ def test_migrations_history(mig_id, mig_name):
     assert mig_name in result.output
 
 
-def test_migrations_current(mig_id):
+def test_migrations_current(mig_id: str, db: CrudDB):
     runner = CliRunner()
     result = runner.invoke(cli, ["current"])
     assert result.exit_code == 0
     assert mig_id in result.output
+
+
+def test_migrations_databases(db: CrudDB):
+    runner = CliRunner()
+    result = runner.invoke(cli, ["databases"])
+    assert result.exit_code == 0
+    assert db.engine.url.database
+    assert db.engine.url.database in result.output

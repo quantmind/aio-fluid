@@ -45,7 +45,6 @@ def get_db(ctx: click.Context) -> Database:
 @click.group()
 def _db() -> None:
     """Perform database migrations and utilities"""
-    pass
 
 
 @_db.command()
