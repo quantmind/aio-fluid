@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from collections import defaultdict, deque
+from collections import deque
 from contextlib import AsyncExitStack
 from functools import partial
 from types import ModuleType
@@ -293,6 +293,7 @@ class TaskManager:
             ),
         ],
     ) -> None:
+        """Register tasks from a python module"""
         for name in dir(module):
             if name.startswith("_"):
                 continue
@@ -309,6 +310,7 @@ class TaskManager:
             ),
         ],
     ) -> None:
+        """Register tasks from a python dictionary"""
         for name, obj in data.items():
             if name.startswith("_"):
                 continue
@@ -341,7 +343,6 @@ class TaskConsumer(TaskManager, Workers):
         super().__init__(**config)
         Workers.__init__(self)
         self._async_dispatcher_worker = AsyncConsumer(AsyncTaskDispatcher())
-        self._concurrent_tasks: dict[str, dict[str, TaskRun]] = defaultdict(dict)
         self._task_to_queue: deque[str | Task] = deque()
         self._queue_tasks_worker = WorkerFunction(
             self._queue_task, name="queue-task-worker"
@@ -356,18 +357,9 @@ class TaskConsumer(TaskManager, Workers):
                 )
             )
 
-    @property
-    def num_concurrent_tasks(self) -> int:
-        """The number of concurrent_tasks running in the consumer"""
-        return sum(len(v) for v in self._concurrent_tasks.values())
-
     def sync_queue(self, task: str | Task) -> None:
         """Queue a task synchronously"""
         self._task_to_queue.appendleft(task)
-
-    def num_concurrent_tasks_for(self, task_name: str) -> int:
-        """The number of concurrent tasks for a given task_name"""
-        return len(self._concurrent_tasks[task_name])
 
     async def queue_and_wait(
         self, task: str | Task, *, timeout: int | None = None, **params: Any
@@ -418,17 +410,19 @@ class TaskConsumer(TaskManager, Workers):
             )
             return
         task_name = task_run.name
-        self._concurrent_tasks[task_name][task_run.id] = task_run
-        #
-        if (
-            task_run.task.max_concurrency > 0
-            and task_run.task.max_concurrency < self.num_concurrent_tasks_for(task_name)
-        ):
-            task_run.set_state(TaskState.rate_limited)
-        elif not (await self.broker.get_tasks_info(task_name))[0].enabled:
+        task_info = await self.broker.get_tasks_info(task_name)
+        if not task_info[0].enabled:
             task_run.set_state(TaskState.aborted)
-        #
         else:
+            async with self.broker.lock(f"tasks:{task_name}"):
+                if task_run.task.max_concurrency > 0:
+                    current_runs = await self.broker.current_task_runs(task_name)
+                    if current_runs >= task_run.task.max_concurrency:
+                        task_run.set_state(TaskState.rate_limited)
+                if task_run.state is not TaskState.rate_limited:
+                    await self.broker.add_task_run(task_run)
+        # run the task
+        if not task_run.is_done:
             try:
                 params = task_run.params.model_dump_json()
             except Exception:
@@ -446,8 +440,7 @@ class TaskConsumer(TaskManager, Workers):
                 task_run.logger.error("task run %s - %s - timeout", task_run.id, params)
             except Exception:
                 task_run.logger.exception("critical exception while executing")
-
-        self._concurrent_tasks[task_name].pop(task_run.id, None)
+            await self.broker.remove_task_run(task_run)
         duration_ms = task_run.duration_ms
         if duration_ms is not None:
             await self.broker.update_task(

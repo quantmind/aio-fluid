@@ -56,7 +56,8 @@ async def test_dummy_rate_limit(task_scheduler: TaskScheduler) -> None:
         task_scheduler.queue_and_wait("dummy", sleep=2, timeout=10),
         task_scheduler.queue_and_wait("dummy", sleep=1, timeout=10),
     )
-    assert task_scheduler.num_concurrent_tasks_for("dummy") == 0
+    current = await task_scheduler.broker.current_task_runs("dummy")
+    assert current == 0
     assert s1.is_done
     assert s2.is_done
     assert s1.state is TaskState.rate_limited or s2.state is TaskState.rate_limited

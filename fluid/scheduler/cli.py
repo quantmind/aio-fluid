@@ -17,6 +17,7 @@ from fluid.utils import log as log_
 from fluid.utils.lazy import LazyGroup
 
 from .common import is_in_cpu_process
+from .errors import UnknownTaskError
 
 if TYPE_CHECKING:
     from .consumer import TaskManager
@@ -181,7 +182,10 @@ def task_run_table(task_run: TaskRun) -> Table:
 
 
 async def enable_task(task_manager: TaskManager, task: str, enable: bool) -> None:
-    await task_manager.broker.enable_task(task, enable=enable)
+    try:
+        await task_manager.broker.enable_task(task, enable=enable)
+    except UnknownTaskError as e:
+        raise click.ClickException(f"Task {task} not found") from e
 
 
 async def tasks_table(task_manager: TaskManager) -> Table:

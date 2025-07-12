@@ -191,7 +191,7 @@ class Task(NamedTuple, Generic[TP]):
     randomize: RandomizeType | None = None
     """Randomize function for task schedule"""
     max_concurrency: int = 0
-    """how many tasks can run in each consumer concurrently - 0 means no limit"""
+    """how many tasks can be run concurrently - 0 means no limit"""
     timeout_seconds: int = 60
     """Task timeout in seconds - how long the task can run before being aborted"""
     priority: TaskPriority = TaskPriority.medium
@@ -204,6 +204,7 @@ class Task(NamedTuple, Generic[TP]):
         return self.executor is run_in_subprocess
 
     def info(self, **params: Any) -> TaskInfo:
+        """Return task info object"""
         params.update(
             name=self.name,
             description=self.description,

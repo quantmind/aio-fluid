@@ -46,3 +46,20 @@ def test_cli_exec_ping():
     result = runner.invoke(task_manager_cli, ["exec", "ping"])
     assert result.exit_code == 0
     assert result.output
+
+
+def test_cli_enable():
+    runner = CliRunner()
+    result = runner.invoke(task_manager_cli, ["enable", "ping", "--disable"])
+    assert result.exit_code == 0
+    assert not result.output
+    result = runner.invoke(task_manager_cli, ["enable", "ping"])
+    assert result.exit_code == 0
+    assert not result.output
+
+
+def test_cli_enable_failure():
+    runner = CliRunner()
+    result = runner.invoke(task_manager_cli, ["enable", "vdvdfvsdvdf"])
+    assert result.exit_code == 1
+    assert result.output == "Error: Task vdvdfvsdvdf not found\n"

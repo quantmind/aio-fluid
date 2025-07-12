@@ -166,7 +166,7 @@ def create(ctx: click.Context, dbname: str) -> None:
 @click.pass_context
 def drop(ctx: click.Context, dbname: str, yes: bool) -> None:
     """Drop an existing database"""
-    if not yes:
+    if not yes:  # pragma: no cover
         click.echo(f"Are you sure you want to drop database '{dbname}'?")
         click.confirm("Please confirm", abort=True)
     if get_db(ctx).migration().db_drop(dbname):

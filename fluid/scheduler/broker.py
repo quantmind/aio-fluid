@@ -67,6 +67,18 @@ class TaskBroker(ABC):
         """Update a task dynamic parameters"""
 
     @abstractmethod
+    async def add_task_run(self, task_run: TaskRun) -> None:
+        """Add a task run to the broker"""
+
+    @abstractmethod
+    async def remove_task_run(self, task_run: TaskRun) -> None:
+        """Remove a task run from the broker"""
+
+    @abstractmethod
+    async def current_task_runs(self, task_name: str) -> int:
+        """The number of current task runs for a given task_name"""
+
+    @abstractmethod
     async def close(self) -> None:
         """Close the broker on shutdown"""
 
@@ -158,6 +170,10 @@ class RedisTaskBroker(TaskBroker):
         """name of the key containing the task info"""
         return f"{self.prefix}-tasks-{name}"
 
+    def task_runs_set_name(self, name: str) -> str:
+        """name of the key containing the task runs info"""
+        return f"{self.prefix}-task-runs-{name}"
+
     def task_queue_name(self, priority: TaskPriority) -> str:
         return f"{self.prefix}-queue-{priority}"
 
@@ -200,6 +216,23 @@ class RedisTaskBroker(TaskBroker):
             result = await pipe.execute()
             return dict(zip(TaskPriority, result, strict=False))
         return {}
+
+    async def add_task_run(self, task_run: TaskRun) -> None:
+        """Add a task run to the broker"""
+        await self.redis_cli.sadd(
+            self.task_runs_set_name(task_run.name),
+            task_run.id,
+        )
+
+    async def remove_task_run(self, task_run: TaskRun) -> None:
+        """Remove a task run from the broker"""
+        await self.redis_cli.srem(
+            self.task_runs_set_name(task_run.name),
+            task_run.id,
+        )
+
+    async def current_task_runs(self, task_name: str) -> int:
+        return await self.redis_cli.scard(self.task_runs_set_name(task_name))
 
     async def close(self) -> None:
         """Close the broker on shutdown"""
