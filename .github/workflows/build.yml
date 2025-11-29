@@ -17,7 +17,7 @@ jobs:
       FLUID_FLAMEGRAPH_EXECUTABLE: "./flamegraph.pl"
     strategy:
       matrix:
-        python-version: ["3.11", "3.12", "3.13"]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
 
     services:
       postgres:
@@ -55,14 +55,14 @@ jobs:
       - name: tests
         run: make test
       - name: upload coverage
-        if: matrix.python-version == '3.12'
+        if: matrix.python-version == '3.13'
         uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./build/coverage.xml
       - name: publish
-        if: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.12' && github.event.head_commit.message == 'release' }}
+        if: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.13' && github.event.head_commit.message == 'release' }}
         run: make publish
       - name: publish-docs
-        if: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.12' }}
+        if: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.13' }}
         run: make docs-publish
