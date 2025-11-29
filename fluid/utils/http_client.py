@@ -47,6 +47,9 @@ class HttpResponse(ABC):
     @abstractmethod
     async def text(self) -> str: ...
 
+    @abstractmethod
+    async def bytes(self) -> bytes: ...
+
 
 class HttpResponseError(RuntimeError):
     def __init__(self, response: HttpResponse, data: ResponseType) -> None:
@@ -95,6 +98,9 @@ class AioHttpResponse(GenericHttpResponse[client.ClientResponse]):
     async def text(self) -> str:
         return await self.response.text()
 
+    async def bytes(self) -> bytes:
+        return await self.response.read()
+
 
 @dataclass
 class HttpxResponse(GenericHttpResponse[httpx.Response]):
@@ -115,6 +121,9 @@ class HttpxResponse(GenericHttpResponse[httpx.Response]):
 
     async def text(self) -> str:
         return self.response.text
+
+    async def bytes(self) -> bytes:
+        return self.response.content
 
 
 @dataclass
