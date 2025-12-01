@@ -11,6 +11,7 @@ from pydanclick import from_pydantic
 from pydantic import BaseModel
 from rich.console import Console
 from rich.table import Table
+from typing_extensions import Annotated, Doc
 from uvicorn.importer import import_from_string
 
 from fluid.utils import log as log_
@@ -38,19 +39,43 @@ class TaskManagerCLI(LazyGroup):
     def __init__(
         self,
         task_manager_app: TaskManagerApp,
+        log_config: dict | None = None,
         **kwargs: Any,
     ):
         kwargs.setdefault("commands", DEFAULT_COMMANDS)
         super().__init__(**kwargs)
-        self.task_manager_app = task_manager_app
+        self.task_manager_app: Annotated[
+            TaskManagerApp,
+            Doc(
+                """
+                Task manager application.
+
+                This can be a FastAPI app, a callable that returns a FastAPI app,
+                or a string import path to a FastAPI app.
+                """
+            ),
+        ] = task_manager_app
+        self.log_config: Annotated[
+            dict,
+            Doc(
+                """
+                Log configuration parameters.
+
+                These parameters are passed to the log_config argument of
+                `fluid.utils.log.config()`.
+                """
+            ),
+        ] = (
+            log_config or {}
+        )
 
 
-def ctx_task_manager_app(ctx: click.Context) -> TaskManagerApp:
-    return ctx.parent.command.task_manager_app  # type: ignore
+def ctx_task_manager_cli(ctx: click.Context) -> TaskManagerCLI:
+    return ctx.parent.command  # type: ignore
 
 
 def ctx_app(ctx: click.Context) -> FastAPI:
-    app = ctx_task_manager_app(ctx)  # type: ignore
+    app = ctx_task_manager_cli(ctx).task_manager_app
     if isinstance(app, str):
         return import_from_string(app)()
     elif isinstance(app, FastAPI):
@@ -81,7 +106,8 @@ class ExecuteTasks(click.Group):
         @from_pydantic(task.params_model)
         def execute_task(log: bool, run_id: str, params: str, **extra: Any) -> None:
             if log:
-                log_.config()
+                log_config = ctx_task_manager_cli(ctx).log_config
+                log_.config(**log_config)
             kwargs = json.loads(params or "{}")
             for value in extra.values():
                 if isinstance(value, BaseModel):
@@ -132,14 +158,14 @@ def ls(ctx: click.Context) -> None:
 @click.pass_context
 def serve(ctx: click.Context, host: str, port: int, reload: bool) -> None:
     """Run the service"""
-    task_manager_app = ctx_task_manager_app(ctx)
+    cli = ctx_task_manager_cli(ctx)
     uvicorn.run(
-        task_manager_app,
+        cli.task_manager_app,
         port=port,
         host=host,
         log_level="info",
         reload=reload,
-        log_config=log_.config(),
+        log_config=log_.config(**cli.log_config),
     )
 
 
