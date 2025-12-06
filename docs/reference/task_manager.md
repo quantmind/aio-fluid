@@ -1,6 +1,7 @@
 # Task Manager
 
-The Task Manager is a component that manages the execution of tasks. It is the simplest way to run tasks and it is the base class for the [TaskConsumer][fluid.scheduler.TaskConsumer] and the[TaskScheduler][fluid.scheduler.TaskScheduler].
+The Task Manager is a component that manages the execution of tasks. It is the simplest way to run tasks and it is the base class for the [TaskConsumer][fluid.scheduler.TaskConsumer]
+and the [TaskScheduler][fluid.scheduler.TaskScheduler].
 
 It can be imported from `fluid.scheduler`:
 

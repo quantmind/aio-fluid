@@ -38,13 +38,7 @@ class TaskManagerCLI(LazyGroup):
 
     def __init__(
         self,
-        task_manager_app: TaskManagerApp,
-        log_config: dict | None = None,
-        **kwargs: Any,
-    ):
-        kwargs.setdefault("commands", DEFAULT_COMMANDS)
-        super().__init__(**kwargs)
-        self.task_manager_app: Annotated[
+        task_manager_app: Annotated[
             TaskManagerApp,
             Doc(
                 """
@@ -54,20 +48,24 @@ class TaskManagerCLI(LazyGroup):
                 or a string import path to a FastAPI app.
                 """
             ),
-        ] = task_manager_app
-        self.log_config: Annotated[
-            dict,
+        ],
+        log_config: Annotated[
+            dict | None,
             Doc(
                 """
                 Log configuration parameters.
 
-                These parameters are passed to the log_config argument of
-                `fluid.utils.log.config()`.
+                These parameters are passed to the [log.config][fluid.utils.log.config]
+                function when configuring logging.
                 """
             ),
-        ] = (
-            log_config or {}
-        )
+        ] = None,
+        **kwargs: Any,
+    ):
+        kwargs.setdefault("commands", DEFAULT_COMMANDS)
+        super().__init__(**kwargs)
+        self.task_manager_app = task_manager_app
+        self.log_config = log_config or {}
 
 
 def ctx_task_manager_cli(ctx: click.Context) -> TaskManagerCLI:
