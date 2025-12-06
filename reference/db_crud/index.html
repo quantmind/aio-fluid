@@ -1968,7 +1968,17 @@
 
 
 <h1 id="cruddb">CrudDB<a class="headerlink" href="#cruddb" title="Permanent link">&para;</a></h1>
-<p>The <a class="autorefs autorefs-internal" href="#fluid.db.CrudDB">CrudDB</a> class inherits from <a class="autorefs autorefs-internal" href="../db/#fluid.db.Database">Database</a> to
+<p>The <a class="autorefs autorefs-internal" title="            fluid.db.CrudDB
+
+
+  
+      dataclass
+  " href="#fluid.db.CrudDB">CrudDB</a> class inherits from <a class="autorefs autorefs-internal" title="            fluid.db.Database
+
+
+  
+      dataclass
+  " href="../db/#fluid.db.Database">Database</a> to
 provide standard CRUD operations for a database table.</p>
 <p>It can be imported from <code>fluid.db</code>:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrudDB</span>
@@ -2002,7 +2012,13 @@ provide standard CRUD operations for a database table.</p>
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="fluid.db.container.Database" href="../db/#fluid.db.Database">Database</a></code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="            fluid.db.Database
+
+
+  
+      dataclass
+   (fluid.db.container.Database)" href="../db/#fluid.db.Database">Database</a></code></p>
+
 
 
         <p>A Database with additional methods for CRUD operations</p>
@@ -2015,7 +2031,9 @@ provide standard CRUD operations for a database table.</p>
 
 
 
-  <div class="doc doc-children">
+
+
+<div class="doc doc-children">
 
 
 
@@ -2044,6 +2062,7 @@ provide standard CRUD operations for a database table.</p>
         <p>data source name, aka connection string</p>
 <p>Example: <code>postgresql+asyncpg://user:password@localhost/dbname</code></p>
 <p>not the <code>+asyncpg</code> part is important for the sync engine</p>
+
     </div>
 
 </div>
@@ -2069,6 +2088,7 @@ provide standard CRUD operations for a database table.</p>
 
         <p>Echo SQL queries to stdout</p>
 <p>It defaults to the <code>DBECHO</code> setting in the settings module</p>
+
     </div>
 
 </div>
@@ -2091,6 +2111,7 @@ provide standard CRUD operations for a database table.</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2113,6 +2134,7 @@ provide standard CRUD operations for a database table.</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2135,6 +2157,7 @@ provide standard CRUD operations for a database table.</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2157,6 +2180,7 @@ provide standard CRUD operations for a database table.</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2179,6 +2203,7 @@ provide standard CRUD operations for a database table.</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2202,6 +2227,7 @@ provide standard CRUD operations for a database table.</p>
     <div class="doc doc-contents ">
 
         <p>A dictionary of tables in the database</p>
+
     </div>
 
 </div>
@@ -2226,6 +2252,7 @@ provide standard CRUD operations for a database table.</p>
 
         <p>The :class:<code>sqlalchemy.ext.asyncio.AsyncEngine</code> creating connection
 and transactions</p>
+
     </div>
 
 </div>
@@ -2249,9 +2276,11 @@ and transactions</p>
     <div class="doc doc-contents ">
 
         <p>The sqlalchemy Engine object for synchrouns operations</p>
+
     </div>
 
 </div>
+
 
 
 
@@ -2274,7 +2303,8 @@ and transactions</p>
 
         <p>Create a new database container from environment variables as defaults</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-41">41</a></span>
 <span class="normal"><a href="#__codelineno-0-42">42</a></span>
@@ -2320,7 +2350,8 @@ and transactions</p>
 
         <p>Context manager for obtaining an asynchronous connection</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-76">76</a></span>
 <span class="normal"><a href="#__codelineno-0-77">77</a></span>
@@ -2356,7 +2387,8 @@ and transactions</p>
 
         <p>Context manager for obtaining an asynchronous connection</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-82">82</a></span>
 <span class="normal"><a href="#__codelineno-0-83">83</a></span>
@@ -2404,7 +2436,8 @@ and transactions</p>
 
         <p>Context manager for initializing an asynchronous database transaction</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-94">94</a></span>
 <span class="normal"><a href="#__codelineno-0-95">95</a></span>
@@ -2441,7 +2474,8 @@ and transactions</p>
         <p>Context manager for ensuring we a connection has initialized
 a database transaction</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-100">100</a></span>
 <span class="normal"><a href="#__codelineno-0-101">101</a></span>
@@ -2499,7 +2533,8 @@ a database transaction</p>
 
         <p>Close the asynchronous db engine if opened</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-117">117</a></span>
 <span class="normal"><a href="#__codelineno-0-118">118</a></span>
@@ -2535,7 +2570,8 @@ a database transaction</p>
 
         <p>Ping the database</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-123">123</a></span>
 <span class="normal"><a href="#__codelineno-0-124">124</a></span>
@@ -2569,7 +2605,8 @@ a database transaction</p>
 
         <p>The migration manager for this database</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-130">130</a></span>
 <span class="normal"><a href="#__codelineno-0-131">131</a></span>
@@ -2605,7 +2642,8 @@ a database transaction</p>
 :param conn: optional db connection
 :param consumer: optional consumer (see :meth:<code>.get_query</code>)</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-22">22</a></span>
 <span class="normal"><a href="#__codelineno-0-23">23</a></span>
@@ -2672,7 +2710,8 @@ a database transaction</p>
 :param data: key-value pairs for columns values
 :param conn: optional db connection</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-42">42</a></span>
 <span class="normal"><a href="#__codelineno-0-43">43</a></span>
@@ -2733,7 +2772,8 @@ a database transaction</p>
 :param conn: optional db connection
 :param consumer: optional consumer (see :meth:<code>.get_query</code>)</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-58">58</a></span>
 <span class="normal"><a href="#__codelineno-0-59">59</a></span>
@@ -2816,7 +2856,8 @@ a database transaction</p>
 :param conn: optional db connection
 :param consumer: optional consumer (see :meth:<code>.get_query</code>)</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-85"> 85</a></span>
 <span class="normal"><a href="#__codelineno-0-86"> 86</a></span>
@@ -2900,7 +2941,8 @@ a database transaction</p>
 :param conn: optional db connection
 :param consumer: optional consumer (see :meth:<code>.get_query</code>)</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-113">113</a></span>
 <span class="normal"><a href="#__codelineno-0-114">114</a></span>
@@ -2970,7 +3012,8 @@ a database transaction</p>
 :param conn: optional db connection
 :param consumer: optional consumer (see :meth:<code>.get_query</code>)</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-134">134</a></span>
 <span class="normal"><a href="#__codelineno-0-135">135</a></span>
@@ -3042,7 +3085,8 @@ a database transaction</p>
 
     <div class="doc doc-contents ">
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-163">163</a></span>
 <span class="normal"><a href="#__codelineno-0-164">164</a></span>
@@ -3102,7 +3146,8 @@ a database transaction</p>
 :param params: key-value pairs for the query
 :param consumer: optional consumer for manipulating parameters</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-181">181</a></span>
 <span class="normal"><a href="#__codelineno-0-182">182</a></span>
@@ -3184,7 +3229,8 @@ a database transaction</p>
 
     <div class="doc doc-contents ">
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-213">213</a></span>
 <span class="normal"><a href="#__codelineno-0-214">214</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-213"><a id="__codelineno-0-213" name="__codelineno-0-213"></a><span class="k">def</span><span class="w"> </span><span class="nf">db_count_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sql_query</span><span class="p">:</span> <span class="n">Select</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Select</span><span class="p">:</span>
@@ -3210,7 +3256,8 @@ a database transaction</p>
 
         <p>Apply ordering to a sql_query</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-216">216</a></span>
 <span class="normal"><a href="#__codelineno-0-217">217</a></span>
@@ -3248,7 +3295,8 @@ a database transaction</p>
 
         <p>Apply ordering to a sql_query</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-225">225</a></span>
 <span class="normal"><a href="#__codelineno-0-226">226</a></span>
@@ -3304,7 +3352,8 @@ a database transaction</p>
 
         <p>Apply search to a sql_query</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-243">243</a></span>
 <span class="normal"><a href="#__codelineno-0-244">244</a></span>
@@ -3367,7 +3416,8 @@ http://docs.sqlalchemy.org/en/rel_1_0/core/sqlelement.html
 :param value: comparison value, string or list/tuple
 :return:</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/crud.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-256">256</a></span>
 <span class="normal"><a href="#__codelineno-0-257">257</a></span>

@@ -1207,7 +1207,7 @@
 
 
 <h1 id="task-broker">Task Broker<a class="headerlink" href="#task-broker" title="Permanent link">&para;</a></h1>
-<p>A <a class="autorefs autorefs-internal" href="../../reference/task_broker/#fluid.scheduler.TaskBroker">TaskBroker</a> needs to implement three abstract methods</p>
+<p>A <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskBroker" href="../../reference/task_broker/#fluid.scheduler.TaskBroker">TaskBroker</a> needs to implement three abstract methods</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>  <span class="nd">@abstractmethod</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">queue_task</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_run</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">      </span><span class="sd">&quot;&quot;&quot;Queue a task&quot;&quot;&quot;</span>

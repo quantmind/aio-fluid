@@ -1715,6 +1715,7 @@
     <div class="doc doc-contents first">
 
 
+
         <p>A container for tables in a database and a manager of asynchronous
 connections to a postgresql database</p>
 
@@ -1726,7 +1727,9 @@ connections to a postgresql database</p>
 
 
 
-  <div class="doc doc-children">
+
+
+<div class="doc doc-children">
 
 
 
@@ -1755,6 +1758,7 @@ connections to a postgresql database</p>
         <p>data source name, aka connection string</p>
 <p>Example: <code>postgresql+asyncpg://user:password@localhost/dbname</code></p>
 <p>not the <code>+asyncpg</code> part is important for the sync engine</p>
+
     </div>
 
 </div>
@@ -1780,6 +1784,7 @@ connections to a postgresql database</p>
 
         <p>Echo SQL queries to stdout</p>
 <p>It defaults to the <code>DBECHO</code> setting in the settings module</p>
+
     </div>
 
 </div>
@@ -1802,6 +1807,7 @@ connections to a postgresql database</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -1824,6 +1830,7 @@ connections to a postgresql database</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -1846,6 +1853,7 @@ connections to a postgresql database</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -1868,6 +1876,7 @@ connections to a postgresql database</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -1890,6 +1899,7 @@ connections to a postgresql database</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -1913,6 +1923,7 @@ connections to a postgresql database</p>
     <div class="doc doc-contents ">
 
         <p>A dictionary of tables in the database</p>
+
     </div>
 
 </div>
@@ -1937,6 +1948,7 @@ connections to a postgresql database</p>
 
         <p>The :class:<code>sqlalchemy.ext.asyncio.AsyncEngine</code> creating connection
 and transactions</p>
+
     </div>
 
 </div>
@@ -1960,9 +1972,11 @@ and transactions</p>
     <div class="doc doc-contents ">
 
         <p>The sqlalchemy Engine object for synchrouns operations</p>
+
     </div>
 
 </div>
+
 
 
 
@@ -1985,7 +1999,8 @@ and transactions</p>
 
         <p>Create a new database container from environment variables as defaults</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-41">41</a></span>
 <span class="normal"><a href="#__codelineno-0-42">42</a></span>
@@ -2031,7 +2046,8 @@ and transactions</p>
 
         <p>Context manager for obtaining an asynchronous connection</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-76">76</a></span>
 <span class="normal"><a href="#__codelineno-0-77">77</a></span>
@@ -2067,7 +2083,8 @@ and transactions</p>
 
         <p>Context manager for obtaining an asynchronous connection</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-82">82</a></span>
 <span class="normal"><a href="#__codelineno-0-83">83</a></span>
@@ -2115,7 +2132,8 @@ and transactions</p>
 
         <p>Context manager for initializing an asynchronous database transaction</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-94">94</a></span>
 <span class="normal"><a href="#__codelineno-0-95">95</a></span>
@@ -2152,7 +2170,8 @@ and transactions</p>
         <p>Context manager for ensuring we a connection has initialized
 a database transaction</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-100">100</a></span>
 <span class="normal"><a href="#__codelineno-0-101">101</a></span>
@@ -2210,7 +2229,8 @@ a database transaction</p>
 
         <p>Close the asynchronous db engine if opened</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-117">117</a></span>
 <span class="normal"><a href="#__codelineno-0-118">118</a></span>
@@ -2246,7 +2266,8 @@ a database transaction</p>
 
         <p>Ping the database</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-123">123</a></span>
 <span class="normal"><a href="#__codelineno-0-124">124</a></span>
@@ -2280,7 +2301,8 @@ a database transaction</p>
 
         <p>The migration manager for this database</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/db/container.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-130">130</a></span>
 <span class="normal"><a href="#__codelineno-0-131">131</a></span>

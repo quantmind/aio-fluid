@@ -1298,7 +1298,12 @@
 <h1 id="async-database">Async Database<a class="headerlink" href="#async-database" title="Permanent link">&para;</a></h1>
 <p>The <code>fluid.db</code> module provides a simple asynchronous interface to interact with postgres databases. It is built on top of the <a href="https://www.sqlalchemy.org/">sqlalchemy</a> and <a href="https://github.com/MagicStack/asyncpg">asyncpg</a> libraries.</p>
 <h2 id="database">Database<a class="headerlink" href="#database" title="Permanent link">&para;</a></h2>
-<p>Create a database container with the <a class="autorefs autorefs-internal" href="../../reference/db/#fluid.db.Database">Database</a> class:</p>
+<p>Create a database container with the <a class="autorefs autorefs-internal" title="            fluid.db.Database
+
+
+  
+      dataclass
+  " href="../../reference/db/#fluid.db.Database">Database</a> class:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">Database</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">db</span> <span class="o">=</span> <span class="n">Database</span><span class="p">(</span><span class="s2">&quot;postgresql+asyncpg://postgres:postgres@localhost:5432/fluid&quot;</span><span class="p">)</span>

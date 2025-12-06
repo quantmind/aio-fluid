@@ -1329,11 +1329,45 @@
 
 <h1 id="workers">Workers<a class="headerlink" href="#workers" title="Permanent link">&para;</a></h1>
 <p>Workers are the main building block for asynchronous programming with <code>aio-fluid</code>. They are responsible for running tasks and managing their lifecycle.
-All workers implemented derive from the base abstract class <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker">Worker</a> where the main method to implement is the <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.run">Worker.run</a> method.</p>
+All workers implemented derive from the base abstract class <a class="autorefs autorefs-internal" title="            fluid.utils.worker.Worker" href="../../reference/workers/#fluid.utils.worker.Worker">Worker</a> where the main method to implement is the <a class="autorefs autorefs-internal" title="            run
+
+
+  
+      abstractmethod
+      async
+  " href="../../reference/workers/#fluid.utils.worker.Worker.run">Worker.run</a> method.</p>
 <h2 id="worker-lifecycle">Worker Lifecycle<a class="headerlink" href="#worker-lifecycle" title="Permanent link">&para;</a></h2>
-<p>The lifecycle of a worker is managed by the <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.WorkerState">WorkerState</a> class which provides a set of states that a worker can be in. The worker starts in an inital state and than it can be started and stopped.</p>
+<p>The lifecycle of a worker is managed by the <a class="autorefs autorefs-internal" title="            fluid.utils.worker.WorkerState" href="../../reference/workers/#fluid.utils.worker.WorkerState">WorkerState</a> class which provides a set of states that a worker can be in. The worker starts in an inital state and than it can be started and stopped.</p>
 <h3 id="startup">Startup<a class="headerlink" href="#startup" title="Permanent link">&para;</a></h3>
-<p>To start a worker one uses the async method <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.startup">Worker.startup</a> which create the task running the worker. The task will transition the worker from <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.WorkerState.INIT">WorkerState.INIT</a> to the <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.WorkerState.RUNNING">WorkerState.RUNNING</a> state. The worker will then run the <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.on_startup">Worker.on_startup</a> coroutine method (which by default is a no-op) follow by the main worker coroutine method <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.run">Worker.run</a> method until it is stopped.</p>
+<p>To start a worker one uses the async method <a class="autorefs autorefs-internal" title="            startup
+
+
+  
+      async
+  " href="../../reference/workers/#fluid.utils.worker.Worker.startup">Worker.startup</a> which create the task running the worker. The task will transition the worker from <a class="autorefs autorefs-internal" title="            INIT
+
+
+  
+      class-attribute
+      instance-attribute
+  " href="../../reference/workers/#fluid.utils.worker.WorkerState.INIT">WorkerState.INIT</a> to the <a class="autorefs autorefs-internal" title="            RUNNING
+
+
+  
+      class-attribute
+      instance-attribute
+  " href="../../reference/workers/#fluid.utils.worker.WorkerState.RUNNING">WorkerState.RUNNING</a> state. The worker will then run the <a class="autorefs autorefs-internal" title="            on_startup
+
+
+  
+      async
+  " href="../../reference/workers/#fluid.utils.worker.Worker.on_startup">Worker.on_startup</a> coroutine method (which by default is a no-op) follow by the main worker coroutine method <a class="autorefs autorefs-internal" title="            run
+
+
+  
+      abstractmethod
+      async
+  " href="../../reference/workers/#fluid.utils.worker.Worker.run">Worker.run</a> method until it is stopped.</p>
 <p>This is a very simple example of a worker that prints a message every second until it is stopped:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
@@ -1365,8 +1399,30 @@ All workers implemented derive from the base abstract class <a class="autorefs a
 <h3 id="shutdown">Shutdown<a class="headerlink" href="#shutdown" title="Permanent link">&para;</a></h3>
 <p>To shut down a worker there are few possibilities.</p>
 <ul>
-<li>Direct call to the async <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.shutdown">Worker.shutdown</a> method which will trigger the graceful shutdown and wait for the worker to finish its work.</li>
-<li>Call the <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.gracefully_stop">Worker.gracefully_stop</a> method which will trigger the graceful shutdown. Importantly, this method does not wait for the worker to finish its work, ti simply transition from the <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.WorkerState.RUNNING">WorkerState.RUNNING</a> to <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.WorkerState.STOPPING">WorkerState.STOPPING</a> state. To wait for the worker exit one should call the async <a class="autorefs autorefs-internal" href="../../reference/workers/#fluid.utils.worker.Worker.wait_for_shutdown">Worker.wait_for_shutdown</a> method (as in the example above)</li>
+<li>Direct call to the async <a class="autorefs autorefs-internal" title="            shutdown
+
+
+  
+      async
+  " href="../../reference/workers/#fluid.utils.worker.Worker.shutdown">Worker.shutdown</a> method which will trigger the graceful shutdown and wait for the worker to finish its work.</li>
+<li>Call the <a class="autorefs autorefs-internal" title="            gracefully_stop" href="../../reference/workers/#fluid.utils.worker.Worker.gracefully_stop">Worker.gracefully_stop</a> method which will trigger the graceful shutdown. Importantly, this method does not wait for the worker to finish its work, ti simply transition from the <a class="autorefs autorefs-internal" title="            RUNNING
+
+
+  
+      class-attribute
+      instance-attribute
+  " href="../../reference/workers/#fluid.utils.worker.WorkerState.RUNNING">WorkerState.RUNNING</a> to <a class="autorefs autorefs-internal" title="            STOPPING
+
+
+  
+      class-attribute
+      instance-attribute
+  " href="../../reference/workers/#fluid.utils.worker.WorkerState.STOPPING">WorkerState.STOPPING</a> state. To wait for the worker exit one should call the async <a class="autorefs autorefs-internal" title="            wait_for_shutdown
+
+
+  
+      async
+  " href="../../reference/workers/#fluid.utils.worker.Worker.wait_for_shutdown">Worker.wait_for_shutdown</a> method (as in the example above)</li>
 </ul>
 
 

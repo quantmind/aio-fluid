@@ -1374,14 +1374,19 @@
 
 
 <h1 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">&para;</a></h1>
-<p>Tasks are standard python async functions decorated with the <a class="autorefs autorefs-internal" href="../../reference/task/#fluid.scheduler.task">@task</a> decorator.</p>
+<p>Tasks are standard python async functions decorated with the <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="../../reference/task/#fluid.scheduler.task">@task</a> decorator.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nd">@task</span>
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">say_hi</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Hi!&quot;</span><span class="p">)</span>
 </span></code></pre></div>
-<p>The <a class="autorefs autorefs-internal" href="../../reference/task_run/#fluid.scheduler.TaskRun">TaskRun</a> object is passed to the task function and contains the task metadata, including optional parameters, and the <a class="autorefs autorefs-internal" href="../../reference/task_manager/#fluid.scheduler.TaskManager">TaskManager</a>.</p>
+<p>The <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskRun
+
+
+  
+      pydantic-model
+  " href="../../reference/task_run/#fluid.scheduler.TaskRun">TaskRun</a> object is passed to the task function and contains the task metadata, including optional parameters, and the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskManager" href="../../reference/task_manager/#fluid.scheduler.TaskManager">TaskManager</a>.</p>
 <h2 id="task-parameters">Task Parameters<a class="headerlink" href="#task-parameters" title="Permanent link">&para;</a></h2>
 <p>It is possible to pass parameters to the task, to do so, create a pydantic model
 for the task parameters</p>
@@ -1400,7 +1405,7 @@ for the task parameters</p>
 <h2 id="task-types">Task Types<a class="headerlink" href="#task-types" title="Permanent link">&para;</a></h2>
 <p>There are few types of tasks implemented, lets take a look at them.</p>
 <h3 id="io-bound-tasks">IO Bound Tasks<a class="headerlink" href="#io-bound-tasks" title="Permanent link">&para;</a></h3>
-<p>They run concurrently with the <a class="autorefs autorefs-internal" href="../../reference/tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a>. They must perform non blocking IO operations (no heavy CPU bound operations that blocks the event loop).</p>
+<p>They run concurrently with the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a>. They must perform non blocking IO operations (no heavy CPU bound operations that blocks the event loop).</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
@@ -1431,7 +1436,7 @@ for the task parameters</p>
 </span></code></pre></div>
 <h3 id="scheduled-tasks">Scheduled Tasks<a class="headerlink" href="#scheduled-tasks" title="Permanent link">&para;</a></h3>
 <p>Both IO and CPU bound tasks can be periodically scheduled via the <code>schedule</code> keyword argument.</p>
-<p>There are two types of scheduling, the most common is the <a class="autorefs autorefs-internal" href="../../reference/task_scheduling/#fluid.scheduler.every">every</a> function that takes a <code>timedelta</code> object.</p>
+<p>There are two types of scheduling, the most common is the <a class="autorefs autorefs-internal" title="            fluid.scheduler.every" href="../../reference/task_scheduling/#fluid.scheduler.every">every</a> function that takes a <code>timedelta</code> object.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span><span class="p">,</span> <span class="n">every</span>
@@ -1440,7 +1445,7 @@ for the task parameters</p>
 </span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">scheduled</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
 </span></code></pre></div>
-<p>You can also use the <a class="autorefs autorefs-internal" href="../../reference/task_scheduling/#fluid.scheduler.crontab">crontab</a> function to schedule tasks using cron expressions.</p>
+<p>You can also use the <a class="autorefs autorefs-internal" title="            fluid.scheduler.crontab" href="../../reference/task_scheduling/#fluid.scheduler.crontab">crontab</a> function to schedule tasks using cron expressions.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span><span class="p">,</span> <span class="n">crontab</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>

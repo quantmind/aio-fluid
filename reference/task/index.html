@@ -1993,9 +1993,14 @@
 
 <h1 id="task">Task<a class="headerlink" href="#task" title="Permanent link">&para;</a></h1>
 <p>A Task defines the implementation of a given operation, the inputs required and the scheduling metadata.
-Usually, a Task is not created directly, but rather through the use of the <a class="autorefs autorefs-internal" href="#fluid.scheduler.task">@task</a> decorator.</p>
+Usually, a Task is not created directly, but rather through the use of the <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="#fluid.scheduler.task">@task</a> decorator.</p>
 <h2 id="example">Example<a class="headerlink" href="#example" title="Permanent link">&para;</a></h2>
-<p>A task function is decorated vya the <a class="autorefs autorefs-internal" href="#fluid.scheduler.task">@task</a> decorator and must accept the <a class="autorefs autorefs-internal" href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a> object as its first and only argument.</p>
+<p>A task function is decorated vya the <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="#fluid.scheduler.task">@task</a> decorator and must accept the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskRun
+
+
+  
+      pydantic-model
+  " href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a> object as its first and only argument.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nd">@task</span>
@@ -2013,16 +2018,22 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 
 <a href="#fluid.scheduler.task" class="headerlink" title="Permanent link">&para;</a></h2>
           <div class="doc-overloads">
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">task</span><span class="p">(</span><span class="n">executor</span><span class="p">:</span> <span class="n"><span title="fluid.scheduler.models.TaskExecutor">TaskExecutor</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.models.Task" href="#fluid.scheduler.Task">Task</a></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">task</span><span class="p">(</span><span class="n">executor</span><span class="p">:</span> <span class="n"><span title="fluid.scheduler.models.TaskExecutor">TaskExecutor</span></span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n"><a class="autorefs autorefs-internal" title="            fluid.scheduler.Task (fluid.scheduler.models.Task)" href="#fluid.scheduler.Task">Task</a></span>
 </span></code></pre></div><div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">task</span><span class="p">(</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="o">*</span><span class="p">,</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">name</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">schedule</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.scheduler_crontab.Scheduler" href="../task_scheduling/#fluid.scheduler.Scheduler">Scheduler</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">schedule</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            fluid.scheduler.Scheduler (fluid.scheduler.scheduler_crontab.Scheduler)" href="../task_scheduling/#fluid.scheduler.Scheduler">Scheduler</a></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">short_description</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">description</span><span class="p">:</span> <span class="n"><span title="str">str</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">randomize</span><span class="p">:</span> <span class="n"><span title="fluid.scheduler.models.RandomizeType">RandomizeType</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">max_concurrency</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">priority</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskPriority" href="#fluid.scheduler.TaskPriority">TaskPriority</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskPriority.medium" href="#fluid.scheduler.TaskPriority.medium">medium</a></span><span class="p">,</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">priority</span><span class="p">:</span> <span class="n"><a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskPriority (fluid.scheduler.models.TaskPriority)" href="#fluid.scheduler.TaskPriority">TaskPriority</a></span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            medium
+
+
+  
+      class-attribute
+      instance-attribute
+   (fluid.scheduler.models.TaskPriority.medium)" href="#fluid.scheduler.TaskPriority.medium">medium</a></span><span class="p">,</span>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">cpu_bound</span><span class="p">:</span> <span class="n"><span title="bool">bool</span></span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">k8s_config</span><span class="p">:</span> <span class="n"><span title="fluid.scheduler.models.K8sConfig">K8sConfig</span></span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">timeout_seconds</span><span class="p">:</span> <span class="n"><span title="int">int</span></span> <span class="o">=</span> <span class="mi">60</span>
@@ -2040,7 +2051,8 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 <li>As a function with keyword arguments</li>
 </ul>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/models.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-406">406</a></span>
 <span class="normal"><a href="#__codelineno-0-407">407</a></span>
@@ -2095,6 +2107,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
               Bases: <code><span title="typing.NamedTuple">NamedTuple</span></code>, <code><span title="typing.Generic">Generic</span>[<span title="fluid.scheduler.models.TP">TP</span>]</code></p>
 
 
+
         <p>A Task executes any time it is invoked</p>
 
 
@@ -2105,7 +2118,9 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 
 
 
-  <div class="doc doc-children">
+
+
+<div class="doc doc-children">
 
 
 
@@ -2132,6 +2147,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
     <div class="doc doc-contents ">
 
         <p>Task name - unique identifier</p>
+
     </div>
 
 </div>
@@ -2155,6 +2171,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
     <div class="doc doc-contents ">
 
         <p>Task executor function</p>
+
     </div>
 
 </div>
@@ -2178,6 +2195,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
     <div class="doc doc-contents ">
 
         <p>Pydantic model for task parameters</p>
+
     </div>
 
 </div>
@@ -2201,6 +2219,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
     <div class="doc doc-contents ">
 
         <p>Task logger</p>
+
     </div>
 
 </div>
@@ -2225,6 +2244,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
     <div class="doc doc-contents ">
 
         <p>Task python module</p>
+
     </div>
 
 </div>
@@ -2249,6 +2269,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
     <div class="doc doc-contents ">
 
         <p>Short task description - one line</p>
+
     </div>
 
 </div>
@@ -2273,6 +2294,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
     <div class="doc doc-contents ">
 
         <p>Task description - obtained from the executor docstring if not provided</p>
+
     </div>
 
 </div>
@@ -2297,6 +2319,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
     <div class="doc doc-contents ">
 
         <p>Task schedule - None means the task is not scheduled</p>
+
     </div>
 
 </div>
@@ -2321,6 +2344,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
     <div class="doc doc-contents ">
 
         <p>Randomize function for task schedule</p>
+
     </div>
 
 </div>
@@ -2345,6 +2369,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
     <div class="doc doc-contents ">
 
         <p>how many tasks can be run concurrently - 0 means no limit</p>
+
     </div>
 
 </div>
@@ -2369,6 +2394,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
     <div class="doc doc-contents ">
 
         <p>Task timeout in seconds - how long the task can run before being aborted</p>
+
     </div>
 
 </div>
@@ -2387,12 +2413,19 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
   </span>
 
 <a href="#fluid.scheduler.Task.priority" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">priority</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskPriority.medium" href="#fluid.scheduler.TaskPriority.medium">medium</a></span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">priority</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            medium
+
+
+  
+      class-attribute
+      instance-attribute
+   (fluid.scheduler.models.TaskPriority.medium)" href="#fluid.scheduler.TaskPriority.medium">medium</a></span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
 
         <p>Task priority - high, medium, low</p>
+
     </div>
 
 </div>
@@ -2415,6 +2448,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2438,9 +2472,11 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
     <div class="doc doc-contents ">
 
         <p>True if the task is CPU bound</p>
+
     </div>
 
 </div>
+
 
 
 
@@ -2459,7 +2495,8 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 
         <p>Return task info object</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/models.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-206">206</a></span>
 <span class="normal"><a href="#__codelineno-0-207">207</a></span>
@@ -2518,7 +2555,10 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 
 
 
-  <div class="doc doc-children">
+
+
+
+<div class="doc doc-children">
 
 
 
@@ -2544,6 +2584,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2566,6 +2607,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2588,9 +2630,11 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
+
 
 
 
@@ -2626,7 +2670,10 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 
 
 
-  <div class="doc doc-children">
+
+
+
+<div class="doc doc-children">
 
 
 
@@ -2652,6 +2699,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2674,6 +2722,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2696,6 +2745,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2718,6 +2768,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2740,6 +2791,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2762,6 +2814,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2784,6 +2837,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2805,6 +2859,7 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2826,9 +2881,11 @@ Usually, a Task is not created directly, but rather through the use of the <a cl
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
+
 
 
 

@@ -1007,6 +1007,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#fluid.scheduler.consumer.TaskDispatcher.event_type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;event_type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fluid.scheduler.consumer.TaskDispatcher.register_handler" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1044,17 +1055,6 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;dispatch
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.consumer.TaskDispatcher.event_type" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;event_type
       
     </span>
   </a>
@@ -1864,6 +1864,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#fluid.scheduler.consumer.TaskDispatcher.event_type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;event_type
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fluid.scheduler.consumer.TaskDispatcher.register_handler" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1901,17 +1912,6 @@
     <span class="md-ellipsis">
       
         <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;dispatch
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#fluid.scheduler.consumer.TaskDispatcher.event_type" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;event_type
       
     </span>
   </a>
@@ -1992,7 +1992,8 @@
 
 
 <h1 id="task-manager">Task Manager<a class="headerlink" href="#task-manager" title="Permanent link">&para;</a></h1>
-<p>The Task Manager is a component that manages the execution of tasks. It is the simplest way to run tasks and it is the base class for the <a class="autorefs autorefs-internal" href="../tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> and the<a class="autorefs autorefs-internal" href="../task_scheduler/#fluid.scheduler.TaskScheduler">TaskScheduler</a>.</p>
+<p>The Task Manager is a component that manages the execution of tasks. It is the simplest way to run tasks and it is the base class for the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a>
+and the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskScheduler" href="../task_scheduler/#fluid.scheduler.TaskScheduler">TaskScheduler</a>.</p>
 <p>It can be imported from <code>fluid.scheduler</code>:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskManager</span>
 </span></code></pre></div>
@@ -2014,6 +2015,7 @@
     <div class="doc doc-contents first">
 
 
+
         <p>The task manager is the main class for managing tasks</p>
 
 
@@ -2021,7 +2023,9 @@
 
 
 
-                  <details class="quote">
+
+
+                  <details class="mkdocstrings-source">
                     <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
                     <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-51">51</a></span>
 <span class="normal"><a href="#__codelineno-0-52">52</a></span>
@@ -2109,7 +2113,7 @@
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -2141,6 +2145,7 @@ available to all tasks. This can be achieved by setting
 the <code>deps</code> attribute of the task manager to an object
 with the required dependencies.</p>
 <p>Each task can cast the dependencies to the required type.</p>
+
     </div>
 
 </div>
@@ -2158,12 +2163,18 @@ with the required dependencies.</p>
   </span>
 
 <a href="#fluid.scheduler.TaskManager.config" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">config</span> <span class="o">=</span> <span class="n"><span title="fluid.scheduler.consumer.TaskManager(config)">config</span></span> <span class="ow">or</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskManagerConfig" href="#fluid.scheduler.TaskManagerConfig">TaskManagerConfig</a></span><span class="p">(</span><span class="o">**</span><span class="n"><span title="fluid.scheduler.consumer.TaskManager(kwargs)">kwargs</span></span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">config</span> <span class="o">=</span> <span class="n"><span title="fluid.scheduler.consumer.TaskManager(config)">config</span></span> <span class="ow">or</span> <span class="n"><a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskManagerConfig
+
+
+  
+      pydantic-model
+   (fluid.scheduler.models.TaskManagerConfig)" href="#fluid.scheduler.TaskManagerConfig">TaskManagerConfig</a></span><span class="p">(</span><span class="o">**</span><span class="n"><span title="fluid.scheduler.consumer.TaskManager(kwargs)">kwargs</span></span><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
 
         <p>Task manager configuration</p>
+
     </div>
 
 </div>
@@ -2181,14 +2192,20 @@ with the required dependencies.</p>
   </span>
 
 <a href="#fluid.scheduler.TaskManager.dispatcher" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">dispatcher</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.consumer.TaskDispatcher" href="#fluid.scheduler.consumer.TaskDispatcher">TaskDispatcher</a></span><span class="p">()</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">dispatcher</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            fluid.scheduler.consumer.TaskDispatcher" href="#fluid.scheduler.consumer.TaskDispatcher">TaskDispatcher</a></span><span class="p">()</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
 
-        <p>A dispatcher of <a class="autorefs autorefs-internal" href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a> events.</p>
+        <p>A dispatcher of <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskRun
+
+
+  
+      pydantic-model
+  " href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a> events.</p>
 <p>Application can register handlers to listen for events
 happening during the lifecycle of a task run.</p>
+
     </div>
 
 </div>
@@ -2206,10 +2223,16 @@ happening during the lifecycle of a task run.</p>
   </span>
 
 <a href="#fluid.scheduler.TaskManager.broker" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">broker</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="fluid.scheduler.broker.TaskBroker.from_url" href="../task_broker/#fluid.scheduler.TaskBroker.from_url">from_url</a></span><span class="p">(</span><span class="n"><span title="fluid.scheduler.consumer.TaskManager(self).config.broker_url">broker_url</span></span><span class="p">)</span>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">broker</span> <span class="o">=</span> <span class="n"><a class="autorefs autorefs-internal" title="            from_url
+
+
+  
+      classmethod
+   (fluid.scheduler.broker.TaskBroker.from_url)" href="../task_broker/#fluid.scheduler.TaskBroker.from_url">from_url</a></span><span class="p">(</span><span class="n"><span title="fluid.scheduler.consumer.TaskManager(self).config.broker_url">broker_url</span></span><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -2233,6 +2256,7 @@ happening during the lifecycle of a task run.</p>
     <div class="doc doc-contents ">
 
         <p>The task registry</p>
+
     </div>
 
 </div>
@@ -2256,9 +2280,11 @@ happening during the lifecycle of a task run.</p>
     <div class="doc doc-contents ">
 
         <p>The type of the task manager</p>
+
     </div>
 
 </div>
+
 
 
 
@@ -2279,7 +2305,8 @@ happening during the lifecycle of a task run.</p>
 
     <div class="doc doc-contents ">
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-104">104</a></span>
 <span class="normal"><a href="#__codelineno-0-105">105</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-104"><a id="__codelineno-0-104" name="__codelineno-0-104"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_startup</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -2307,7 +2334,8 @@ happening during the lifecycle of a task run.</p>
 
     <div class="doc doc-contents ">
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-107">107</a></span>
 <span class="normal"><a href="#__codelineno-0-108">108</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">on_shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -2334,7 +2362,8 @@ happening during the lifecycle of a task run.</p>
         <p>Add an async context manager to the task manager</p>
 <p>These context managers are entered when the task manager starts</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-110">110</a></span>
 <span class="normal"><a href="#__codelineno-0-111">111</a></span>
@@ -2388,7 +2417,7 @@ happening during the lifecycle of a task run.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.Task" href="../task/#fluid.scheduler.Task">Task</a></code>
+                      <code><a class="autorefs autorefs-internal" title="            fluid.scheduler.Task (fluid.scheduler.models.Task)" href="../task/#fluid.scheduler.Task">Task</a></code>
                   </span>
               </p>
             </td>
@@ -2396,7 +2425,8 @@ happening during the lifecycle of a task run.</p>
       </tbody>
     </table>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-127">127</a></span>
 <span class="normal"><a href="#__codelineno-0-128">128</a></span>
@@ -2448,7 +2478,7 @@ happening during the lifecycle of a task run.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><span title="str">str</span> | <a class="autorefs autorefs-internal" title="fluid.scheduler.models.Task" href="../task/#fluid.scheduler.Task">Task</a></code>
+                      <code><span title="str">str</span> | <a class="autorefs autorefs-internal" title="            fluid.scheduler.Task (fluid.scheduler.models.Task)" href="../task/#fluid.scheduler.Task">Task</a></code>
                   </span>
               </p>
             </td>
@@ -2484,7 +2514,7 @@ happening during the lifecycle of a task run.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskPriority" href="../task/#fluid.scheduler.TaskPriority">TaskPriority</a> | None</code>
+                      <code><a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskPriority (fluid.scheduler.models.TaskPriority)" href="../task/#fluid.scheduler.TaskPriority">TaskPriority</a> | None</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -2516,7 +2546,8 @@ happening during the lifecycle of a task run.</p>
       </tbody>
     </table>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-131">131</a></span>
 <span class="normal"><a href="#__codelineno-0-132">132</a></span>
@@ -2628,7 +2659,7 @@ context.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><span title="str">str</span> | <a class="autorefs autorefs-internal" title="fluid.scheduler.models.Task" href="../task/#fluid.scheduler.Task">Task</a></code>
+                      <code><span title="str">str</span> | <a class="autorefs autorefs-internal" title="            fluid.scheduler.Task (fluid.scheduler.models.Task)" href="../task/#fluid.scheduler.Task">Task</a></code>
                   </span>
               </p>
             </td>
@@ -2664,7 +2695,7 @@ context.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskPriority" href="../task/#fluid.scheduler.TaskPriority">TaskPriority</a> | None</code>
+                      <code><a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskPriority (fluid.scheduler.models.TaskPriority)" href="../task/#fluid.scheduler.TaskPriority">TaskPriority</a> | None</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -2696,7 +2727,8 @@ context.</p>
       </tbody>
     </table>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-166">166</a></span>
 <span class="normal"><a href="#__codelineno-0-167">167</a></span>
@@ -2802,7 +2834,12 @@ context.</p>
 <li><code>init</code>: when the task run is created</li>
 <li><code>queued</code>: after the task is queued</li>
 </ul>
-<p>It returns the <a class="autorefs autorefs-internal" href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a> object</p>
+<p>It returns the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskRun
+
+
+  
+      pydantic-model
+  " href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a> object</p>
 
 
 <table>
@@ -2824,7 +2861,7 @@ context.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><span title="str">str</span> | <a class="autorefs autorefs-internal" title="fluid.scheduler.models.Task" href="../task/#fluid.scheduler.Task">Task</a></code>
+                      <code><span title="str">str</span> | <a class="autorefs autorefs-internal" title="            fluid.scheduler.Task (fluid.scheduler.models.Task)" href="../task/#fluid.scheduler.Task">Task</a></code>
                   </span>
               </p>
             </td>
@@ -2860,7 +2897,7 @@ context.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskPriority" href="../task/#fluid.scheduler.TaskPriority">TaskPriority</a> | None</code>
+                      <code><a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskPriority (fluid.scheduler.models.TaskPriority)" href="../task/#fluid.scheduler.TaskPriority">TaskPriority</a> | None</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -2892,7 +2929,8 @@ context.</p>
       </tbody>
     </table>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-205">205</a></span>
 <span class="normal"><a href="#__codelineno-0-206">206</a></span>
@@ -3002,7 +3040,12 @@ context.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Create a <a class="autorefs autorefs-internal" href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a> in <code>init</code> state</p>
+        <p>Create a <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskRun
+
+
+  
+      pydantic-model
+  " href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a> in <code>init</code> state</p>
 
 
 <table>
@@ -3024,7 +3067,7 @@ context.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><span title="str">str</span> | <a class="autorefs autorefs-internal" title="fluid.scheduler.models.Task" href="../task/#fluid.scheduler.Task">Task</a></code>
+                      <code><span title="str">str</span> | <a class="autorefs autorefs-internal" title="            fluid.scheduler.Task (fluid.scheduler.models.Task)" href="../task/#fluid.scheduler.Task">Task</a></code>
                   </span>
               </p>
             </td>
@@ -3060,7 +3103,7 @@ context.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskPriority" href="../task/#fluid.scheduler.TaskPriority">TaskPriority</a> | None</code>
+                      <code><a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskPriority (fluid.scheduler.models.TaskPriority)" href="../task/#fluid.scheduler.TaskPriority">TaskPriority</a> | None</code>
                   </span>
                   <span class="doc-param-default">
                     <b>DEFAULT:</b>
@@ -3092,7 +3135,8 @@ context.</p>
       </tbody>
     </table>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-250">250</a></span>
 <span class="normal"><a href="#__codelineno-0-251">251</a></span>
@@ -3212,7 +3256,8 @@ context.</p>
       </tbody>
     </table>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-286">286</a></span>
 <span class="normal"><a href="#__codelineno-0-287">287</a></span>
@@ -3294,7 +3339,8 @@ context.</p>
       </tbody>
     </table>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-303">303</a></span>
 <span class="normal"><a href="#__codelineno-0-304">304</a></span>
@@ -3349,7 +3395,8 @@ context.</p>
         <p>Register an async handler for a given event</p>
 <p>This method is a no op for a TaskManager that is not a worker</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-320">320</a></span>
 <span class="normal"><a href="#__codelineno-0-321">321</a></span>
@@ -3382,7 +3429,8 @@ context.</p>
         <p>Unregister an async handler for a given event</p>
 <p>This method is a no op for a TaskManager that is not a worker</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-326">326</a></span>
 <span class="normal"><a href="#__codelineno-0-327">327</a></span>
@@ -3433,23 +3481,48 @@ context.</p>
         <p>Fields:</p>
         <ul>
             <li>
-              <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskManagerConfig.schedule_tasks" href="#fluid.scheduler.TaskManagerConfig.schedule_tasks">schedule_tasks</a></code>
+              <code><a class="autorefs autorefs-internal" title="            schedule_tasks
+
+
+  
+      pydantic-field
+   (fluid.scheduler.models.TaskManagerConfig.schedule_tasks)" href="#fluid.scheduler.TaskManagerConfig.schedule_tasks">schedule_tasks</a></code>
                 (<code><span title="bool">bool</span></code>)
             </li>
             <li>
-              <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskManagerConfig.consume_tasks" href="#fluid.scheduler.TaskManagerConfig.consume_tasks">consume_tasks</a></code>
+              <code><a class="autorefs autorefs-internal" title="            consume_tasks
+
+
+  
+      pydantic-field
+   (fluid.scheduler.models.TaskManagerConfig.consume_tasks)" href="#fluid.scheduler.TaskManagerConfig.consume_tasks">consume_tasks</a></code>
                 (<code><span title="bool">bool</span></code>)
             </li>
             <li>
-              <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskManagerConfig.max_concurrent_tasks" href="#fluid.scheduler.TaskManagerConfig.max_concurrent_tasks">max_concurrent_tasks</a></code>
+              <code><a class="autorefs autorefs-internal" title="            max_concurrent_tasks
+
+
+  
+      pydantic-field
+   (fluid.scheduler.models.TaskManagerConfig.max_concurrent_tasks)" href="#fluid.scheduler.TaskManagerConfig.max_concurrent_tasks">max_concurrent_tasks</a></code>
                 (<code><span title="int">int</span></code>)
             </li>
             <li>
-              <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskManagerConfig.sleep_millis" href="#fluid.scheduler.TaskManagerConfig.sleep_millis">sleep_millis</a></code>
+              <code><a class="autorefs autorefs-internal" title="            sleep_millis
+
+
+  
+      pydantic-field
+   (fluid.scheduler.models.TaskManagerConfig.sleep_millis)" href="#fluid.scheduler.TaskManagerConfig.sleep_millis">sleep_millis</a></code>
                 (<code><span title="int">int</span></code>)
             </li>
             <li>
-              <code><a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskManagerConfig.broker_url" href="#fluid.scheduler.TaskManagerConfig.broker_url">broker_url</a></code>
+              <code><a class="autorefs autorefs-internal" title="            broker_url
+
+
+  
+      pydantic-field
+   (fluid.scheduler.models.TaskManagerConfig.broker_url)" href="#fluid.scheduler.TaskManagerConfig.broker_url">broker_url</a></code>
                 (<code><span title="str">str</span></code>)
             </li>
         </ul>
@@ -3457,7 +3530,7 @@ context.</p>
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -3484,6 +3557,7 @@ context.</p>
     <div class="doc doc-contents ">
 
         <p>Schedule tasks or sleep</p>
+
     </div>
 
 </div>
@@ -3507,6 +3581,7 @@ context.</p>
     <div class="doc doc-contents ">
 
         <p>Consume tasks or sleep</p>
+
     </div>
 
 </div>
@@ -3530,6 +3605,7 @@ context.</p>
     <div class="doc doc-contents ">
 
         <p>The number of coroutine workers consuming tasks. Each worker consumes one task at a time, therefore, this number is the maximum number of tasks that can run concurrently.It can be configured via the <code>FLUID_MAX_CONCURRENT_TASKS</code> environment variable, and by default is set to 5.</p>
+
     </div>
 
 </div>
@@ -3553,6 +3629,7 @@ context.</p>
     <div class="doc doc-contents ">
 
         <p>Milliseconds to async sleep when no tasks available to consume.This value can be configured via the <code>FLUID_SLEEP_MILLIS</code> environment variable, and by default is set to 1000 milliseconds (1 second).</p>
+
     </div>
 
 </div>
@@ -3574,6 +3651,7 @@ context.</p>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
+
     </div>
 
 </div>
@@ -3597,9 +3675,11 @@ context.</p>
     <div class="doc doc-contents ">
 
         <p>Sleep time in seconds</p>
+
     </div>
 
 </div>
+
 
 
 
@@ -3625,7 +3705,13 @@ context.</p>
 
     <div class="doc doc-contents first">
             <p class="doc doc-class-bases">
-              Bases: <code><a class="autorefs autorefs-internal" title="fluid.utils.dispatcher.Dispatcher" href="../dispatchers/#fluid.utils.dispatcher.Dispatcher">Dispatcher</a>[<a class="autorefs autorefs-internal" title="fluid.scheduler.models.TaskRun" href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a>]</code></p>
+              Bases: <code><a class="autorefs autorefs-internal" title="            fluid.utils.dispatcher.Dispatcher" href="../dispatchers/#fluid.utils.dispatcher.Dispatcher">Dispatcher</a>[<a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskRun
+
+
+  
+      pydantic-model
+   (fluid.scheduler.models.TaskRun)" href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a>]</code></p>
+
 
 
         <p>The task dispatcher is responsible for dispatching task run messages</p>
@@ -3635,7 +3721,9 @@ context.</p>
 
 
 
-                  <details class="quote">
+
+
+                  <details class="mkdocstrings-source">
                     <summary>Source code in <code>fluid/utils/dispatcher.py</code></summary>
                     <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-44">44</a></span>
 <span class="normal"><a href="#__codelineno-0-45">45</a></span>
@@ -3653,7 +3741,7 @@ context.</p>
 
 
 
-  <div class="doc doc-children">
+<div class="doc doc-children">
 
 
 
@@ -3662,6 +3750,32 @@ context.</p>
 
 
 
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="fluid.scheduler.consumer.TaskDispatcher.event_type" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">event_type</span>
+
+
+<a href="#fluid.scheduler.consumer.TaskDispatcher.event_type" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">event_type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-38">38</a></span>
+<span class="normal"><a href="#__codelineno-0-39">39</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="k">def</span><span class="w"> </span><span class="nf">event_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="k">return</span> <span class="n">message</span><span class="o">.</span><span class="n">state</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
 
 <div class="doc doc-object doc-function">
 
@@ -3704,7 +3818,7 @@ providing a different tag for each handler.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="fluid.utils.dispatcher.Event" href="../dispatchers/#fluid.utils.dispatcher.Event">Event</a> | <span title="str">str</span></code>
+                      <code><a class="autorefs autorefs-internal" title="            fluid.utils.dispatcher.Event" href="../dispatchers/#fluid.utils.dispatcher.Event">Event</a> | <span title="str">str</span></code>
                   </span>
               </p>
             </td>
@@ -3728,7 +3842,8 @@ providing a different tag for each handler.</p>
       </tbody>
     </table>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/utils/dispatcher.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-51">51</a></span>
 <span class="normal"><a href="#__codelineno-0-52">52</a></span>
@@ -3814,7 +3929,7 @@ registered for the given event.</p>
               <p>
                   <span class="doc-param-annotation">
                     <b>TYPE:</b>
-                      <code><a class="autorefs autorefs-internal" title="fluid.utils.dispatcher.Event" href="../dispatchers/#fluid.utils.dispatcher.Event">Event</a> | <span title="str">str</span></code>
+                      <code><a class="autorefs autorefs-internal" title="            fluid.utils.dispatcher.Event" href="../dispatchers/#fluid.utils.dispatcher.Event">Event</a> | <span title="str">str</span></code>
                   </span>
               </p>
             </td>
@@ -3822,7 +3937,8 @@ registered for the given event.</p>
       </tbody>
     </table>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/utils/dispatcher.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-73">73</a></span>
 <span class="normal"><a href="#__codelineno-0-74">74</a></span>
@@ -3895,7 +4011,8 @@ message type. If no handlers are registered for the message type, it returns
       </tbody>
     </table>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/utils/dispatcher.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-84">84</a></span>
 <span class="normal"><a href="#__codelineno-0-85">85</a></span>
@@ -3942,7 +4059,8 @@ message type. If no handlers are registered for the message type, it returns
         <p>dispatch the message to all handlers</p>
 <p>It returns the number of handlers that were called</p>
 
-            <details class="quote">
+
+            <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/utils/dispatcher.py</code></summary>
               <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-105">105</a></span>
 <span class="normal"><a href="#__codelineno-0-106">106</a></span>
@@ -3963,30 +4081,6 @@ message type. If no handlers are registered for the message type, it returns
 </span><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a>        <span class="k">for</span> <span class="n">handler</span> <span class="ow">in</span> <span class="n">handlers</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
 </span><span id="__span-0-113"><a id="__codelineno-0-113" name="__codelineno-0-113"></a>            <span class="n">handler</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
 </span><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a>    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">handlers</span> <span class="ow">or</span> <span class="p">())</span>
-</span></code></pre></div></td></tr></table></div>
-            </details>
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="fluid.scheduler.consumer.TaskDispatcher.event_type" class="doc doc-heading">
-<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">event_type</span>
-
-
-<a href="#fluid.scheduler.consumer.TaskDispatcher.event_type" class="headerlink" title="Permanent link">&para;</a></h3>
-<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">event_type</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
-</span></code></pre></div>
-
-    <div class="doc doc-contents ">
-
-            <details class="quote">
-              <summary>Source code in <code>fluid/scheduler/consumer.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-38">38</a></span>
-<span class="normal"><a href="#__codelineno-0-39">39</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38"></a><span class="k">def</span><span class="w"> </span><span class="nf">event_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39"></a>    <span class="k">return</span> <span class="n">message</span><span class="o">.</span><span class="n">state</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>

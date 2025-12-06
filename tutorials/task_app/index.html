@@ -1318,8 +1318,8 @@
 
 
 <h1 id="task-queue-app">Task Queue App<a class="headerlink" href="#task-queue-app" title="Permanent link">&para;</a></h1>
-<p>The <code>fluid.scheduler</code> module is a simple yet powerful distributed task producer (<a class="autorefs autorefs-internal" href="../../reference/task_scheduler/#fluid.scheduler.TaskScheduler">TaskScheduler</a>) and consumer (<a class="autorefs autorefs-internal" href="../../reference/tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a>) system for executing tasks.
-The middleware for distributing tasks can be configured via the <a class="autorefs autorefs-internal" href="../../reference/task_broker/#fluid.scheduler.TaskBroker">TaskBroker</a> interface.</p>
+<p>The <code>fluid.scheduler</code> module is a simple yet powerful distributed task producer (<a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskScheduler" href="../../reference/task_scheduler/#fluid.scheduler.TaskScheduler">TaskScheduler</a>) and consumer (<a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a>) system for executing tasks.
+The middleware for distributing tasks can be configured via the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskBroker" href="../../reference/task_broker/#fluid.scheduler.TaskBroker">TaskBroker</a> interface.</p>
 <p>A redis task broker is provided for convenience.</p>
 <h2 id="tasks-consumer">Tasks Consumer<a class="headerlink" href="#tasks-consumer" title="Permanent link">&para;</a></h2>
 <p>Create a task consumer, register tasks from modules, and run the consumer.</p>
@@ -1356,7 +1356,7 @@ tasks can be queued via HTTP requests.</p>
 </span></code></pre></div>
 <p>and check the openapi UI at <a href="http://127.0.0.1:8000/docs">http://127.0.0.1:8000/docs</a>.</p>
 <h2 id="task-app-command-line">Task App Command Line<a class="headerlink" href="#task-app-command-line" title="Permanent link">&para;</a></h2>
-<p>The <a class="autorefs autorefs-internal" href="../../reference/tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> or <a class="autorefs autorefs-internal" href="../../reference/task_scheduler/#fluid.scheduler.TaskScheduler">TaskScheduler</a> can be run with the command line tool to allow for an even richer API.</p>
+<p>The <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> or <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskScheduler" href="../../reference/task_scheduler/#fluid.scheduler.TaskScheduler">TaskScheduler</a> can be run with the command line tool to allow for an even richer API.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskManagerCLI</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
