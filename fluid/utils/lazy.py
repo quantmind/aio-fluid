@@ -2,6 +2,7 @@ from importlib import import_module
 from typing import Any
 
 import click
+from typing_extensions import Annotated, Doc
 
 
 class LazyGroup(click.Group):
@@ -19,8 +20,24 @@ class LazyGroup(click.Group):
     def __init__(
         self,
         *,
-        lazy_subcommands: dict[str, str] | None = None,
-        **kwargs: Any,
+        lazy_subcommands: Annotated[
+            dict[str, str] | None,
+            Doc(
+                """
+            A dictionary mapping command names to their import paths.
+
+            This allows subcommands to be lazily loaded from the specified module paths.
+            """
+            ),
+        ] = None,
+        **kwargs: Annotated[
+            Any,
+            Doc(
+                """
+            Additional keyword arguments passed to the click.Group initializer.
+            """
+            ),
+        ],
     ):
         super().__init__(**kwargs)
         self.lazy_subcommands = lazy_subcommands or {}

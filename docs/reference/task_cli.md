@@ -1,6 +1,6 @@
 # Task Manager Cli
 
-Command line tools for task manager applications.
+Command line tools for [TaskManager][fluid.scheduler.TaskManager] applications.
 
 This modules requires the `cli` extra to be installed.
 

@@ -1,6 +1,8 @@
 import logging
 from logging.config import dictConfig
-from typing import Any, Sequence
+from typing import Sequence
+
+from typing_extensions import Annotated, Doc
 
 try:
     import pythonjsonlogger
@@ -22,22 +24,25 @@ def get_logger(name: str = "", prefix: bool = False) -> logging.Logger:
         return logging.getLogger(name) if name else logger
 
 
-def level_num(level: str) -> int:
+def get_level_num(level: str | int) -> int:
+    if isinstance(level, int):
+        return level
     return getattr(logging, level.upper())
 
 
 def log_config(
-    level: int,
-    other_level: int = logging.WARNING,
+    level: str | int = settings.LOG_LEVEL,
+    other_level: str | int = logging.WARNING,
     app_names: Sequence[str] = (settings.APP_NAME,),
     log_handler: str = settings.LOG_HANDLER,
     log_format: str = settings.PYTHON_LOG_FORMAT,
     formatters: dict[str, dict[str, str]] | None = None,
 ) -> dict:
-    other_level = max(level, other_level)
+    level_num = get_level_num(level)
+    other_level_num = max(level_num, get_level_num(other_level))
     log_handlers = {
         "plain": {
-            "level": level,
+            "level": level_num,
             "class": "logging.StreamHandler",
             "formatter": "plain",
         }
@@ -46,12 +51,12 @@ def log_config(
     if pythonjsonlogger is not None:
         log_handlers.update(
             json={
-                "level": level,
+                "level": level_num,
                 "class": "logging.StreamHandler",
                 "formatter": "json",
             },
             nicejson={
-                "level": level,
+                "level": level_num,
                 "class": "logging.StreamHandler",
                 "formatter": "nicejson",
             },
@@ -78,14 +83,59 @@ def log_config(
         "formatters": log_formatters,
         "handlers": log_handlers,
         "loggers": {
-            app_name: {"level": level, "handlers": [log_handler], "propagate": 0}
+            app_name: {"level": level_num, "handlers": [log_handler], "propagate": 0}
             for app_name in app_name_set
         },
-        "root": {"level": other_level, "handlers": [log_handler]},
+        "root": {"level": other_level_num, "handlers": [log_handler]},
     }
 
 
-def config(**kwargs: Any) -> dict:
-    cfg = log_config(level_num(settings.LOG_LEVEL), **kwargs)
+def config(
+    level: Annotated[
+        str | int,
+        Doc(
+            "Log levels for application loggers defined by the `app_names` parameter. "
+            "By default this value is taken from the `LOG_LEVEL` env variable"
+        ),
+    ] = settings.LOG_LEVEL,
+    other_level: Annotated[
+        str | int,
+        Doc("log levels for loggers not prefixed by `app_names`"),
+    ] = logging.WARNING,
+    app_names: Annotated[
+        Sequence[str],
+        Doc(
+            "Application names for which the log level is set, "
+            "these are the prefixes which will be set at `log_level`"
+        ),
+    ] = (settings.APP_NAME,),
+    log_handler: Annotated[
+        str,
+        Doc(
+            "Log handler to use, by default it is taken from the "
+            "`LOG_HANDLER` env variable and if missing `plain` is used"
+        ),
+    ] = settings.LOG_HANDLER,
+    log_format: Annotated[
+        str,
+        Doc(
+            "log format to use, by default it is taken from the "
+            "`PYTHON_LOG_FORMAT` env variable"
+        ),
+    ] = settings.PYTHON_LOG_FORMAT,
+    formatters: Annotated[
+        dict[str, dict[str, str]] | None,
+        Doc("Additional formatters to add to the logging configuration"),
+    ] = None,
+) -> dict:
+    """Configure logging for the application"""
+    cfg = log_config(
+        level=level,
+        other_level=other_level,
+        app_names=app_names,
+        log_handler=log_handler,
+        log_format=log_format,
+        formatters=formatters,
+    )
     dictConfig(cfg)
     return cfg
