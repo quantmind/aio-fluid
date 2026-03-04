@@ -62,7 +62,7 @@ async def fecth_data(ctx: TaskRun[Scrape]) -> None:
 
 ### CPU bound tasks
 
-They run on a subprocess
+They normally run on a subprocess and they can be defined by setting the `cpu_bound` flag to `True` in the `task` decorator. They can perform heavy CPU bound operations without blocking the event loop.
 
 ```python
 from fluid.scheduler import task, TaskRun
@@ -75,6 +75,9 @@ async def heavy_calculation(ctx: TaskRun) -> None:
     # trigger another task
     ctx.task_manager.queue("fetch_data")
 ```
+
+When the consumer is running inside a Kubernetes cluster, CPU bound tasks can be dispatched as Kubernetes Jobs instead of local subprocesses. See [K8s Jobs](task_k8s.md) for more details.
+
 
 ### Scheduled Tasks
 

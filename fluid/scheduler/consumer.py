@@ -57,8 +57,7 @@ class TaskManager:
     ) -> None:
         self.deps: Annotated[
             Any,
-            Doc(
-                """
+            Doc("""
                 Dependencies for the task manager.
 
                 Production applications requires global dependencies to be
@@ -67,8 +66,7 @@ class TaskManager:
                 with the required dependencies.
 
                 Each task can cast the dependencies to the required type.
-                """
-            ),
+                """),
         ] = (
             deps if deps is not None else State()
         )
@@ -77,14 +75,12 @@ class TaskManager:
         ] = config or TaskManagerConfig(**kwargs)
         self.dispatcher: Annotated[
             TaskDispatcher,
-            Doc(
-                """
+            Doc("""
                 A dispatcher of [TaskRun][fluid.scheduler.TaskRun] events.
 
                 Application can register handlers to listen for events
                 happening during the lifecycle of a task run.
-                """
-            ),
+                """),
         ] = TaskDispatcher()
         self.broker = TaskBroker.from_url(self.config.broker_url)
         self._async_contexts: list[Any] = []

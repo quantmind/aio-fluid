@@ -1,6 +1,15 @@
 from .broker import TaskBroker
 from .consumer import TaskConsumer, TaskManager, TaskManagerConfig
-from .models import QueuedTask, Task, TaskInfo, TaskPriority, TaskRun, TaskState, task
+from .models import (
+    K8sConfig,
+    QueuedTask,
+    Task,
+    TaskInfo,
+    TaskPriority,
+    TaskRun,
+    TaskState,
+    task,
+)
 from .scheduler import TaskScheduler
 from .scheduler_crontab import Scheduler, crontab
 from .scheduler_every import every
@@ -19,6 +28,7 @@ __all__ = [
     "TaskRun",
     "QueuedTask",
     "TaskBroker",
+    "K8sConfig",
     "crontab",
     "every",
 ]
