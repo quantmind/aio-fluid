@@ -23,18 +23,22 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
     """
     task = ctx.task
     job_name = slugify(f"task-{ctx.name}-{ctx.id}")[:63]
+    # load k8s config from within the cluster
     config.load_incluster_config()
+    k8s_config = task.get_k8s_config()
     async with ApiClient() as api:
         v1 = client.AppsV1Api(api)
+        # get the deployment of the task consumer
         tasks = await v1.read_namespaced_deployment(
-            task.k8s_config.deployment, task.k8s_config.namespace
+            k8s_config.deployment,
+            k8s_config.namespace,
         )
         container = None
         for container in tasks.spec.template.spec.containers:
-            if container.name == task.k8s_config.container:
+            if container.name == k8s_config.container:
                 break
         if container is None:
-            raise TaskRunError(f"Container {task.k8s_config.container} not found")
+            raise TaskRunError(f"Container {k8s_config.container} not found")
         command = list(container.command or [])
         if command and command[-1] == "serve":
             command.pop()
@@ -45,12 +49,12 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
         job = k8s.V1Job(
             metadata=k8s.V1ObjectMeta(name=job_name),
             spec=k8s.V1JobSpec(
-                ttl_seconds_after_finished=task.k8s_config.job_ttl,
+                ttl_seconds_after_finished=k8s_config.job_ttl,
                 template=k8s.V1PodTemplateSpec(
                     spec=k8s.V1PodSpec(
                         containers=[
                             k8s.V1Container(
-                                name=task.k8s_config.container,
+                                name=k8s_config.container,
                                 image=container.image,
                                 command=command,
                                 args=[
@@ -70,15 +74,16 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
                 ),
             ),
         )
-        response = await batch.create_namespaced_job(task.k8s_config.namespace, job)
+        response = await batch.create_namespaced_job(k8s_config.namespace, job)
         ctx.logger.info(f"Job created. status={response.status}")
         while True:
             job_status = await batch.read_namespaced_job_status(
-                name=job_name, namespace=task.k8s_config.namespace
+                name=job_name,
+                namespace=k8s_config.namespace,
             )
             if job_status.status.succeeded:
                 ctx.logger.info(f"status={job_status.status}")
                 break
             if job_status.status.failed is not None:
                 raise TaskRunError(f"K8s task failed status {job_status.status}")
-            await asyncio.sleep(task.k8s_config.sleep)
+            await asyncio.sleep(k8s_config.sleep)

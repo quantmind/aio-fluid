@@ -146,22 +146,48 @@ class QueuedTask(BaseModel):
     priority: TaskPriority | None = Field(default=None, description="Task priority")
 
 
-class K8sConfig(NamedTuple):
-    """Kubernetes configuration"""
+class K8sConfig(BaseModel):
+    """Kubernetes configuration for tasks run on Kubernetes cluster.
+    This configuration is used by the task consumer to run tasks
+    on Kubernetes Jobs.
 
-    namespace: str = "default"
-    """Kubernetes namespace where the task consumer deployment run"""
-    deployment: str = "fluid-task"
-    """Kubernetes deployment of the task consumer"""
-    container: str = "main"
-    """Kubernetes container"""
-    job_ttl: int = 300
-    """Time to live for k8s Job after completion"""
-    sleep: float = 2.0
-    """Amount to async sleep while waiting for completion of k8s Job"""
+    ```python
+    from fluid.scheduler import K8sConfig
+    ```
+
+    This is used when the task consumer runs inside a Kubernetes cluster
+    and the task is marked as CPU bound.
+    """
+
+    namespace: str = Field(
+        default="default",
+        description="Kubernetes namespace where the task consumer deployment run",
+    )
+    deployment: str = Field(
+        default="fluid-task",
+        description="Kubernetes deployment of the task consumer",
+    )
+    container: str = Field(default="main", description="Kubernetes container")
+    job_ttl: int = Field(
+        default=300, description="Time to live for k8s Job after completion"
+    )
+    sleep: float = Field(
+        default=2.0,
+        description="Amount to async sleep while waiting for completion of k8s Job",
+    )
 
     @classmethod
     def from_env(cls) -> K8sConfig:
+        """Create K8sConfig from environment variables.
+
+        * `FLUID_TASK_CONSUMER_K8S_NAMESPACE`: Kubernetes namespace where the task
+            consumer deployment run, default is "default"
+        * `FLUID_TASK_CONSUMER_K8S_DEPLOYMENT`: Kubernetes deployment of the task
+            consumer, default is "fluid-task"
+        * `FLUID_TASK_CONSUMER_K8S_CONTAINER`: Kubernetes container, default is "main"
+        * `FLUID_TASK_CONSUMER_K8S_JOB_TTL`: Time to live for k8s Job after completion,
+            default is 300 seconds (5 minutes)
+        """
         return cls(
             namespace=os.getenv("FLUID_TASK_CONSUMER_K8S_NAMESPACE", "default"),
             deployment=os.getenv("FLUID_TASK_CONSUMER_K8S_DEPLOYMENT", "fluid-task"),
@@ -171,7 +197,13 @@ class K8sConfig(NamedTuple):
 
 
 class Task(NamedTuple, Generic[TP]):
-    """A Task executes any time it is invoked"""
+    """A Task configuration.
+
+    This is not created directly, but rather through the use
+    of the [@task][fluid.scheduler.task] decorator.
+
+    Executes any time it is invoked
+    """
 
     name: str
     """Task name - unique identifier"""
@@ -196,12 +228,17 @@ class Task(NamedTuple, Generic[TP]):
     """Task timeout in seconds - how long the task can run before being aborted"""
     priority: TaskPriority = TaskPriority.medium
     """Task priority - high, medium, low"""
-    k8s_config: K8sConfig = K8sConfig.from_env()
+    k8s_config: K8sConfig | None = None
+    """Kubernetes configuration for tasks run on Kubernetes cluster."""
 
     @property
     def cpu_bound(self) -> bool:
         """True if the task is CPU bound"""
         return self.executor is run_in_subprocess
+
+    def get_k8s_config(self) -> K8sConfig:
+        """Get Kubernetes configuration for this task"""
+        return self.k8s_config or K8sConfig.from_env()
 
     def info(self, **params: Any) -> TaskInfo:
         """Return task info object"""
@@ -377,40 +414,158 @@ class TaskRunWaiter:
 
 
 @overload
-def task(executor: TaskExecutor) -> Task: ...
+def task(
+    executor: Annotated[TaskExecutor, Doc("The executor function for the task")],
+) -> Task: ...
 
 
 @overload
 def task(
     *,
-    name: str | None = None,
-    schedule: Scheduler | None = None,
-    short_description: str | None = None,
-    description: str | None = None,
-    randomize: RandomizeType | None = None,
-    max_concurrency: int = 0,
-    priority: TaskPriority = TaskPriority.medium,
-    cpu_bound: bool = False,
+    name: Annotated[
+        str | None,
+        Doc(
+            (
+                "The name of the task. If None, the name will be derived "
+                "from the executor function"
+            )
+        ),
+    ] = None,
+    schedule: Annotated[
+        Scheduler | None,
+        Doc("The schedule for the tas. If None, the task will not be scheduled"),
+    ] = None,
+    short_description: Annotated[
+        str | None,
+        Doc(
+            (
+                "A short description of the task. "
+                "If not provided it will be extracted from the task function docstring "
+                "first line"
+            )
+        ),
+    ] = None,
+    description: Annotated[
+        str | None,
+        Doc(
+            (
+                "A detailed description of the task. "
+                "If not provided it will be extracted from the task function docstring"
+            )
+        ),
+    ] = None,
+    randomize: Annotated[
+        RandomizeType | None,
+        Doc("Randomization settings for the task"),
+    ] = None,
+    max_concurrency: Annotated[
+        int | None,
+        Doc(("The maximum number of concurrent executions of the task")),
+    ] = None,
+    priority: Annotated[
+        TaskPriority | None,
+        Doc("The priority of the task such as high, medium, low"),
+    ] = None,
+    cpu_bound: Annotated[
+        bool | None,
+        Doc("Whether the task is CPU bound"),
+    ] = None,
     k8s_config: Annotated[
         K8sConfig | None,
         Doc("Kubernetes configuration - None means use the default configuration"),
     ] = None,
     timeout_seconds: Annotated[
-        int,
+        int | None,
         Doc("Task timeout in seconds - how long the task can run before being aborted"),
-    ] = 60,
+    ] = None,
 ) -> TaskConstructor: ...
 
 
 # implementation of the task decorator
-def task(executor: TaskExecutor | None = None, **kwargs: Any) -> Task | TaskConstructor:
-    """Decorator to create a Task
+def task(
+    executor: Annotated[
+        TaskExecutor | None,
+        Doc("The executor function for the task"),
+    ] = None,
+    *,
+    name: Annotated[
+        str | None,
+        Doc(
+            (
+                "The name of the task. If None, the name will be derived "
+                "from the executor function"
+            )
+        ),
+    ] = None,
+    schedule: Annotated[
+        Scheduler | None,
+        Doc("The schedule for the tas. If None, the task will not be scheduled"),
+    ] = None,
+    short_description: Annotated[
+        str | None,
+        Doc(
+            (
+                "A short description of the task. "
+                "If not provided it will be extracted from the task function docstring "
+                "first line"
+            )
+        ),
+    ] = None,
+    description: Annotated[
+        str | None,
+        Doc(
+            (
+                "A detailed description of the task. "
+                "If not provided it will be extracted from the task function docstring"
+            )
+        ),
+    ] = None,
+    randomize: Annotated[
+        RandomizeType | None,
+        Doc("Randomization settings for the task"),
+    ] = None,
+    max_concurrency: Annotated[
+        int | None,
+        Doc(("The maximum number of concurrent executions of the task")),
+    ] = None,
+    priority: Annotated[
+        TaskPriority | None,
+        Doc("The priority of the task such as high, medium, low"),
+    ] = None,
+    cpu_bound: Annotated[
+        bool | None,
+        Doc("Whether the task is CPU bound"),
+    ] = None,
+    k8s_config: Annotated[
+        K8sConfig | None,
+        Doc("Kubernetes configuration - None means use the default configuration"),
+    ] = None,
+    timeout_seconds: Annotated[
+        int | None,
+        Doc("Task timeout in seconds - how long the task can run before being aborted"),
+    ] = None,
+) -> Task | TaskConstructor:
+    """Decorator to create a [Task][fluid.scheduler.Task] from a function
+    and optional parameters.
 
     This decorator can be used in two ways:
 
     - As a simple decorator of the executor function
-    - As a function with keyword arguments
+    - As a function with keyword arguments for greater control
+        over the task configuration
     """
+    kwargs = compact_dict(
+        name=name,
+        schedule=schedule,
+        short_description=short_description,
+        description=description,
+        randomize=randomize,
+        max_concurrency=max_concurrency,
+        priority=priority,
+        cpu_bound=cpu_bound,
+        k8s_config=k8s_config,
+        timeout_seconds=timeout_seconds,
+    )
     if kwargs and executor:
         raise TaskDecoratorError("cannot use positional parameters")
     elif kwargs:
@@ -422,8 +577,8 @@ def task(executor: TaskExecutor | None = None, **kwargs: Any) -> Task | TaskCons
 
 
 class TaskConstructor:
-    def __init__(self, *, cpu_bound: bool = False, **kwargs: Any) -> None:
-        self.cpu_bound = cpu_bound
+    def __init__(self, *, cpu_bound: bool | None = None, **kwargs: Any) -> None:
+        self.cpu_bound = cpu_bound or False
         self.kwargs = kwargs
 
     def __call__(self, executor: TaskExecutor) -> Task:

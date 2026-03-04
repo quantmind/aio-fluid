@@ -22,21 +22,17 @@ class LazyGroup(click.Group):
         *,
         lazy_subcommands: Annotated[
             dict[str, str] | None,
-            Doc(
-                """
+            Doc("""
             A dictionary mapping command names to their import paths.
 
             This allows subcommands to be lazily loaded from the specified module paths.
-            """
-            ),
+            """),
         ] = None,
         **kwargs: Annotated[
             Any,
-            Doc(
-                """
+            Doc("""
             Additional keyword arguments passed to the click.Group initializer.
-            """
-            ),
+            """),
         ],
     ):
         super().__init__(**kwargs)

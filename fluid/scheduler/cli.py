@@ -40,25 +40,21 @@ class TaskManagerCLI(LazyGroup):
         self,
         task_manager_app: Annotated[
             TaskManagerApp,
-            Doc(
-                """
+            Doc("""
                 Task manager application.
 
                 This can be a FastAPI app, a callable that returns a FastAPI app,
                 or a string import path to a FastAPI app.
-                """
-            ),
+                """),
         ],
         log_config: Annotated[
             dict | None,
-            Doc(
-                """
+            Doc("""
                 Log configuration parameters.
 
                 These parameters are passed to the [log.config][fluid.utils.log.config]
                 function when configuring logging.
-                """
-            ),
+                """),
         ] = None,
         **kwargs: Any,
     ):

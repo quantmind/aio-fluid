@@ -1,15 +1,28 @@
 import random
 from datetime import datetime, timedelta
 
+from typing_extensions import Annotated, Doc
+
 from .scheduler_crontab import CronRun, Scheduler
 
 
 class every(Scheduler):  # noqa: N801
+    """Run a task every delta time, with optional delay and jitter"""
+
     def __init__(
         self,
-        delta: timedelta,
-        delay: timedelta = timedelta(),
-        jitter: timedelta = timedelta(),
+        delta: Annotated[
+            timedelta,
+            Doc("The time delta between runs"),
+        ],
+        delay: Annotated[
+            timedelta,
+            Doc("The initial delay before the first run"),
+        ] = timedelta(),
+        jitter: Annotated[
+            timedelta,
+            Doc("The maximum random jitter added to the delta"),
+        ] = timedelta(),
     ) -> None:
         self.delta: timedelta = delta
         self.delay: timedelta = delay
