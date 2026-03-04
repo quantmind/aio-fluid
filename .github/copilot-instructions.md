@@ -6,6 +6,10 @@ applyTo: "**"
 
 AIO-Fluid is an asynchronous task scheduler and runner built on top of Python's asyncio. It provides a flexible API for defining tasks, scheduling them with cron-like syntax, and running them concurrently with support for task dependencies and priorities.
 
+## Working with this codebase
+
+Before starting any task, read all files under `docs/` to understand the project structure, API, and tutorials.
+
 ## Documentation
 
 Located in the `docs/` directory, the documentation is built with mkdocs and can be served locally with:
