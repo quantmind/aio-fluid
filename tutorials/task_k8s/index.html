@@ -8,11 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://aio-fluid.com/tutorials/workers/">
+        <link rel="canonical" href="https://aio-fluid.com/tutorials/task_k8s/">
       
       
-        <link rel="prev" href="../task_queue/">
+        <link rel="prev" href="../task_broker/">
       
+      
+        <link rel="next" href="../task_queue/">
       
       
         
@@ -23,7 +25,7 @@
     
     
       
-        <title>Workers - Aio Fluid</title>
+        <title>K8s Jobs - Aio Fluid</title>
       
     
     
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#workers" class="md-skip">
+        <a href="#k8s-jobs" class="md-skip">
           Skip to content
         </a>
       
@@ -112,7 +114,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Workers
+              K8s Jobs
             
           </span>
         </div>
@@ -1051,10 +1053,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../task_k8s/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    K8s Jobs
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1070,6 +1099,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#defining-a-cpu-bound-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defining a CPU bound task
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#required-rbac-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required RBAC permissions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1107,37 +1211,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Workers
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../workers/" class="md-nav__link">
         
   
   
@@ -1153,65 +1230,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#worker-lifecycle" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Worker Lifecycle
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Worker Lifecycle">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#startup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Startup
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#shutdown" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Shutdown
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1251,41 +1269,57 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#worker-lifecycle" class="md-nav__link">
+  <a href="#how-it-works" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Worker Lifecycle
-      
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Worker Lifecycle">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#startup" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Startup
+        How it works
       
     </span>
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
-  <a href="#shutdown" class="md-nav__link">
+      
+        <li class="md-nav__item">
+  <a href="#installation" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Shutdown
+        Installation
       
     </span>
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#defining-a-cpu-bound-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Defining a CPU bound task
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#required-rbac-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Required RBAC permissions
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1357,103 +1391,130 @@
   
 
 
-<h1 id="workers">Workers<a class="headerlink" href="#workers" title="Permanent link">&para;</a></h1>
-<p>Workers are the main building block for asynchronous programming with <code>aio-fluid</code>. They are responsible for running tasks and managing their lifecycle.
-All workers implemented derive from the base abstract class <a class="autorefs autorefs-internal" title="            fluid.utils.worker.Worker" href="../../reference/workers/#fluid.utils.worker.Worker">Worker</a> where the main method to implement is the <a class="autorefs autorefs-internal" title="            run
-
-
-  
-      abstractmethod
-      async
-  " href="../../reference/workers/#fluid.utils.worker.Worker.run">Worker.run</a> method.</p>
-<h2 id="worker-lifecycle">Worker Lifecycle<a class="headerlink" href="#worker-lifecycle" title="Permanent link">&para;</a></h2>
-<p>The lifecycle of a worker is managed by the <a class="autorefs autorefs-internal" title="            fluid.utils.worker.WorkerState" href="../../reference/workers/#fluid.utils.worker.WorkerState">WorkerState</a> class which provides a set of states that a worker can be in. The worker starts in an inital state and than it can be started and stopped.</p>
-<h3 id="startup">Startup<a class="headerlink" href="#startup" title="Permanent link">&para;</a></h3>
-<p>To start a worker one uses the async method <a class="autorefs autorefs-internal" title="            startup
-
-
-  
-      async
-  " href="../../reference/workers/#fluid.utils.worker.Worker.startup">Worker.startup</a> which create the task running the worker. The task will transition the worker from <a class="autorefs autorefs-internal" title="            INIT
-
-
-  
-      class-attribute
-      instance-attribute
-  " href="../../reference/workers/#fluid.utils.worker.WorkerState.INIT">WorkerState.INIT</a> to the <a class="autorefs autorefs-internal" title="            RUNNING
-
-
-  
-      class-attribute
-      instance-attribute
-  " href="../../reference/workers/#fluid.utils.worker.WorkerState.RUNNING">WorkerState.RUNNING</a> state. The worker will then run the <a class="autorefs autorefs-internal" title="            on_startup
-
-
-  
-      async
-  " href="../../reference/workers/#fluid.utils.worker.Worker.on_startup">Worker.on_startup</a> coroutine method (which by default is a no-op) follow by the main worker coroutine method <a class="autorefs autorefs-internal" title="            run
-
-
-  
-      abstractmethod
-      async
-  " href="../../reference/workers/#fluid.utils.worker.Worker.run">Worker.run</a> method until it is stopped.</p>
-<p>This is a very simple example of a worker that prints a message every second until it is stopped:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.utils.worker</span><span class="w"> </span><span class="kn">import</span> <span class="n">Worker</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="k">class</span><span class="w"> </span><span class="nc">SimpleWorker</span><span class="p">(</span><span class="n">Worker</span><span class="p">):</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_running</span><span class="p">():</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">print_message</span><span class="p">()</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>            <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">print_message</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hello from </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_name</span><span class="si">}</span><span class="s2"> in state </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">worker_state</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="n">worker</span> <span class="o">=</span> <span class="n">SimpleWorker</span><span class="p">()</span>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">worker</span><span class="o">.</span><span class="n">print_message</span><span class="p">()</span>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="k">await</span> <span class="n">worker</span><span class="o">.</span><span class="n">startup</span><span class="p">()</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">get_event_loop</span><span class="p">()</span><span class="o">.</span><span class="n">call_later</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">worker</span><span class="o">.</span><span class="n">gracefully_stop</span><span class="p">)</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="k">await</span> <span class="n">worker</span><span class="o">.</span><span class="n">wait_for_shutdown</span><span class="p">()</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">worker</span><span class="o">.</span><span class="n">print_message</span><span class="p">()</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+<h1 id="k8s-jobs">K8s Jobs<a class="headerlink" href="#k8s-jobs" title="Permanent link">&para;</a></h1>
+<p>When the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> runs inside a Kubernetes cluster, <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="../../reference/task/#fluid.scheduler.task">CPU bound tasks</a> can be dispatched as <a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/">Kubernetes Jobs</a> instead of local subprocesses.
+This offloads heavy computation to dedicated pods, keeping the consumer event loop free.</p>
+<h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
+<p>The switch is automatic. When <code>KUBERNETES_SERVICE_HOST</code> is set (which Kubernetes injects into every pod) and the <code>k8s</code> extra is installed, any task declared with <code>cpu_bound=True</code> will spawn a Kubernetes Job instead of a subprocess. No code change is required in the task itself.</p>
+<p>The Job reuses the same container image and command as the task consumer deployment, running:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;consumer-command&gt; exec &lt;task-name&gt; --log --run-id &lt;id&gt; --params &lt;json&gt;
 </span></code></pre></div>
-<h3 id="shutdown">Shutdown<a class="headerlink" href="#shutdown" title="Permanent link">&para;</a></h3>
-<p>To shut down a worker there are few possibilities.</p>
-<ul>
-<li>Direct call to the async <a class="autorefs autorefs-internal" title="            shutdown
-
-
-  
-      async
-  " href="../../reference/workers/#fluid.utils.worker.Worker.shutdown">Worker.shutdown</a> method which will trigger the graceful shutdown and wait for the worker to finish its work.</li>
-<li>Call the <a class="autorefs autorefs-internal" title="            gracefully_stop" href="../../reference/workers/#fluid.utils.worker.Worker.gracefully_stop">Worker.gracefully_stop</a> method which will trigger the graceful shutdown. Importantly, this method does not wait for the worker to finish its work, ti simply transition from the <a class="autorefs autorefs-internal" title="            RUNNING
-
-
-  
-      class-attribute
-      instance-attribute
-  " href="../../reference/workers/#fluid.utils.worker.WorkerState.RUNNING">WorkerState.RUNNING</a> to <a class="autorefs autorefs-internal" title="            STOPPING
-
-
-  
-      class-attribute
-      instance-attribute
-  " href="../../reference/workers/#fluid.utils.worker.WorkerState.STOPPING">WorkerState.STOPPING</a> state. To wait for the worker exit one should call the async <a class="autorefs autorefs-internal" title="            wait_for_shutdown
-
-
-  
-      async
-  " href="../../reference/workers/#fluid.utils.worker.Worker.wait_for_shutdown">Worker.wait_for_shutdown</a> method (as in the example above)</li>
-</ul>
+<p>The consumer waits for the Job to complete and raises an error if it fails.</p>
+<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
+<p>It requires both the <code>cli</code> and <code>k8s</code> extras:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>aio-fluid<span class="o">[</span>cli,k8s<span class="o">]</span>
+</span></code></pre></div>
+<h2 id="defining-a-cpu-bound-task">Defining a CPU bound task<a class="headerlink" href="#defining-a-cpu-bound-task" title="Permanent link">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nd">@task</span><span class="p">(</span><span class="n">cpu_bound</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">heavy_calculation</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="c1"># heavy CPU work here — runs in a k8s Job when inside a cluster</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="o">...</span>
+</span></code></pre></div>
+<h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
+<p>K8s behaviour can be tuned per-task via the <code>k8s_config</code> argument:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span><span class="p">,</span> <span class="n">K8sConfig</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nd">@task</span><span class="p">(</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">cpu_bound</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>    <span class="n">k8s_config</span><span class="o">=</span><span class="n">K8sConfig</span><span class="p">(</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>        <span class="n">namespace</span><span class="o">=</span><span class="s2">&quot;workers&quot;</span><span class="p">,</span>     <span class="c1"># namespace where the Job is created</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>        <span class="n">deployment</span><span class="o">=</span><span class="s2">&quot;fluid-task&quot;</span><span class="p">,</span> <span class="c1"># deployment to copy the container spec from</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="n">container</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span>        <span class="c1"># container name inside the deployment</span>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        <span class="n">job_ttl</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span>             <span class="c1"># seconds to keep the Job after completion</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="n">sleep</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>               <span class="c1"># polling interval while waiting for the Job</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="p">),</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">)</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">heavy_calculation</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="o">...</span>
+</span></code></pre></div>
+<p>If <code>k8s_config</code> is omitted, the following environment variables are used:</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>FLUID_TASK_CONSUMER_K8S_NAMESPACE</code></td>
+<td><code>default</code></td>
+<td>Kubernetes namespace</td>
+</tr>
+<tr>
+<td><code>FLUID_TASK_CONSUMER_K8S_DEPLOYMENT</code></td>
+<td><code>fluid-task</code></td>
+<td>Deployment name</td>
+</tr>
+<tr>
+<td><code>FLUID_TASK_CONSUMER_K8S_CONTAINER</code></td>
+<td><code>main</code></td>
+<td>Container name</td>
+</tr>
+<tr>
+<td><code>FLUID_TASK_CONSUMER_K8S_JOB_TTL</code></td>
+<td><code>300</code></td>
+<td>Job TTL in seconds</td>
+</tr>
+</tbody>
+</table>
+<h2 id="required-rbac-permissions">Required RBAC permissions<a class="headerlink" href="#required-rbac-permissions" title="Permanent link">&para;</a></h2>
+<p>The pod running the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> or
+the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskScheduler" href="../../reference/task_scheduler/#fluid.scheduler.TaskScheduler">TaskScheduler</a> needs permission to read
+the deployment and create/read jobs.</p>
+<p>Assuming the consumer/scheduler runs in the <code>workers</code> namespace, a minimal <code>Role</code> and <code>RoleBinding</code> can be defined as follows:</p>
+<div class="language-yaml highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rbac.authorization.k8s.io/v1</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Role</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nt">metadata</span><span class="p">:</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">execute-jobs-role</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">workers</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="nt">rules</span><span class="p">:</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">apiGroups</span><span class="p">:</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deployments</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="w">    </span><span class="nt">verbs</span><span class="p">:</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">get</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">list</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">watch</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">apiGroups</span><span class="p">:</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">batch</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a><span class="w">    </span><span class="nt">resources</span><span class="p">:</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jobs</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">cronjobs</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">jobs/status</span>
+</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="w">    </span><span class="nt">verbs</span><span class="p">:</span>
+</span><span id="__span-4-22"><a id="__codelineno-4-22" name="__codelineno-4-22" href="#__codelineno-4-22"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">create</span>
+</span><span id="__span-4-23"><a id="__codelineno-4-23" name="__codelineno-4-23" href="#__codelineno-4-23"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">get</span>
+</span><span id="__span-4-24"><a id="__codelineno-4-24" name="__codelineno-4-24" href="#__codelineno-4-24"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">list</span>
+</span><span id="__span-4-25"><a id="__codelineno-4-25" name="__codelineno-4-25" href="#__codelineno-4-25"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">watch</span>
+</span><span id="__span-4-26"><a id="__codelineno-4-26" name="__codelineno-4-26" href="#__codelineno-4-26"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">delete</span>
+</span><span id="__span-4-27"><a id="__codelineno-4-27" name="__codelineno-4-27" href="#__codelineno-4-27"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">patch</span>
+</span><span id="__span-4-28"><a id="__codelineno-4-28" name="__codelineno-4-28" href="#__codelineno-4-28"></a><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">update</span>
+</span><span id="__span-4-29"><a id="__codelineno-4-29" name="__codelineno-4-29" href="#__codelineno-4-29"></a><span class="nn">---</span>
+</span><span id="__span-4-30"><a id="__codelineno-4-30" name="__codelineno-4-30" href="#__codelineno-4-30"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+</span><span id="__span-4-31"><a id="__codelineno-4-31" name="__codelineno-4-31" href="#__codelineno-4-31"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceAccount</span>
+</span><span id="__span-4-32"><a id="__codelineno-4-32" name="__codelineno-4-32" href="#__codelineno-4-32"></a><span class="nt">metadata</span><span class="p">:</span>
+</span><span id="__span-4-33"><a id="__codelineno-4-33" name="__codelineno-4-33" href="#__codelineno-4-33"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tasks-consumer-sa</span>
+</span><span id="__span-4-34"><a id="__codelineno-4-34" name="__codelineno-4-34" href="#__codelineno-4-34"></a><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">workers</span>
+</span><span id="__span-4-35"><a id="__codelineno-4-35" name="__codelineno-4-35" href="#__codelineno-4-35"></a><span class="nn">---</span>
+</span><span id="__span-4-36"><a id="__codelineno-4-36" name="__codelineno-4-36" href="#__codelineno-4-36"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rbac.authorization.k8s.io/v1</span>
+</span><span id="__span-4-37"><a id="__codelineno-4-37" name="__codelineno-4-37" href="#__codelineno-4-37"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RoleBinding</span>
+</span><span id="__span-4-38"><a id="__codelineno-4-38" name="__codelineno-4-38" href="#__codelineno-4-38"></a><span class="nt">metadata</span><span class="p">:</span>
+</span><span id="__span-4-39"><a id="__codelineno-4-39" name="__codelineno-4-39" href="#__codelineno-4-39"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tasks-consumer-rb</span>
+</span><span id="__span-4-40"><a id="__codelineno-4-40" name="__codelineno-4-40" href="#__codelineno-4-40"></a><span class="w">  </span><span class="nt">namespace</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">workers</span>
+</span><span id="__span-4-41"><a id="__codelineno-4-41" name="__codelineno-4-41" href="#__codelineno-4-41"></a><span class="nt">subjects</span><span class="p">:</span>
+</span><span id="__span-4-42"><a id="__codelineno-4-42" name="__codelineno-4-42" href="#__codelineno-4-42"></a><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceAccount</span>
+</span><span id="__span-4-43"><a id="__codelineno-4-43" name="__codelineno-4-43" href="#__codelineno-4-43"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tasks-consumer-sa</span>
+</span><span id="__span-4-44"><a id="__codelineno-4-44" name="__codelineno-4-44" href="#__codelineno-4-44"></a><span class="nt">roleRef</span><span class="p">:</span>
+</span><span id="__span-4-45"><a id="__codelineno-4-45" name="__codelineno-4-45" href="#__codelineno-4-45"></a><span class="w">  </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Role</span>
+</span><span id="__span-4-46"><a id="__codelineno-4-46" name="__codelineno-4-46" href="#__codelineno-4-46"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">execute-jobs-role</span>
+</span><span id="__span-4-47"><a id="__codelineno-4-47" name="__codelineno-4-47" href="#__codelineno-4-47"></a><span class="w">  </span><span class="nt">apiGroup</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">rbac.authorization.k8s.io</span>
+</span></code></pre></div>
+<p>The <code>tasks-consumer-sa</code> ServiceAccount should be used by the consumer/scheduler deployment.</p>
 
 
 
@@ -1483,7 +1544,7 @@ All workers implemented derive from the base abstract class <a class="autorefs a
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../task_queue/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Tasks">
+          <a href="../task_broker/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Task Broker">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1493,11 +1554,27 @@ All workers implemented derive from the base abstract class <a class="autorefs a
                 Previous
               </span>
               <div class="md-ellipsis">
-                Tasks
+                Task Broker
               </div>
             </div>
           </a>
         
+        
+          
+          <a href="../task_queue/" class="md-footer__link md-footer__link--next" aria-label="Next: Tasks">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Tasks
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
         
       </nav>
     

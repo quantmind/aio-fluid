@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
     
     
       
@@ -1099,6 +1099,8 @@
       
         
       
+        
+      
     
     
     
@@ -1247,6 +1249,34 @@
     
   
     Task Broker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/task_k8s/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    K8s Jobs
   
 
     
@@ -1585,8 +1615,11 @@
 
 <h1 id="db-pagination">DB Pagination<a class="headerlink" href="#db-pagination" title="Permanent link">&para;</a></h1>
 <p>The <a class="autorefs autorefs-internal" title="            fluid.db.Pagination" href="#fluid.db.Pagination">Pagination</a> class is a tool for managing paginated rows from the database.</p>
+<p>It requires the <code>db</code> extra to be installed:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>aio-fluid<span class="o">[</span>db<span class="o">]</span>
+</span></code></pre></div>
 <p>It can be imported from <code>fluid.db</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pagination</span><span class="p">,</span> <span class="n">Search</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pagination</span><span class="p">,</span> <span class="n">Search</span>
 </span></code></pre></div>
 
 

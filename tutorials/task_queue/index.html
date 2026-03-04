@@ -11,7 +11,7 @@
         <link rel="canonical" href="https://aio-fluid.com/tutorials/task_queue/">
       
       
-        <link rel="prev" href="../task_broker/">
+        <link rel="prev" href="../task_k8s/">
       
       
         <link rel="next" href="../workers/">
@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.3">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.4">
     
     
       
@@ -886,6 +886,8 @@
       
         
       
+        
+      
     
     
     
@@ -1034,6 +1036,34 @@
     
   
     Task Broker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_k8s/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    K8s Jobs
   
 
     
@@ -1423,7 +1453,7 @@ for the task parameters</p>
 </span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">task_manager</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;heavy_calculation&quot;</span><span class="p">,</span> <span class="n">data_id</span><span class="o">=</span><span class="n">data_id</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="cpu-bound-tasks">CPU bound tasks<a class="headerlink" href="#cpu-bound-tasks" title="Permanent link">&para;</a></h3>
-<p>They run on a subprocess</p>
+<p>They normally run on a subprocess and they can be defined by setting the <code>cpu_bound</code> flag to <code>True</code> in the <code>task</code> decorator. They can perform heavy CPU bound operations without blocking the event loop.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nd">@task</span><span class="p">(</span><span class="n">cpu_bound</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1434,6 +1464,7 @@ for the task parameters</p>
 </span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="c1"># trigger another task</span>
 </span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">task_manager</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;fetch_data&quot;</span><span class="p">)</span>
 </span></code></pre></div>
+<p>When the consumer is running inside a Kubernetes cluster, CPU bound tasks can be dispatched as Kubernetes Jobs instead of local subprocesses. See <a href="../task_k8s/">K8s Jobs</a> for more details.</p>
 <h3 id="scheduled-tasks">Scheduled Tasks<a class="headerlink" href="#scheduled-tasks" title="Permanent link">&para;</a></h3>
 <p>Both IO and CPU bound tasks can be periodically scheduled via the <code>schedule</code> keyword argument.</p>
 <p>There are two types of scheduling, the most common is the <a class="autorefs autorefs-internal" title="            fluid.scheduler.every" href="../../reference/task_scheduling/#fluid.scheduler.every">every</a> function that takes a <code>timedelta</code> object.</p>
@@ -1482,7 +1513,7 @@ for the task parameters</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../task_broker/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Task Broker">
+          <a href="../task_k8s/" class="md-footer__link md-footer__link--prev" aria-label="Previous: K8s Jobs">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -1492,7 +1523,7 @@ for the task parameters</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Task Broker
+                K8s Jobs
               </div>
             </div>
           </a>
