@@ -10,6 +10,10 @@ AIO-Fluid is an asynchronous task scheduler and runner built on top of Python's 
 
 Before starting any task, read all files under `docs/` to understand the project structure, API, and tutorials.
 
+When adding code make sure to follow the existing code style and patterns. Run `make lint` to ensure your code passes linting and `make test` to run tests.
+
+When adding new features, make sure to add tests for them and update the documentation accordingly.
+
 ## Documentation
 
 Located in the `docs/` directory, the documentation is built with mkdocs and can be served locally with:
@@ -23,3 +27,16 @@ mkdocs serve
 
 When adding new python examples in the documentation, make sure to add them in the `docs_src/` directory and not directly in `docs/` if the code is longer than 5~6 lines.
 This is to make sure the code is properly formatted and has valid syntax.
+
+## Tests
+
+Tests are located in the `tests/` directory and run with:
+
+```bash
+make test
+```
+
+When adding or modifying Python code:
+- Always run `make lint` after to ensure the code passes linting
+- Add tests for new functionality
+- Mock as little as possible

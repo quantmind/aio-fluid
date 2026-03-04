@@ -160,40 +160,33 @@ class K8sConfig(BaseModel):
     """
 
     namespace: str = Field(
-        default="default",
+        default_factory=lambda: os.getenv(
+            "FLUID_TASK_CONSUMER_K8S_NAMESPACE", "default"
+        ),
         description="Kubernetes namespace where the task consumer deployment run",
     )
     deployment: str = Field(
-        default="fluid-task",
+        default_factory=lambda: os.getenv(
+            "FLUID_TASK_CONSUMER_K8S_DEPLOYMENT", "fluid-task"
+        ),
         description="Kubernetes deployment of the task consumer",
     )
-    container: str = Field(default="main", description="Kubernetes container")
+    container: str = Field(
+        default_factory=lambda: os.getenv("FLUID_TASK_CONSUMER_K8S_CONTAINER", "main"),
+        description="Kubernetes container",
+    )
     job_ttl: int = Field(
-        default=300, description="Time to live for k8s Job after completion"
+        default_factory=lambda: int(
+            os.getenv("FLUID_TASK_CONSUMER_K8S_JOB_TTL", "300")
+        ),
+        description="Time to live for k8s Job after completion",
     )
     sleep: float = Field(
-        default=2.0,
+        default_factory=lambda: float(
+            os.getenv("FLUID_TASK_CONSUMER_K8S_SLEEP", "2.0")
+        ),
         description="Amount to async sleep while waiting for completion of k8s Job",
     )
-
-    @classmethod
-    def from_env(cls) -> K8sConfig:
-        """Create K8sConfig from environment variables.
-
-        * `FLUID_TASK_CONSUMER_K8S_NAMESPACE`: Kubernetes namespace where the task
-            consumer deployment run, default is "default"
-        * `FLUID_TASK_CONSUMER_K8S_DEPLOYMENT`: Kubernetes deployment of the task
-            consumer, default is "fluid-task"
-        * `FLUID_TASK_CONSUMER_K8S_CONTAINER`: Kubernetes container, default is "main"
-        * `FLUID_TASK_CONSUMER_K8S_JOB_TTL`: Time to live for k8s Job after completion,
-            default is 300 seconds (5 minutes)
-        """
-        return cls(
-            namespace=os.getenv("FLUID_TASK_CONSUMER_K8S_NAMESPACE", "default"),
-            deployment=os.getenv("FLUID_TASK_CONSUMER_K8S_DEPLOYMENT", "fluid-task"),
-            container=os.getenv("FLUID_TASK_CONSUMER_K8S_CONTAINER", "main"),
-            job_ttl=int(os.getenv("FLUID_TASK_CONSUMER_K8S_JOB_TTL", "300")),
-        )
 
 
 class Task(NamedTuple, Generic[TP]):
@@ -238,7 +231,7 @@ class Task(NamedTuple, Generic[TP]):
 
     def get_k8s_config(self) -> K8sConfig:
         """Get Kubernetes configuration for this task"""
-        return self.k8s_config or K8sConfig.from_env()
+        return self.k8s_config or K8sConfig()
 
     def info(self, **params: Any) -> TaskInfo:
         """Return task info object"""
