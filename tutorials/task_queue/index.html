@@ -635,6 +635,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/task_consumer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Consumer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/task_manager/" class="md-nav__link">
         
   
@@ -755,34 +783,6 @@
     
   
     Task Scheduling
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/tast_consumer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Task Consumer
   
 
     
@@ -1435,7 +1435,7 @@ for the task parameters</p>
 <h2 id="task-types">Task Types<a class="headerlink" href="#task-types" title="Permanent link">&para;</a></h2>
 <p>There are few types of tasks implemented, lets take a look at them.</p>
 <h3 id="io-bound-tasks">IO Bound Tasks<a class="headerlink" href="#io-bound-tasks" title="Permanent link">&para;</a></h3>
-<p>They run concurrently with the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a>. They must perform non blocking IO operations (no heavy CPU bound operations that blocks the event loop).</p>
+<p>They run concurrently with the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/task_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a>. They must perform non blocking IO operations (no heavy CPU bound operations that blocks the event loop).</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>

@@ -635,6 +635,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../../reference/task_consumer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Consumer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../reference/task_manager/" class="md-nav__link">
         
   
@@ -755,34 +783,6 @@
     
   
     Task Scheduling
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../reference/tast_consumer/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Task Consumer
   
 
     
@@ -1392,7 +1392,7 @@
 
 
 <h1 id="k8s-jobs">K8s Jobs<a class="headerlink" href="#k8s-jobs" title="Permanent link">&para;</a></h1>
-<p>When the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> runs inside a Kubernetes cluster, <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="../../reference/task/#fluid.scheduler.task">CPU bound tasks</a> can be dispatched as <a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/">Kubernetes Jobs</a> instead of local subprocesses.
+<p>When the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/task_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> runs inside a Kubernetes cluster, <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="../../reference/task/#fluid.scheduler.task">CPU bound tasks</a> can be dispatched as <a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/">Kubernetes Jobs</a> instead of local subprocesses.
 This offloads heavy computation to dedicated pods, keeping the consumer event loop free.</p>
 <h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
 <p>The switch is automatic. When <code>KUBERNETES_SERVICE_HOST</code> is set (which Kubernetes injects into every pod) and the <code>k8s</code> extra is installed, any task declared with <code>cpu_bound=True</code> will spawn a Kubernetes Job instead of a subprocess. No code change is required in the task itself.</p>
@@ -1462,7 +1462,7 @@ This offloads heavy computation to dedicated pods, keeping the consumer event lo
 </tbody>
 </table>
 <h2 id="required-rbac-permissions">Required RBAC permissions<a class="headerlink" href="#required-rbac-permissions" title="Permanent link">&para;</a></h2>
-<p>The pod running the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/tast_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> or
+<p>The pod running the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/task_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> or
 the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskScheduler" href="../../reference/task_scheduler/#fluid.scheduler.TaskScheduler">TaskScheduler</a> needs permission to read
 the deployment and create/read jobs.</p>
 <p>Assuming the consumer/scheduler runs in the <code>workers</code> namespace, a minimal <code>Role</code> and <code>RoleBinding</code> can be defined as follows:</p>

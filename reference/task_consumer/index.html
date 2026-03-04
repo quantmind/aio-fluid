@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://aio-fluid.com/reference/tast_consumer/">
+        <link rel="canonical" href="https://aio-fluid.com/reference/task_consumer/">
       
       
-        <link rel="prev" href="../task_scheduling/">
+        <link rel="prev" href="../task_cli/">
       
       
-        <link rel="next" href="../utils/">
+        <link rel="next" href="../task_manager/">
       
       
         
@@ -634,146 +634,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../task_manager/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Task Manager
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../task_registry/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Task Registry
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../task_run/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Task Run
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../task_scheduler/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Task Scheduler
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../task_scheduling/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Task Scheduling
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -1253,6 +1113,146 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_manager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Manager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_registry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_run/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_scheduler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Scheduler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -2109,7 +2109,7 @@
 
 <h1 id="task-consumer">Task Consumer<a class="headerlink" href="#task-consumer" title="Permanent link">&para;</a></h1>
 <p>The task consumer is a <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskManager" href="../task_manager/#fluid.scheduler.TaskManager">TaskManager</a> which is also a <a class="autorefs autorefs-internal" title="            fluid.utils.worker.Workers" href="../workers/#fluid.utils.worker.Workers">Workers</a> that consumes tasks from the task queue and executes them. It can be imported from <code>fluid.scheduler</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskConsumer</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskConsumer</span>
 </span></code></pre></div>
 
 
@@ -4143,7 +4143,7 @@ context.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../task_scheduling/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Task Scheduling">
+          <a href="../task_cli/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Task Manager Cli">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
@@ -4153,20 +4153,20 @@ context.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Task Scheduling
+                Task Manager Cli
               </div>
             </div>
           </a>
         
         
           
-          <a href="../utils/" class="md-footer__link md-footer__link--next" aria-label="Next: Utils">
+          <a href="../task_manager/" class="md-footer__link md-footer__link--next" aria-label="Next: Task Manager">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Utils
+                Task Manager
               </div>
             </div>
             <div class="md-footer__button md-icon">
