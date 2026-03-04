@@ -15,15 +15,15 @@ from fluid.tools_fastapi import app_workers
 from fluid.utils.worker import Worker
 
 
-def get_task_manger_from_request(request: Request) -> TaskManager:
-    return get_task_manger(request.app)
+def get_task_manager_from_request(request: Request) -> TaskManager:
+    return get_task_manager(request.app)
 
 
-def get_task_manger(app: FastAPI) -> TaskManager:
+def get_task_manager(app: FastAPI) -> TaskManager:
     return cast(TaskManager, app.state.task_manager)
 
 
-TaskManagerDep = Annotated[TaskManager, Depends(get_task_manger_from_request)]
+TaskManagerDep = Annotated[TaskManager, Depends(get_task_manager_from_request)]
 
 
 class TaskUpdate(BaseModel):
