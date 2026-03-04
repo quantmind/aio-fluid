@@ -6,7 +6,7 @@ and the [TaskScheduler][fluid.scheduler.TaskScheduler].
 It can be imported from `fluid.scheduler`:
 
 ```python
-from fastapi.scheduler import TaskManager
+from fluid.scheduler import TaskManager
 ```
 
 The Task Manager is useful if you want to execute tasks in a synchronous or asynchronous way.

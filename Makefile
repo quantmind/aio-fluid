@@ -35,7 +35,7 @@ test:			## test with coverage
 
 .PHONY: test-version
 test-version:		## check version compatibility
-	@./dev/test-version
+	@./.dev/test-version
 
 
 .PHONY: publish

@@ -9,7 +9,7 @@ from redis.asyncio import Redis
 from examples import tasks
 from fluid.scheduler import TaskManager, TaskScheduler
 from fluid.scheduler.broker import RedisTaskBroker
-from fluid.scheduler.endpoints import get_task_manger, setup_fastapi
+from fluid.scheduler.endpoints import get_task_manager, setup_fastapi
 from fluid.tools_fastapi import backdoor
 from fluid.utils.stacksampler import Sampler
 from tests.scheduler.tasks import TaskClient
@@ -45,7 +45,7 @@ async def task_app():
 
 @pytest.fixture(scope="module")
 async def task_scheduler(task_app: FastAPI) -> TaskManager:
-    return get_task_manger(task_app)
+    return get_task_manager(task_app)
 
 
 @pytest.fixture(scope="module")

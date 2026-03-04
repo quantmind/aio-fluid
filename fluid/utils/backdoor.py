@@ -27,7 +27,7 @@ class Console(aioconsole.AsynchronousConsole):
 class ConsoleManager:
     aio_console = None
     port: int = settings.AIO_BACKDOOR_PORT
-    host: str = "0.0.0.0"
+    host: str = "127.0.0.1"
 
     async def on_startup(self, app) -> None:
         self.aio_console = await aioconsole.start_interactive_server(

@@ -20,3 +20,6 @@ mkdocs serve
 
 * [Reference](docs/reference/) that describes the API of the library. Add here any details about the API that you think are important for users to know.
 * [Tutorials](docs/tutorials/) that provide step-by-step guides on how to use the library for common use cases. Add here any details about the tutorials that you think are important for users to know.
+
+When adding new python examples in the documentation, make sure to add them in the `docs_src/` directory and not directly in `docs/` if the code is longer than 5~6 lines.
+This is to make sure the code is properly formatted and has valid syntax.
