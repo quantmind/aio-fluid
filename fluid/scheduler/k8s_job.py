@@ -15,6 +15,12 @@ if TYPE_CHECKING:
     from .models import TaskRun
 
 
+def get_job_name(ctx: TaskRun) -> str:
+    short_task_id = ctx.id[:7]
+    job_name = slugify(f"task-{ctx.name}-{short_task_id}")[:63]
+    return job_name
+
+
 async def run_on_k8s_job(ctx: TaskRun) -> None:
     """Run a task on a k8s job
 
@@ -22,7 +28,7 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
     Only task consumer/scheduler with command line client can use this
     """
     task = ctx.task
-    job_name = slugify(f"task-{ctx.name}-{ctx.id}")[:63]
+    job_name = get_job_name(ctx)
     # load k8s config from within the cluster
     config.load_incluster_config()
     k8s_config = task.get_k8s_config()
@@ -33,10 +39,14 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
             k8s_config.deployment,
             k8s_config.namespace,
         )
-        container = None
-        for container in tasks.spec.template.spec.containers:
-            if container.name == k8s_config.container:
-                break
+        container = next(
+            (
+                c
+                for c in tasks.spec.template.spec.containers
+                if c.name == k8s_config.container
+            ),
+            None,
+        )
         if container is None:
             raise TaskRunError(f"Container {k8s_config.container} not found")
         command = list(container.command or [])

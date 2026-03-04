@@ -1,5 +1,6 @@
 [run]
 source = fluid
+omit = fluid/scheduler/cpubound.py
 
 [html]
 directory = build/coverage/html

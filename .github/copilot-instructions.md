@@ -23,3 +23,16 @@ mkdocs serve
 
 When adding new python examples in the documentation, make sure to add them in the `docs_src/` directory and not directly in `docs/` if the code is longer than 5~6 lines.
 This is to make sure the code is properly formatted and has valid syntax.
+
+## Tests
+
+Tests are located in the `tests/` directory and run with:
+
+```bash
+make test
+```
+
+When adding or modifying Python code:
+- Always run `make lint` after to ensure the code passes linting
+- Add tests for new functionality
+- Mock as little as possible
