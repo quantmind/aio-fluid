@@ -4031,4 +4031,4 @@ log = ["python-json-logger"]
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<4.0"
-content-hash = "9fa907ed3bce1230f3c1e35d2a6dfc7b6677a5cb8c6c857a97c861494e23cb7e"
+content-hash = "c60120852c70683d44ad0b718dcf8482f9125dd3aa8e14e244e7e851fe5595cf"
