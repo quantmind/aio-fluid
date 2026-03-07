@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from redis.asyncio import Redis
 from redis.asyncio.lock import Lock
+from typing_extensions import Annotated, Doc
 from yarl import URL
 
 from fluid import settings
@@ -37,9 +38,13 @@ class TaskRegistry(dict[str, Task[TP]]):
 
 
 class TaskBroker(ABC):
+    """Abstract base class for task brokers
+
+    A TaskBroker is responsible for queuing tasks & storing task information"""
+
     def __init__(self, url: URL) -> None:
-        self.url: URL = url
-        self.registry: TaskRegistry = TaskRegistry()
+        self.url: Annotated[URL, Doc("Broker URL")] = url
+        self.registry: Annotated[TaskRegistry, Doc("Task registry")] = TaskRegistry()
 
     @property
     @abstractmethod
@@ -47,8 +52,14 @@ class TaskBroker(ABC):
         """Names of the task queues"""
 
     @abstractmethod
-    async def queue_task(self, task_run: TaskRun) -> None:
-        """Queue a task"""
+    async def queue_task(self, task_run: Annotated[TaskRun, Doc("Task run")]) -> None:
+        """Queue a task run
+
+        This method is called by the [TaskManager][fluid.scheduler.TaskManager] when
+        a task run is ready to be executed.
+        The broker is responsible for adding the task run to the appropriate
+        queue based on its priority.
+        """
 
     @abstractmethod
     async def get_task_run(self, task_manager: TaskManager) -> TaskRun | None:
@@ -137,13 +148,22 @@ class TaskBroker(ABC):
 class RedisTaskBroker(TaskBroker):
     """A simple task broker based on redis lists"""
 
-    def __init__(self, url: URL) -> None:
+    def __init__(
+        self,
+        url: URL,
+        redis_cli: Redis[bytes] | None = None,
+    ) -> None:
         super().__init__(url)
-        self.redis = FluidRedis.create(str(self.url.with_query({})), name=self.name)
-
-    @property
-    def redis_cli(self) -> Redis[bytes]:
-        return self.redis.redis_cli
+        self.redis_cli: Annotated[
+            Redis[bytes],
+            Doc("Redis client"),
+        ] = (
+            redis_cli
+            or FluidRedis.create(
+                str(self.url.with_query({})),
+                name=self.name,
+            ).redis_cli
+        )
 
     @property
     def name(self) -> str:
@@ -236,7 +256,7 @@ class RedisTaskBroker(TaskBroker):
 
     async def close(self) -> None:
         """Close the broker on shutdown"""
-        await self.redis.close()
+        await FluidRedis(redis_cli=self.redis_cli).close()
 
     async def get_task_run(self, task_manager: TaskManager) -> TaskRun | None:
         if self.task_queue_names:

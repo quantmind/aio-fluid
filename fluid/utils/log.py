@@ -6,7 +6,7 @@ from typing_extensions import Annotated, Doc
 
 try:
     import pythonjsonlogger
-except ImportError:
+except ImportError:  # pragma: no cover
     pythonjsonlogger = None  # type: ignore
 
 from fluid import settings

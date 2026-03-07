@@ -8,9 +8,8 @@ from typing import Any, Self, cast
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
-from fluid.scheduler import TaskRun, TaskScheduler, every, task
+from fluid.scheduler import TaskRun, TaskScheduler, every, task, task_manager_fastapi
 from fluid.scheduler.broker import RedisTaskBroker
-from fluid.scheduler.endpoints import setup_fastapi
 from fluid.utils.http_client import HttpxClient
 
 
@@ -32,7 +31,7 @@ def task_scheduler(*, deps: Deps | None = None, **kwargs: Any) -> TaskScheduler:
 
 
 def task_app() -> FastAPI:
-    return setup_fastapi(task_scheduler())
+    return task_manager_fastapi(task_scheduler(), app=FastAPI(title="Task Manager API"))
 
 
 class Sleep(BaseModel):

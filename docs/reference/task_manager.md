@@ -17,3 +17,6 @@ The Task Manager is useful if you want to execute tasks in a synchronous or asyn
 ::: fluid.scheduler.TaskManagerConfig
 
 ::: fluid.scheduler.consumer.TaskDispatcher
+
+
+::: fluid.scheduler.task_manager_fastapi

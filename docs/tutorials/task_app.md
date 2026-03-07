@@ -30,16 +30,18 @@ if __name__ == "__main__":
 
 ## FastAPI Integration
 
-The `TaskConsumer` can be integrated with FastAPI so that
+A [TaskManager][fluid.scheduler.TaskManager] can be integrated with FastAPI so that
 tasks can be queued via HTTP requests.
+
+To setup the FastAPI app, use the [task_manager_fastapi][fluid.scheduler.task_manager_fastapi] function:
 
 ```python
 import uvicorn
-from fluid.scheduler.endpoints import setup_fastapi
+from fluid.scheduler import task_manager_fastapi
 
 if __name__ == "__main__":
     consumer = task_consumer()
-    app = setup_fastapi(consumer)
+    app = task_manager_fastapi(consumer)
     uvicorn.run(app)
 ```
 
@@ -58,10 +60,11 @@ The [TaskConsumer][fluid.scheduler.TaskConsumer] or [TaskScheduler][fluid.schedu
 
 ```python
 from fluid.scheduler.cli import TaskManagerCLI
+from fluid.scheduler import task_manager_fastapi
 
 if __name__ == "__main__":
     consumer = task_consumer()
-    TaskManagerCLI(setup_fastapi(consumer))()
+    TaskManagerCLI(task_manager_fastapi(consumer))()
 ```
 
 This features requires to install the package with the `cli` extra.
