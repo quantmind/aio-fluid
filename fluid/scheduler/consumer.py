@@ -358,7 +358,25 @@ class TaskConsumer(TaskManager, Workers):
         self._task_to_queue.appendleft(task)
 
     async def queue_and_wait(
-        self, task: str | Task, *, timeout: int | None = None, **params: Any
+        self,
+        task: Annotated[
+            str | Task,
+            Doc(
+                "The task or task name,"
+                " if a task name it must be registered with the task manager."
+            ),
+        ],
+        *,
+        timeout: Annotated[
+            int | None, Doc("Timeout for waiting the task to finish")
+        ] = None,
+        **params: Annotated[
+            Any,
+            Doc(
+                "The optional parameters for the task run. "
+                "They must match the task params model"
+            ),
+        ],
     ) -> TaskRun:
         """Queue a task and wait for it to finish"""
         with TaskRunWaiter(self) as waiter:
