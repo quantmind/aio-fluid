@@ -592,7 +592,6 @@ class TaskConstructor:
         name = kwargs["name"]
         kwargs.update(
             executor=executor,
-            params_model=self.get_params_model(executor),
             logger=log.get_logger(f"task.{name}", prefix=True),
         )
         return Task(**kwargs)
@@ -612,6 +611,7 @@ class TaskConstructor:
             module=module.__name__ if module else "",
             description=description,
             short_description=short_description,
+            params_model=self.get_params_model(executor),
             executor=executor,
         )
 

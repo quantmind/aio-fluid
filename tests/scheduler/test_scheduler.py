@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 from dataclasses import dataclass
 
@@ -66,11 +67,13 @@ async def test_dummy_rate_limit(task_scheduler: TaskScheduler) -> None:
 async def test_cpu_bound_execution(
     task_scheduler: TaskScheduler, redis: Redis  # type: ignore
 ) -> None:
-    task_run = await task_scheduler.queue_and_wait("cpu_bound", timeout=5)
+    task_run = await task_scheduler.queue_and_wait("cpu_bound", sleep=1.0, timeout=5)
     assert task_run.end
     result = await redis.get(task_run.id)
     assert result
-    assert int(result) != os.getpid()
+    data = json.loads(result)
+    assert data["pid"] != os.getpid()
+    assert data["sleep"] == 1.0
 
 
 async def test_task_info(task_scheduler: TaskScheduler) -> None:

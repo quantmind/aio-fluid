@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 import time
 from dataclasses import dataclass, field
@@ -75,15 +76,19 @@ async def add(context: TaskRun[AddValues]) -> None:
 
 
 @task(cpu_bound=True)
-async def cpu_bound(context: TaskRun) -> None:
+async def cpu_bound(context: TaskRun[Sleep]) -> None:
     """A CPU bound task running on subprocess
 
     CPU bound tasks are executed on a subprocess to avoid blocking the event loop.
     """
-    time.sleep(1)
+    time.sleep(context.params.sleep)
     broker = cast(RedisTaskBroker, context.task_manager.broker)
     redis = broker.redis_cli
-    await redis.setex(context.id, os.getpid(), 10)
+    data = dict(
+        pid=os.getpid(),
+        sleep=context.params.sleep,
+    )
+    await redis.setex(context.id, 10, json.dumps(data))
 
 
 class Scrape(BaseModel):
