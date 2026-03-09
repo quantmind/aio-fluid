@@ -47,3 +47,7 @@ You can run the examples via
 ```
 poetry run python -m examples.main
 ```
+
+## License
+
+This project is licensed under the BSD License - see the [LICENSE](https://github.com/quantmind/aio-fluid/blob/main/LICENSE) file for details.
