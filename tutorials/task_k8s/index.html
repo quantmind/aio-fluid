@@ -1399,7 +1399,7 @@ This offloads heavy computation to dedicated pods, keeping the consumer event lo
 <p>The Job reuses the same container image and command as the task consumer deployment, running:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;consumer-command&gt; exec &lt;task-name&gt; --log --run-id &lt;id&gt; --params &lt;json&gt;
 </span></code></pre></div>
-<p>The consumer waits for the Job to complete and raises an error if it fails.</p>
+<p>The consumer waits for the Job to complete and raises an error if it fails. Jobs are created with <code>backoff_limit=0</code>, so a failed pod is never retried — the error is propagated back to the task consumer instead.</p>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
 <p>It requires both the <code>cli</code> and <code>k8s</code> extras:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>aio-fluid<span class="o">[</span>cli,k8s<span class="o">]</span>
