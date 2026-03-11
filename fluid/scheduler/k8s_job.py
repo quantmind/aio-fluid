@@ -60,6 +60,7 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
             metadata=k8s.V1ObjectMeta(name=job_name),
             spec=k8s.V1JobSpec(
                 ttl_seconds_after_finished=k8s_config.job_ttl,
+                backoff_limit=0,
                 template=k8s.V1PodTemplateSpec(
                     spec=k8s.V1PodSpec(
                         containers=[
