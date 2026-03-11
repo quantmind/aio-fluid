@@ -13,7 +13,7 @@ The Job reuses the same container image and command as the task consumer deploym
 <consumer-command> exec <task-name> --log --run-id <id> --params <json>
 ```
 
-The consumer waits for the Job to complete and raises an error if it fails.
+The consumer waits for the Job to complete and raises an error if it fails. Jobs are created with `backoff_limit=0`, so a failed pod is never retried — the error is propagated back to the task consumer instead.
 
 ## Installation
 
