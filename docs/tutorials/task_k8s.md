@@ -1,19 +1,35 @@
 # K8s Jobs
 
 When the [TaskConsumer][fluid.scheduler.TaskConsumer] runs inside a Kubernetes cluster, [CPU bound tasks][fluid.scheduler.task] can be dispatched as [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/) instead of local subprocesses.
-This offloads heavy computation to dedicated pods, keeping the consumer event loop free.
+This offloads heavy computation to dedicated pods and keeps the consumer event loop free.
 
 ## How it works
 
 The switch is automatic. When `KUBERNETES_SERVICE_HOST` is set (which Kubernetes injects into every pod) and the `k8s` extra is installed, any task declared with `cpu_bound=True` will spawn a Kubernetes Job instead of a subprocess. No code change is required in the task itself.
 
-The Job reuses the same container image and command as the task consumer deployment, running:
+The Job reuses the **full container spec** from the task consumer deployment (image, resource limits, volume mounts, security context, image pull policy, and everything else), overriding only three fields:
+
+| Field | Value |
+|---|---|
+| `command` | same as the deployment container, with any trailing `serve` token removed |
+| `args` | `exec <task-name> --log --run-id <id> --params <json>` |
+| `env` | same as the deployment container, with `TASK_MANAGER_SPAWN=true` appended |
+
+The `TASK_MANAGER_SPAWN=true` environment variable signals to the process running inside the Job that it is executing as a CPU-bound worker rather than a long-lived consumer.
+
+The Job is created in the same namespace as the consumer with:
+
+- `backoff_limit: 0`: a failed pod is never retried; the error is propagated back to the task consumer instead
+- `ttlSecondsAfterFinished`: set from `K8sConfig.job_ttl`, the Job and its pods are cleaned up automatically after completion (default 300 s)
+- `restartPolicy: Never` on the pod template
+
+The job name is derived from the task name and the first 7 characters of the run ID, slugified and capped at 63 characters to comply with Kubernetes DNS label requirements:
 
 ```
-<consumer-command> exec <task-name> --log --run-id <id> --params <json>
+task-<slugified-task-name>-<short-run-id>
 ```
 
-The consumer waits for the Job to complete and raises an error if it fails. Jobs are created with `backoff_limit=0`, so a failed pod is never retried — the error is propagated back to the task consumer instead.
+Once the Job is created, the consumer polls its status every `sleep` seconds until it either succeeds or fails.
 
 ## Installation
 
@@ -30,7 +46,7 @@ from fluid.scheduler import task, TaskRun
 
 @task(cpu_bound=True)
 async def heavy_calculation(ctx: TaskRun) -> None:
-    # heavy CPU work here — runs in a k8s Job when inside a cluster
+    # heavy CPU work here, runs in a k8s Job when inside a cluster
     ...
 ```
 

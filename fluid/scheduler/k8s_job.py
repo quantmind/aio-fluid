@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 from typing import TYPE_CHECKING
 
-import kubernetes.client as k8s
 from kubernetes_asyncio import client, config
 from kubernetes_asyncio.client.api_client import ApiClient
 from slugify import slugify
@@ -52,34 +51,29 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
         command = list(container.command or [])
         if command and command[-1] == "serve":
             command.pop()
-        batch = client.BatchV1Api(api)
-        env = container.env or []
+        container.command = command
+        container.args = [
+            "exec",
+            ctx.name,
+            "--log",
+            "--run-id",
+            ctx.id,
+            "--params",
+            ctx.params.model_dump_json(),
+        ]
+        env = list(container.env or [])
         for name, value in cpu_env().items():
-            env.append(k8s.V1EnvVar(name=name, value=value))
-        job = k8s.V1Job(
-            metadata=k8s.V1ObjectMeta(name=job_name),
-            spec=k8s.V1JobSpec(
+            env.append(client.V1EnvVar(name=name, value=value))
+        container.env = env
+        batch = client.BatchV1Api(api)
+        job = client.V1Job(
+            metadata=client.V1ObjectMeta(name=job_name),
+            spec=client.V1JobSpec(
                 ttl_seconds_after_finished=k8s_config.job_ttl,
                 backoff_limit=0,
-                template=k8s.V1PodTemplateSpec(
-                    spec=k8s.V1PodSpec(
-                        containers=[
-                            k8s.V1Container(
-                                name=k8s_config.container,
-                                image=container.image,
-                                command=command,
-                                args=[
-                                    "exec",
-                                    ctx.name,
-                                    "--log",
-                                    "--run-id",
-                                    ctx.id,
-                                    "--params",
-                                    ctx.params.model_dump_json(),
-                                ],
-                                env=env,
-                            )
-                        ],
+                template=client.V1PodTemplateSpec(
+                    spec=client.V1PodSpec(
+                        containers=[container],
                         restart_policy="Never",
                     )
                 ),
