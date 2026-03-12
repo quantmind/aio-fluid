@@ -1393,13 +1393,43 @@
 
 <h1 id="k8s-jobs">K8s Jobs<a class="headerlink" href="#k8s-jobs" title="Permanent link">&para;</a></h1>
 <p>When the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/task_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> runs inside a Kubernetes cluster, <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="../../reference/task/#fluid.scheduler.task">CPU bound tasks</a> can be dispatched as <a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/">Kubernetes Jobs</a> instead of local subprocesses.
-This offloads heavy computation to dedicated pods, keeping the consumer event loop free.</p>
+This offloads heavy computation to dedicated pods and keeps the consumer event loop free.</p>
 <h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
 <p>The switch is automatic. When <code>KUBERNETES_SERVICE_HOST</code> is set (which Kubernetes injects into every pod) and the <code>k8s</code> extra is installed, any task declared with <code>cpu_bound=True</code> will spawn a Kubernetes Job instead of a subprocess. No code change is required in the task itself.</p>
-<p>The Job reuses the same container image and command as the task consumer deployment, running:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>&lt;consumer-command&gt; exec &lt;task-name&gt; --log --run-id &lt;id&gt; --params &lt;json&gt;
+<p>The Job reuses the <strong>full container spec</strong> from the task consumer deployment (image, resource limits, volume mounts, security context, image pull policy, and everything else), overriding only three fields:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>command</code></td>
+<td>same as the deployment container, with any trailing <code>serve</code> token removed</td>
+</tr>
+<tr>
+<td><code>args</code></td>
+<td><code>exec &lt;task-name&gt; --log --run-id &lt;id&gt; --params &lt;json&gt;</code></td>
+</tr>
+<tr>
+<td><code>env</code></td>
+<td>same as the deployment container, with <code>TASK_MANAGER_SPAWN=true</code> appended</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>TASK_MANAGER_SPAWN=true</code> environment variable signals to the process running inside the Job that it is executing as a CPU-bound worker rather than a long-lived consumer.</p>
+<p>The Job is created in the same namespace as the consumer with:</p>
+<ul>
+<li><code>backoff_limit: 0</code>: a failed pod is never retried; the error is propagated back to the task consumer instead</li>
+<li><code>ttlSecondsAfterFinished</code>: set from <code>K8sConfig.job_ttl</code>, the Job and its pods are cleaned up automatically after completion (default 300 s)</li>
+<li><code>restartPolicy: Never</code> on the pod template</li>
+</ul>
+<p>The job name is derived from the task name and the first 7 characters of the run ID, slugified and capped at 63 characters to comply with Kubernetes DNS label requirements:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>task-&lt;slugified-task-name&gt;-&lt;short-run-id&gt;
 </span></code></pre></div>
-<p>The consumer waits for the Job to complete and raises an error if it fails. Jobs are created with <code>backoff_limit=0</code>, so a failed pod is never retried — the error is propagated back to the task consumer instead.</p>
+<p>Once the Job is created, the consumer polls its status every <code>sleep</code> seconds until it either succeeds or fails.</p>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
 <p>It requires both the <code>cli</code> and <code>k8s</code> extras:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>aio-fluid<span class="o">[</span>cli,k8s<span class="o">]</span>
@@ -1409,7 +1439,7 @@ This offloads heavy computation to dedicated pods, keeping the consumer event lo
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="nd">@task</span><span class="p">(</span><span class="n">cpu_bound</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">heavy_calculation</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="c1"># heavy CPU work here — runs in a k8s Job when inside a cluster</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    <span class="c1"># heavy CPU work here, runs in a k8s Job when inside a cluster</span>
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="o">...</span>
 </span></code></pre></div>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
