@@ -7,7 +7,7 @@ This offloads heavy computation to dedicated pods and keeps the consumer event l
 
 The switch is automatic. When `KUBERNETES_SERVICE_HOST` is set (which Kubernetes injects into every pod) and the `k8s` extra is installed, any task declared with `cpu_bound=True` will spawn a Kubernetes Job instead of a subprocess. No code change is required in the task itself.
 
-The Job reuses the **full container spec** from the task consumer deployment (image, resource limits, volume mounts, security context, image pull policy, and everything else), overriding only three fields:
+The Job reuses the **full container spec** from the task consumer deployment (image, resource limits, volume mounts, security context, image pull policy, and everything else) as well as the **pod-level volumes** list, so any volumes mounted by the container (e.g. TLS secrets, config maps) are available in the Job pod. Only three fields on the container are overridden:
 
 | Field | Value |
 |---|---|

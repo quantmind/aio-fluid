@@ -74,6 +74,7 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
                 template=client.V1PodTemplateSpec(
                     spec=client.V1PodSpec(
                         containers=[container],
+                        volumes=tasks.spec.template.spec.volumes,
                         restart_policy="Never",
                     )
                 ),
