@@ -65,6 +65,7 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
         for name, value in cpu_env().items():
             env.append(client.V1EnvVar(name=name, value=value))
         container.env = env
+        pod_spec = tasks.spec.template.spec
         batch = client.BatchV1Api(api)
         job = client.V1Job(
             metadata=client.V1ObjectMeta(name=job_name),
@@ -73,8 +74,9 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
                 backoff_limit=0,
                 template=client.V1PodTemplateSpec(
                     spec=client.V1PodSpec(
+                        init_containers=pod_spec.init_containers,
                         containers=[container],
-                        volumes=tasks.spec.template.spec.volumes,
+                        volumes=pod_spec.volumes,
                         restart_policy="Never",
                     )
                 ),
