@@ -25,3 +25,5 @@ def hello(ctx: TaskRun) -> None:
 ::: fluid.scheduler.TaskState
 
 ::: fluid.scheduler.K8sConfig
+
+::: fluid.scheduler.is_in_cpu_process

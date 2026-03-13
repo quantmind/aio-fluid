@@ -4,6 +4,8 @@ repo_name: quantmind/aio-fluid
 repo_url: https://github.com/quantmind/aio-fluid
 theme:
   name: material
+  logo: assets/logo-fluid.svg
+  favicon: assets/logo-fluid-32x32.png
   palette:
   - media: '(prefers-color-scheme: light)'
     scheme: default
