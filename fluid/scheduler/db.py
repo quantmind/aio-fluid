@@ -4,6 +4,7 @@ from typing_extensions import Annotated, Doc
 from fluid.db.crud import CrudDB
 from fluid.utils.dispatcher import Event
 
+from .common import is_in_cpu_process
 from .consumer import TaskManager
 from .models import TaskRun, TaskState
 from .plugin import TaskManagerPlugin
@@ -39,13 +40,16 @@ class TaskDbPlugin(TaskManagerPlugin):
             Doc("The tag to skip database operations"),
         ] = "skip_db",
     ) -> None:
-        task_meta(db.metadata, table_name=table_name)
+        if table_name not in db.tables:
+            task_meta(db.metadata, table_name=table_name)
         self.table_name = table_name
         self.db = db
         self.tag = tag
         self.skip_db_tag = skip_db_tag
 
     def register(self, task_manager: TaskManager) -> None:
+        if is_in_cpu_process():
+            return
         task_manager.register_async_handler(
             Event(TaskState.queued, self.tag),
             self._handle_queued,

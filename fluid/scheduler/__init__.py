@@ -1,4 +1,5 @@
 from .broker import TaskBroker
+from .common import is_in_cpu_process
 from .consumer import TaskConsumer, TaskManager, TaskManagerConfig
 from .endpoints import task_manager_fastapi
 from .models import (
@@ -35,4 +36,5 @@ __all__ = [
     "every",
     "task_manager_fastapi",
     "TaskManagerPlugin",
+    "is_in_cpu_process",
 ]

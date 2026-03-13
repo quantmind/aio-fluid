@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, AsyncIterator, Self
 
 import sqlalchemy as sa
@@ -24,7 +25,10 @@ class Database:
 
     Example: `postgresql+asyncpg://user:password@localhost/dbname`
 
-    not the `+asyncpg` part is important for the sync engine
+    Note that the `+asyncpg` part is important for the async engine.
+
+    Currently, only `postgresql+asyncpg` is supported, but other databases may
+    be supported in the future.
     """
     echo: bool = settings.DBECHO
     """Echo SQL queries to stdout
@@ -34,7 +38,10 @@ class Database:
     pool_size: int = settings.DBPOOL_MAX_SIZE
     max_overflow: int = settings.DBPOOL_MAX_OVERFLOW
     metadata: sa.MetaData = field(default_factory=sa.MetaData)
-    migration_path: str = ""
+    migration_path: str | Path = ""
+    """Path to the directory containing migration files. If empty, migrations will
+    be stored in the default location `migrations` in the current working directory.
+    """
     app_name: str = settings.APP_NAME
     _engine: AsyncEngine | None = None
 
