@@ -14,6 +14,8 @@ The Job reuses the **full container spec** from the task consumer deployment (im
 | `command` | same as the deployment container, with any trailing `serve` token removed |
 | `args` | `exec <task-name> --log --run-id <id> --params <json>` |
 | `env` | same as the deployment container, with `TASK_MANAGER_SPAWN=true` appended |
+| `liveness_probe` | cleared — probes are not meaningful for Job pods and could prematurely kill a long-running task |
+| `readiness_probe` | cleared |
 
 The `TASK_MANAGER_SPAWN=true` environment variable signals to the process running inside the Job that it is executing as a CPU-bound worker rather than a long-lived consumer.
 

@@ -89,3 +89,60 @@ Commands:
 
 The command line tool provides a powerful interface to execute tasks, parameters are
 passed as optional arguments using the standard click interface.
+
+## Plugins
+
+Plugins extend the task manager with additional behaviour by hooking into task lifecycle
+events. A plugin implements the [TaskManagerPlugin][fluid.scheduler.TaskManagerPlugin]
+interface and is registered via [TaskManager.with_plugin][fluid.scheduler.TaskManager.with_plugin].
+
+### Database Plugin
+
+The [TaskDbPlugin][fluid.scheduler.db.TaskDbPlugin] stores every task run in a
+database table so you can query task history, audit outcomes, and build dashboards
+on top of the data.
+
+It requires a [CrudDB][fluid.db.CrudDB] instance and the `db` extra:
+
+```bash
+pip install aio-fluid[db]
+```
+
+Register the plugin when building your task manager:
+
+```python
+from fluid.scheduler import TaskScheduler
+from fluid.scheduler.db import TaskDbPlugin
+from fluid.db import CrudDB
+
+db = CrudDB.from_env()
+task_manager = TaskScheduler(...)
+task_manager.with_plugin(TaskDbPlugin(db))
+```
+
+The plugin creates a `fluid_tasks` table (configurable via `table_name`) and
+persists a row for each task run as it moves through its lifecycle states.
+Tasks tagged with `skip_db` are excluded from persistence.
+
+### Custom Plugins
+
+To create your own plugin, subclass [TaskManagerPlugin][fluid.scheduler.TaskManagerPlugin]
+and implement the `register` method. Use
+[TaskManager.register_async_handler][fluid.scheduler.TaskManager.register_async_handler]
+to subscribe to task lifecycle events:
+
+```python
+from fluid.scheduler import TaskManagerPlugin, TaskManager, TaskState
+from fluid.utils.dispatcher import Event
+
+
+class MyPlugin(TaskManagerPlugin):
+    def register(self, task_manager: TaskManager) -> None:
+        task_manager.register_async_handler(
+            Event(TaskState.success, "my_plugin"),
+            self._on_success,
+        )
+
+    async def _on_success(self, task_run) -> None:
+        print(f"Task {task_run.name} succeeded")
+```

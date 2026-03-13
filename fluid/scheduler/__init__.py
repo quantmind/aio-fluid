@@ -11,6 +11,7 @@ from .models import (
     TaskState,
     task,
 )
+from .plugin import TaskManagerPlugin
 from .scheduler import TaskScheduler
 from .scheduler_crontab import Scheduler, crontab
 from .scheduler_every import every
@@ -33,4 +34,5 @@ __all__ = [
     "crontab",
     "every",
     "task_manager_fastapi",
+    "TaskManagerPlugin",
 ]

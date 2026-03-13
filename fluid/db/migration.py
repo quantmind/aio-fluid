@@ -103,6 +103,11 @@ class Migration:
             return True
         return False
 
+    def create_all(self) -> None:
+        """Create all tables from :attr:`metadata` in database"""
+        with self.sync_engine.begin() as conn:
+            self.metadata.create_all(conn)
+
     def truncate_all(self) -> None:
         """Drop all tables from :attr:`metadata` in database"""
         with self.sync_engine.begin() as conn:

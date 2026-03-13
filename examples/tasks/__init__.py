@@ -4,12 +4,19 @@ import os
 import time
 from dataclasses import dataclass, field
 from datetime import timedelta
-from typing import Any, Self, cast
+from typing import Any, Self, Sequence, cast
 
 from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
-from fluid.scheduler import TaskRun, TaskScheduler, every, task, task_manager_fastapi
+from fluid.scheduler import (
+    TaskManagerPlugin,
+    TaskRun,
+    TaskScheduler,
+    every,
+    task,
+    task_manager_fastapi,
+)
 from fluid.scheduler.broker import RedisTaskBroker
 from fluid.utils.http_client import HttpxClient
 
@@ -23,11 +30,18 @@ class Deps:
         return context.deps
 
 
-def task_scheduler(*, deps: Deps | None = None, **kwargs: Any) -> TaskScheduler:
+def task_scheduler(
+    *,
+    deps: Deps | None = None,
+    plugins: Sequence[TaskManagerPlugin] | None = None,
+    **kwargs: Any,
+) -> TaskScheduler:
     deps = deps or Deps()
     task_manager = TaskScheduler(deps=deps, **kwargs)
     task_manager.add_async_context_manager(deps.http_client)
     task_manager.register_from_dict(globals())
+    for plugin in plugins or []:
+        task_manager.with_plugin(plugin)
     return task_manager
 
 

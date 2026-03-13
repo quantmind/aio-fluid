@@ -15,6 +15,7 @@ from typing import (
     Coroutine,
     Generic,
     NamedTuple,
+    Sequence,
     TypeVar,
     overload,
 )
@@ -223,6 +224,8 @@ class Task(NamedTuple, Generic[TP]):
     """Task priority - high, medium, low"""
     k8s_config: K8sConfig | None = None
     """Kubernetes configuration for tasks run on Kubernetes cluster."""
+    tags: frozenset[str] = frozenset()
+    """Task tags - used for categorization and filtering of tasks"""
 
     @property
     def cpu_bound(self) -> bool:
@@ -471,6 +474,10 @@ def task(
         int | None,
         Doc("Task timeout in seconds - how long the task can run before being aborted"),
     ] = None,
+    tags: Annotated[
+        Sequence[str] | None,
+        Doc("Task tags - used for categorization and filtering of tasks"),
+    ] = None,
 ) -> TaskConstructor: ...
 
 
@@ -537,6 +544,10 @@ def task(
         int | None,
         Doc("Task timeout in seconds - how long the task can run before being aborted"),
     ] = None,
+    tags: Annotated[
+        Sequence[str] | None,
+        Doc("Task tags - used for categorization and filtering of tasks"),
+    ] = None,
 ) -> Task | TaskConstructor:
     """Decorator to create a [Task][fluid.scheduler.Task] from a function
     and optional parameters.
@@ -558,6 +569,7 @@ def task(
         cpu_bound=cpu_bound,
         k8s_config=k8s_config,
         timeout_seconds=timeout_seconds,
+        tags=frozenset(tags) if tags is not None else None,
     )
     if kwargs and executor:
         raise TaskDecoratorError("cannot use positional parameters")

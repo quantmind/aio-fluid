@@ -19,7 +19,16 @@ class Event(NamedTuple):
     ] = ""
 
     @classmethod
-    def from_string_or_event(cls, event: str | Self) -> Self:
+    def from_string_or_event(
+        cls,
+        event: Annotated[
+            str | Self,
+            Doc(
+                "The [Event][fluid.utils.dispatcher.Event] or a string of"
+                " the form `{event_type}` or `{event_type}.{event_tag}`"
+            ),
+        ],
+    ) -> Self:
         if isinstance(event, str):
             return cls.from_string(event)
         return event
@@ -30,7 +39,8 @@ class Event(NamedTuple):
         event: Annotated[
             str,
             Doc(
-                "The event string has the form {event_type} or {event_type}.{event_tag}"
+                "The event string has the form `{event_type}` "
+                "or `{event_type}.{event_tag}`"
             ),
         ],
     ) -> Self:

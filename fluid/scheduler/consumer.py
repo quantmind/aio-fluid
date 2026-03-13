@@ -12,6 +12,7 @@ from inflection import underscore
 from starlette.datastructures import State
 from typing_extensions import Annotated, Doc
 
+from fluid.scheduler.plugin import TaskManagerPlugin
 from fluid.utils import log
 from fluid.utils.dispatcher import AsyncDispatcher, Dispatcher, Event
 from fluid.utils.worker import AsyncConsumer, WorkerFunction, Workers
@@ -36,12 +37,16 @@ class TaskDispatcher(Dispatcher[TaskRun]):
     """The task dispatcher is responsible for dispatching task run messages"""
 
     def event_type(self, message: TaskRun) -> str:
+        """The event type is determined by the state of the task run"""
         return message.state
 
 
 class AsyncTaskDispatcher(AsyncDispatcher[TaskRun]):
+    """The async task dispatcher is responsible for dispatching task
+    run messages asynchronously"""
 
     def event_type(self, message: TaskRun) -> str:
+        """The event type is determined by the state of the task run"""
         return message.state
 
 
@@ -313,17 +318,32 @@ class TaskManager:
             if isinstance(obj, Task):
                 self.register_task(obj)
 
-    def register_async_handler(self, event: str, handler: AsyncHandler) -> None:
+    def register_async_handler(
+        self,
+        event: Annotated[Event | str, Doc("The event to register the handler for")],
+        handler: AsyncHandler,
+    ) -> None:
         """Register an async handler for a given event
 
         This method is a no op for a TaskManager that is not a worker
         """
 
-    def unregister_async_handler(self, event: Event | str) -> AsyncHandler | None:
+    def unregister_async_handler(
+        self,
+        event: Annotated[Event | str, Doc("The event to unregister the handler for")],
+    ) -> AsyncHandler | None:
         """Unregister an async handler for a given event
 
         This method is a no op for a TaskManager that is not a worker
         """
+
+    def with_plugin(
+        self,
+        plugin: Annotated[TaskManagerPlugin, Doc("The plugin to register")],
+    ) -> Self:
+        """Register a plugin with the task manager"""
+        plugin.register(self)
+        return self
 
     async def _execute_and_exit(self, task: Task | str, **params: Any) -> TaskRun:
         async with self:
