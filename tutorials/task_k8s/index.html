@@ -327,6 +327,8 @@
       
         
       
+        
+      
     
     
     
@@ -671,6 +673,34 @@
     
   
     Task Manager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/task_plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Manager Plugins
   
 
     
@@ -1416,6 +1446,14 @@ This offloads heavy computation to dedicated pods and keeps the consumer event l
 <tr>
 <td><code>env</code></td>
 <td>same as the deployment container, with <code>TASK_MANAGER_SPAWN=true</code> appended</td>
+</tr>
+<tr>
+<td><code>liveness_probe</code></td>
+<td>cleared — probes are not meaningful for Job pods and could prematurely kill a long-running task</td>
+</tr>
+<tr>
+<td><code>readiness_probe</code></td>
+<td>cleared</td>
 </tr>
 </tbody>
 </table>

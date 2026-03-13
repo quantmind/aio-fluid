@@ -327,6 +327,8 @@
       
         
       
+        
+      
     
     
     
@@ -671,6 +673,34 @@
     
   
     Task Manager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/task_plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Manager Plugins
   
 
     
@@ -1092,6 +1122,45 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugins
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Plugins">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Plugins
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1279,6 +1348,45 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plugins
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Plugins">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#database-plugin" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database Plugin
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Plugins
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1412,6 +1520,53 @@ tasks can be queued via HTTP requests.</p>
 </span></code></pre></div>
 <p>The command line tool provides a powerful interface to execute tasks, parameters are
 passed as optional arguments using the standard click interface.</p>
+<h2 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h2>
+<p>Plugins extend the task manager with additional behaviour by hooking into task lifecycle
+events. A plugin implements the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskManagerPlugin" href="../../reference/task_plugin/#fluid.scheduler.TaskManagerPlugin">TaskManagerPlugin</a>
+interface and is registered via <a class="autorefs autorefs-internal" title="            with_plugin" href="../../reference/task_manager/#fluid.scheduler.TaskManager.with_plugin">TaskManager.with_plugin</a>.</p>
+<h3 id="database-plugin">Database Plugin<a class="headerlink" href="#database-plugin" title="Permanent link">&para;</a></h3>
+<p>The <a class="autorefs autorefs-internal" title="            fluid.scheduler.db.TaskDbPlugin" href="../../reference/task_plugin/#fluid.scheduler.db.TaskDbPlugin">TaskDbPlugin</a> stores every task run in a
+database table so you can query task history, audit outcomes, and build dashboards
+on top of the data.</p>
+<p>It requires a <a class="autorefs autorefs-internal" title="            fluid.db.CrudDB
+
+
+  
+      dataclass
+  " href="../../reference/db_crud/#fluid.db.CrudDB">CrudDB</a> instance and the <code>db</code> extra:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>pip<span class="w"> </span>install<span class="w"> </span>aio-fluid<span class="o">[</span>db<span class="o">]</span>
+</span></code></pre></div>
+<p>Register the plugin when building your task manager:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskScheduler</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskDbPlugin</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrudDB</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="n">db</span> <span class="o">=</span> <span class="n">CrudDB</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="n">task_manager</span> <span class="o">=</span> <span class="n">TaskScheduler</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="n">task_manager</span><span class="o">.</span><span class="n">with_plugin</span><span class="p">(</span><span class="n">TaskDbPlugin</span><span class="p">(</span><span class="n">db</span><span class="p">))</span>
+</span></code></pre></div>
+<p>The plugin creates a <code>fluid_tasks</code> table (configurable via <code>table_name</code>) and
+persists a row for each task run as it moves through its lifecycle states.
+Tasks tagged with <code>skip_db</code> are excluded from persistence.</p>
+<h3 id="custom-plugins">Custom Plugins<a class="headerlink" href="#custom-plugins" title="Permanent link">&para;</a></h3>
+<p>To create your own plugin, subclass <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskManagerPlugin" href="../../reference/task_plugin/#fluid.scheduler.TaskManagerPlugin">TaskManagerPlugin</a>
+and implement the <code>register</code> method. Use
+<a class="autorefs autorefs-internal" title="            register_async_handler" href="../../reference/task_manager/#fluid.scheduler.TaskManager.register_async_handler">TaskManager.register_async_handler</a>
+to subscribe to task lifecycle events:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskManagerPlugin</span><span class="p">,</span> <span class="n">TaskManager</span><span class="p">,</span> <span class="n">TaskState</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.utils.dispatcher</span><span class="w"> </span><span class="kn">import</span> <span class="n">Event</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">class</span><span class="w"> </span><span class="nc">MyPlugin</span><span class="p">(</span><span class="n">TaskManagerPlugin</span><span class="p">):</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>    <span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_manager</span><span class="p">:</span> <span class="n">TaskManager</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>        <span class="n">task_manager</span><span class="o">.</span><span class="n">register_async_handler</span><span class="p">(</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>            <span class="n">Event</span><span class="p">(</span><span class="n">TaskState</span><span class="o">.</span><span class="n">success</span><span class="p">,</span> <span class="s2">&quot;my_plugin&quot;</span><span class="p">),</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>            <span class="bp">self</span><span class="o">.</span><span class="n">_on_success</span><span class="p">,</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a>        <span class="p">)</span>
+</span><span id="__span-8-11"><a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a>
+</span><span id="__span-8-12"><a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_run</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-8-13"><a id="__codelineno-8-13" name="__codelineno-8-13" href="#__codelineno-8-13"></a>        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task </span><span class="si">{</span><span class="n">task_run</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> succeeded&quot;</span><span class="p">)</span>
+</span></code></pre></div>
 
 
 
