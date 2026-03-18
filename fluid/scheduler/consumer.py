@@ -75,6 +75,13 @@ class TaskManager:
         ] = (
             deps if deps is not None else State()
         )
+        self.state: Annotated[
+            State,
+            Doc("""
+                State for the task manager.
+                This can be used by plugins to store state in the task manager.
+                """),
+        ] = State()
         self.config: Annotated[
             TaskManagerConfig, Doc("""Task manager configuration""")
         ] = config or TaskManagerConfig(**kwargs)

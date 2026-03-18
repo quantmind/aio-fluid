@@ -1,50 +1,66 @@
 from __future__ import annotations
 
-from typing import Any, NamedTuple, Sequence, cast
+from typing import Any, NamedTuple, Self, Sequence, cast
 
 from sqlalchemy.ext.asyncio import AsyncConnection
 from sqlalchemy.sql import FromClause, tuple_
 from sqlalchemy.sql.expression import ColumnElement
+from typing_extensions import Annotated, Doc
 
 from fluid import settings
-from fluid.utils.errors import ValidationError
 
 from .crud import CrudDB, Row, Select, column_value_to_python
 from .cursor import Cursor, CursorEntry
 
 
 class Search(NamedTuple):
-    search_fields: tuple[str, ...]
-    search_text: str
+    search_fields: Annotated[tuple[str, ...], Doc("Fields to search in")]
+    search_text: Annotated[str, Doc("Text to search for")]
 
 
 class Pagination(NamedTuple):
-    order_by_fields: tuple[str, ...]
-    limit: int
-    filters: dict[str, Any]
-    search: Search | None
-    cursor: Cursor | None
-    desc: bool = False
+    order_by_fields: Annotated[tuple[str, ...], Doc("Fields to order results by")]
+    limit: Annotated[int, Doc("Maximum number of results per page")]
+    filters: Annotated[dict[str, Any], Doc("Filters applied to the query")]
+    search: Annotated[Search | None, Doc("Full-text search configuration")]
+    cursor: Annotated[Cursor | None, Doc("Decoded pagination cursor")]
+    desc: Annotated[bool, Doc("Order results in descending order")] = False
 
     @classmethod
     def create(
         cls,
-        *order_by_fields: str,
-        cursor: str = "",
-        limit: int = 0,
-        filters: dict[str, Any] | None = None,
-        search: Search | None = None,
-        desc: bool = False,
-    ) -> Pagination:
-        if limit < 0:
-            raise ValidationError("limit must be greater than or equal to 0")
+        *order_by_fields: Annotated[str, Doc("Fields to order results by")],
+        cursor: Annotated[
+            str,
+            Doc("Encoded pagination cursor from a previous response"),
+        ] = "",
+        limit: Annotated[
+            int | None,
+            Doc(
+                "Maximum number of results per page; "
+                "defaults to settings.DEFAULT_PAGINATION_LIMIT"
+            ),
+        ] = None,
+        filters: Annotated[
+            dict[str, Any] | None,
+            Doc("Filters to apply to the query"),
+        ] = None,
+        search: Annotated[
+            Search | None,
+            Doc("Full-text search configuration"),
+        ] = None,
+        desc: Annotated[
+            bool,
+            Doc("Order results in descending order"),
+        ] = False,
+    ) -> Self:
+        """Factory method to create a Pagination instance,
+        decoding the cursor if provided.
+
+        If the cursor is provided, filters, limit and search are extracted from it,
+        and the provided values for these parameters are ignored.
+        """
         if cursor:
-            if limit:
-                raise ValidationError("limit cannot be provided with cursor")
-            if filters:
-                raise ValidationError("filters cannot be provided with cursor")
-            if search and search.search_text:
-                raise ValidationError("search text cannot be provided with cursor")
             decoded_cursor = Cursor.decode(cursor, order_by_fields)
             limit = decoded_cursor.limit
             filters = decoded_cursor.filters
@@ -52,8 +68,7 @@ class Pagination(NamedTuple):
                 search = search._replace(search_text=decoded_cursor.search_text)
         else:
             decoded_cursor = None
-            if limit >= 0:
-                limit = limit or settings.DEFAULT_PAGINATION_LIMIT
+            limit = limit or settings.DEFAULT_PAGINATION_LIMIT
         return cls(
             order_by_fields=order_by_fields,
             cursor=decoded_cursor,
@@ -71,11 +86,17 @@ class Pagination(NamedTuple):
 
     async def execute(
         self,
-        db: CrudDB,
-        table: FromClause,
+        db: Annotated[CrudDB, Doc("Database instance to execute the query on")],
+        table: Annotated[FromClause, Doc("SQLAlchemy table to query")],
         *,
-        conn: AsyncConnection | None = None,
+        conn: Annotated[
+            AsyncConnection | None,
+            Doc("Optional existing connection to reuse"),
+        ] = None,
     ) -> tuple[Sequence[Row], str]:
+        """Execute the paginated query and return the results
+        along with the next cursor.
+        """
         sql_query = self.query(db, table)
         async with db.ensure_connection(conn) as conn:
             result = await conn.execute(sql_query)

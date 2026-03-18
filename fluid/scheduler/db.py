@@ -1,12 +1,21 @@
+from __future__ import annotations
+
+from datetime import datetime
+from typing import Any, ClassVar
+
 import sqlalchemy as sa
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query
+from pydantic import BaseModel
 from typing_extensions import Annotated, Doc
 
 from fluid.db.crud import CrudDB
+from fluid.db.pagination import Pagination
 from fluid.utils.dispatcher import Event
 
 from .common import is_in_cpu_process
 from .consumer import TaskManager
-from .models import TaskRun, TaskState
+from .endpoints import TaskManagerDep
+from .models import TaskPriority, TaskRun, TaskState
 from .plugin import TaskManagerPlugin
 
 
@@ -50,6 +59,8 @@ class TaskDbPlugin(TaskManagerPlugin):
     def register(self, task_manager: TaskManager) -> None:
         if is_in_cpu_process():
             return
+
+        task_manager.state.task_db_plugin = self
         task_manager.register_async_handler(
             Event(TaskState.queued, self.tag),
             self._handle_queued,
@@ -86,7 +97,7 @@ class TaskDbPlugin(TaskManagerPlugin):
                 "priority": task_run.priority,
                 "state": task_run.state,
                 "queued": task_run.queued,
-                "params": task_run.params.model_dump(),
+                "params": task_run.params.model_dump(mode="json"),
             },
         )
 
@@ -133,3 +144,119 @@ def task_meta(meta: sa.MetaData, table_name: str = "tasks") -> None:
         sa.Column("end", sa.DateTime(timezone=True)),
         sa.Column("params", sa.JSON),
     )
+
+
+class TaskRunHistory(BaseModel):
+    id: str
+    name: str
+    priority: TaskPriority
+    state: TaskState
+    queued: datetime
+    start: datetime | None
+    end: datetime | None
+    params: dict[str, Any]
+
+
+def get_db_plugin(task_manager: TaskManagerDep) -> TaskDbPlugin:
+    return task_manager.state.task_db_plugin
+
+
+def with_task_history_router(
+    app: Annotated[
+        FastAPI,
+        Doc("FastAPI app instance."),
+    ],
+    prefix: str = "/task-history",
+) -> FastAPI:
+    """Add task history endpoints to a FastAPI app."""
+    app.include_router(router, prefix=prefix)
+    return app
+
+
+router = APIRouter()
+
+
+TaskDbPluginDep = Annotated[TaskDbPlugin, Depends(get_db_plugin)]
+
+
+class TaskRunHistoryPage(BaseModel):
+    data: list[TaskRunHistory]
+    cursor: str
+
+
+class HistoryQuery(BaseModel):
+    name: Annotated[
+        str | None,
+        Query(description="Filter by task name"),
+    ] = None
+    start: Annotated[
+        datetime | None,
+        Query(description="Filter runs queued at or after this time"),
+    ] = None
+    end: Annotated[
+        datetime | None,
+        Query(description="Filter runs queued at or before this time"),
+    ] = None
+    state: Annotated[
+        TaskState | None,
+        Query(description="Filter by task state"),
+    ] = None
+    limit: Annotated[
+        int | None,
+        Query(description="Maximum number of results to return", ge=1),
+    ] = None
+    cursor: Annotated[
+        str,
+        Query(description="Pagination cursor from a previous response"),
+    ] = ""
+
+    _filter_map: ClassVar[dict[str, str]] = {
+        "start": "queued:ge",
+        "end": "queued:le",
+    }
+
+    def filters(self) -> dict:
+        return {
+            self._filter_map.get(k, k): v
+            for k, v in self.model_dump(
+                exclude_none=True, exclude={"limit", "cursor"}
+            ).items()
+        }
+
+
+@router.get(
+    "",
+    response_model=TaskRunHistoryPage,
+    summary="Task run history",
+)
+async def get_history(
+    db_plugin: TaskDbPluginDep,
+    q: Annotated[HistoryQuery, Depends()],
+) -> TaskRunHistoryPage:
+    table = db_plugin.db.tables[db_plugin.table_name]
+    pagination = Pagination.create(
+        "queued",
+        filters=q.filters(),
+        limit=q.limit,
+        cursor=q.cursor,
+        desc=True,
+    )
+    rows, cursor = await pagination.execute(db_plugin.db, table)
+    return TaskRunHistoryPage(
+        data=[TaskRunHistory(**dict(row._mapping)) for row in rows],
+        cursor=cursor,
+    )
+
+
+@router.get(
+    "/{run_id}",
+    response_model=TaskRunHistory,
+    summary="Get a task run",
+)
+async def get_run(db_plugin: TaskDbPluginDep, run_id: str) -> TaskRunHistory:
+    table = db_plugin.db.tables[db_plugin.table_name]
+    result = await db_plugin.db.db_select(table, {"id": run_id})
+    rows = result.fetchall()
+    if not rows:
+        raise HTTPException(status_code=404, detail="Task run not found")
+    return TaskRunHistory(**dict(rows[0]._mapping))

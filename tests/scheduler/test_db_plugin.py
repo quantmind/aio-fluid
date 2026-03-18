@@ -1,16 +1,19 @@
 import asyncio
-from typing import AsyncIterator, cast
+from datetime import datetime, timezone
+from typing import Any, AsyncIterator, cast
 
 import pytest
 from fastapi import FastAPI
+from httpx import ASGITransport, AsyncClient
 
 from examples import tasks
 from examples.db import get_db
 from fluid.scheduler import TaskState
 from fluid.scheduler.consumer import TaskConsumer
-from fluid.scheduler.db import TaskDbPlugin
+from fluid.scheduler.db import TaskDbPlugin, with_task_history_router
 from fluid.scheduler.endpoints import get_task_manager, task_manager_fastapi
 from tests.scheduler.conftest import start_fastapi
+from tests.scheduler.tasks import TaskClient
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
 
@@ -33,8 +36,20 @@ async def task_app_db(db_plugin: TaskDbPlugin) -> AsyncIterator[FastAPI]:
         max_concurrent_tasks=2,
         schedule_tasks=False,
     )
-    async with start_fastapi(task_manager_fastapi(task_manager)) as app:
+    app = task_manager_fastapi(task_manager)
+    with_task_history_router(app)
+    async with start_fastapi(app) as app:
         yield app
+
+
+@pytest.fixture(scope="module")
+async def cli_db(task_app_db: FastAPI) -> AsyncIterator[TaskClient]:
+    base_url = TaskClient().url
+    async with AsyncClient(
+        transport=ASGITransport(app=task_app_db), base_url=base_url
+    ) as session:
+        async with TaskClient(url=base_url, session=session) as client:
+            yield client
 
 
 @pytest.fixture(scope="module")
@@ -102,6 +117,20 @@ async def test_task_run_params_stored(
     assert rows[0].params == {"a": 3.0, "b": 4.0}
 
 
+async def test_task_run_params_with_datetime(
+    task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    table = db_plugin.db.tables[db_plugin.table_name]
+    dt = datetime(2024, 1, 15, 12, 0, 0, tzinfo=timezone.utc)
+    task_run = await task_manager_db.queue_and_wait("datetime_task", timeout=5, dt=dt)
+    assert task_run.state == TaskState.success
+
+    await wait_for_row(db_plugin, task_run.id)
+    rows = (await db_plugin.db.db_select(table, dict(id=task_run.id))).fetchall()
+    assert len(rows) == 1
+    assert rows[0].params == {"dt": "2024-01-15T12:00:00Z"}
+
+
 async def test_task_run_aborted(
     task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
 ) -> None:
@@ -117,3 +146,79 @@ async def test_task_run_aborted(
     rows = (await db_plugin.db.db_select(table, dict(id=task_run.id))).fetchall()
     assert len(rows) == 1
     assert rows[0].state == TaskState.aborted
+
+
+async def get_history(cli_db: TaskClient, **params: Any) -> list[dict]:
+    page = await cli_db.get(f"{cli_db.url}/task-history", params=params or None)
+    assert "data" in page
+    assert "cursor" in page
+    return page["data"]
+
+
+async def test_get_history(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait("dummy", timeout=5)
+    await wait_for_row(db_plugin, task_run.id)
+    data = await get_history(cli_db)
+    assert len(data) > 0
+    assert any(item["id"] == task_run.id for item in data)
+
+
+async def test_get_history_pagination(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait("dummy", timeout=5)
+    await wait_for_row(db_plugin, task_run.id)
+    page = await cli_db.get(f"{cli_db.url}/task-history", params={"limit": 2})
+    assert len(page["data"]) == 2
+    assert page["cursor"]
+    next_page = await cli_db.get(
+        f"{cli_db.url}/task-history", params={"cursor": page["cursor"]}
+    )
+    assert next_page["data"]
+    assert {item["id"] for item in page["data"]}.isdisjoint(
+        {item["id"] for item in next_page["data"]}
+    )
+
+
+async def test_get_history_filter_by_name(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait("dummy", timeout=5)
+    await wait_for_row(db_plugin, task_run.id)
+    data = await get_history(cli_db, name="dummy")
+    assert all(item["name"] == "dummy" for item in data)
+    data_other = await get_history(cli_db, name="add")
+    assert all(item["name"] == "add" for item in data_other)
+
+
+async def test_get_history_filter_by_state(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait("dummy", timeout=5)
+    await wait_for_row(db_plugin, task_run.id)
+    data = await get_history(cli_db, state="success")
+    assert all(item["state"] == "success" for item in data)
+
+
+async def test_get_history_filter_by_start(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    before = datetime.now(tz=timezone.utc)
+    task_run = await task_manager_db.queue_and_wait("dummy", timeout=5)
+    await wait_for_row(db_plugin, task_run.id)
+    data = await get_history(cli_db, start=before.isoformat())
+    assert any(item["id"] == task_run.id for item in data)
+
+
+async def test_get_history_filter_by_end(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait("dummy", timeout=5)
+    await wait_for_row(db_plugin, task_run.id)
+    after = datetime.now(tz=timezone.utc)
+    data = await get_history(cli_db, end=after.isoformat())
+    assert any(item["id"] == task_run.id for item in data)
+    data_empty = await get_history(cli_db, end="2000-01-01T00:00:00Z")
+    assert data_empty == []

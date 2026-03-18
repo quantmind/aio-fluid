@@ -3,7 +3,7 @@ import json
 import os
 import time
 from dataclasses import dataclass, field
-from datetime import timedelta
+from datetime import datetime, timedelta
 from typing import Any, Self, Sequence, cast
 
 from fastapi import FastAPI
@@ -18,6 +18,7 @@ from fluid.scheduler import (
     task_manager_fastapi,
 )
 from fluid.scheduler.broker import RedisTaskBroker
+from fluid.utils.dates import utcnow
 from fluid.utils.http_client import HttpxClient
 
 
@@ -87,6 +88,16 @@ async def add(context: TaskRun[AddValues]) -> None:
     """Log the addition of two numbers"""
     c = context.params.a + context.params.b
     context.logger.info(f"Adding {context.params.a} + {context.params.b} = {c}")
+
+
+class DatetimeParams(BaseModel):
+    dt: datetime = Field(default_factory=utcnow, description="A datetime parameter")
+
+
+@task
+async def datetime_task(context: TaskRun[DatetimeParams]) -> None:
+    """A task with a datetime parameter"""
+    context.logger.info(f"Received datetime: {context.params.dt}")
 
 
 @task(cpu_bound=True)
