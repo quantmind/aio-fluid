@@ -148,7 +148,7 @@ def task_meta(meta: sa.MetaData, table_name: str = "tasks") -> None:
 
 class TaskRunHistory(BaseModel):
     id: str
-    name: str
+    task: str
     priority: TaskPriority
     state: TaskState
     queued: datetime
@@ -185,7 +185,7 @@ class TaskRunHistoryPage(BaseModel):
 
 
 class HistoryQuery(BaseModel):
-    name: Annotated[
+    task: Annotated[
         str | None,
         Query(description="Filter by task name"),
     ] = None
@@ -211,6 +211,7 @@ class HistoryQuery(BaseModel):
     ] = ""
 
     _filter_map: ClassVar[dict[str, str]] = {
+        "task": "name",
         "start": "queued:ge",
         "end": "queued:le",
     }
@@ -243,7 +244,19 @@ async def get_history(
     )
     rows, cursor = await pagination.execute(db_plugin.db, table)
     return TaskRunHistoryPage(
-        data=[TaskRunHistory(**dict(row._mapping)) for row in rows],
+        data=[
+            TaskRunHistory(
+                id=row.id,
+                task=row.name,
+                priority=row.priority,
+                state=row.state,
+                queued=row.queued,
+                start=row.start,
+                end=row.end,
+                params=row.params,
+            )
+            for row in rows
+        ],
         cursor=cursor,
     )
 

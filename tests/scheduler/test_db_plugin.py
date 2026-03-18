@@ -187,10 +187,10 @@ async def test_get_history_filter_by_name(
 ) -> None:
     task_run = await task_manager_db.queue_and_wait("dummy", timeout=5)
     await wait_for_row(db_plugin, task_run.id)
-    data = await get_history(cli_db, name="dummy")
-    assert all(item["name"] == "dummy" for item in data)
-    data_other = await get_history(cli_db, name="add")
-    assert all(item["name"] == "add" for item in data_other)
+    data = await get_history(cli_db, task="dummy")
+    assert all(item["task"] == "dummy" for item in data)
+    data_other = await get_history(cli_db, task="add")
+    assert all(item["task"] == "add" for item in data_other)
 
 
 async def test_get_history_filter_by_state(
