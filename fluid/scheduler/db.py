@@ -63,10 +63,6 @@ class TaskDbPlugin(TaskManagerPlugin):
         task_manager.state.task_db_plugin = self
         task_manager.register_async_handler(
             Event(TaskState.queued, self.tag),
-            self._handle_queued,
-        )
-        task_manager.register_async_handler(
-            Event(TaskState.running, self.tag),
             self._handle_update,
         )
         task_manager.register_async_handler(
@@ -86,28 +82,21 @@ class TaskDbPlugin(TaskManagerPlugin):
             self._handle_update,
         )
 
-    async def _handle_queued(self, task_run: TaskRun) -> None:
-        if self.skip_db_tag in task_run.task.tags:
-            return
-        await self.db.db_insert(
-            self.db.tables[self.table_name],
-            {
-                "id": task_run.id,
-                "name": task_run.name,
-                "priority": task_run.priority,
-                "state": task_run.state,
-                "queued": task_run.queued,
-                "params": task_run.params.model_dump(mode="json"),
-            },
-        )
-
     async def _handle_update(self, task_run: TaskRun) -> None:
         if self.skip_db_tag in task_run.task.tags:
             return
-        await self.db.db_update(
+        await self.db.db_upsert(
             self.db.tables[self.table_name],
             dict(id=task_run.id),
-            dict(state=task_run.state, start=task_run.start, end=task_run.end),
+            dict(
+                state=task_run.state,
+                name=task_run.name,
+                priority=task_run.priority,
+                queued=task_run.queued,
+                start=task_run.start,
+                end=task_run.end,
+                params=task_run.params.model_dump(mode="json"),
+            ),
         )
 
 
