@@ -10,7 +10,7 @@ $ pip install aio-fluid[cli]
 It can be imported from `fluid.scheduler.cli`:
 
 ```python
-from fastapi.scheduler.cli import TaskManagerCLI
+from fluid.scheduler.cli import TaskManagerCLI
 
 if __name__ == "__main__":
     cli = TaskManagerCLI("path.to:task_app")

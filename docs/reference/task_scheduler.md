@@ -7,7 +7,7 @@ periodic tasks.
 It can be imported from `fluid.scheduler`:
 
 ```python
-from fastapi.scheduler import TaskScheduler
+from fluid.scheduler import TaskScheduler
 ```
 
 ::: fluid.scheduler.TaskScheduler

@@ -4,7 +4,7 @@ Scheduling functions for tasks. They can be imported from `fluid.scheduler`:
 
 
 ```python
-from fastapi.scheduler import every, crontab
+from fluid.scheduler import every, crontab
 ```
 
 ::: fluid.scheduler.Scheduler

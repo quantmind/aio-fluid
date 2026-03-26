@@ -190,6 +190,6 @@ def task_manager_fastapi(
     if isinstance(task_manager, Worker):
         app_workers(app).add_workers(task_manager)
     else:
-        app.add_event_handler("startup", task_manager.on_startup)
-        app.add_event_handler("shutdown", task_manager.on_shutdown)
+        app.router.on_startup.append(task_manager.on_startup)
+        app.router.on_shutdown.append(task_manager.on_shutdown)
     return app

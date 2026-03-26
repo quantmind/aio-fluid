@@ -17,8 +17,8 @@ class FastapiAppWorkers(Workers):
     def setup(cls, app: FastAPI, **kwargs: Any) -> Self:
         workers = cls(**kwargs)
         app.state.workers = workers
-        app.add_event_handler("startup", workers.startup)
-        app.add_event_handler("shutdown", workers.shutdown)
+        app.router.on_startup.append(workers.startup)
+        app.router.on_shutdown.append(workers.shutdown)
         return workers
 
     def after_shutdown(self, reason: str, code: int = 1) -> None:

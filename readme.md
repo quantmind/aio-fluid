@@ -45,8 +45,10 @@ this includes the following extra dependencies:
 You can run the examples via
 
 ```
-poetry run python -m examples.main
+uv run python -m examples
 ```
+
+We use [uv](https://uv.run/) as a development tool to run the examples and tests, but you can also use python directly if that's your preference.
 
 ## License
 

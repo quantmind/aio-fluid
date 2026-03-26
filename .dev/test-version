@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
-poetry=`poetry version`
-code=`poetry run python -c 'import fluid; print(f"aio-fluid {fluid.__version__}")'`
+pkg_version=`python -c "import tomllib; d=tomllib.load(open('pyproject.toml','rb')); print('aio-fluid ' + d['project']['version'])"`
+code=`uv run python -c 'import fluid; print(f"aio-fluid {fluid.__version__}")'`
 
-echo ${poetry}
+echo ${pkg_version}
 
-if [ "${poetry}" != "${code}" ]; then
-    echo "ERROR: poetry version ${poetry} different from code version ${code}"
+if [ "${pkg_version}" != "${code}" ]; then
+    echo "ERROR: pyproject version ${pkg_version} different from code version ${code}"
     exit 1
 fi

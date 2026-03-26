@@ -1,3 +1,3 @@
 """Reusable server side python modules"""
 
-__version__ = "1.8.9"
+__version__ = "2.0.0"

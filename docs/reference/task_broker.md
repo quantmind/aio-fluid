@@ -3,7 +3,7 @@
 It can be imported from `fluid.scheduler`:
 
 ```python
-from fastapi.scheduler import TaskBroker
+from fluid.scheduler import TaskBroker
 ```
 
 ::: fluid.scheduler.TaskBroker

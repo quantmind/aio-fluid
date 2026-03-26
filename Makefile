@@ -15,20 +15,20 @@ clean:			## remove python cache files
 	rm -rf .coverage
 
 .PHONY: install
-install: 		## install all packages via poetry
+install: 		## install all packages via uv
 	@./.dev/install
 
 .PHONY: lint
 lint: 			## run linters
-	poetry run ./.dev/lint fix
+	uv run ./.dev/lint fix
 
 .PHONY: lint-test
 lint-test:		## run test linters
-	poetry run ./.dev/lint
+	uv run ./.dev/lint
 
 .PHONY: test
 test:			## test with coverage
-	@poetry run \
+	@uv run \
 		pytest -x --log-cli-level error \
 		-m "not flaky" \
 		--cov --cov-report xml --cov-report html
@@ -40,29 +40,30 @@ test-version:		## check version compatibility
 
 .PHONY: publish
 publish:		## release to pypi and github tag
-	@poetry publish --build -u __token__ -p $(PYPI_TOKEN)
+	@uv build && uv publish --token $(PYPI_TOKEN)
 
 .PHONY: outdated
 outdated:		## Show outdated packages
-	poetry show -o -a
+	uv tree --outdated
 
 
 .PHONY: example
 example:		## run task scheduler example
-	@APP_NAME=examples poetry run python -m examples.main serve
+	@APP_NAME=examples uv run python -m examples.main serve
 
 
 .PHONY: docs
 docs:			## build documentation
-	@poetry run mkdocs build
+	cp docs/index.md readme.md
+	@uv run mkdocs build
 
 .PHONY: docs-publish
 docs-publish:		## publish the book to github pages
-	poetry run mkdocs gh-deploy
+	uv run mkdocs gh-deploy
 
 .PHONY: docs-serve
 docs-serve:		## serve documentation
-	@poetry run mkdocs serve --livereload -w fluid -w docs -w docs_src
+	@uv run mkdocs serve --livereload -w fluid -w docs -w docs_src
 
 
 .PHONY: readme

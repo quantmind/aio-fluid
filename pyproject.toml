@@ -1,23 +1,20 @@
 [project]
 name = "aio-fluid"
-version = "1.8.9"
+version = "2.0.0"
 description = "Tools for backend python services"
 authors = [ { name = "Luca Sbardella", email = "luca@quantmind.com" } ]
-license = "BSD"
+license = "BSD-3-Clause"
 readme = "readme.md"
 requires-python = ">=3.11,<4.0"
 dependencies = [
     "inflection >= 0.5.1",
-    "redis[hiredis] >= 7.2.1",
-    "pydantic >= 2.9.2",
-    "yarl >= 1.15.5",
-    "fastapi >= 0.115.2",
-    "uvicorn >= 0.34.0",
+    "redis[hiredis] >= 7.4.0",
+    "pydantic >= 2.12.5",
+    "yarl >= 1.23.0",
+    "fastapi >= 0.135.2",
+    "uvicorn >= 0.42.0",
     "typing-extensions >= 4.12.2",
 ]
-
-[tool.poetry]
-packages = [ { include = "fluid" } ]
 
 [project.urls]
 "Repository" = "https://github.com/quantmind/aio-fluid"
@@ -27,13 +24,13 @@ packages = [ { include = "fluid" } ]
 cli = [ "click >= 8.1.7", "pydanclick >= 0.5.0", "rich >= 13.7.1" ]
 console = [ "aioconsole >= 0.8.2" ]
 db = [
-    "alembic >= 1.13.2",
+    "alembic >= 1.18.4",
     "asyncpg >= 0.30.0",
     "click >= 8.1.7",
     "psycopg2-binary >= 2.9.9",
     "pydanclick >= 0.5.0",
     "python-dateutil >= 2.9.0",
-    "rich >= 13.7.1",
+    "rich >= 14.3.3",
     "sqlalchemy >= 2.0.23",
     "sqlalchemy-utils >= 0.41.2",
 ]
@@ -72,8 +69,11 @@ k8s = [
 log = [ "python-json-logger >= 3.2.1" ]
 
 [build-system]
-requires = [ "poetry-core>=1.0.0" ]
-build-backend = "poetry.core.masonry.api"
+requires = [ "hatchling" ]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = [ "fluid" ]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

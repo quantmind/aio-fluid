@@ -108,8 +108,14 @@ class Migration:
         with self.sync_engine.begin() as conn:
             self.metadata.create_all(conn)
 
+    def truncate(self, table: str, *, cascade: bool = False) -> None:
+        """Truncate a specific table in the database"""
+        cascade_sql = " cascade" if cascade else ""
+        with self.sync_engine.begin() as conn:
+            conn.execute(sa.text(f"truncate table {table}{cascade_sql}"))
+
     def truncate_all(self) -> None:
-        """Drop all tables from :attr:`metadata` in database"""
+        """Truncate all tables in the database"""
         with self.sync_engine.begin() as conn:
             conn.execute(sa.text(f'truncate {", ".join(self.metadata.tables)}'))
 

@@ -11,14 +11,10 @@ jobs:
     steps:
       - name: checkout repo
         uses: actions/checkout@v4
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: install poetry
-        run: pip install -U pip poetry
+      - name: install uv
+        uses: astral-sh/setup-uv@v5
       - name: update dependencies
-        run: poetry update
+        run: uv lock --upgrade
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:

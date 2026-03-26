@@ -8,5 +8,5 @@ from fluid.utils.backdoor import ConsoleManager
 
 def setup(app: FastAPI, **kwargs: Any) -> None:
     console = ConsoleManager(**kwargs)
-    app.add_event_handler("startup", partial(console.on_startup, app))
-    app.add_event_handler("shutdown", partial(console.on_cleanup, app))
+    app.router.on_startup.append(partial(console.on_startup, app))
+    app.router.on_shutdown.append(partial(console.on_cleanup, app))
