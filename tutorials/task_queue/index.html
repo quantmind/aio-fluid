@@ -1214,6 +1214,56 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="CPU bound tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timeout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timeout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#concurrency-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concurrency control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kubernetes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kubernetes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
         
           <li class="md-nav__item">
@@ -1344,6 +1394,56 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="CPU bound tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#timeout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Timeout
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#concurrency-control" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concurrency control
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kubernetes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Kubernetes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
         
@@ -1481,7 +1581,7 @@ for the task parameters</p>
 </span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">task_manager</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;heavy_calculation&quot;</span><span class="p">,</span> <span class="n">data_id</span><span class="o">=</span><span class="n">data_id</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="cpu-bound-tasks">CPU bound tasks<a class="headerlink" href="#cpu-bound-tasks" title="Permanent link">&para;</a></h3>
-<p>They normally run on a subprocess and they can be defined by setting the <code>cpu_bound</code> flag to <code>True</code> in the <code>task</code> decorator. They can perform heavy CPU bound operations without blocking the event loop.</p>
+<p>They normally run on a subprocess and they can be defined by setting the <code>cpu_bound</code> flag to <code>True</code> in the <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="../../reference/task/#fluid.scheduler.task">task</a> decorator. They can perform heavy CPU bound operations without blocking the event loop.</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
 </span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="nd">@task</span><span class="p">(</span><span class="n">cpu_bound</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -1492,25 +1592,51 @@ for the task parameters</p>
 </span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="c1"># trigger another task</span>
 </span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">task_manager</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;fetch_data&quot;</span><span class="p">)</span>
 </span></code></pre></div>
+<h4 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h4>
+<p>When a CPU bound task is dispatched, the consumer spawns a <strong>fresh Python subprocess</strong> that imports the task's module and executes the task function in isolation. This keeps the consumer's asyncio event loop completely unblocked while the subprocess runs.</p>
+<p>The subprocess is identified by the <code>TASK_MANAGER_SPAWN=true</code> environment variable. Inside the subprocess, <code>@task(cpu_bound=True)</code> behaves like a plain <code>@task</code> — the wrapper is transparent and the executor function runs directly without any extra subprocess indirection.</p>
+<p>You can check whether your code is running inside a CPU subprocess:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_in_cpu_process</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">if</span> <span class="n">is_in_cpu_process</span><span class="p">():</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="c1"># running inside the spawned subprocess</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="o">...</span>
+</span></code></pre></div>
+<p>Stdout and stderr from the subprocess are streamed back to the consumer in real time, so logs produced by the task appear in the consumer's output.</p>
+<h4 id="timeout">Timeout<a class="headerlink" href="#timeout" title="Permanent link">&para;</a></h4>
+<p>CPU bound tasks respect the <code>timeout_seconds</code> parameter. If the subprocess has not finished within the timeout, it is killed and the task run transitions to the <code>failure</code> state.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nd">@task</span><span class="p">(</span><span class="n">cpu_bound</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout_seconds</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">slow_calculation</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>    <span class="o">...</span>
+</span></code></pre></div>
+<p>The default timeout is <strong>60 seconds</strong>. For long-running tasks make sure to raise this to an appropriate value.</p>
+<h4 id="concurrency-control">Concurrency control<a class="headerlink" href="#concurrency-control" title="Permanent link">&para;</a></h4>
+<p>Use <code>max_concurrency</code> to limit how many instances of a CPU bound task can run simultaneously. This is useful to prevent exhausting system resources when many tasks are queued at the same time.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nd">@task</span><span class="p">(</span><span class="n">cpu_bound</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_concurrency</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">heavy_calculation</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="o">...</span>
+</span></code></pre></div>
+<p>A value of <code>0</code> (the default) means no limit.</p>
+<h4 id="kubernetes">Kubernetes<a class="headerlink" href="#kubernetes" title="Permanent link">&para;</a></h4>
 <p>When the consumer is running inside a Kubernetes cluster, CPU bound tasks can be dispatched as Kubernetes Jobs instead of local subprocesses. See <a href="../task_k8s/">K8s Jobs</a> for more details.</p>
 <h3 id="scheduled-tasks">Scheduled Tasks<a class="headerlink" href="#scheduled-tasks" title="Permanent link">&para;</a></h3>
 <p>Both IO and CPU bound tasks can be periodically scheduled via the <code>schedule</code> keyword argument.</p>
 <p>There are two types of scheduling, the most common is the <a class="autorefs autorefs-internal" title="            fluid.scheduler.every" href="../../reference/task_scheduling/#fluid.scheduler.every">every</a> function that takes a <code>timedelta</code> object.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span><span class="p">,</span> <span class="n">every</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="nd">@task</span><span class="p">(</span><span class="n">schedule</span><span class="o">=</span><span class="n">every</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">scheduled</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span><span class="p">,</span> <span class="n">every</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="nd">@task</span><span class="p">(</span><span class="n">schedule</span><span class="o">=</span><span class="n">every</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">scheduled</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
 </span></code></pre></div>
 <p>You can also use the <a class="autorefs autorefs-internal" title="            fluid.scheduler.crontab" href="../../reference/task_scheduling/#fluid.scheduler.crontab">crontab</a> function to schedule tasks using cron expressions.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span><span class="p">,</span> <span class="n">crontab</span>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="nd">@task</span><span class="p">(</span><span class="n">schedule</span><span class="o">=</span><span class="n">crontab</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="s1">&#39;*/2&#39;</span><span class="p">))</span>
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">scheduled</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span><span class="p">,</span> <span class="n">crontab</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="nd">@task</span><span class="p">(</span><span class="n">schedule</span><span class="o">=</span><span class="n">crontab</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="s1">&#39;*/2&#39;</span><span class="p">))</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">scheduled</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
 </span></code></pre></div>
 
 

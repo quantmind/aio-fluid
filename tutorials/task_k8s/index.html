@@ -1420,11 +1420,11 @@
 
 
 <h1 id="k8s-jobs">K8s Jobs<a class="headerlink" href="#k8s-jobs" title="Permanent link">&para;</a></h1>
-<p>When the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/task_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> runs inside a Kubernetes cluster, <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="../../reference/task/#fluid.scheduler.task">CPU bound tasks</a> can be dispatched as <a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/">Kubernetes Jobs</a> instead of local subprocesses.
+<p>When the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/task_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> runs inside a Kubernetes cluster, <a href="/tutorials/task_queue/#cpu-bound-tasks">CPU bound tasks</a> can be dispatched as <a href="https://kubernetes.io/docs/concepts/workloads/controllers/job/">Kubernetes Jobs</a> instead of local subprocesses.
 This offloads heavy computation to dedicated pods and keeps the consumer event loop free.</p>
 <h2 id="how-it-works">How it works<a class="headerlink" href="#how-it-works" title="Permanent link">&para;</a></h2>
 <p>The switch is automatic. When <code>KUBERNETES_SERVICE_HOST</code> is set (which Kubernetes injects into every pod) and the <code>k8s</code> extra is installed, any task declared with <code>cpu_bound=True</code> will spawn a Kubernetes Job instead of a subprocess. No code change is required in the task itself.</p>
-<p>The Job reuses the <strong>full container spec</strong> from the task consumer deployment (image, resource limits, volume mounts, security context, image pull policy, and everything else) as well as the <strong>pod-level init containers</strong> and <strong>volumes</strong>, so any setup performed by init containers (e.g. installing TLS certificates) is reproduced in the Job pod. Only three fields on the main container are overridden:</p>
+<p>The Job reuses the <strong>targeted container's spec</strong> from the task consumer deployment (image, resource limits, volume mounts, security context, image pull policy, and everything else). Only that container is included in the Job pod — sidecars and other containers from the deployment are dropped. The <strong>pod-level init containers</strong> and <strong>volumes</strong> are preserved as-is, so any setup performed by init containers (e.g. installing TLS certificates) is reproduced in the Job pod. Only these fields on the main container are overridden:</p>
 <table>
 <thead>
 <tr>
@@ -1479,7 +1479,13 @@ This offloads heavy computation to dedicated pods and keeps the consumer event l
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>    <span class="o">...</span>
 </span></code></pre></div>
 <h2 id="configuration">Configuration<a class="headerlink" href="#configuration" title="Permanent link">&para;</a></h2>
-<p>K8s behaviour can be tuned per-task via the <code>k8s_config</code> argument:</p>
+<p>K8s behaviour can be tuned per-task via the <code>k8s_config</code> argument which
+accepts a <a class="autorefs autorefs-internal" title="            fluid.scheduler.K8sConfig
+
+
+  
+      pydantic-model
+  " href="../../reference/task/#fluid.scheduler.K8sConfig">K8sConfig</a> object:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span><span class="p">,</span> <span class="n">K8sConfig</span>
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="nd">@task</span><span class="p">(</span>
@@ -1490,12 +1496,16 @@ This offloads heavy computation to dedicated pods and keeps the consumer event l
 </span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>        <span class="n">container</span><span class="o">=</span><span class="s2">&quot;main&quot;</span><span class="p">,</span>        <span class="c1"># container name inside the deployment</span>
 </span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>        <span class="n">job_ttl</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span>             <span class="c1"># seconds to keep the Job after completion</span>
 </span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>        <span class="n">sleep</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span>               <span class="c1"># polling interval while waiting for the Job</span>
-</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>    <span class="p">),</span>
-</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a><span class="p">)</span>
-</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">heavy_calculation</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>    <span class="o">...</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="n">resources</span><span class="o">=</span><span class="p">{</span>              <span class="c1"># optional Kubernetes resource limits and requests for the container</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>            <span class="s2">&quot;limits&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;2&quot;</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="s2">&quot;4Gi&quot;</span><span class="p">},</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>            <span class="s2">&quot;requests&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;cpu&quot;</span><span class="p">:</span> <span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;memory&quot;</span><span class="p">:</span> <span class="s2">&quot;2Gi&quot;</span><span class="p">},</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a>        <span class="p">},</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>    <span class="p">),</span>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="p">)</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">heavy_calculation</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a>    <span class="o">...</span>
 </span></code></pre></div>
-<p>If <code>k8s_config</code> is omitted, the following environment variables are used:</p>
+<p>If <code>k8s_config</code> is omitted, or any of the optional fields are not provided, the following environment variables are used:</p>
 <table>
 <thead>
 <tr>
@@ -1525,8 +1535,14 @@ This offloads heavy computation to dedicated pods and keeps the consumer event l
 <td><code>300</code></td>
 <td>Job TTL in seconds</td>
 </tr>
+<tr>
+<td><code>FLUID_TASK_CONSUMER_K8S_SLEEP</code></td>
+<td><code>2.0</code></td>
+<td>Polling interval in seconds</td>
+</tr>
 </tbody>
 </table>
+<p>If <code>resources</code> is not provided, the container's resource spec from the deployment is used as-is. If provided, it must be a [K8sResourceRequirements][fluid.scheduler.K8sResourceRequirements] with optional <code>limits</code> and <code>requests</code> keys, each mapping resource names (e.g. <code>"cpu"</code>, <code>"memory"</code>) to their string values.</p>
 <h2 id="required-rbac-permissions">Required RBAC permissions<a class="headerlink" href="#required-rbac-permissions" title="Permanent link">&para;</a></h2>
 <p>The pod running the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/task_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> or
 the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskScheduler" href="../../reference/task_scheduler/#fluid.scheduler.TaskScheduler">TaskScheduler</a> needs permission to read
