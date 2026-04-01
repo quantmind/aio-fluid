@@ -295,3 +295,22 @@ async def test_k8s_config_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
     assert cfg.deployment == "my-consumer"
     assert cfg.container == "worker"
     assert cfg.job_ttl == 600
+
+
+# ---------------------------------------------------------------------------
+# Circular import guard
+# ---------------------------------------------------------------------------
+
+
+def test_run_cpu_bound_is_run_on_k8s_job() -> None:
+    """When kubernetes_asyncio is installed, run_cpu_bound must be run_on_k8s_job.
+
+    A circular import between k8s_job and models causes run_on_k8s_job to be
+    silently set to None (via the try/except ImportError in models.py), which
+    means run_cpu_bound stays as run_in_subprocess even inside a k8s cluster.
+    """
+    pytest.importorskip("kubernetes_asyncio")
+    from fluid.scheduler.k8s_job import run_on_k8s_job as k8s_run
+    from fluid.scheduler.models import run_on_k8s_job
+
+    assert k8s_run is run_on_k8s_job

@@ -7,13 +7,11 @@ from kubernetes_asyncio import client, config
 from kubernetes_asyncio.client.api_client import ApiClient
 from slugify import slugify
 
-from fluid.scheduler.models import K8sConfig
-
 from .common import cpu_env
 from .errors import TaskRunError
 
 if TYPE_CHECKING:
-    from .models import TaskRun
+    from .models import K8sConfig, TaskRun
 
 
 def get_job_name(ctx: TaskRun) -> str:
