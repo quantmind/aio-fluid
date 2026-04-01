@@ -2,4 +2,4 @@
 
 from importlib.metadata import version
 
-__version__ = version("fluid")
+__version__ = version("aio-fluid")
