@@ -22,7 +22,7 @@ from typing import (
 
 from pydantic import BaseModel, Field, field_serializer
 from redis.asyncio.lock import Lock
-from typing_extensions import Annotated, Doc
+from typing_extensions import Annotated, Doc, TypedDict
 
 from fluid import settings
 from fluid.utils import kernel, log
@@ -147,6 +147,13 @@ class QueuedTask(BaseModel):
     priority: TaskPriority | None = Field(default=None, description="Task priority")
 
 
+class K8sResourceRequirements(TypedDict, total=False):
+    """CPU and memory limits/requests for a Kubernetes container."""
+
+    limits: dict[str, str]
+    requests: dict[str, str]
+
+
 class K8sConfig(BaseModel):
     """Kubernetes configuration for tasks run on Kubernetes cluster.
     This configuration is used by the task consumer to run tasks
@@ -175,6 +182,10 @@ class K8sConfig(BaseModel):
     container: str = Field(
         default_factory=lambda: os.getenv("FLUID_TASK_CONSUMER_K8S_CONTAINER", "main"),
         description="Kubernetes container",
+    )
+    resources: K8sResourceRequirements | None = Field(
+        default=None,
+        description="Kubernetes resource limits and requests for the container",
     )
     job_ttl: int = Field(
         default_factory=lambda: int(

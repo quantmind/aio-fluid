@@ -4,6 +4,7 @@ from .consumer import TaskConsumer, TaskManager, TaskManagerConfig
 from .endpoints import task_manager_fastapi
 from .models import (
     K8sConfig,
+    K8sResourceRequirements,
     QueuedTask,
     Task,
     TaskInfo,
@@ -32,6 +33,7 @@ __all__ = [
     "QueuedTask",
     "TaskBroker",
     "K8sConfig",
+    "K8sResourceRequirements",
     "crontab",
     "every",
     "task_manager_fastapi",

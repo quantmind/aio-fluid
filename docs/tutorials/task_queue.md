@@ -62,7 +62,7 @@ async def fecth_data(ctx: TaskRun[Scrape]) -> None:
 
 ### CPU bound tasks
 
-They normally run on a subprocess and they can be defined by setting the `cpu_bound` flag to `True` in the `task` decorator. They can perform heavy CPU bound operations without blocking the event loop.
+They normally run on a subprocess and they can be defined by setting the `cpu_bound` flag to `True` in the [task][fluid.scheduler.task] decorator. They can perform heavy CPU bound operations without blocking the event loop.
 
 ```python
 from fluid.scheduler import task, TaskRun
@@ -75,6 +75,50 @@ async def heavy_calculation(ctx: TaskRun) -> None:
     # trigger another task
     ctx.task_manager.queue("fetch_data")
 ```
+
+#### How it works
+
+When a CPU bound task is dispatched, the consumer spawns a **fresh Python subprocess** that imports the task's module and executes the task function in isolation. This keeps the consumer's asyncio event loop completely unblocked while the subprocess runs.
+
+The subprocess is identified by the `TASK_MANAGER_SPAWN=true` environment variable. Inside the subprocess, `@task(cpu_bound=True)` behaves like a plain `@task` — the wrapper is transparent and the executor function runs directly without any extra subprocess indirection.
+
+You can check whether your code is running inside a CPU subprocess:
+
+```python
+from fluid.scheduler.common import is_in_cpu_process
+
+if is_in_cpu_process():
+    # running inside the spawned subprocess
+    ...
+```
+
+Stdout and stderr from the subprocess are streamed back to the consumer in real time, so logs produced by the task appear in the consumer's output.
+
+#### Timeout
+
+CPU bound tasks respect the `timeout_seconds` parameter. If the subprocess has not finished within the timeout, it is killed and the task run transitions to the `failure` state.
+
+```python
+@task(cpu_bound=True, timeout_seconds=300)
+async def slow_calculation(ctx: TaskRun) -> None:
+    ...
+```
+
+The default timeout is **60 seconds**. For long-running tasks make sure to raise this to an appropriate value.
+
+#### Concurrency control
+
+Use `max_concurrency` to limit how many instances of a CPU bound task can run simultaneously. This is useful to prevent exhausting system resources when many tasks are queued at the same time.
+
+```python
+@task(cpu_bound=True, max_concurrency=2)
+async def heavy_calculation(ctx: TaskRun) -> None:
+    ...
+```
+
+A value of `0` (the default) means no limit.
+
+#### Kubernetes
 
 When the consumer is running inside a Kubernetes cluster, CPU bound tasks can be dispatched as Kubernetes Jobs instead of local subprocesses. See [K8s Jobs](task_k8s.md) for more details.
 

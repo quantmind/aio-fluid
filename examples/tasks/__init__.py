@@ -71,7 +71,7 @@ async def dummy(context: TaskRun[Sleep]) -> None:
         raise RuntimeError("just an error")
 
 
-@task(schedule=every(timedelta(seconds=2)))
+@task(schedule=every(timedelta(seconds=2)), tags=["skip_db"])
 async def ping(context: TaskRun) -> None:
     """A simple scheduled task that ping the broker"""
     redis_cli = cast(RedisTaskBroker, context.task_manager.broker).redis_cli
