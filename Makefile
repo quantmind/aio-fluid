@@ -18,6 +18,10 @@ clean:			## remove python cache files
 install: 		## install all packages via uv
 	@./.dev/install
 
+.PHONY: upgrade
+upgrade: 		## upgrade all packages via uv
+	uv lock -U
+	
 .PHONY: lint
 lint: 			## run linters
 	uv run ./.dev/lint fix
