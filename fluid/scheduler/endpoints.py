@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import Any, Callable, cast
+from typing import Any, Callable, Sequence, cast
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Path, Request
 from pydantic import BaseModel, Field
@@ -169,7 +169,7 @@ def task_manager_fastapi(
         Doc("Prefix for the task manager routes."),
     ] = "/tasks",
     tags: Annotated[
-        list[str | Enum] | None,
+        Sequence[str | Enum] | None,
         Doc("Tags for the task manager routes."),
     ] = None,
     **kwargs: Annotated[
@@ -185,7 +185,7 @@ def task_manager_fastapi(
     app = app or FastAPI(**kwargs)
     if include_router:
         tags_ = tags if tags is not None else ["Tasks"]
-        app.include_router(get_router(task_manager), prefix=prefix, tags=tags_)
+        app.include_router(get_router(task_manager), prefix=prefix, tags=list(tags_))
     app.state.task_manager = task_manager
     if isinstance(task_manager, Worker):
         app_workers(app).add_workers(task_manager)

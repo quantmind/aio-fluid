@@ -9,7 +9,7 @@ import pytest
 
 from fluid.scheduler.errors import TaskRunError
 from fluid.scheduler.k8s_job import get_job_name, run_on_k8s_job
-from fluid.scheduler.models import K8sConfig
+from fluid.scheduler.models import K8sConfig, K8sResourceRequirements
 
 pytestmark = pytest.mark.asyncio(loop_scope="function")
 
@@ -236,6 +236,44 @@ async def test_job_polls_until_succeeded() -> None:
 # ---------------------------------------------------------------------------
 # K8sConfig
 # ---------------------------------------------------------------------------
+
+
+async def test_resources_applied_to_container() -> None:
+    resources = K8sResourceRequirements(
+        limits={"cpu": "2", "memory": "4Gi"},
+        requests={"cpu": "1", "memory": "2Gi"},
+    )
+    cfg = K8sConfig(
+        namespace="workers",
+        deployment="fluid-task",
+        container="main",
+        sleep=0,
+        resources=resources,
+    )
+    ctx = make_ctx(k8s_config=cfg)
+    patches, _, mock_batch = make_k8s_mocks(ctx, succeeded=1)
+
+    with patches[0], patches[1], patches[2], patches[3]:
+        await run_on_k8s_job(ctx)
+
+    call_kwargs = mock_batch.create_namespaced_job.call_args
+    job = call_kwargs.args[1]
+    container = job.spec.template.spec.containers[0]
+    assert container.resources is not None
+
+
+async def test_resources_not_set_leaves_container_resources_unchanged() -> None:
+    ctx = make_ctx()  # no resources in K8sConfig
+    original_resources = ctx._container.resources
+    patches, _, mock_batch = make_k8s_mocks(ctx, succeeded=1)
+
+    with patches[0], patches[1], patches[2], patches[3]:
+        await run_on_k8s_job(ctx)
+
+    call_kwargs = mock_batch.create_namespaced_job.call_args
+    job = call_kwargs.args[1]
+    container = job.spec.template.spec.containers[0]
+    assert container.resources == original_resources
 
 
 async def test_k8s_config_defaults() -> None:

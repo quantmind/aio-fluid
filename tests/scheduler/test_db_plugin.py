@@ -212,6 +212,34 @@ async def test_get_history_filter_by_start(
     assert any(item["id"] == task_run.id for item in data)
 
 
+async def test_skip_db_tag_not_persisted(
+    task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    table = db_plugin.db.tables[db_plugin.table_name]
+    task_run = await task_manager_db.queue_and_wait("ping", timeout=5)
+    assert task_run.state == TaskState.success
+    rows = (await db_plugin.db.db_select(table, dict(id=task_run.id))).fetchall()
+    assert rows == []
+
+
+async def test_get_run(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait("dummy", timeout=5)
+    await wait_for_row(db_plugin, task_run.id)
+    data = await cli_db.get(f"{cli_db.url}/task-history/{task_run.id}")
+    assert data["id"] == task_run.id
+    assert data["task"] == "dummy"
+    assert data["state"] == "success"
+
+
+async def test_get_run_404(cli_db: TaskClient) -> None:
+    from fluid.utils.http_client import HttpResponseError
+
+    with pytest.raises(HttpResponseError):
+        await cli_db.get(f"{cli_db.url}/task-history/nonexistent-run-id")
+
+
 async def test_get_history_filter_by_end(
     cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
 ) -> None:

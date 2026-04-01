@@ -233,19 +233,7 @@ async def get_history(
     )
     rows, cursor = await pagination.execute(db_plugin.db, table)
     return TaskRunHistoryPage(
-        data=[
-            TaskRunHistory(
-                id=row.id,
-                task=row.name,
-                priority=row.priority,
-                state=row.state,
-                queued=row.queued,
-                start=row.start,
-                end=row.end,
-                params=row.params,
-            )
-            for row in rows
-        ],
+        data=[_row_to_task_run(row) for row in rows],
         cursor=cursor,
     )
 
@@ -261,4 +249,17 @@ async def get_run(db_plugin: TaskDbPluginDep, run_id: str) -> TaskRunHistory:
     rows = result.fetchall()
     if not rows:
         raise HTTPException(status_code=404, detail="Task run not found")
-    return TaskRunHistory(**dict(rows[0]._mapping))
+    return _row_to_task_run(rows[0])
+
+
+def _row_to_task_run(row: Any) -> TaskRunHistory:
+    return TaskRunHistory(
+        id=row.id,
+        task=row.name,
+        priority=row.priority,
+        state=row.state,
+        queued=row.queued,
+        start=row.start,
+        end=row.end,
+        params=row.params,
+    )

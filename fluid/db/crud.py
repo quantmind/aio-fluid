@@ -8,6 +8,7 @@ from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncConnection
 from sqlalchemy.sql import FromClause, Select, and_, or_
 from sqlalchemy.sql.dml import Delete, Insert, Update
+from typing_extensions import Annotated, Doc
 
 from fluid.utils.errors import ValidationError
 
@@ -21,18 +22,24 @@ class CrudDB(Database):
 
     async def db_select(
         self,
-        table: FromClause,
-        filters: dict,
+        table: Annotated[FromClause, Doc("The table to select from")],
+        filters: Annotated[
+            dict,
+            Doc(
+                "Key-value pairs for filtering rows; supports 'field:op' syntax "
+                "for operators (eq, ne, gt, ge, lt, le)"
+            ),
+        ],
         *,
-        order_by: tuple[str, ...] | None = None,
-        conn: AsyncConnection | None = None,
+        order_by: Annotated[
+            tuple[str, ...] | None,
+            Doc("Column names to order by; prefix with '-' for descending"),
+        ] = None,
+        conn: Annotated[
+            AsyncConnection | None, Doc("Optional existing connection to reuse")
+        ] = None,
     ) -> CursorResult:
-        """Select rows from a given table
-        :param table: sqlalchemy Table
-        :param filters: key-value pairs for filtering rows
-        :param conn: optional db connection
-        :param consumer: optional consumer (see :meth:`.get_query`)
-        """
+        """Select rows from a given table"""
         sql_query = self.get_query(table, Select(table), params=filters)
         if order_by:
             sql_query = self.order_by_query(table, cast(Select, sql_query), order_by)
@@ -41,36 +48,40 @@ class CrudDB(Database):
 
     async def db_insert(
         self,
-        table: Table,
-        data: list[dict] | dict,
+        table: Annotated[Table, Doc("The table to insert into")],
+        data: Annotated[
+            list[dict] | dict,
+            Doc(
+                "A single row dict or a list of row dicts; missing columns in "
+                "a multi-row insert are filled with None"
+            ),
+        ],
         *,
-        conn: AsyncConnection | None = None,
+        conn: Annotated[
+            AsyncConnection | None, Doc("Optional existing connection to reuse")
+        ] = None,
     ) -> CursorResult:
-        """Perform an insert into a table
-        :param table: sqlalchemy Table
-        :param data: key-value pairs for columns values
-        :param conn: optional db connection
-        """
+        """Insert one or more rows into a table, returning the inserted rows"""
         async with self.ensure_transaction(conn) as conn:
             sql_query = self.insert_query(table, data)
             return await conn.execute(sql_query)
 
     async def db_update(
         self,
-        table: Table,
-        filters: dict,
-        data: dict,
+        table: Annotated[Table, Doc("The table to update")],
+        filters: Annotated[
+            dict,
+            Doc(
+                "Key-value pairs identifying rows to update; supports 'field:op' syntax"
+            ),
+        ],
+        data: Annotated[dict, Doc("Column values to set on the matching rows")],
         *,
-        conn: AsyncConnection | None = None,
+        conn: Annotated[
+            AsyncConnection | None, Doc("Optional existing connection to reuse")
+        ] = None,
     ) -> CursorResult:
-        """Perform an update of rows
-
-        :param table: sqlalchemy Table
-        :param filters: key-value pairs for filtering rows to update
-        :param data: key-value pairs for updating columns values of selected rows
-        :param conn: optional db connection
-        :param consumer: optional consumer (see :meth:`.get_query`)
-        """
+        """Update rows matching the filters, returning all updated rows"""
         update = (
             cast(
                 Update,
@@ -84,20 +95,23 @@ class CrudDB(Database):
 
     async def db_upsert(
         self,
-        table: Table,
-        filters: dict,
-        data: dict | None = None,
+        table: Annotated[Table, Doc("The table to upsert into")],
+        filters: Annotated[
+            dict, Doc("Key-value pairs used to look up the existing row")
+        ],
+        data: Annotated[
+            dict | None,
+            Doc(
+                "Column values to set; if None, the row is fetched or inserted "
+                "using only the filters"
+            ),
+        ] = None,
         *,
-        conn: AsyncConnection | None = None,
+        conn: Annotated[
+            AsyncConnection | None, Doc("Optional existing connection to reuse")
+        ] = None,
     ) -> Row:
-        """Perform an upsert for a single record
-
-        :param table: sqlalchemy Table
-        :param filters: key-value pairs for filtering rows to update
-        :param data: key-value pairs for updating columns values of selected rows
-        :param conn: optional db connection
-        :param consumer: optional consumer (see :meth:`.get_query`)
-        """
+        """Update a single row if it exists, otherwise insert it, returning the row"""
         if data:
             result = await self.db_update(table, filters, data, conn=conn)
         else:
@@ -112,17 +126,19 @@ class CrudDB(Database):
 
     async def db_delete(
         self,
-        table: Table,
-        filters: dict,
+        table: Annotated[Table, Doc("The table to delete from")],
+        filters: Annotated[
+            dict,
+            Doc(
+                "Key-value pairs identifying rows to delete; supports 'field:op' syntax"
+            ),
+        ],
         *,
-        conn: AsyncConnection | None = None,
+        conn: Annotated[
+            AsyncConnection | None, Doc("Optional existing connection to reuse")
+        ] = None,
     ) -> CursorResult:
-        """Delete rows from a given table
-        :param table: sqlalchemy Table
-        :param filters: key-value pairs for filtering rows
-        :param conn: optional db connection
-        :param consumer: optional consumer (see :meth:`.get_query`)
-        """
+        """Delete rows matching the filters, returning the deleted rows"""
         sql_query = self.get_query(
             table,
             table.delete().returning(*table.columns),
@@ -133,17 +149,16 @@ class CrudDB(Database):
 
     async def db_count(
         self,
-        table: FromClause,
-        filters: dict,
+        table: Annotated[FromClause, Doc("The table to count rows in")],
+        filters: Annotated[
+            dict, Doc("Key-value pairs for filtering rows; supports 'field:op' syntax")
+        ],
         *,
-        conn: AsyncConnection | None = None,
+        conn: Annotated[
+            AsyncConnection | None, Doc("Optional existing connection to reuse")
+        ] = None,
     ) -> int:
-        """Count rows in a table
-        :param table: sqlalchemy Table
-        :param filters: key-value pairs for filtering rows
-        :param conn: optional db connection
-        :param consumer: optional consumer (see :meth:`.get_query`)
-        """
+        """Count rows in a table matching the given filters"""
         count_query = self.db_count_query(
             cast(
                 Select,
@@ -160,7 +175,13 @@ class CrudDB(Database):
 
     # Query methods
 
-    def insert_query(self, table: Table, records: list[dict] | dict) -> Insert:
+    def insert_query(
+        self,
+        table: Annotated[Table, Doc("The table to insert into")],
+        records: Annotated[
+            list[dict] | dict, Doc("A single row dict or a list of row dicts")
+        ],
+    ) -> Insert:
         if isinstance(records, dict):
             records = [records]
         else:
@@ -180,17 +201,16 @@ class CrudDB(Database):
 
     def get_query(
         self,
-        table: FromClause,
-        sql_query: QueryType,
+        table: Annotated[FromClause, Doc("The table the query targets")],
+        sql_query: Annotated[
+            QueryType, Doc("The base SQLAlchemy query to apply filters to")
+        ],
         *,
-        params: dict | None = None,
+        params: Annotated[
+            dict | None, Doc("Key-value filter pairs; keys may use 'field:op' syntax")
+        ] = None,
     ) -> QueryType:
-        """Build an SqlAlchemy query
-        :param table: sqlalchemy Table
-        :param sql_query: sqlalchemy query type
-        :param params: key-value pairs for the query
-        :param consumer: optional consumer for manipulating parameters
-        """
+        """Apply filters from params to a SQLAlchemy query and return it"""
         filters: list = []
         columns = table.c
         params = params or {}
@@ -210,24 +230,36 @@ class CrudDB(Database):
             sql_query = cast(Select, sql_query).where(whereclause)
         return sql_query
 
-    def db_count_query(self, sql_query: Select) -> Select:
+    def db_count_query(
+        self,
+        sql_query: Annotated[
+            Select, Doc("The filtered SELECT query to wrap in a COUNT")
+        ],
+    ) -> Select:
         return select(func.count()).select_from(sql_query.alias("inner"))
 
     def order_by_query(
         self,
-        table: FromClause,
-        sql_query: Select,
-        order_by: tuple[str, ...],
+        table: Annotated[FromClause, Doc("The table the query targets")],
+        sql_query: Annotated[Select, Doc("The SELECT query to add ordering to")],
+        order_by: Annotated[
+            tuple[str, ...],
+            Doc("Column names to order by; prefix with '-' for descending"),
+        ],
     ) -> Select:
-        """Apply ordering to a sql_query"""
+        """Apply ordering to a SELECT query"""
         return sql_query.order_by(*self.order_by_columns(table, order_by))
 
     def order_by_columns(
         self,
-        table: FromClause,
-        order_by: tuple[str, ...],
+        table: Annotated[FromClause, Doc("The table whose columns are referenced")],
+        order_by: Annotated[
+            tuple[str, ...],
+            Doc("Column names to order by; prefix with '-' for descending"),
+        ],
     ) -> list[Column]:
-        """Apply ordering to a sql_query"""
+        """Return a list of SQLAlchemy column expressions for the given
+        order_by fields"""
         columns = []
         for name in order_by:
             if name.startswith("-"):
@@ -242,38 +274,32 @@ class CrudDB(Database):
 
     def search_query(
         self,
-        table: FromClause,
-        sql_query: Select,
-        search_fields: tuple[str, ...],
-        search: str,
+        table: Annotated[FromClause, Doc("The table whose columns are searched")],
+        sql_query: Annotated[
+            Select, Doc("The SELECT query to add the search filter to")
+        ],
+        search_fields: Annotated[
+            tuple[str, ...], Doc("Column names to search across using ILIKE")
+        ],
+        search: Annotated[str, Doc("Search text; empty string is a no-op")],
     ) -> Select:
-        """Apply search to a sql_query"""
+        """Apply a case-insensitive substring search across the given columns"""
         if search and search_fields:
             columns = [getattr(table.c, col) for col in search_fields]
             return sql_query.where(or_(*(col.ilike(f"%{search}%") for col in columns)))
         return sql_query
 
-    def default_filter_column(self, column: Column, op: str, value: Any) -> Any:
-        """
-        Applies a filter on a field.
-        Notes on 'ne' op:
-        Example data: [None, 'john', 'roger']
-        ne:john would return only roger (i.e. nulls excluded)
-        ne:     would return john and roger
-        Notes on  'search' op:
-        For some reason, SQLAlchemy uses to_tsquery rather than
-        plainto_tsquery for the match operator
-        to_tsquery uses operators (&, |, ! etc.) while
-        plainto_tsquery tokenises the input string and uses AND between
-        tokens, hence plainto_tsquery is what we want here
-        For other database back ends, the behaviour of the match
-        operator is completely different - see:
-        http://docs.sqlalchemy.org/en/rel_1_0/core/sqlelement.html
-        :param field: field name
-        :param op: 'eq', 'ne', 'gt', 'lt', 'ge', 'le' or 'search'
-        :param value: comparison value, string or list/tuple
-        :return:
-        """
+    def default_filter_column(
+        self,
+        column: Annotated[Column, Doc("The SQLAlchemy column to filter on")],
+        op: Annotated[
+            str, Doc("Comparison operator: `eq`, `ne`, `gt`, `ge`, `lt`, or `le`")
+        ],
+        value: Annotated[
+            Any, Doc("Comparison value; a list triggers IN / NOT IN for `eq` / `ne`")
+        ],
+    ) -> Any:
+        """Build a SQLAlchemy WHERE clause expression for a single column filter"""
         if multiple := isinstance(value, (list, tuple)):
             value = tuple(column_value_to_python(column, v) for v in value)
         else:

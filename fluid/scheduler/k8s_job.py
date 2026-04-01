@@ -7,6 +7,8 @@ from kubernetes_asyncio import client, config
 from kubernetes_asyncio.client.api_client import ApiClient
 from slugify import slugify
 
+from fluid.scheduler.models import K8sConfig
+
 from .common import cpu_env
 from .errors import TaskRunError
 
@@ -42,7 +44,7 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
         pod_template = k8s_job_pod_template(
             ctx,
             tasks.spec.template,
-            k8s_config.container,
+            k8s_config,
         )
         batch = client.BatchV1Api(api)
         job = client.V1Job(
@@ -69,7 +71,7 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
 
 
 def k8s_job_pod_template(
-    ctx: TaskRun, pod_template: client.V1PodTemplateSpec, container_name: str
+    ctx: TaskRun, pod_template: client.V1PodTemplateSpec, k8s_config: K8sConfig
 ) -> client.V1PodTemplateSpec:
     """Modify the pod template for the k8s job."""
     # pod spec for the job is based on the deployment's pod spec,
@@ -77,11 +79,11 @@ def k8s_job_pod_template(
     pod_spec = pod_template.spec
     # get the targeted container from the pod spec
     container = next(
-        (c for c in pod_spec.containers if c.name == container_name),
+        (c for c in pod_spec.containers if c.name == k8s_config.container),
         None,
     )
     if container is None:
-        raise TaskRunError(f"Container {container_name} not found")
+        raise TaskRunError(f"Container {k8s_config.container} not found")
     command = list(container.command or [])
     if command and command[-1] == "serve":
         command.pop()
@@ -95,6 +97,10 @@ def k8s_job_pod_template(
         "--params",
         ctx.params.model_dump_json(),
     ]
+    # resources
+    if resources := k8s_config.resources:
+        container.resources = client.V1ResourceRequirements(**resources)
+    # env vars for the task context
     env = list(container.env or [])
     for name, value in cpu_env().items():
         env.append(client.V1EnvVar(name=name, value=value))

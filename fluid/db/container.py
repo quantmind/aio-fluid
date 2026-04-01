@@ -7,6 +7,7 @@ from typing import Any, AsyncIterator, Self
 
 import sqlalchemy as sa
 from sqlalchemy.engine import Engine, create_engine
+from sqlalchemy.engine.url import make_url
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
 from fluid import settings
@@ -76,9 +77,19 @@ class Database:
         return self._engine
 
     @property
+    def url(self) -> sa.engine.URL:
+        """The SQLAlchemy URL object for the database"""
+        return make_url(self.dsn)
+
+    @property
     def sync_engine(self) -> Engine:
         """The sqlalchemy Engine object for synchrouns operations"""
-        return create_engine(self.dsn.replace("+asyncpg", ""))
+        url = self.url
+        query = dict(url.query)
+        if sslmode := query.pop("ssl", None):
+            query["sslmode"] = sslmode
+        url = url.set(drivername="postgresql", query=query)
+        return create_engine(url)
 
     @asynccontextmanager
     async def connection(self) -> AsyncIterator[AsyncConnection]:

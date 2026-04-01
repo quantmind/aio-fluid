@@ -1,13 +1,13 @@
 # K8s Jobs
 
-When the [TaskConsumer][fluid.scheduler.TaskConsumer] runs inside a Kubernetes cluster, [CPU bound tasks][fluid.scheduler.task] can be dispatched as [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/) instead of local subprocesses.
+When the [TaskConsumer][fluid.scheduler.TaskConsumer] runs inside a Kubernetes cluster, [CPU bound tasks](/tutorials/task_queue/#cpu-bound-tasks) can be dispatched as [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/) instead of local subprocesses.
 This offloads heavy computation to dedicated pods and keeps the consumer event loop free.
 
 ## How it works
 
 The switch is automatic. When `KUBERNETES_SERVICE_HOST` is set (which Kubernetes injects into every pod) and the `k8s` extra is installed, any task declared with `cpu_bound=True` will spawn a Kubernetes Job instead of a subprocess. No code change is required in the task itself.
 
-The Job reuses the **full container spec** from the task consumer deployment (image, resource limits, volume mounts, security context, image pull policy, and everything else) as well as the **pod-level init containers** and **volumes**, so any setup performed by init containers (e.g. installing TLS certificates) is reproduced in the Job pod. Only three fields on the main container are overridden:
+The Job reuses the **targeted container's spec** from the task consumer deployment (image, resource limits, volume mounts, security context, image pull policy, and everything else). Only that container is included in the Job pod — sidecars and other containers from the deployment are dropped. The **pod-level init containers** and **volumes** are preserved as-is, so any setup performed by init containers (e.g. installing TLS certificates) is reproduced in the Job pod. Only these fields on the main container are overridden:
 
 | Field | Value |
 |---|---|
@@ -54,7 +54,8 @@ async def heavy_calculation(ctx: TaskRun) -> None:
 
 ## Configuration
 
-K8s behaviour can be tuned per-task via the `k8s_config` argument:
+K8s behaviour can be tuned per-task via the `k8s_config` argument which
+accepts a [K8sConfig][fluid.scheduler.K8sConfig] object:
 
 ```python
 from fluid.scheduler import task, TaskRun, K8sConfig
@@ -67,13 +68,17 @@ from fluid.scheduler import task, TaskRun, K8sConfig
         container="main",        # container name inside the deployment
         job_ttl=600,             # seconds to keep the Job after completion
         sleep=2.0,               # polling interval while waiting for the Job
+        resources={              # optional Kubernetes resource limits and requests for the container
+            "limits": {"cpu": "2", "memory": "4Gi"},
+            "requests": {"cpu": "1", "memory": "2Gi"},
+        },
     ),
 )
 async def heavy_calculation(ctx: TaskRun) -> None:
     ...
 ```
 
-If `k8s_config` is omitted, the following environment variables are used:
+If `k8s_config` is omitted, or any of the optional fields are not provided, the following environment variables are used:
 
 | Variable | Default | Description |
 |---|---|---|
@@ -81,6 +86,9 @@ If `k8s_config` is omitted, the following environment variables are used:
 | `FLUID_TASK_CONSUMER_K8S_DEPLOYMENT` | `fluid-task` | Deployment name |
 | `FLUID_TASK_CONSUMER_K8S_CONTAINER` | `main` | Container name |
 | `FLUID_TASK_CONSUMER_K8S_JOB_TTL` | `300` | Job TTL in seconds |
+| `FLUID_TASK_CONSUMER_K8S_SLEEP` | `2.0` | Polling interval in seconds |
+
+If `resources` is not provided, the container's resource spec from the deployment is used as-is. If provided, it must be a [K8sResourceRequirements][fluid.scheduler.K8sResourceRequirements] with optional `limits` and `requests` keys, each mapping resource names (e.g. `"cpu"`, `"memory"`) to their string values.
 
 ## Required RBAC permissions
 
