@@ -102,10 +102,11 @@ class ExecuteTasks(click.Group):
             if log:
                 log_config = ctx_task_manager_cli(ctx).log_config
                 log_.config(**log_config)
-            kwargs = json.loads(params or "{}")
+            kwargs = {}
             for value in extra.values():
                 if isinstance(value, BaseModel):
                     kwargs.update(value.model_dump())
+            kwargs.update(json.loads(params or "{}"))
             if run_id:
                 kwargs.update(run_id=run_id)
             run = task_manager.execute_sync(cmd_name, **kwargs)
