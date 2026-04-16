@@ -25,7 +25,7 @@
     
     
       
-        <title>Task Manager Cli - Aio Fluid</title>
+        <title>Task Manager CLI - Aio Fluid</title>
       
     
     
@@ -113,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Task Manager Cli
+              Task Manager CLI
             
           </span>
         </div>
@@ -625,7 +625,7 @@
   <span class="md-ellipsis">
     
   
-    Task Manager Cli
+    Task Manager CLI
   
 
     
@@ -643,7 +643,7 @@
   <span class="md-ellipsis">
     
   
-    Task Manager Cli
+    Task Manager CLI
   
 
     
@@ -667,6 +667,128 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ls-list-registered-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ls — list registered tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serve-start-the-http-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        serve — start the HTTP server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-enable-or-disable-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        enable — enable or disable a task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exec-execute-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        exec — execute a task
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="exec — execute a task">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#passing-parameters-as-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Passing parameters as JSON
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-run-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --run-id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --log
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API reference
+      
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#fluid.scheduler.cli.TaskManagerCLI" class="md-nav__link">
@@ -1314,6 +1436,128 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#commands" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Commands
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Commands">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#ls-list-registered-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ls — list registered tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serve-start-the-http-server" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        serve — start the HTTP server
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enable-enable-or-disable-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        enable — enable or disable a task
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exec-execute-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        exec — execute a task
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="exec — execute a task">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#passing-parameters-as-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Passing parameters as JSON
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-run-id" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --run-id
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        --log
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API reference
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#fluid.scheduler.cli.TaskManagerCLI" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1453,18 +1697,62 @@
   
 
 
-<h1 id="task-manager-cli">Task Manager Cli<a class="headerlink" href="#task-manager-cli" title="Permanent link">&para;</a></h1>
+<h1 id="task-manager-cli">Task Manager CLI<a class="headerlink" href="#task-manager-cli" title="Permanent link">&para;</a></h1>
 <p>Command line tools for <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskManager" href="../task_manager/#fluid.scheduler.TaskManager">TaskManager</a> applications.</p>
-<p>This modules requires the <code>cli</code> extra to be installed.</p>
-<p><div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>$<span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>aio-fluid<span class="o">[</span>cli<span class="o">]</span>
+<p>This module requires the <code>cli</code> extra to be installed:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>aio-fluid<span class="o">[</span>cli<span class="o">]</span>
 </span></code></pre></div>
-It can be imported from <code>fluid.scheduler.cli</code>:</p>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">&para;</a></h2>
+<p>Wrap your FastAPI app with <a class="autorefs autorefs-internal" title="            fluid.scheduler.cli.TaskManagerCLI" href="#fluid.scheduler.cli.TaskManagerCLI">TaskManagerCLI</a> and call it as the entry point:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskManagerCLI</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">cli</span> <span class="o">=</span> <span class="n">TaskManagerCLI</span><span class="p">(</span><span class="s2">&quot;path.to:task_app&quot;</span><span class="p">)</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">cli</span><span class="p">()</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">task_manager_cli</span> <span class="o">=</span> <span class="n">TaskManagerCLI</span><span class="p">(</span><span class="s2">&quot;examples.tasks:task_app&quot;</span><span class="p">)</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="n">task_manager_cli</span><span class="p">()</span>
 </span></code></pre></div>
+<p><code>task_manager_app</code> can be a FastAPI instance, a callable that returns one, or a dotted-import string (resolved at call time so the CLI stays importable without loading the full app).</p>
+<h2 id="commands">Commands<a class="headerlink" href="#commands" title="Permanent link">&para;</a></h2>
+<h3 id="ls-list-registered-tasks"><code>ls</code> — list registered tasks<a class="headerlink" href="#ls-list-registered-tasks" title="Permanent link">&para;</a></h3>
+<p>Prints a table of all registered tasks with their schedule, priority, timeout, and CPU-bound flag.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python<span class="w"> </span>-m<span class="w"> </span>myapp<span class="w"> </span>ls
+</span></code></pre></div>
+<h3 id="serve-start-the-http-server"><code>serve</code> — start the HTTP server<a class="headerlink" href="#serve-start-the-http-server" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>-m<span class="w"> </span>myapp<span class="w"> </span>serve<span class="w"> </span>--host<span class="w"> </span><span class="m">0</span>.0.0.0<span class="w"> </span>--port<span class="w"> </span><span class="m">8080</span>
+</span></code></pre></div>
+<p>Delegates to <code>uvicorn</code>. Pass <code>--reload</code> for development auto-reload.</p>
+<h3 id="enable-enable-or-disable-a-task"><code>enable</code> — enable or disable a task<a class="headerlink" href="#enable-enable-or-disable-a-task" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>python<span class="w"> </span>-m<span class="w"> </span>myapp<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>&lt;task-name&gt;<span class="w">           </span><span class="c1"># enable</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>python<span class="w"> </span>-m<span class="w"> </span>myapp<span class="w"> </span><span class="nb">enable</span><span class="w"> </span>&lt;task-name&gt;<span class="w"> </span>--disable<span class="w">  </span><span class="c1"># disable</span>
+</span></code></pre></div>
+<h3 id="exec-execute-a-task"><code>exec</code> — execute a task<a class="headerlink" href="#exec-execute-a-task" title="Permanent link">&para;</a></h3>
+<p>Runs a registered task synchronously and prints the result table.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python<span class="w"> </span>-m<span class="w"> </span>myapp<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>&lt;task-name&gt;<span class="w"> </span><span class="o">[</span>OPTIONS<span class="o">]</span>
+</span></code></pre></div>
+<p>Each task exposes its <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="../task/#fluid.scheduler.task">params model</a> fields as CLI options (via
+<a href="https://github.com/felix-martel/pydanclick">pydanclick</a>):</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>python<span class="w"> </span>-m<span class="w"> </span>myapp<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>add<span class="w"> </span>--a<span class="w"> </span><span class="m">5</span><span class="w"> </span>--b<span class="w"> </span><span class="m">3</span>
+</span></code></pre></div>
+<h4 id="passing-parameters-as-json">Passing parameters as JSON<a class="headerlink" href="#passing-parameters-as-json" title="Permanent link">&para;</a></h4>
+<p>All task parameters can also be supplied together as a JSON string with <code>--params</code>.
+Values in <code>--params</code> <strong>always take priority</strong> over individual CLI option defaults:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>python<span class="w"> </span>-m<span class="w"> </span>myapp<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>add<span class="w"> </span>--params<span class="w"> </span><span class="s1">&#39;{&quot;a&quot;: 5, &quot;b&quot;: 3}&#39;</span>
+</span></code></pre></div>
+<p>This is useful when parameters are complex types or when scripting task execution.
+If both <code>--params</code> and individual options are provided, the JSON values win for any
+overlapping keys.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="c1"># error=true from --params overrides the model default error=false</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>python<span class="w"> </span>-m<span class="w"> </span>myapp<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>fast<span class="w"> </span>--params<span class="w"> </span><span class="s1">&#39;{&quot;error&quot;: true}&#39;</span>
+</span></code></pre></div>
+<h4 id="-run-id"><code>--run-id</code><a class="headerlink" href="#-run-id" title="Permanent link">&para;</a></h4>
+<p>Pass a custom run ID to correlate the task run with external systems:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>python<span class="w"> </span>-m<span class="w"> </span>myapp<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>add<span class="w"> </span>--run-id<span class="w"> </span>my-custom-id<span class="w"> </span>--params<span class="w"> </span><span class="s1">&#39;{&quot;a&quot;: 1, &quot;b&quot;: 2}&#39;</span>
+</span></code></pre></div>
+<h4 id="-log"><code>--log</code><a class="headerlink" href="#-log" title="Permanent link">&para;</a></h4>
+<p>Enable structured logging output during execution:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>python<span class="w"> </span>-m<span class="w"> </span>myapp<span class="w"> </span><span class="nb">exec</span><span class="w"> </span>add<span class="w"> </span>--log<span class="w"> </span>--params<span class="w"> </span><span class="s1">&#39;{&quot;a&quot;: 1, &quot;b&quot;: 2}&#39;</span>
+</span></code></pre></div>
+<h2 id="api-reference">API reference<a class="headerlink" href="#api-reference" title="Permanent link">&para;</a></h2>
 
 
 <div class="doc doc-object doc-class">
