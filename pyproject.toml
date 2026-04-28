@@ -6,6 +6,24 @@ authors = [ { name = "Luca Sbardella", email = "luca@quantmind.com" } ]
 license = "BSD-3-Clause"
 readme = "readme.md"
 requires-python = ">=3.11,<4.0"
+keywords = [
+    "async",
+    "asyncio",
+    "task-scheduler",
+    "task-queue",
+    "workers",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
 dependencies = [
     "inflection >= 0.5.1",
     "redis[hiredis] >= 7.4.0",
@@ -17,6 +35,7 @@ dependencies = [
 ]
 
 [project.urls]
+"Documentation" = "https://fluid.quantmind.com/"
 "Repository" = "https://github.com/quantmind/aio-fluid"
 "Issues" = "https://github.com/quantmind/aio-fluid/issues"
 
