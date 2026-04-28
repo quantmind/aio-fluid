@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, Any, Callable
 import click
 import uvicorn
 from fastapi import FastAPI
-from pydanclick import from_pydantic
 from pydantic import BaseModel
 from rich.console import Console
 from rich.table import Table
@@ -16,6 +15,7 @@ from uvicorn.importer import import_from_string
 
 from fluid.utils import log as log_
 from fluid.utils.lazy import LazyGroup
+from fluid.utils.patch_pydanclick import from_pydantic
 
 from .common import is_in_cpu_process
 from .errors import UnknownTaskError

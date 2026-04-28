@@ -4,6 +4,7 @@ import os
 import time
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
+from enum import StrEnum, auto
 from typing import Any, Self, Sequence, cast
 
 from fastapi import FastAPI
@@ -151,3 +152,19 @@ async def retryable(context: TaskRun[FailCount]) -> None:
 async def exclusive(context: TaskRun[Sleep]) -> None:
     """Task with max_concurrency=1 and rate_limit_retry for rate-limit retry tests."""
     await asyncio.sleep(context.params.sleep)
+
+
+class Palette(StrEnum):
+    RED = auto()
+    GREEN = auto()
+    BLUE = auto()
+
+
+class PaletteParams(BaseModel):
+    color: Palette = Palette.RED
+
+
+@task
+async def colorize(context: TaskRun[PaletteParams]) -> None:
+    """A task with a StrEnum parameter"""
+    context.logger.info(f"Color: {context.params.color}")

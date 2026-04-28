@@ -96,26 +96,42 @@ class EmptyParams(BaseModel):
 
 
 class TaskPriority(enum.StrEnum):
+    """Priority level for task execution ordering."""
+
     high = enum.auto()
+    """Execute before medium and low priority tasks."""
     medium = enum.auto()
+    """Default priority level."""
     low = enum.auto()
+    """Execute after high and medium priority tasks."""
 
 
 class TaskState(enum.StrEnum):
+    """Lifecycle state of a task run."""
+
     init = enum.auto()
+    """Task has been created but not yet queued."""
     queued = enum.auto()
+    """Task is waiting in the queue to be picked up by a worker."""
     running = enum.auto()
+    """Task is currently being executed."""
     success = enum.auto()
+    """Task completed successfully."""
     failure = enum.auto()
+    """Task raised an exception during execution."""
     aborted = enum.auto()
+    """Task was cancelled before completion."""
     rate_limited = enum.auto()
+    """Task execution was deferred due to rate limiting."""
 
     @property
     def is_failure(self) -> bool:
+        """Return True if this state is a failure state"""
         return self is TaskState.failure
 
     @property
     def is_done(self) -> bool:
+        """Return True if this state is a finished state"""
         return self in FINISHED_STATES
 
 
@@ -823,5 +839,7 @@ async def run_in_subprocess(ctx: TaskRun[TP]) -> None:
 
 
 run_cpu_bound = run_in_subprocess
-if os.getenv("KUBERNETES_SERVICE_HOST") and run_on_k8s_job is not None:
+if (
+    os.getenv("KUBERNETES_SERVICE_HOST") and run_on_k8s_job is not None
+):  # pragma: no cover
     run_cpu_bound = run_on_k8s_job
