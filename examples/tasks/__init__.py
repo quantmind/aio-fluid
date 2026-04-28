@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel, Field
 
 from fluid.scheduler import (
+    RetryPolicy,
     TaskManagerPlugin,
     TaskRun,
     TaskScheduler,
@@ -127,3 +128,26 @@ async def scrape(context: TaskRun[Scrape]) -> None:
     response = await deps.http_client.get(context.params.url, callback=True)
     text = await response.text()
     context.logger.info(text)
+
+
+class FailCount(BaseModel):
+    fail_times: int = Field(
+        default=1, description="Fail this many times before succeeding"
+    )
+
+
+@task(retry=RetryPolicy(max_attempts=3, wait=0.0))
+async def retryable(context: TaskRun[FailCount]) -> None:
+    """A task that fails fail_times times before succeeding, used to test retry logic"""
+    if context.retry_attempt < context.params.fail_times:
+        raise RuntimeError(f"deliberate failure attempt {context.retry_attempt}")
+
+
+@task(
+    max_concurrency=1,
+    timeout_seconds=10,
+    rate_limit_retry=RetryPolicy(max_attempts=5, wait=0.0),
+)
+async def exclusive(context: TaskRun[Sleep]) -> None:
+    """Task with max_concurrency=1 and rate_limit_retry for rate-limit retry tests."""
+    await asyncio.sleep(context.params.sleep)

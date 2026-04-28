@@ -28,6 +28,8 @@ mkdocs serve
 When adding new python examples in the documentation, make sure to add them in the `docs_src/` directory and not directly in `docs/` if the code is longer than 5~6 lines.
 This is to make sure the code is properly formatted and has valid syntax.
 
+Always interlink classes and functions in the documentation using mkdocstrings cross-reference syntax: `[ClassName][module.path.ClassName]`. Every mention of a public class, method, or function in prose should be a link to its reference page.
+
 ## Tests
 
 Tests are located in the `tests/` directory and run with:

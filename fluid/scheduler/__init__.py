@@ -6,6 +6,7 @@ from .models import (
     K8sConfig,
     K8sResourceRequirements,
     QueuedTask,
+    RetryPolicy,
     Task,
     TaskInfo,
     TaskPriority,
@@ -39,4 +40,5 @@ __all__ = [
     "task_manager_fastapi",
     "TaskManagerPlugin",
     "is_in_cpu_process",
+    "RetryPolicy",
 ]
