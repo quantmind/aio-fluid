@@ -82,3 +82,15 @@ def test_cli_enable_failure():
     result = runner.invoke(task_manager_cli, ["enable", "vdvdfvsdvdf"])
     assert result.exit_code == 1
     assert result.output == "Error: Task vdvdfvsdvdf not found\n"
+
+
+def test_cli_exec_colorize_with_str_enum():
+    """Invoking a task whose params model contains a StrEnum field must succeed.
+
+    pydanclick falls back to _create_custom_type for unknown types, which calls
+    validate_json() on the raw CLI string. "green" is not valid JSON, so without
+    a fix the command exits with an error instead of running the task.
+    """
+    runner = CliRunner()
+    result = runner.invoke(task_manager_cli, ["exec", "colorize", "--color", "green"])
+    assert result.exit_code == 0
