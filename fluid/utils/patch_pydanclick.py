@@ -7,6 +7,7 @@ from typing import Any, Union, get_args, get_origin
 import click
 from pydanclick import from_pydantic as _from_pydantic
 from pydantic import BaseModel
+from pydantic_core import PydanticUndefined
 
 _UNION_TYPES = {Union, _types.UnionType}
 
@@ -20,6 +21,14 @@ def _unwrap_optional(annotation: Any) -> Any:
     return annotation
 
 
+def _require_enum_callback(
+    ctx: click.Context, param: click.Parameter, value: Any
+) -> Any:
+    if value is None:
+        raise click.MissingParameter(ctx=ctx, param=param)
+    return value
+
+
 def _enum_extra_options(model: type[BaseModel]) -> dict[str, Any]:
     extra: dict[str, Any] = {}
     for name, field in model.model_fields.items():
@@ -29,7 +38,16 @@ def _enum_extra_options(model: type[BaseModel]) -> dict[str, Any]:
             and issubclass(annotation, enum.Enum)
             and issubclass(annotation, str)
         ):
-            extra[name] = {"type": click.Choice([e.value for e in annotation])}
+            opts: dict[str, Any] = {"type": click.Choice([e.value for e in annotation])}
+            if field.default is PydanticUndefined:
+                # pydanclick sets default=None for required fields, which causes
+                # Click to pass None through without raising MissingParameter.
+                # A callback that raises before pydanclick's validator runs fixes this.
+                opts["callback"] = _require_enum_callback
+            elif field.default is not None:
+                # Override PydanclickDefault which click.Choice cannot handle.
+                opts["default"] = field.default.value
+            extra[name] = opts
     return extra
 
 

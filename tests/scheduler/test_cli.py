@@ -1,6 +1,15 @@
+import pytest
 from click.testing import CliRunner
+from redis import Redis
 
 from examples.cli import task_manager_cli
+from examples.tasks import Palette, PaletteParams
+from fluid import settings
+
+
+@pytest.fixture(scope="module")
+def redis() -> Redis:
+    return Redis.from_url(settings.BROKER_URL)
 
 
 def test_cli():
@@ -84,6 +93,12 @@ def test_cli_enable_failure():
     assert result.output == "Error: Task vdvdfvsdvdf not found\n"
 
 
+def test_cli_exec_colorize_with_default():
+    runner = CliRunner()
+    result = runner.invoke(task_manager_cli, ["exec", "colorize"])
+    assert result.exit_code == 0
+
+
 def test_cli_exec_colorize_with_str_enum():
     """Invoking a task whose params model contains a StrEnum field must succeed.
 
@@ -94,3 +109,91 @@ def test_cli_exec_colorize_with_str_enum():
     runner = CliRunner()
     result = runner.invoke(task_manager_cli, ["exec", "colorize", "--color", "green"])
     assert result.exit_code == 0
+
+
+def test_cli_exec_colorize_params_from_model_dump_json(redis: Redis):
+    """--params built from model_dump_json() must pass the correct
+    StrEnum value to the task."""
+    run_id = "test-colorize-blue"
+    params = PaletteParams(color=Palette.BLUE).model_dump_json()
+    runner = CliRunner()
+    result = runner.invoke(
+        task_manager_cli,
+        ["exec", "colorize", "--run-id", run_id, "--params", params],
+    )
+    assert result.exit_code == 0
+    value = redis.get(run_id)
+    assert value is not None and value.decode() == Palette.BLUE
+
+
+def test_cli_exec_colorize_invalid_choice():
+    """An invalid enum value must be rejected by click.Choice
+    before the task runs."""
+    runner = CliRunner()
+    result = runner.invoke(task_manager_cli, ["exec", "colorize", "--color", "purple"])
+    assert result.exit_code == 2
+    assert "Invalid value for '--color'" in result.output
+
+
+def test_cli_exec_colorize_params_overrides_color_flag(redis: Redis):
+    """--params must take priority over --color for StrEnum fields."""
+    run_id = "test-colorize-override"
+    runner = CliRunner()
+    result = runner.invoke(
+        task_manager_cli,
+        [
+            "exec",
+            "colorize",
+            "--run-id",
+            run_id,
+            "--color",
+            "red",
+            "--params",
+            '{"color": "blue"}',
+        ],
+    )
+    assert result.exit_code == 0
+    value = redis.get(run_id)
+    assert value is not None and value.decode() == Palette.BLUE
+
+
+def test_cli_exec_colorize_optional_no_color():
+    """Optional StrEnum field with no value passed must succeed."""
+    runner = CliRunner()
+    result = runner.invoke(task_manager_cli, ["exec", "colorize_optional"])
+    assert result.exit_code == 0
+
+
+def test_cli_exec_colorize_optional_with_color(redis: Redis):
+    """Optional StrEnum field must accept a valid value."""
+    run_id = "test-colorize-optional-green"
+    runner = CliRunner()
+    result = runner.invoke(
+        task_manager_cli,
+        ["exec", "colorize_optional", "--run-id", run_id, "--color", "green"],
+    )
+    assert result.exit_code == 0
+    value = redis.get(run_id)
+    assert value is not None and value.decode() == Palette.GREEN
+
+
+def test_cli_exec_colorize_required_missing_color():
+    """Required StrEnum field with no value must fail
+    with a Click missing option error."""
+    runner = CliRunner()
+    result = runner.invoke(task_manager_cli, ["exec", "colorize_required"])
+    assert result.exit_code == 2
+    assert "Missing option '--color'" in result.output
+
+
+def test_cli_exec_colorize_required_with_color(redis: Redis):
+    """Required StrEnum field must succeed when the value is provided."""
+    run_id = "test-colorize-required-red"
+    runner = CliRunner()
+    result = runner.invoke(
+        task_manager_cli,
+        ["exec", "colorize_required", "--run-id", run_id, "--color", "red"],
+    )
+    assert result.exit_code == 0
+    value = redis.get(run_id)
+    assert value is not None and value.decode() == Palette.RED

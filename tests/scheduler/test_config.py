@@ -39,7 +39,8 @@ def test_params() -> None:
         assert task.params_model is not None
         assert issubclass(task.params_model, BaseModel)
         assert task.params_model is not BaseModel
-        task.params_model().model_dump()
+        if not any(f.is_required() for f in task.params_model.model_fields.values()):
+            task.params_model().model_dump()
 
 
 def test_register_from_module() -> None:

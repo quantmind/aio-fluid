@@ -164,7 +164,34 @@ class PaletteParams(BaseModel):
     color: Palette = Palette.RED
 
 
+class OptionalPaletteParams(BaseModel):
+    color: Palette | None = None
+
+
+class RequiredPaletteParams(BaseModel):
+    color: Palette
+
+
 @task
 async def colorize(context: TaskRun[PaletteParams]) -> None:
     """A task with a StrEnum parameter"""
+    broker = cast(RedisTaskBroker, context.task_manager.broker)
+    await broker.redis_cli.setex(context.id, 10, context.params.color)
+    context.logger.info(f"Color: {context.params.color}")
+
+
+@task
+async def colorize_optional(context: TaskRun[OptionalPaletteParams]) -> None:
+    """A task with an optional StrEnum parameter"""
+    if context.params.color is not None:
+        broker = cast(RedisTaskBroker, context.task_manager.broker)
+        await broker.redis_cli.setex(context.id, 10, context.params.color)
+    context.logger.info(f"Color: {context.params.color}")
+
+
+@task
+async def colorize_required(context: TaskRun[RequiredPaletteParams]) -> None:
+    """A task with a required StrEnum parameter"""
+    broker = cast(RedisTaskBroker, context.task_manager.broker)
+    await broker.redis_cli.setex(context.id, 10, context.params.color)
     context.logger.info(f"Color: {context.params.color}")
