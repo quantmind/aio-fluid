@@ -8,29 +8,31 @@
       
       
       
-        <link rel="canonical" href="https://aio-fluid.com/">
+        <link rel="canonical" href="https://aio-fluid.com/tutorials/task_retry/">
       
       
+        <link rel="prev" href="../task_queue/">
       
-        <link rel="next" href="reference/">
+      
+        <link rel="next" href="../workers/">
       
       
         
       
       
-      <link rel="icon" href="assets/logo-fluid-32x32.png">
+      <link rel="icon" href="../../assets/logo-fluid-32x32.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
     
     
       
-        <title>Aio Fluid</title>
+        <title>Task Retries - Aio Fluid</title>
       
     
     
-      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
       
         
-        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
       
       
 
@@ -49,9 +51,9 @@
       
     
     
-      <link rel="stylesheet" href="assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
@@ -76,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#features" class="md-skip">
+        <a href="#task-retries" class="md-skip">
           Skip to content
         </a>
       
@@ -92,9 +94,9 @@
 
 <header class="md-header md-header--shadow" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="." title="Aio Fluid" class="md-header__button md-logo" aria-label="Aio Fluid" data-md-component="logo">
+    <a href="../.." title="Aio Fluid" class="md-header__button md-logo" aria-label="Aio Fluid" data-md-component="logo">
       
-  <img src="assets/logo-fluid.svg" alt="logo">
+  <img src="../../assets/logo-fluid.svg" alt="logo">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer">
@@ -111,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Home
+              Task Retries
             
           </span>
         </div>
@@ -227,9 +229,9 @@
 
 <nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="." title="Aio Fluid" class="md-nav__button md-logo" aria-label="Aio Fluid" data-md-component="logo">
+    <a href="../.." title="Aio Fluid" class="md-nav__button md-logo" aria-label="Aio Fluid" data-md-component="logo">
       
-  <img src="assets/logo-fluid.svg" alt="logo">
+  <img src="../../assets/logo-fluid.svg" alt="logo">
 
     </a>
     Aio Fluid
@@ -253,35 +255,10 @@
       
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Home
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="." class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
         
   
   
@@ -297,68 +274,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#features" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Features
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Installation
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#development" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Development
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#license" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        License
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -430,7 +345,7 @@
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="reference/" class="md-nav__link ">
+            <a href="../../reference/" class="md-nav__link ">
               
   
   
@@ -474,7 +389,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/db/" class="md-nav__link">
+      <a href="../../reference/db/" class="md-nav__link">
         
   
   
@@ -502,7 +417,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/db_cli/" class="md-nav__link">
+      <a href="../../reference/db_cli/" class="md-nav__link">
         
   
   
@@ -530,7 +445,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/db_crud/" class="md-nav__link">
+      <a href="../../reference/db_crud/" class="md-nav__link">
         
   
   
@@ -558,7 +473,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/db_migrations/" class="md-nav__link">
+      <a href="../../reference/db_migrations/" class="md-nav__link">
         
   
   
@@ -586,7 +501,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/db_pagination/" class="md-nav__link">
+      <a href="../../reference/db_pagination/" class="md-nav__link">
         
   
   
@@ -614,7 +529,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/dispatchers/" class="md-nav__link">
+      <a href="../../reference/dispatchers/" class="md-nav__link">
         
   
   
@@ -642,7 +557,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/errors/" class="md-nav__link">
+      <a href="../../reference/errors/" class="md-nav__link">
         
   
   
@@ -670,7 +585,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/http_client/" class="md-nav__link">
+      <a href="../../reference/http_client/" class="md-nav__link">
         
   
   
@@ -698,7 +613,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task/" class="md-nav__link">
+      <a href="../../reference/task/" class="md-nav__link">
         
   
   
@@ -726,7 +641,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task_broker/" class="md-nav__link">
+      <a href="../../reference/task_broker/" class="md-nav__link">
         
   
   
@@ -754,7 +669,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task_cli/" class="md-nav__link">
+      <a href="../../reference/task_cli/" class="md-nav__link">
         
   
   
@@ -782,7 +697,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task_consumer/" class="md-nav__link">
+      <a href="../../reference/task_consumer/" class="md-nav__link">
         
   
   
@@ -810,7 +725,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task_manager/" class="md-nav__link">
+      <a href="../../reference/task_manager/" class="md-nav__link">
         
   
   
@@ -838,7 +753,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task_plugin/" class="md-nav__link">
+      <a href="../../reference/task_plugin/" class="md-nav__link">
         
   
   
@@ -866,7 +781,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task_registry/" class="md-nav__link">
+      <a href="../../reference/task_registry/" class="md-nav__link">
         
   
   
@@ -894,7 +809,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task_retry/" class="md-nav__link">
+      <a href="../../reference/task_retry/" class="md-nav__link">
         
   
   
@@ -922,7 +837,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task_run/" class="md-nav__link">
+      <a href="../../reference/task_run/" class="md-nav__link">
         
   
   
@@ -950,7 +865,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task_scheduler/" class="md-nav__link">
+      <a href="../../reference/task_scheduler/" class="md-nav__link">
         
   
   
@@ -978,7 +893,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/task_scheduling/" class="md-nav__link">
+      <a href="../../reference/task_scheduling/" class="md-nav__link">
         
   
   
@@ -1006,7 +921,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/utils/" class="md-nav__link">
+      <a href="../../reference/utils/" class="md-nav__link">
         
   
   
@@ -1034,7 +949,7 @@
   
   
     <li class="md-nav__item">
-      <a href="reference/workers/" class="md-nav__link">
+      <a href="../../reference/workers/" class="md-nav__link">
         
   
   
@@ -1066,6 +981,8 @@
       
   
   
+    
+  
   
   
     
@@ -1095,15 +1012,15 @@
     
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <div class="md-nav__link md-nav__container">
-            <a href="tutorials/" class="md-nav__link ">
+            <a href="../" class="md-nav__link ">
               
   
   
@@ -1127,7 +1044,7 @@
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1147,7 +1064,7 @@
   
   
     <li class="md-nav__item">
-      <a href="tutorials/db/" class="md-nav__link">
+      <a href="../db/" class="md-nav__link">
         
   
   
@@ -1175,7 +1092,7 @@
   
   
     <li class="md-nav__item">
-      <a href="tutorials/dispatchers/" class="md-nav__link">
+      <a href="../dispatchers/" class="md-nav__link">
         
   
   
@@ -1203,7 +1120,7 @@
   
   
     <li class="md-nav__item">
-      <a href="tutorials/task_app/" class="md-nav__link">
+      <a href="../task_app/" class="md-nav__link">
         
   
   
@@ -1231,7 +1148,7 @@
   
   
     <li class="md-nav__item">
-      <a href="tutorials/task_broker/" class="md-nav__link">
+      <a href="../task_broker/" class="md-nav__link">
         
   
   
@@ -1259,7 +1176,7 @@
   
   
     <li class="md-nav__item">
-      <a href="tutorials/task_k8s/" class="md-nav__link">
+      <a href="../task_k8s/" class="md-nav__link">
         
   
   
@@ -1287,7 +1204,7 @@
   
   
     <li class="md-nav__item">
-      <a href="tutorials/task_queue/" class="md-nav__link">
+      <a href="../task_queue/" class="md-nav__link">
         
   
   
@@ -1312,10 +1229,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="tutorials/task_retry/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Retries
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1331,6 +1275,87 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#retrying-on-failure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retrying on failure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Retrying on failure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#limiting-which-exceptions-trigger-a-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limiting which exceptions trigger a retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retrying-when-rate-limited" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retrying when rate limited
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#combining-both-policies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combining both policies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-retries-work-under-the-hood" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How retries work under the hood
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1343,7 +1368,7 @@
   
   
     <li class="md-nav__item">
-      <a href="tutorials/workers/" class="md-nav__link">
+      <a href="../workers/" class="md-nav__link">
         
   
   
@@ -1388,6 +1413,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -1396,10 +1423,38 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#features" class="md-nav__link">
+  <a href="#retrying-on-failure" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Features
+        Retrying on failure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Retrying on failure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#limiting-which-exceptions-trigger-a-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limiting which exceptions trigger a retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#retrying-when-rate-limited" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Retrying when rate limited
       
     </span>
   </a>
@@ -1407,10 +1462,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#installation" class="md-nav__link">
+  <a href="#combining-both-policies" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Installation
+        Combining both policies
       
     </span>
   </a>
@@ -1418,21 +1473,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#development" class="md-nav__link">
+  <a href="#how-retries-work-under-the-hood" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Development
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#license" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        License
+        How retries work under the hood
       
     </span>
   </a>
@@ -1457,6 +1501,46 @@
   
 
 
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Tutorials
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
               
               <article class="md-content__inner md-typeset">
                 
@@ -1467,45 +1551,83 @@
   
 
 
-  <h1>Home</h1>
+<h1 id="task-retries">Task Retries<a class="headerlink" href="#task-retries" title="Permanent link">&para;</a></h1>
+<p>Tasks can be configured to retry automatically when they fail or when they cannot run due to concurrency limits.
+Both behaviours are controlled by a <a class="autorefs autorefs-internal" title="            fluid.scheduler.models.RetryPolicy
 
-<p>Aio Fluid</p>
-<p>Async utilities for backend python services developed by <a href="https://quantmind.com">Quantmind</a>.</p>
-<p><a href="https://badge.fury.io/py/aio-fluid"><img alt="PyPI version" src="https://badge.fury.io/py/aio-fluid.svg" /></a>
-<a href="https://pypi.org/project/aio-fluid"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/aio-fluid.svg" /></a>
-<a href="https://pypi.org/project/aio-fluid"><img alt="Python downloads" src="https://img.shields.io/pypi/dd/aio-fluid.svg" /></a>
-<a href="https://github.com/quantmind/aio-fluid/actions?query=workflow%3Abuild"><img alt="build" src="https://github.com/quantmind/fluid/workflows/build/badge.svg" /></a>
-<a href="https://codecov.io/gh/quantmind/aio-fluid"><img alt="codecov" src="https://codecov.io/gh/quantmind/aio-fluid/graph/badge.svg?token=81oWUoyEVp" /></a></p>
-<p><strong>Documentation</strong>: <a href="https://fluid.quantmind.com/">fluid.quantmind.com</a></p>
-<p><strong>Source Code</strong>: <a href="https://github.com/quantmind/aio-fluid">github.com/quantmind/aio-fluid</a></p>
-<h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
-<ul>
-<li><strong>Async workers</strong>: workers with start/stop capabilities.</li>
-<li><strong>Async tasks scheduler and consumer</strong>: A task scheduler and consumer for async and CPU bound tasks.</li>
-<li><strong>Async CRUD database operations</strong>: An async CRUD interface for postgres databases.</li>
-</ul>
-<h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
-<p>This is a python package you can install via pip:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip install aio-fluid
+
+  
+      dataclass
+  " href="../../reference/task_retry/#fluid.scheduler.models.RetryPolicy">RetryPolicy</a> attached to the task via the <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="../../reference/task/#fluid.scheduler.task">@task</a> decorator.</p>
+<h2 id="retrying-on-failure">Retrying on failure<a class="headerlink" href="#retrying-on-failure" title="Permanent link">&para;</a></h2>
+<p>Use the <code>retry</code> parameter to re-queue a task after an execution error.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetryPolicy</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nd">@task</span><span class="p">(</span><span class="n">retry</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mf">2.0</span><span class="p">))</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch_data</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Fetch data from an external API.&quot;&quot;&quot;</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">deps</span><span class="o">.</span><span class="n">http_client</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;https://api.example.com/data&quot;</span><span class="p">)</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;fetched </span><span class="si">%d</span><span class="s2"> bytes&quot;</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">response</span><span class="p">))</span>
 </span></code></pre></div>
-<p>To install all the dependencies:</p>
-<p><div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip install aio-fluid[cli, db, http, log, k8s]
+<p>If <code>fetch_data</code> raises, the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/task_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> re-queues it with a delay and moves on.
+With <code>backoff=2.0</code> the wait times grow exponentially: <code>2s → 4s → 8s</code>.
+After 3 failed retries the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskRun
+
+
+  
+      pydantic-model
+  " href="../../reference/task_run/#fluid.scheduler.TaskRun">TaskRun</a> ends in the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskState" href="../../reference/task/#fluid.scheduler.TaskState">failure</a> state.</p>
+<h3 id="limiting-which-exceptions-trigger-a-retry">Limiting which exceptions trigger a retry<a class="headerlink" href="#limiting-which-exceptions-trigger-a-retry" title="Permanent link">&para;</a></h3>
+<p>By default all exceptions trigger a retry. Pass <code>exceptions</code> to be more selective:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nd">@task</span><span class="p">(</span><span class="n">retry</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">=</span><span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">TimeoutError</span><span class="p">)))</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch_data</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="o">...</span>
 </span></code></pre></div>
-this includes the following extra dependencies:</p>
-<ul>
-<li><code>cli</code> for the command line interface using <a href="https://click.palletsprojects.com/">click</a> and <a href="https://github.com/Textualize/rich">rich</a></li>
-<li><code>db</code> for database support with <a href="https://github.com/MagicStack/asyncpg">asyncpg</a> and <a href="https://www.sqlalchemy.org/">sqlalchemy</a></li>
-<li><code>http</code> for http client support with <a href="https://www.python-httpx.org/">httpx</a> and <a href="https://docs.aiohttp.org/en/stable/">aiohttp</a></li>
-<li><code>log</code> for JSON logging support with <a href="https://github.com/madzak/python-json-logger">python-json-logger</a></li>
-<li><code>k8s</code> for Kubernetes support for CPU bound tasks</li>
-</ul>
-<h2 id="development">Development<a class="headerlink" href="#development" title="Permanent link">&para;</a></h2>
-<p>You can run the examples via</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>uv run python -m examples
+<p><code>ValueError</code> or other programming errors will not be retried and the task fails immediately.</p>
+<h2 id="retrying-when-rate-limited">Retrying when rate limited<a class="headerlink" href="#retrying-when-rate-limited" title="Permanent link">&para;</a></h2>
+<p>When <a class="autorefs autorefs-internal" title="            max_concurrency
+
+
+  
+      class-attribute
+      instance-attribute
+  " href="../../reference/task/#fluid.scheduler.Task.max_concurrency">max_concurrency</a> is set, a task that cannot start because the limit is already reached ends in the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskState" href="../../reference/task/#fluid.scheduler.TaskState">rate_limited</a> state by default.
+Set <code>rate_limit_retry</code> to re-queue it instead:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@task</span><span class="p">(</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    <span class="n">max_concurrency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="n">rate_limit_retry</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mf">5.0</span><span class="p">),</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">)</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">exclusive_job</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Only one instance of this task can run at a time.&quot;&quot;&quot;</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    <span class="o">...</span>
 </span></code></pre></div>
-<p>We use <a href="https://uv.run/">uv</a> as a development tool to run the examples and tests, but you can also use python directly if that's your preference.</p>
-<h2 id="license">License<a class="headerlink" href="#license" title="Permanent link">&para;</a></h2>
-<p>This project is licensed under the BSD License - see the <a href="https://github.com/quantmind/aio-fluid/blob/main/LICENSE">LICENSE</a> file for details.</p>
+<p>The task will be re-queued up to 10 times, waiting 5 seconds between each attempt.
+If the slot is still occupied after all attempts, the run ends in <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskState" href="../../reference/task/#fluid.scheduler.TaskState">rate_limited</a>.</p>
+<h2 id="combining-both-policies">Combining both policies<a class="headerlink" href="#combining-both-policies" title="Permanent link">&para;</a></h2>
+<p>A task can have both policies simultaneously:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nd">@task</span><span class="p">(</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">max_concurrency</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">retry</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">max_wait</span><span class="o">=</span><span class="mf">30.0</span><span class="p">),</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">rate_limit_retry</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mf">10.0</span><span class="p">),</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="p">)</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">resilient_task</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>    <span class="o">...</span>
+</span></code></pre></div>
+<h2 id="how-retries-work-under-the-hood">How retries work under the hood<a class="headerlink" href="#how-retries-work-under-the-hood" title="Permanent link">&para;</a></h2>
+<p>Both retry paths use the same mechanism — no workers are blocked waiting:</p>
+<ol>
+<li>The <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/task_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> detects the failure or concurrency limit.</li>
+<li>It creates a fresh copy of the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskRun
+
+
+  
+      pydantic-model
+  " href="../../reference/task_run/#fluid.scheduler.TaskRun">TaskRun</a> with <code>execute_after</code> set to <code>now + delay</code>.</li>
+<li>The copy is pushed back onto the Redis queue via the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskBroker" href="../../reference/task_broker/#fluid.scheduler.TaskBroker">TaskBroker</a> and the worker moves on immediately.</li>
+<li>When a worker dequeues the copy and <code>execute_after</code> is still in the future, it schedules
+   re-queuing via <code>call_later</code> and returns — still without blocking.</li>
+<li>Once the delay has elapsed the task enters the queue normally and is executed.</li>
+</ol>
 
 
 
@@ -1534,15 +1656,31 @@ this includes the following extra dependencies:</p>
       
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
+          
+          <a href="../task_queue/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Tasks">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Tasks
+              </div>
+            </div>
+          </a>
+        
         
           
-          <a href="reference/" class="md-footer__link md-footer__link--next" aria-label="Next: Reference">
+          <a href="../workers/" class="md-footer__link md-footer__link--next" aria-label="Next: Workers">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Reference
+                Workers
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -1579,10 +1717,10 @@ this includes the following extra dependencies:</p>
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.instant", "navigation.footer", "navigation.indexes", "navigation.path", "content.code.copy"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.footer", "navigation.indexes", "navigation.path", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
       
     
   </body>

@@ -25,7 +25,7 @@
     
     
       
-        <title>Introduction - Aio Fluid</title>
+        <title>Reference - Aio Fluid</title>
       
     
     
@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#introduction" class="md-skip">
+        <a href="#reference" class="md-skip">
           Skip to content
         </a>
       
@@ -113,7 +113,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Introduction
+              Reference
             
           </span>
         </div>
@@ -291,6 +291,12 @@
       
         
           
+        
+      
+        
+      
+        
+      
         
       
         
@@ -553,6 +559,62 @@
   
   
     <li class="md-nav__item">
+      <a href="errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="http_client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="task/" class="md-nav__link">
         
   
@@ -749,6 +811,34 @@
   
   
     <li class="md-nav__item">
+      <a href="task_retry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Retry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="task_run/" class="md-nav__link">
         
   
@@ -900,6 +990,8 @@
       
         
           
+        
+      
         
       
         
@@ -1140,6 +1232,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../tutorials/task_retry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Retries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../tutorials/workers/" class="md-nav__link">
         
   
@@ -1187,6 +1307,58 @@
   
     
   
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#workers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-scheduler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task Scheduler
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Utilities
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -1254,9 +1426,39 @@
   
 
 
-<h1 id="introduction">Introduction<a class="headerlink" href="#introduction" title="Permanent link">&para;</a></h1>
-<p>Here's the reference or code API, the classes, functions, parameters, attributes, and all the <code>aio-fluid</code> parts you can use in your applications.</p>
-<p>If you want to learn how to use the library you are much better off reading the <a href="../tutorials/">Tutorials</a>.</p>
+<h1 id="reference">Reference<a class="headerlink" href="#reference" title="Permanent link">&para;</a></h1>
+<p>Complete API reference for all public classes, functions, and parameters in Aio Fluid. See the <a href="../">home page</a> for installation instructions.</p>
+<h2 id="workers">Workers<a class="headerlink" href="#workers" title="Permanent link">&para;</a></h2>
+<p><a href="workers/">Workers</a> — base async worker types with start/stop lifecycle (<code>Workers</code>, <code>WorkerFunction</code>, <code>AsyncConsumer</code>).</p>
+<h2 id="task-scheduler">Task Scheduler<a class="headerlink" href="#task-scheduler" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="task/">Task</a> — the <code>@task</code> decorator, <code>Task</code>, <code>TaskPriority</code>, <code>TaskState</code>, and <code>K8sConfig</code>.</li>
+<li><a href="task_run/">Task Run</a> — <code>TaskRun</code>, the context object passed to every task executor.</li>
+<li><a href="task_retry/">Task Retry</a> — <code>RetryPolicy</code> for failure retries and rate-limit retries.</li>
+<li><a href="task_scheduling/">Task Scheduling</a> — <code>every()</code> and <code>crontab()</code> schedule helpers.</li>
+<li><a href="task_manager/">Task Manager</a> — <code>TaskManager</code>, the base class for running and queuing tasks.</li>
+<li><a href="task_consumer/">Task Consumer</a> — <code>TaskConsumer</code>, the worker that dequeues and executes tasks.</li>
+<li><a href="task_scheduler/">Task Scheduler</a> — <code>TaskScheduler</code>, combines consumer and scheduler.</li>
+<li><a href="task_broker/">Task Broker</a> — <code>TaskBroker</code> interface and the Redis implementation.</li>
+<li><a href="task_plugin/">Task Manager Plugins</a> — extend <code>TaskManager</code> with lifecycle hooks.</li>
+<li><a href="task_registry/">Task Registry</a> — internal registry that maps task names to <code>Task</code> objects.</li>
+<li><a href="task_cli/">Task Manager CLI</a> — command-line tools for <code>TaskManager</code> applications.</li>
+</ul>
+<h2 id="database">Database<a class="headerlink" href="#database" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="db/">Database</a> — async Postgres connection and query interface.</li>
+<li><a href="db_crud/">CrudDB</a> — CRUD operations on top of <code>Database</code>.</li>
+<li><a href="db_migrations/">DB Migration</a> — schema migration management.</li>
+<li><a href="db_pagination/">DB Pagination</a> — paginated query results.</li>
+<li><a href="db_cli/">DB CLI</a> — command-line tools for database management.</li>
+</ul>
+<h2 id="utilities">Utilities<a class="headerlink" href="#utilities" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="dispatchers/">Event Dispatchers</a> — <code>Dispatcher</code> and <code>AsyncDispatcher</code> for decoupled event handling.</li>
+<li><a href="http_client/">HTTP Client</a> — unified async HTTP client wrappers for <code>aiohttp</code> and <code>httpx</code>.</li>
+<li><a href="errors/">Errors</a> — error hierarchies for utilities and the task scheduler.</li>
+<li><a href="utils/">Utils</a> — miscellaneous helpers.</li>
+</ul>
 
 
 

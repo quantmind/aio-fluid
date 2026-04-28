@@ -1,0 +1,2167 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://aio-fluid.com/reference/task_retry/">
+      
+      
+        <link rel="prev" href="../task_registry/">
+      
+      
+        <link rel="next" href="../task_run/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/logo-fluid-32x32.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Task Retry - Aio Fluid</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="amber">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#task-retry" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Aio Fluid" class="md-header__button md-logo" aria-label="Aio Fluid" data-md-component="logo">
+      
+  <img src="../../assets/logo-fluid.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Aio Fluid
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Task Retry
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="teal" data-md-color-accent="amber"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26c1.81-1.27 3-3.36 3-5.74a7 7 0 0 0-7-7M9 21a1 1 0 0 0 1 1h4a1 1 0 0 0 1-1v-1H9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="teal" data-md-color-accent="amber"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7M9 21v-1h6v1a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1m3-17a5 5 0 0 0-5 5c0 2.05 1.23 3.81 3 4.58V16h4v-2.42c1.77-.77 3-2.53 3-4.58a5 5 0 0 0-5-5"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/quantmind/aio-fluid" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    quantmind/aio-fluid
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Aio Fluid" class="md-nav__button md-logo" aria-label="Aio Fluid" data-md-component="logo">
+      
+  <img src="../../assets/logo-fluid.svg" alt="logo">
+
+    </a>
+    Aio Fluid
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/quantmind/aio-fluid" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    quantmind/aio-fluid
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Reference
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Database
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db_cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DB CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db_crud/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    CrudDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db_migrations/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DB Migration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../db_pagination/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    DB Pagination
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../dispatchers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event Dispatchers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../http_client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_broker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Broker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_cli/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Manager CLI
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_consumer/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Consumer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_manager/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Manager
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_plugin/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Manager Plugins
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_registry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Registry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Retry
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Retry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#retrypolicy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RetryPolicy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;RetryPolicy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" RetryPolicy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.max_attempts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;max_attempts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.wait" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;wait
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.backoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;backoff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.max_wait" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;max_wait
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.exceptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;exceptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.delay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;delay
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.matches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;matches
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-retries-on-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring retries on a task
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring retries on a task">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#failure-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rate-limit-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rate-limit retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-re-queuing-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How re-queuing works
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_run/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Run
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_scheduler/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Scheduler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_scheduling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Scheduling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../utils/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Utils
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../workers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../../tutorials/" class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tutorials
+  
+
+    
+  </span>
+  
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Tutorials
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/db/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Async Database
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/dispatchers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Event Dispatchers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/task_app/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Queue App
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/task_broker/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Broker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/task_k8s/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    K8s Jobs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/task_queue/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tasks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/task_retry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Retries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../tutorials/workers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Workers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#retrypolicy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RetryPolicy
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-class"></code>&nbsp;RetryPolicy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label=" RetryPolicy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.max_attempts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;max_attempts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.wait" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;wait
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.backoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;backoff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.max_wait" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;max_wait
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.exceptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;exceptions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.delay" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;delay
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#fluid.scheduler.models.RetryPolicy.matches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-method"></code>&nbsp;matches
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuring-retries-on-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuring retries on a task
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuring retries on a task">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#failure-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failure retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rate-limit-retry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rate-limit retry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-re-queuing-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How re-queuing works
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+                
+
+
+
+  
+
+
+  <nav class="md-path" aria-label="Navigation" >
+    <ol class="md-path__list">
+      
+        
+  
+  
+    <li class="md-path__item">
+      <a href="../.." class="md-path__link">
+        
+  <span class="md-ellipsis">
+    Home
+  </span>
+
+      </a>
+    </li>
+  
+
+      
+      
+        
+  
+  
+    
+    
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+          
+  <span class="md-ellipsis">
+    Reference
+  </span>
+
+        </a>
+      </li>
+    
+  
+
+      
+    </ol>
+  </nav>
+
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="task-retry">Task Retry<a class="headerlink" href="#task-retry" title="Permanent link">&para;</a></h1>
+<p><code>aio-fluid</code> supports automatic retries for two distinct failure modes: execution failures and rate limiting.
+Both are configured per-task via <a class="autorefs autorefs-internal" title="            fluid.scheduler.models.RetryPolicy
+
+
+  
+      dataclass
+  " href="#fluid.scheduler.models.RetryPolicy">RetryPolicy</a> objects passed to the <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="../task/#fluid.scheduler.task">@task</a> decorator.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetryPolicy</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
+</span></code></pre></div>
+<h2 id="retrypolicy">RetryPolicy<a class="headerlink" href="#retrypolicy" title="Permanent link">&para;</a></h2>
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="fluid.scheduler.models.RetryPolicy" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-class"></code>            <span class="doc doc-object-name doc-class-name">fluid.scheduler.models.RetryPolicy</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#fluid.scheduler.models.RetryPolicy" class="headerlink" title="Permanent link">&para;</a></h2>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">RetryPolicy</span><span class="p">(</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n">max_attempts</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">wait</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">backoff</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">max_wait</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="n">exceptions</span><span class="o">=</span><span class="p">(),</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents first">
+
+
+
+        <p>Retry policy for task execution failures.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetryPolicy</span><span class="p">,</span> <span class="n">task</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nd">@task</span><span class="p">(</span><span class="n">retry</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mf">2.0</span><span class="p">))</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">my_task</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="o">...</span>
+</span></code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+<div class="doc doc-children">
+
+
+
+
+
+
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="fluid.scheduler.models.RetryPolicy.max_attempts" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">max_attempts</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#fluid.scheduler.models.RetryPolicy.max_attempts" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">max_attempts</span> <span class="o">=</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Maximum number of retry attempts, not counting the initial attempt.
+If None, there is no limit on the number of attempts.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="fluid.scheduler.models.RetryPolicy.wait" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">wait</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#fluid.scheduler.models.RetryPolicy.wait" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">wait</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Base wait time in seconds before the first retry.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="fluid.scheduler.models.RetryPolicy.backoff" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">backoff</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#fluid.scheduler.models.RetryPolicy.backoff" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">backoff</span> <span class="o">=</span> <span class="mf">1.0</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Multiplier applied to <code>wait</code> on each successive attempt.
+Use <code>1.0</code> for fixed delay, <code>2.0</code> for exponential backoff.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="fluid.scheduler.models.RetryPolicy.max_wait" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">max_wait</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#fluid.scheduler.models.RetryPolicy.max_wait" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">max_wait</span> <span class="o">=</span> <span class="mf">60.0</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Upper bound on wait time in seconds regardless of backoff.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="fluid.scheduler.models.RetryPolicy.exceptions" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">exceptions</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-class-attribute"><code>class-attribute</code></small>
+      <small class="doc doc-label doc-label-instance-attribute"><code>instance-attribute</code></small>
+  </span>
+
+<a href="#fluid.scheduler.models.RetryPolicy.exceptions" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">exceptions</span> <span class="o">=</span> <span class="p">()</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Exception types that trigger a retry. Empty tuple matches all exceptions.</p>
+
+    </div>
+
+</div>
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="fluid.scheduler.models.RetryPolicy.delay" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">delay</span>
+
+
+<a href="#fluid.scheduler.models.RetryPolicy.delay" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">delay</span><span class="p">(</span><span class="n">attempt</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Compute wait time before the given attempt number (1-based).</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>fluid/scheduler/models.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-83">83</a></span>
+<span class="normal"><a href="#__codelineno-0-84">84</a></span>
+<span class="normal"><a href="#__codelineno-0-85">85</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a><span class="k">def</span><span class="w"> </span><span class="nf">delay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attempt</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+</span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute wait time before the given attempt number (1-based).&quot;&quot;&quot;</span>
+</span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a>    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wait</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backoff</span> <span class="o">**</span> <span class="p">(</span><span class="n">attempt</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)),</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_wait</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="fluid.scheduler.models.RetryPolicy.matches" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-method"></code>            <span class="doc doc-object-name doc-function-name">matches</span>
+
+
+<a href="#fluid.scheduler.models.RetryPolicy.matches" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nf">matches</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Return True if this exception should trigger a retry.</p>
+
+
+            <details class="mkdocstrings-source">
+              <summary>Source code in <code>fluid/scheduler/models.py</code></summary>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-87">87</a></span>
+<span class="normal"><a href="#__codelineno-0-88">88</a></span>
+<span class="normal"><a href="#__codelineno-0-89">89</a></span>
+<span class="normal"><a href="#__codelineno-0-90">90</a></span>
+<span class="normal"><a href="#__codelineno-0-91">91</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a><span class="k">def</span><span class="w"> </span><span class="nf">matches</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc</span><span class="p">:</span> <span class="ne">Exception</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+</span><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True if this exception should trigger a retry.&quot;&quot;&quot;</span>
+</span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span><span class="p">:</span>
+</span><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90"></a>        <span class="k">return</span> <span class="kc">True</span>
+</span><span id="__span-0-91"><a id="__codelineno-0-91" name="__codelineno-0-91"></a>    <span class="k">return</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">exceptions</span><span class="p">)</span>
+</span></code></pre></div></td></tr></table></div>
+            </details>
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div><h2 id="configuring-retries-on-a-task">Configuring retries on a task<a class="headerlink" href="#configuring-retries-on-a-task" title="Permanent link">&para;</a></h2>
+<h3 id="failure-retry">Failure retry<a class="headerlink" href="#failure-retry" title="Permanent link">&para;</a></h3>
+<p>Set <code>retry</code> on <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="../task/#fluid.scheduler.task">@task</a> to re-queue the task when its executor raises an exception.
+The <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskRun
+
+
+  
+      pydantic-model
+  " href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a> is re-queued with an <code>execute_after</code> delay computed from the <a class="autorefs autorefs-internal" title="            fluid.scheduler.models.RetryPolicy
+
+
+  
+      dataclass
+  " href="#fluid.scheduler.models.RetryPolicy">RetryPolicy</a>; the worker that dequeued it is freed immediately to process other tasks.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetryPolicy</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="nd">@task</span><span class="p">(</span><span class="n">retry</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mf">2.0</span><span class="p">))</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="o">...</span>
+</span></code></pre></div>
+<p>With <code>backoff=2.0</code> the delays between attempts are <code>2s → 4s → 8s</code>.
+Use <code>backoff=1.0</code> (the default) for a fixed delay.</p>
+<p>To retry only on specific exception types, pass <code>exceptions</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nd">@task</span><span class="p">(</span><span class="n">retry</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">exceptions</span><span class="o">=</span><span class="p">(</span><span class="ne">IOError</span><span class="p">,</span> <span class="ne">TimeoutError</span><span class="p">)))</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    <span class="o">...</span>
+</span></code></pre></div>
+<h3 id="rate-limit-retry">Rate-limit retry<a class="headerlink" href="#rate-limit-retry" title="Permanent link">&para;</a></h3>
+<p>Set <code>rate_limit_retry</code> on <a class="autorefs autorefs-internal" title="            fluid.scheduler.task" href="../task/#fluid.scheduler.task">@task</a> to re-queue the task when it cannot start because
+<a class="autorefs autorefs-internal" title="            max_concurrency
+
+
+  
+      class-attribute
+      instance-attribute
+  " href="../task/#fluid.scheduler.Task.max_concurrency">max_concurrency</a> is already reached.
+Without this policy, the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskRun
+
+
+  
+      pydantic-model
+  " href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a> ends immediately in the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskState" href="../task/#fluid.scheduler.TaskState">rate_limited</a> state.</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nd">@task</span><span class="p">(</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>    <span class="n">max_concurrency</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>    <span class="n">rate_limit_retry</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mf">1.5</span><span class="p">,</span> <span class="n">max_wait</span><span class="o">=</span><span class="mf">120.0</span><span class="p">),</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="p">)</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">exclusive</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="o">...</span>
+</span></code></pre></div>
+<h3 id="how-re-queuing-works">How re-queuing works<a class="headerlink" href="#how-re-queuing-works" title="Permanent link">&para;</a></h3>
+<p>Both retry modes share the same mechanism:</p>
+<ol>
+<li>The <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../task_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> detects the failure (execution error or concurrency limit).</li>
+<li>It creates a copy of the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskRun
+
+
+  
+      pydantic-model
+  " href="../task_run/#fluid.scheduler.TaskRun">TaskRun</a> with a fresh state and an <code>execute_after</code> timestamp set to <code>now + delay</code>.</li>
+<li>The copy is pushed back onto the Redis queue via the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskBroker" href="../task_broker/#fluid.scheduler.TaskBroker">TaskBroker</a>.</li>
+<li>The <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../task_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> is freed immediately — no sleeping.</li>
+<li>When the copy is next dequeued, if <code>execute_after</code> is still in the future it is re-scheduled via <code>call_later</code> and the worker moves on; otherwise execution proceeds normally.</li>
+</ol>
+<p>!!! note
+    The minimum effective re-queue delay is <strong>5 seconds</strong>, regardless of the <code>wait</code> value in the policy.
+    A <code>call_later</code> is used to avoid busy-looping, and the floor ensures the worker is not called back too aggressively.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../task_registry/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Task Registry">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Task Registry
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../task_run/" class="md-footer__link md-footer__link--next" aria-label="Next: Task Run">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Task Run
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.footer", "navigation.indexes", "navigation.path", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -327,6 +327,12 @@
       
         
       
+        
+      
+        
+      
+        
+      
     
     
     
@@ -551,6 +557,62 @@
   
   
     <li class="md-nav__item">
+      <a href="../reference/errors/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Errors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/http_client/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    HTTP Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reference/task/" class="md-nav__link">
         
   
@@ -747,6 +809,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../reference/task_retry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Retry
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../reference/task_run/" class="md-nav__link">
         
   
@@ -900,6 +990,8 @@
       
         
           
+        
+      
         
       
         
@@ -1140,6 +1232,34 @@
   
   
     <li class="md-nav__item">
+      <a href="task_retry/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Retries
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="workers/" class="md-nav__link">
         
   
@@ -1195,10 +1315,43 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#install-aio-fluid" class="md-nav__link">
+  <a href="#workers" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Install Aio Fluid
+        Workers
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-queue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task Queue
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#database" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Database
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#utilities" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Utilities
       
     </span>
   </a>
@@ -1274,18 +1427,21 @@
 
 
 <h1 id="tutorials">Tutorials<a class="headerlink" href="#tutorials" title="Permanent link">&para;</a></h1>
-<p>The step-by-step guides, the how-to's, the recipes, and all the Aio Fluid parts you can use in your back-end applications.</p>
-<p>Each section gradually builds on the previous ones, but it's structured to separate topics, so that you can go directly to any specific one to solve your specific needs.</p>
-<h2 id="install-aio-fluid">Install Aio Fluid<a class="headerlink" href="#install-aio-fluid" title="Permanent link">&para;</a></h2>
-<p>To install Aio Fluid, you can use the following command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>pip<span class="w"> </span>install<span class="w"> </span>aio-fluid
-</span></code></pre></div>
-<p>if you want to use the async database module, you can install it with the following command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>pip<span class="w"> </span>install<span class="w"> </span>aio-fluid<span class="o">[</span>db<span class="o">]</span>
-</span></code></pre></div>
-<p>if you want to use the command line interface (highly recommended), you can install it with the following command:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>pip<span class="w"> </span>install<span class="w"> </span>aio-fluid<span class="o">[</span>cli<span class="o">]</span>
-</span></code></pre></div>
+<p>Step-by-step guides for using Aio Fluid in your backend applications. See the <a href="../">home page</a> for installation instructions.</p>
+<h2 id="workers">Workers<a class="headerlink" href="#workers" title="Permanent link">&para;</a></h2>
+<p><a href="workers/">Workers</a> are the foundational building block — async components with start/stop lifecycle management. Start here if you are new to the library.</p>
+<h2 id="task-queue">Task Queue<a class="headerlink" href="#task-queue" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="task_queue/">Tasks</a> — define tasks with the <code>@task</code> decorator, set priorities, scheduling, concurrency limits, and CPU-bound execution.</li>
+<li><a href="task_app/">Task Queue App</a> — wire tasks into a full producer/consumer application with FastAPI and Redis.</li>
+<li><a href="task_broker/">Task Broker</a> — implement a custom broker to replace the default Redis backend.</li>
+<li><a href="task_retry/">Task Retries</a> — automatically retry tasks on failure or when rate-limited by concurrency.</li>
+<li><a href="task_k8s/">K8s Jobs</a> — dispatch CPU-bound tasks as Kubernetes Jobs instead of local subprocesses.</li>
+</ul>
+<h2 id="database">Database<a class="headerlink" href="#database" title="Permanent link">&para;</a></h2>
+<p><a href="db/">Async Database</a> — CRUD operations and migrations for Postgres using SQLAlchemy and asyncpg.</p>
+<h2 id="utilities">Utilities<a class="headerlink" href="#utilities" title="Permanent link">&para;</a></h2>
+<p><a href="dispatchers/">Event Dispatchers</a> — decouple event sources from handlers for flexible async pipelines.</p>
 
 
 
