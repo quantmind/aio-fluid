@@ -54,6 +54,10 @@ publish:		## release to pypi and github tag
 readme:			## generate readme.md
 	cp docs/index.md readme.md
 
+.PHONY: taplo-fmt
+taplo-fmt:		## format toml files with taplo
+	taplo fmt
+
 .PHONY: test
 test:			## test with coverage
 	@uv run \

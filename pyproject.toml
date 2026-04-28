@@ -1,8 +1,10 @@
 [project]
 name = "aio-fluid"
-version = "2.1.0"
+version = "2.1.1"
 description = "Tools for backend python services"
-authors = [ { name = "Luca Sbardella", email = "luca@quantmind.com" } ]
+authors = [
+    { name = "Luca Sbardella", email = "luca@quantmind.com" },
+]
 license = "BSD-3-Clause"
 readme = "readme.md"
 requires-python = ">=3.11,<4.0"
@@ -40,16 +42,20 @@ dependencies = [
 "Issues" = "https://github.com/quantmind/aio-fluid/issues"
 
 [project.optional-dependencies]
-cli = [ "click >= 8.1.7", "pydanclick >= 0.5.0", "rich >= 13.7.1" ]
-console = [ "aioconsole >= 0.8.2" ]
+cli = [
+    "click >= 8.1.7",
+    "pydanclick >= 0.5.0",
+    "rich >= 13.7.1",
+]
+console = [
+    "aioconsole >= 0.8.2",
+]
 db = [
     "alembic >= 1.18.4",
     "asyncpg >= 0.30.0",
     "click >= 8.1.7",
     "psycopg2-binary >= 2.9.9",
-    "pydanclick >= 0.5.0",
     "python-dateutil >= 2.9.0",
-    "rich >= 14.3.3",
     "sqlalchemy >= 2.0.23",
     "sqlalchemy-utils >= 0.41.2",
 ]
@@ -85,28 +91,48 @@ k8s = [
     "kubernetes-asyncio >= 32.0.0",
     "python-slugify >= 8.0.4",
 ]
-log = [ "python-json-logger >= 3.2.1" ]
+log = [
+    "python-json-logger >= 3.2.1",
+]
 
 [build-system]
-requires = [ "hatchling" ]
+requires = [
+    "hatchling",
+]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = [ "fluid" ]
+packages = [
+    "fluid",
+]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "module"
-testpaths = [ "tests" ]
-markers = [ "flaky: marks test as flaky" ]
+testpaths = [
+    "tests",
+]
+markers = [
+    "flaky: marks test as flaky",
+]
 
 [tool.isort]
 profile = "black"
 
 [tool.ruff]
-lint.select = [ "A", "E", "W", "F", "I", "B", "N" ]
+lint.select = [
+    "A",
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "N",
+]
 line-length = 88
-exclude = [ "examples/db/migrations" ]
+exclude = [
+    "examples/db/migrations",
+]
 
 [tool.mypy]
 exclude = "examples/db/migrations"
@@ -123,4 +149,6 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = "tests.*"
 disallow_untyped_defs = false
-disable_error_code = [ "return" ]
+disable_error_code = [
+    "return",
+]
