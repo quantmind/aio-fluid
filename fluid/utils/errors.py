@@ -29,4 +29,4 @@ class WorkerStartError(FluidError):
 
 
 class FlamegraphError(FluidError):
-    pass
+    """Raised when flamegraph generation fails."""

@@ -302,7 +302,7 @@ async def test_k8s_config_from_env(monkeypatch: pytest.MonkeyPatch) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_run_cpu_bound_is_run_on_k8s_job() -> None:
+async def test_run_cpu_bound_is_run_on_k8s_job() -> None:
     """When kubernetes_asyncio is installed, run_cpu_bound must be run_on_k8s_job.
 
     A circular import between k8s_job and models causes run_on_k8s_job to be

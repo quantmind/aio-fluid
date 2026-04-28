@@ -5,7 +5,7 @@ from typing import Any, ClassVar
 
 import sqlalchemy as sa
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing_extensions import Annotated, Doc
 
 from fluid.db.crud import CrudDB
@@ -82,6 +82,27 @@ class TaskDbPlugin(TaskManagerPlugin):
             self._handle_update,
         )
 
+    async def get_history(
+        self,
+        q: Annotated[
+            HistoryQuery, Doc("Query parameters for fetching task run history")
+        ],
+    ) -> TaskRunHistoryPage:
+        """Get task run history based on the provided query parameters."""
+        table = self.db.tables[self.table_name]
+        pagination = Pagination.create(
+            "queued",
+            filters=q.filters(),
+            limit=q.limit,
+            cursor=q.cursor,
+            desc=True,
+        )
+        rows, cursor = await pagination.execute(self.db, table)
+        return TaskRunHistoryPage(
+            data=[_row_to_task_run(row) for row in rows],
+            cursor=cursor,
+        )
+
     async def _handle_update(self, task_run: TaskRun) -> None:
         if self.skip_db_tag in task_run.task.tags:
             return
@@ -136,17 +157,25 @@ def task_meta(meta: sa.MetaData, table_name: str = "tasks") -> None:
 
 
 class TaskRunHistory(BaseModel):
-    id: str
-    task: str
-    priority: TaskPriority
-    state: TaskState
-    queued: datetime
-    start: datetime | None
-    end: datetime | None
-    params: dict[str, Any]
+    """A model representing the history of a task run,
+    including its parameters and timing information."""  # noqa: E501
+
+    id: str = Field(..., description="The unique ID of the task run")
+    task: str = Field(..., description="The name of the task")
+    priority: TaskPriority = Field(..., description="The priority of the task")
+    state: TaskState = Field(..., description="The state of the task")
+    queued: datetime = Field(..., description="The time the task was queued")
+    start: datetime | None = Field(None, description="The start time of the task")
+    end: datetime | None = Field(None, description="The end time of the task")
+    params: dict[str, Any] = Field(..., description="The parameters of the task run")
 
 
 def get_db_plugin(task_manager: TaskManagerDep) -> TaskDbPlugin:
+    """Retrieve the registered [TaskDbPlugin][fluid.scheduler.db.TaskDbPlugin].
+
+    Can be used as a FastAPI dependency in route handlers, or called directly
+    from within a task by passing `context.task_manager`.
+    """
     return task_manager.state.task_db_plugin
 
 
@@ -169,11 +198,19 @@ TaskDbPluginDep = Annotated[TaskDbPlugin, Depends(get_db_plugin)]
 
 
 class TaskRunHistoryPage(BaseModel):
-    data: list[TaskRunHistory]
-    cursor: str
+    """A paginated response containing a list of task run history records.
+
+    Returned by [TaskDbPlugin.get_history][fluid.scheduler.db.TaskDbPlugin.get_history]
+    and the `GET /task-history` endpoint.
+    """
+
+    data: list[TaskRunHistory] = Field(..., description="The task run history records")
+    cursor: str = Field(..., description="Pagination cursor to fetch the next page")
 
 
 class HistoryQuery(BaseModel):
+    """Query parameters for fetching task run history."""
+
     task: Annotated[
         str | None,
         Query(description="Filter by task name"),
@@ -223,19 +260,7 @@ async def get_history(
     db_plugin: TaskDbPluginDep,
     q: Annotated[HistoryQuery, Depends()],
 ) -> TaskRunHistoryPage:
-    table = db_plugin.db.tables[db_plugin.table_name]
-    pagination = Pagination.create(
-        "queued",
-        filters=q.filters(),
-        limit=q.limit,
-        cursor=q.cursor,
-        desc=True,
-    )
-    rows, cursor = await pagination.execute(db_plugin.db, table)
-    return TaskRunHistoryPage(
-        data=[_row_to_task_run(row) for row in rows],
-        cursor=cursor,
-    )
+    return await db_plugin.get_history(q)
 
 
 @router.get(

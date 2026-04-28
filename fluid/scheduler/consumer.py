@@ -14,6 +14,7 @@ from typing_extensions import Annotated, Doc
 
 from fluid.scheduler.plugin import TaskManagerPlugin
 from fluid.utils import log
+from fluid.utils.dates import utcnow
 from fluid.utils.dispatcher import AsyncDispatcher, Dispatcher, Event
 from fluid.utils.worker import AsyncConsumer, WorkerFunction, Workers
 
@@ -250,10 +251,7 @@ class TaskManager:
             priority=priority,
             **params,
         )
-        self.dispatcher.dispatch(task_run)
-        task_run.set_state(TaskState.queued)
-        await self.broker.queue_task(task_run)
-        return task_run
+        return await self._queue_task_run(task_run)
 
     def create_task_run(
         self,
@@ -356,6 +354,12 @@ class TaskManager:
         async with self:
             return await self.execute(task, **params)
 
+    async def _queue_task_run(self, task_run: TaskRun) -> TaskRun:
+        self.dispatcher.dispatch(task_run)
+        task_run.set_state(TaskState.queued)
+        await self.broker.queue_task(task_run)
+        return task_run
+
 
 class TaskConsumer(TaskManager, Workers):
     """The Task Consumer is a Task Manager responsible for consuming tasks
@@ -366,7 +370,7 @@ class TaskConsumer(TaskManager, Workers):
         super().__init__(**config)
         Workers.__init__(self)
         self._async_dispatcher_worker = AsyncConsumer(AsyncTaskDispatcher())
-        self._task_to_queue: deque[str | Task] = deque()
+        self._task_to_queue: deque[str | Task | TaskRun] = deque()
         self._queue_tasks_worker = WorkerFunction(
             self._queue_task, name="queue-task-worker"
         )
@@ -380,7 +384,7 @@ class TaskConsumer(TaskManager, Workers):
                 )
             )
 
-    def sync_queue(self, task: str | Task) -> None:
+    def sync_queue(self, task: str | Task | TaskRun) -> None:
         """Queue a task synchronously"""
         self._task_to_queue.appendleft(task)
 
@@ -430,7 +434,10 @@ class TaskConsumer(TaskManager, Workers):
         except IndexError:
             await asyncio.sleep(self.config.sleep)
         else:
-            await self.queue(task)
+            if isinstance(task, TaskRun):
+                await self.broker.queue_task(task)
+            else:
+                await self.queue(task)
             await asyncio.sleep(0)
 
     async def _consume_tasks(self, worker_name: str) -> None:
@@ -450,18 +457,11 @@ class TaskConsumer(TaskManager, Workers):
                 exc,
             )
             return
-        task_name = task_run.name
-        task_info = await self.broker.get_tasks_info(task_name)
-        if not task_info[0].enabled:
-            task_run.set_state(TaskState.aborted)
-        else:
-            async with self.broker.lock(f"tasks:{task_name}"):
-                if task_run.task.max_concurrency > 0:
-                    current_runs = await self.broker.current_task_runs(task_name)
-                    if current_runs >= task_run.task.max_concurrency:
-                        task_run.set_state(TaskState.rate_limited)
-                if task_run.state is not TaskState.rate_limited:
-                    await self.broker.add_task_run(task_run)
+        # re-queue if the task is not yet ready to execute
+        if self._re_queue_if_not_ready(task_run):
+            return
+        if await self._register_task_run(task_run):
+            return
         # run the task
         if not task_run.is_done:
             try:
@@ -479,8 +479,10 @@ class TaskConsumer(TaskManager, Workers):
                 task_run.logger.info("%s - %s - aborted - %s", task_run.id, params, exc)
             except asyncio.TimeoutError:
                 task_run.logger.error("task run %s - %s - timeout", task_run.id, params)
-            except Exception:
+            except Exception as exc:
                 task_run.logger.exception("critical exception while executing")
+                if retry_task_run := task_run.maybe_failure_retry(exc):
+                    await self._queue_task_run(retry_task_run)
             await self.broker.remove_task_run(task_run)
         duration_ms = task_run.duration_ms
         if duration_ms is not None:
@@ -498,6 +500,36 @@ class TaskConsumer(TaskManager, Workers):
                 task_run.state,
                 duration_ms,
             )
+
+    async def _register_task_run(self, task_run: TaskRun) -> bool:
+        """Check enabled status and concurrency, register the task run for execution.
+
+        Returns True if should return early, False otherwise.
+        """
+        task_info = await self.broker.get_tasks_info(task_run.name)
+        if not task_info[0].enabled:
+            task_run.set_state(TaskState.aborted)
+            return False
+        async with task_run.lock(timeout=5):
+            if task_run.task.max_concurrency > 0:
+                current_runs = await self.broker.current_task_runs(task_run.name)
+                if new_task_run := task_run.maybe_rate_limit_retry(current_runs):
+                    await self.broker.queue_task(new_task_run)
+                    return True
+            if task_run.state is not TaskState.rate_limited:
+                await self.broker.add_task_run(task_run)
+        return False
+
+    def _re_queue_if_not_ready(self, task_run: TaskRun) -> bool:
+        if task_run.execute_after is None:
+            return False
+        current_time = utcnow()
+        if current_time >= task_run.execute_after:
+            return False
+        # wait for this delay before re-queuing
+        delay = max((task_run.execute_after - current_time).total_seconds(), 5)
+        asyncio.get_running_loop().call_later(delay, self.sync_queue, task_run)
+        return True
 
 
 # required by pydantic to avoid `Class not fully defined` error

@@ -15,6 +15,7 @@ from typing import (
     Coroutine,
     Generic,
     NamedTuple,
+    Self,
     Sequence,
     TypeVar,
     overload,
@@ -27,7 +28,7 @@ from typing_extensions import Annotated, Doc, TypedDict
 from fluid import settings
 from fluid.utils import kernel, log
 from fluid.utils.data import compact_dict
-from fluid.utils.dates import as_utc
+from fluid.utils.dates import as_utc, utcnow
 from fluid.utils.text import create_uid, trim_docstring
 
 from .common import cpu_env, is_in_cpu_process
@@ -47,6 +48,47 @@ if TYPE_CHECKING:
 TaskExecutor = Callable[["TaskRun"], Coroutine[Any, Any, Any]]
 RandomizeType = Callable[[], float | int]
 TP = TypeVar("TP", bound=BaseModel)
+
+
+@dataclass(frozen=True)
+class RetryPolicy:
+    """Retry policy for task execution failures.
+
+    ```python
+    from fluid.scheduler import RetryPolicy, task
+
+    @task(retry=RetryPolicy(max_attempts=3, wait=2.0, backoff=2.0))
+    async def my_task(ctx: TaskRun) -> None:
+        ...
+    ```
+    """
+
+    max_attempts: int | None = None
+    """Maximum number of retry attempts, not counting the initial attempt.
+    If None, there is no limit on the number of attempts."""
+
+    wait: float = 1.0
+    """Base wait time in seconds before the first retry."""
+
+    backoff: float = 1.0
+    """Multiplier applied to `wait` on each successive attempt.
+    Use `1.0` for fixed delay, `2.0` for exponential backoff."""
+
+    max_wait: float = 60.0
+    """Upper bound on wait time in seconds regardless of backoff."""
+
+    exceptions: tuple[type[Exception], ...] = ()
+    """Exception types that trigger a retry. Empty tuple matches all exceptions."""
+
+    def delay(self, attempt: int) -> float:
+        """Compute wait time before the given attempt number (1-based)."""
+        return min(self.wait * (self.backoff ** (attempt - 1)), self.max_wait)
+
+    def matches(self, exc: Exception) -> bool:
+        """Return True if this exception should trigger a retry."""
+        if not self.exceptions:
+            return True
+        return isinstance(exc, self.exceptions)
 
 
 class EmptyParams(BaseModel):
@@ -237,6 +279,10 @@ class Task(NamedTuple, Generic[TP]):
     """Kubernetes configuration for tasks run on Kubernetes cluster."""
     tags: frozenset[str] = frozenset()
     """Task tags - used for categorization and filtering of tasks"""
+    retry: RetryPolicy | None = None
+    """Retry policy for general execution failures."""
+    rate_limit_retry: RetryPolicy | None = None
+    """Retry policy when the executor raises `RateLimitError`."""
 
     @property
     def cpu_bound(self) -> bool:
@@ -274,6 +320,18 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
     queued: datetime | None = None
     start: datetime | None = None
     end: datetime | None = None
+    execute_after: datetime | None = Field(
+        default=None,
+        description="Do not execute before this UTC timestamp. Set by retry logic.",
+    )
+    rate_limit_attempt: int = Field(
+        default=0,
+        description="Number of rate-limit retries already consumed.",
+    )
+    retry_attempt: int = Field(
+        default=0,
+        description="Number of failure retries already consumed.",
+    )
 
     async def execute(self) -> None:
         """Execute the task"""
@@ -383,7 +441,59 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
                 raise TaskRunError(f"invalid state transition {self.state} -> {state}")
 
     def lock(self, timeout: float | None) -> Lock:
-        return self.task_manager.broker.lock(self.name, timeout=timeout)
+        return self.task_manager.broker.lock(f"tasks:{self.name}", timeout=timeout)
+
+    def maybe_rate_limit_retry(self, current_runs: int) -> Self | None:
+        if current_runs < self.task.max_concurrency:
+            return None
+        if policy := self.task.rate_limit_retry:
+            if (
+                policy.max_attempts is None
+                or self.rate_limit_attempt < policy.max_attempts
+            ):
+                attempt = self.rate_limit_attempt + 1
+                delay = policy.delay(attempt)
+                self.logger.info(
+                    "%s - rate limited - retry %d/%s in %.1fs",
+                    self.id,
+                    attempt,
+                    policy.max_attempts or "∞",
+                    delay,
+                )
+                return self.model_copy(
+                    update=dict(
+                        execute_after=utcnow() + timedelta(seconds=delay),
+                        rate_limit_attempt=attempt,
+                    )
+                )
+        self.set_state(TaskState.rate_limited)
+        return None
+
+    def maybe_failure_retry(self, exc: Exception) -> Self | None:
+        if policy := self.task.retry:
+            if policy.matches(exc) and (
+                policy.max_attempts is None or self.retry_attempt < policy.max_attempts
+            ):
+                attempt = self.retry_attempt + 1
+                delay = policy.delay(attempt)
+                self.logger.warning(
+                    "%s - failure - retry %d/%s in %.1fs",
+                    self.id,
+                    attempt,
+                    policy.max_attempts or "∞",
+                    delay,
+                )
+                return self.model_copy(
+                    update=dict(
+                        execute_after=utcnow() + timedelta(seconds=delay),
+                        retry_attempt=attempt,
+                        state=TaskState.init,
+                        queued=None,
+                        start=None,
+                        end=None,
+                    )
+                )
+        return None
 
     def _dispatch(self) -> None:
         self.task_manager.dispatcher.dispatch(self.model_copy())  # type: ignore [arg-type]
@@ -489,6 +599,14 @@ def task(
         Sequence[str] | None,
         Doc("Task tags - used for categorization and filtering of tasks"),
     ] = None,
+    retry: Annotated[
+        RetryPolicy | None,
+        Doc("Retry policy for execution failures"),
+    ] = None,
+    rate_limit_retry: Annotated[
+        RetryPolicy | None,
+        Doc("Retry policy when the task is rate limited by max_concurrency"),
+    ] = None,
 ) -> TaskConstructor: ...
 
 
@@ -559,6 +677,14 @@ def task(
         Sequence[str] | None,
         Doc("Task tags - used for categorization and filtering of tasks"),
     ] = None,
+    retry: Annotated[
+        RetryPolicy | None,
+        Doc("Retry policy for execution failures"),
+    ] = None,
+    rate_limit_retry: Annotated[
+        RetryPolicy | None,
+        Doc("Retry policy when the task is rate limited by max_concurrency"),
+    ] = None,
 ) -> Task | TaskConstructor:
     """Decorator to create a [Task][fluid.scheduler.Task] from a function
     and optional parameters.
@@ -581,6 +707,8 @@ def task(
         k8s_config=k8s_config,
         timeout_seconds=timeout_seconds,
         tags=frozenset(tags) if tags is not None else None,
+        retry=retry,
+        rate_limit_retry=rate_limit_retry,
     )
     if kwargs and executor:
         raise TaskDecoratorError("cannot use positional parameters")
