@@ -1,4 +1,3 @@
-import asyncio
 from typing import Any
 
 from fluid import settings
@@ -40,6 +39,4 @@ class ScheduleTasks(WorkerFunction):
                 if run:
                     self.last_run[task.name] = run
                     from_now = task.randomize() if task.randomize else 0
-                    asyncio.get_running_loop().call_later(
-                        from_now, self.task_manager.sync_queue, task
-                    )
+                    self.task_manager.sync_queue(task, delay=from_now)

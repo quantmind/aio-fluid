@@ -123,6 +123,8 @@ class TaskState(enum.StrEnum):
     """Task was cancelled before completion."""
     rate_limited = enum.auto()
     """Task execution was deferred due to rate limiting."""
+    interrupted = enum.auto()
+    """Task was interrupted by a worker shutdown before it could complete."""
 
     @property
     def is_failure(self) -> bool:
@@ -136,7 +138,13 @@ class TaskState(enum.StrEnum):
 
 
 FINISHED_STATES = frozenset(
-    (TaskState.success, TaskState.failure, TaskState.aborted, TaskState.rate_limited)
+    (
+        TaskState.success,
+        TaskState.failure,
+        TaskState.aborted,
+        TaskState.rate_limited,
+        TaskState.interrupted,
+    )
 )
 
 
@@ -368,7 +376,7 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
         """Abort the task run by raising
         [TaskAbortedError][fluid.scheduler.errors.TaskAbortedError].
         """
-        raise TaskAbortedError(reason)
+        raise TaskAbortedError(reason) from None
 
     @field_serializer("task")
     def _serialize_task(self, task: Task, _info: Any) -> str:
@@ -457,7 +465,8 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
                 TaskState.success
                 | TaskState.aborted
                 | TaskState.rate_limited
-                | TaskState.failure,
+                | TaskState.failure
+                | TaskState.interrupted,
             ):
                 self.end = state_time
                 self.state = state

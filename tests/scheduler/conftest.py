@@ -6,10 +6,23 @@ from httpx import ASGITransport, AsyncClient
 from redis.asyncio import Redis
 
 from examples import tasks
+from examples.db import get_db
 from fluid.scheduler import TaskManager, TaskScheduler
+from fluid.scheduler.db import TaskDbPlugin
 from fluid.scheduler.endpoints import get_task_manager, task_manager_fastapi
 from fluid.utils.stacksampler import Sampler
 from tests.scheduler.tasks import TaskClient, redis_broker, start_fastapi
+
+
+@pytest.fixture(scope="module")
+def db_plugin() -> TaskDbPlugin:
+    db = get_db()
+    plugin = TaskDbPlugin(db)
+    mig = db.migration()
+    if not mig.db_create():
+        mig.drop_all_schemas()
+    mig.create_all()
+    return plugin
 
 
 @pytest.fixture(scope="module", autouse=True)

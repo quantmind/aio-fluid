@@ -83,6 +83,10 @@ class TaskDbPlugin(TaskManagerPlugin):
             Event(TaskState.rate_limited, self.tag),
             self._handle_update,
         )
+        task_manager.register_async_handler(
+            Event(TaskState.interrupted, self.tag),
+            self._handle_update,
+        )
 
     async def get_history(
         self,
