@@ -115,3 +115,23 @@ def test_drop_role_cli(db: CrudDB):
     result = runner.invoke(cli, ["drop-role", "nonexistent_role_xyz"])
     assert result.exit_code == 0
     assert "not found" in result.output
+
+
+def test_delete_rows_unknown_table(db: CrudDB):
+    runner = CliRunner()
+    result = runner.invoke(cli, ["delete-rows", "no_such_table"])
+    assert result.exit_code != 0
+
+
+def test_delete_rows_dry(db: CrudDB):
+    runner = CliRunner()
+    result = runner.invoke(cli, ["delete-rows", "tasks", "--dry"])
+    assert result.exit_code == 0
+    assert "dry mode" in result.output
+
+
+def test_delete_rows(db: CrudDB):
+    runner = CliRunner()
+    result = runner.invoke(cli, ["delete-rows", "tasks"])
+    assert result.exit_code == 0
+    assert "removing" in result.output

@@ -52,6 +52,11 @@ async def test_dummy_error(task_scheduler: TaskScheduler) -> None:
         await task_scheduler.execute("dummy", error=True)
 
 
+async def test_dummy_abort(task_scheduler: TaskScheduler) -> None:
+    task_run = await task_scheduler.queue_and_wait("dummy", abort=True)
+    assert task_run.state == TaskState.aborted
+
+
 async def test_dummy_rate_limit(task_scheduler: TaskScheduler) -> None:
     s1, s2 = await asyncio.gather(
         task_scheduler.queue_and_wait("dummy", sleep=2, timeout=10),
@@ -74,6 +79,11 @@ async def test_cpu_bound_execution(
     data = json.loads(result)
     assert data["pid"] != os.getpid()
     assert data["sleep"] == 1.0
+
+
+async def test_cpu_bound_abort(task_scheduler: TaskScheduler) -> None:
+    task_run = await task_scheduler.queue_and_wait("cpu_bound", abort=True, timeout=5)
+    assert task_run.state == TaskState.aborted
 
 
 async def test_task_info(task_scheduler: TaskScheduler) -> None:

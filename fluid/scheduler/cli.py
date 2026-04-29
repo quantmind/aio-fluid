@@ -63,23 +63,33 @@ class TaskManagerCLI(LazyGroup):
         self.task_manager_app = task_manager_app
         self.log_config = log_config or {}
 
+    def get_task_manager_app(self) -> FastAPI:
+        """Get the FastAPI app for the TaskManager."""
+        if isinstance(self.task_manager_app, str):
+            return import_from_string(self.task_manager_app)()
+        elif isinstance(self.task_manager_app, FastAPI):
+            return self.task_manager_app
+        else:
+            return self.task_manager_app()
+
+    def get_task_manager(self) -> TaskManager:
+        """Get the TaskManager instance from the app state."""
+        app = self.get_task_manager_app()
+        if not hasattr(app.state, "task_manager"):
+            raise RuntimeError("The app does not have a task_manager in its state")
+        return app.state.task_manager
+
 
 def ctx_task_manager_cli(ctx: click.Context) -> TaskManagerCLI:
     return ctx.parent.command  # type: ignore
 
 
 def ctx_app(ctx: click.Context) -> FastAPI:
-    app = ctx_task_manager_cli(ctx).task_manager_app
-    if isinstance(app, str):
-        return import_from_string(app)()
-    elif isinstance(app, FastAPI):
-        return app
-    else:
-        return app()
+    return ctx_task_manager_cli(ctx).get_task_manager_app()
 
 
 def ctx_task_manager(ctx: click.Context) -> TaskManager:
-    return ctx_app(ctx).state.task_manager
+    return ctx_task_manager_cli(ctx).get_task_manager()
 
 
 class ExecuteTasks(click.Group):

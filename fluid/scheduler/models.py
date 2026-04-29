@@ -32,7 +32,7 @@ from fluid.utils.dates import as_utc, utcnow
 from fluid.utils.text import create_uid, trim_docstring
 
 from .common import cpu_env, is_in_cpu_process
-from .errors import TaskDecoratorError, TaskRunError
+from .errors import TaskAbortedError, TaskDecoratorError, TaskRunError
 from .scheduler_crontab import Scheduler
 
 try:
@@ -355,11 +355,20 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
             self.set_state(TaskState.running)
             async with asyncio.timeout(self.task.timeout_seconds):
                 await self.task.executor(self)  # type: ignore [arg-type]
+        except TaskAbortedError:
+            self.set_state(TaskState.aborted)
+            raise
         except Exception:
             self.set_state(TaskState.failure)
             raise
         else:
             self.set_state(TaskState.success)
+
+    def abort(self, reason: str = "") -> None:
+        """Abort the task run by raising
+        [TaskAbortedError][fluid.scheduler.errors.TaskAbortedError].
+        """
+        raise TaskAbortedError(reason)
 
     @field_serializer("task")
     def _serialize_task(self, task: Task, _info: Any) -> str:
@@ -834,6 +843,8 @@ async def run_in_subprocess(ctx: TaskRun[TP]) -> None:
         stream_output=True,
         stream_error=True,
     )
+    if reason := await ctx.task_manager.broker.get_task_aborted(ctx.id):
+        raise TaskAbortedError(reason)
     if result:
         raise TaskRunError(result)
 

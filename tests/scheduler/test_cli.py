@@ -5,6 +5,7 @@ from redis import Redis
 from examples.cli import task_manager_cli
 from examples.tasks import Palette, PaletteParams
 from fluid import settings
+from fluid.scheduler.cli import TaskManagerCLI
 
 
 @pytest.fixture(scope="module")
@@ -55,6 +56,13 @@ def test_cli_exec_ping():
     result = runner.invoke(task_manager_cli, ["exec", "ping"])
     assert result.exit_code == 0
     assert result.output
+
+
+def test_cli_exec_aborted():
+    runner = CliRunner()
+    result = runner.invoke(task_manager_cli, ["exec", "dummy", "--abort"])
+    assert result.exit_code == 0
+    assert "aborted" in result.output
 
 
 def test_cli_exec_params_json_overrides_model_defaults():
@@ -197,3 +205,11 @@ def test_cli_exec_colorize_required_with_color(redis: Redis):
     assert result.exit_code == 0
     value = redis.get(run_id)
     assert value is not None and value.decode() == Palette.RED
+
+
+def test_cli_app_and_task_manager():
+    """TaskManagerCLI.get_task_manager_app() and .get_task_manager() must return
+    the correct app and TaskManager instance."""
+    cli = TaskManagerCLI(task_manager_app=task_manager_cli.get_task_manager_app)
+    task_manager = cli.get_task_manager()
+    assert task_manager

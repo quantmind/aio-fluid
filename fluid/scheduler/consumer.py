@@ -169,7 +169,10 @@ class TaskManager:
             priority=priority,
             **params,
         )
-        await task_run.execute()
+        try:
+            await task_run.execute()
+        except TaskAbortedError as exc:
+            await self.broker.set_task_aborted(task_run.id, str(exc))
         return task_run
 
     def execute_sync(
