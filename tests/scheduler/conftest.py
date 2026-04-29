@@ -1,5 +1,4 @@
-from contextlib import asynccontextmanager
-from typing import AsyncIterator, Iterator, cast
+from typing import Iterator
 
 import pytest
 from fastapi import FastAPI
