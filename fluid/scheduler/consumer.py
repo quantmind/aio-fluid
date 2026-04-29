@@ -1,10 +1,11 @@
 from __future__ import annotations
 
 import asyncio
+import heapq
 import logging
-from collections import deque
 from contextlib import AsyncExitStack
 from functools import partial
+from time import monotonic
 from types import ModuleType
 from typing import Any, Awaitable, Callable, Self
 
@@ -12,11 +13,12 @@ from inflection import underscore
 from starlette.datastructures import State
 from typing_extensions import Annotated, Doc
 
+from fluid import settings
 from fluid.scheduler.plugin import TaskManagerPlugin
 from fluid.utils import log
 from fluid.utils.dates import utcnow
 from fluid.utils.dispatcher import AsyncDispatcher, Dispatcher, Event
-from fluid.utils.worker import AsyncConsumer, WorkerFunction, Workers
+from fluid.utils.worker import AsyncConsumer, Worker, WorkerFunction, Workers
 
 from .broker import TaskBroker, TaskRegistry
 from .errors import TaskAbortedError, TaskRunError, UnknownTaskError
@@ -370,30 +372,51 @@ class TaskConsumer(TaskManager, Workers):
     from a task queue
     """
 
-    def __init__(self, **config: Any) -> None:
+    def __init__(
+        self,
+        *,
+        stopping_grace_period: Annotated[
+            int,
+            Doc(
+                "Grace period in seconds to wait for workers to stop running "
+                "when this worker is shutdown. "
+                "It defaults to the `FLUID_STOPPING_GRACE_PERIOD` "
+                "environment variable or 10 seconds."
+            ),
+        ] = settings.STOPPING_GRACE_PERIOD,
+        **config: Any,
+    ) -> None:
         super().__init__(**config)
-        Workers.__init__(self)
-        self._async_dispatcher_worker = AsyncConsumer(AsyncTaskDispatcher())
-        self._task_to_queue: deque[str | Task | TaskRun] = deque()
-        self._queue_tasks_worker = WorkerFunction(
-            self._queue_task, name="queue-task-worker"
+        Workers.__init__(self, stopping_grace_period=2 * stopping_grace_period)
+        self._async_dispatcher_worker = AsyncConsumer(
+            AsyncTaskDispatcher(), stopping_grace_period=stopping_grace_period
         )
-        self.add_workers(self._queue_tasks_worker)
-        self.add_workers(self._async_dispatcher_worker)
+        self._in_process_queue = InProcessTaskQueue(
+            self, stopping_grace_period=stopping_grace_period
+        )
+        self.add_async_context_manager(self._async_dispatcher_worker)
+        self.add_workers(self._in_process_queue)
         for i in range(self.config.max_concurrent_tasks):
             worker_name = f"task-worker-{i+1}"
             self.add_workers(
                 WorkerFunction(
-                    partial(self._consume_tasks, worker_name), name=worker_name
+                    partial(self._consume_tasks, worker_name),
+                    name=worker_name,
+                    stopping_grace_period=stopping_grace_period,
                 )
             )
         self.add_workers(
-            WorkerFunction(self._ping_status, heartbeat=1.0, name="manager-status")
+            WorkerFunction(
+                self._ping_status,
+                heartbeat=1.0,
+                name="manager-status",
+                stopping_grace_period=stopping_grace_period,
+            )
         )
 
-    def sync_queue(self, task: str | Task | TaskRun) -> None:
+    def sync_queue(self, task: str | Task | TaskRun, delay: float = 0) -> None:
         """Queue a task synchronously"""
-        self._task_to_queue.appendleft(task)
+        self._in_process_queue.queue(task, delay=delay)
 
     async def queue_and_wait(
         self,
@@ -441,19 +464,6 @@ class TaskConsumer(TaskManager, Workers):
 
     # Internals
 
-    # process tasks from the internal queue
-    async def _queue_task(self) -> None:
-        try:
-            task = self._task_to_queue.pop()
-        except IndexError:
-            await asyncio.sleep(self.config.sleep)
-        else:
-            if isinstance(task, TaskRun):
-                await self.broker.queue_task(task)
-            else:
-                await self.queue(task)
-            await asyncio.sleep(0)
-
     async def _consume_tasks(self, worker_name: str) -> None:
         if not self.config.consume_tasks:
             await asyncio.sleep(self.config.sleep)
@@ -493,11 +503,22 @@ class TaskConsumer(TaskManager, Workers):
                 task_run.logger.info("%s - %s - aborted - %s", task_run.id, params, exc)
             except asyncio.TimeoutError:
                 task_run.logger.error("task run %s - %s - timeout", task_run.id, params)
+            except asyncio.CancelledError:
+                task_run.logger.warning(
+                    "task run %s - interrupted by worker shutdown", task_run.id
+                )
+                task_run.set_state(TaskState.interrupted)
+                await self.broker.remove_task_run(task_run)
+                await self._update_task_run_status(task_run)
+                raise
             except Exception as exc:
                 task_run.logger.exception("critical exception while executing")
                 if retry_task_run := task_run.maybe_failure_retry(exc):
                     await self._queue_task_run(retry_task_run)
             await self.broker.remove_task_run(task_run)
+        await self._update_task_run_status(task_run)
+
+    async def _update_task_run_status(self, task_run: TaskRun) -> None:
         duration_ms = task_run.duration_ms
         if duration_ms is not None:
             await self.broker.update_task(
@@ -542,8 +563,64 @@ class TaskConsumer(TaskManager, Workers):
             return False
         # wait for this delay before re-queuing
         delay = max((task_run.execute_after - current_time).total_seconds(), 5)
-        asyncio.get_running_loop().call_later(delay, self.sync_queue, task_run)
+        self.sync_queue(task_run, delay=delay)
         return True
+
+
+class InProcessTaskQueue(Worker):
+    """In-process worker that holds delayed task runs in a min-heap ordered by
+    due timestamp and dispatches them to the broker when they become due."""
+
+    def __init__(
+        self,
+        task_consumer: TaskConsumer,
+        *,
+        name: Annotated[
+            str,
+            Doc("Worker's name, if not provided it is evaluated from the class name"),
+        ] = "",
+        stopping_grace_period: Annotated[
+            float,
+            Doc(
+                "Grace period in seconds to wait for workers to stop running "
+                "when this worker is shutdown. "
+                "It defaults to the `FLUID_STOPPING_GRACE_PERIOD` "
+                "environment variable or 10 seconds."
+            ),
+        ] = settings.STOPPING_GRACE_PERIOD,
+    ) -> None:
+        super().__init__(name=name, stopping_grace_period=stopping_grace_period)
+        self.task_consumer = task_consumer
+        self._sleep = task_consumer.config.sleep_millis / 1000
+        self._heap: list[tuple[float, int, str | Task | TaskRun]] = []
+        self._counter = 0
+
+    def queue(self, task_run: str | Task | TaskRun, delay: float = 0) -> None:
+        """Queue a task run, due in `delay` seconds from now"""
+        heapq.heappush(self._heap, (monotonic() + delay, self._counter, task_run))
+        self._counter += 1
+
+    def queue_len(self) -> int:
+        """Number of pending task runs in the queue"""
+        return len(self._heap)
+
+    async def run(self) -> None:
+        while self.is_running():
+            sleep = self._sleep
+            if self._heap and self._heap[0][0] <= monotonic():
+                await self._consume_one()
+                sleep = 0
+            await asyncio.sleep(sleep)
+        # when stopping, re-queue all pending tasks to avoid losing them
+        while self._heap:
+            await self._consume_one()
+
+    async def _consume_one(self) -> None:
+        _, _, task = heapq.heappop(self._heap)
+        if isinstance(task, TaskRun):
+            await self.task_consumer.broker.queue_task(task)
+        else:
+            await self.task_consumer.queue(task)
 
 
 # required by pydantic to avoid `Class not fully defined` error

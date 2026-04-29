@@ -1,6 +1,5 @@
-import asyncio
 from datetime import timedelta
-from unittest.mock import MagicMock, patch
+from time import monotonic
 
 import pytest
 
@@ -12,6 +11,7 @@ from fluid.scheduler import (
     TaskState,
     task,
 )
+from fluid.scheduler.consumer import InProcessTaskQueue
 from fluid.scheduler.errors import TaskRunError
 from fluid.scheduler.models import TaskDecoratorError
 from fluid.utils.dates import utcnow
@@ -353,15 +353,12 @@ async def test_re_queue_execute_after_in_future(task_scheduler: TaskScheduler) -
         task_scheduler,
         execute_after=utcnow() + timedelta(seconds=60),
     )
-    mock_loop = MagicMock()
-    with patch.object(asyncio, "get_running_loop", return_value=mock_loop):
-        result = task_scheduler._re_queue_if_not_ready(task_run)
+    before = monotonic()
+    result = task_scheduler._re_queue_if_not_ready(task_run)
     assert result is True
-    mock_loop.call_later.assert_called_once()
-    delay, callback, arg = mock_loop.call_later.call_args[0]
-    assert delay >= 5
-    assert callback == task_scheduler.sync_queue
-    assert arg is task_run
+    entries = [e for e in task_scheduler._in_process_queue._heap if e[2] is task_run]
+    assert len(entries) == 1
+    assert entries[0][0] >= before + 5
 
 
 async def test_re_queue_minimum_delay_is_5_seconds(
@@ -373,8 +370,26 @@ async def test_re_queue_minimum_delay_is_5_seconds(
         task_scheduler,
         execute_after=utcnow() + timedelta(seconds=1),
     )
-    mock_loop = MagicMock()
-    with patch.object(asyncio, "get_running_loop", return_value=mock_loop):
-        task_scheduler._re_queue_if_not_ready(task_run)
-    delay = mock_loop.call_later.call_args[0][0]
-    assert delay == 5
+    before = monotonic()
+    task_scheduler._re_queue_if_not_ready(task_run)
+    entries = [e for e in task_scheduler._in_process_queue._heap if e[2] is task_run]
+    assert len(entries) == 1
+    assert entries[0][0] >= before + 5
+    assert entries[0][0] < before + 6
+
+
+async def test_in_process_queue_drains_on_stop(
+    task_scheduler: TaskScheduler,
+) -> None:
+    task_run1 = _make_task_run(_retry_task, task_scheduler)
+    task_run2 = _make_task_run(_retry_task, task_scheduler)
+
+    queue = InProcessTaskQueue(task_scheduler)
+    queue.queue(task_run1, delay=100)
+    queue.queue(task_run2, delay=100)
+    assert queue.queue_len() == 2
+
+    # worker never started so is_running() is False — drain runs immediately
+    await queue.run()
+
+    assert queue.queue_len() == 0

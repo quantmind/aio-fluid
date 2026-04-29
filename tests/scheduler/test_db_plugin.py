@@ -7,7 +7,6 @@ from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
 from examples import tasks
-from examples.db import get_db
 from fluid.scheduler import TaskState
 from fluid.scheduler.consumer import TaskConsumer
 from fluid.scheduler.db import TaskDbPlugin, get_db_plugin, with_task_history_router
@@ -16,17 +15,6 @@ from fluid.utils.http_client import HttpResponseError
 from tests.scheduler.tasks import TaskClient, redis_broker, start_fastapi
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
-
-
-@pytest.fixture(scope="module")
-def db_plugin() -> TaskDbPlugin:
-    db = get_db()
-    plugin = TaskDbPlugin(db)
-    mig = db.migration()
-    if not mig.db_create():
-        mig.drop_all_schemas()
-    mig.create_all()
-    return plugin
 
 
 @pytest.fixture(scope="module")
