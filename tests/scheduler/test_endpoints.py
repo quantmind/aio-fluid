@@ -2,6 +2,7 @@ import pytest
 
 from fluid.scheduler.models import TaskInfo, TaskState
 from fluid.utils.http_client import HttpResponseError
+from fluid.utils.waiter import wait_for
 from tests.scheduler.tasks import TaskClient
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
@@ -16,8 +17,16 @@ async def test_get_tasks(cli: TaskClient) -> None:
 
 
 async def test_get_tasks_status(cli: TaskClient) -> None:
+    async def check() -> bool:
+        data = await cli.get(f"{cli.url}/tasks-status")
+        return bool(data.get("workers"))
+
+    await wait_for(check, timeout=3.0)
     data = await cli.get(f"{cli.url}/tasks-status")
-    assert data
+    assert len(data["workers"]) == 1
+    assert data["workers"][0]["kind"] == "task_scheduler"
+    assert data["workers"][0]["status"]
+    assert "queues" in data
 
 
 async def test_get_task_404(cli: TaskClient) -> None:
@@ -61,3 +70,15 @@ async def test_patch_task(cli: TaskClient) -> None:
 async def test_ping(cli: TaskClient) -> None:
     data = await cli.post(f"{cli.url}/tasks/ping")
     assert data["task"] == "ping"
+
+
+async def test_delete_queue(cli: TaskClient) -> None:
+    data = await cli.delete(f"{cli.url}/tasks-queue")
+    assert set(data.keys()) == {"high", "medium", "low"}
+    assert all(isinstance(v, int) for v in data.values())
+
+
+async def test_delete_queue_by_priority(cli: TaskClient) -> None:
+    data = await cli.delete(f"{cli.url}/tasks-queue/high")
+    assert set(data.keys()) == {"high"}
+    assert isinstance(data["high"], int)

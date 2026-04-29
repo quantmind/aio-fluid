@@ -8,6 +8,7 @@ from typing_extensions import Annotated, Doc
 from fluid.tools_fastapi import app_workers
 from fluid.utils.worker import Worker
 
+from .broker import TaskManagersStatus
 from .consumer import TaskManager
 from .errors import UnknownTaskError
 from .models import EmptyParams, Task, TaskInfo, TaskPriority, TaskRun
@@ -50,9 +51,27 @@ def get_router(task_manager: TaskManager) -> APIRouter:
         "-status",
         get_task_status,
         methods=["GET"],
-        response_model=dict,
-        summary="Task consumer status",
-        description="Status of the task consumer",
+        response_model=TaskManagersStatus,
+        summary="Task managers status",
+        description="Status of all running task managers",
+    )
+
+    router.add_api_route(
+        "-queue",
+        delete_queue,
+        methods=["DELETE"],
+        response_model=dict[str, int],
+        summary="Clear all task queues",
+        description="Clear all task queues, returns removed task count per priority",
+    )
+
+    router.add_api_route(
+        "-queue/{priority}",
+        delete_queue_by_priority,
+        methods=["DELETE"],
+        response_model=dict[str, int],
+        summary="Clear a task queue",
+        description="Clear a task queue by priority, returns number of removed tasks",
     )
 
     router.add_api_route(
@@ -127,10 +146,19 @@ async def get_task(
     return data[0]
 
 
-async def get_task_status(task_manager: TaskManagerDep) -> dict:
-    if isinstance(task_manager, Worker):
-        return await task_manager.status()
-    return {}
+async def get_task_status(task_manager: TaskManagerDep) -> TaskManagersStatus:
+    return await task_manager.broker.get_all_manager_statuses()
+
+
+async def delete_queue(task_manager: TaskManagerDep) -> dict[str, int]:
+    return await task_manager.broker.clear_queue()
+
+
+async def delete_queue_by_priority(
+    task_manager: TaskManagerDep,
+    priority: Annotated[TaskPriority, Path(title="Queue priority")],
+) -> dict[str, int]:
+    return await task_manager.broker.clear_queue(priority)
 
 
 async def patch_task(

@@ -13,8 +13,7 @@ from fluid.scheduler.consumer import TaskConsumer
 from fluid.scheduler.db import TaskDbPlugin, get_db_plugin, with_task_history_router
 from fluid.scheduler.endpoints import get_task_manager, task_manager_fastapi
 from fluid.utils.http_client import HttpResponseError
-from tests.scheduler.conftest import start_fastapi
-from tests.scheduler.tasks import TaskClient
+from tests.scheduler.tasks import TaskClient, redis_broker, start_fastapi
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
 
@@ -37,6 +36,7 @@ async def task_app_db(db_plugin: TaskDbPlugin) -> AsyncIterator[FastAPI]:
         max_concurrent_tasks=2,
         schedule_tasks=False,
     )
+    await redis_broker(task_manager).clear()
     app = task_manager_fastapi(task_manager)
     with_task_history_router(app)
     async with start_fastapi(app) as app:

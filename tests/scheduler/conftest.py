@@ -1,5 +1,4 @@
-from contextlib import asynccontextmanager
-from typing import AsyncIterator, Iterator, cast
+from typing import Iterator
 
 import pytest
 from fastapi import FastAPI
@@ -8,22 +7,9 @@ from redis.asyncio import Redis
 
 from examples import tasks
 from fluid.scheduler import TaskManager, TaskScheduler
-from fluid.scheduler.broker import RedisTaskBroker
 from fluid.scheduler.endpoints import get_task_manager, task_manager_fastapi
-from fluid.tools_fastapi import backdoor
 from fluid.utils.stacksampler import Sampler
-from tests.scheduler.tasks import TaskClient
-
-
-@asynccontextmanager
-async def start_fastapi(app: FastAPI) -> AsyncIterator:
-    backdoor.setup(app, port=0)
-    async with app.router.lifespan_context(app):
-        yield app
-
-
-def redis_broker(task_manager: TaskManager) -> RedisTaskBroker:
-    return cast(RedisTaskBroker, task_manager.broker)
+from tests.scheduler.tasks import TaskClient, redis_broker, start_fastapi
 
 
 @pytest.fixture(scope="module", autouse=True)

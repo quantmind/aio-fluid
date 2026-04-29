@@ -96,6 +96,7 @@ class TaskManager:
                 """),
         ] = TaskDispatcher()
         self.broker = TaskBroker.from_url(self.config.broker_url)
+        self.manager_id: str = self.broker.new_uuid()
         self._async_contexts: list[Any] = []
         self._stack = AsyncExitStack()
 
@@ -386,6 +387,9 @@ class TaskConsumer(TaskManager, Workers):
                     partial(self._consume_tasks, worker_name), name=worker_name
                 )
             )
+        self.add_workers(
+            WorkerFunction(self._ping_status, heartbeat=1.0, name="manager-status")
+        )
 
     def sync_queue(self, task: str | Task | TaskRun) -> None:
         """Queue a task synchronously"""
@@ -427,6 +431,13 @@ class TaskConsumer(TaskManager, Workers):
 
     def unregister_async_handler(self, event: Event | str) -> AsyncHandler | None:
         return self._async_dispatcher_worker.dispatcher.unregister_handler(event)
+
+    async def _ping_status(self) -> None:
+        await self.broker.set_manager_status(
+            self.manager_id,
+            {"kind": self.type, "status": await self.status()},
+            ttl=5,
+        )
 
     # Internals
 

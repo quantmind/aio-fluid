@@ -187,6 +187,7 @@ class Worker(ABC):
         return self._worker_state in (WorkerState.STOPPED, WorkerState.FORCE_STOPPED)
 
     def gracefully_stop(self) -> None:
+        """Try to gracefully stop the worker"""
         if self.is_running():
             self._worker_state = WorkerState.STOPPING
 
@@ -435,6 +436,7 @@ class Workers(Worker):
         return iter(self._workers)
 
     def gracefully_stop(self) -> None:
+        """Try to gracefully stop the workers and this worker"""
         super().gracefully_stop()
         for worker in self._workers:
             worker.gracefully_stop()
