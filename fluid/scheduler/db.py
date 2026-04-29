@@ -6,6 +6,7 @@ from typing import Any, ClassVar
 import sqlalchemy as sa
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query
 from pydantic import BaseModel, Field
+from sqlalchemy.exc import NoResultFound
 from typing_extensions import Annotated, Doc
 
 from fluid.db.crud import CrudDB
@@ -57,10 +58,11 @@ class TaskDbPlugin(TaskManagerPlugin):
         self.skip_db_tag = skip_db_tag
 
     def register(self, task_manager: TaskManager) -> None:
+        task_manager.state.task_db_plugin = self
+
         if is_in_cpu_process():
             return
 
-        task_manager.state.task_db_plugin = self
         task_manager.register_async_handler(
             Event(TaskState.queued, self.tag),
             self._handle_update,
@@ -102,6 +104,15 @@ class TaskDbPlugin(TaskManagerPlugin):
             data=[_row_to_task_run(row) for row in rows],
             cursor=cursor,
         )
+
+    async def get_run(self, run_id: str) -> TaskRunHistory:
+        """Get a specific task run by its ID."""
+        table = self.db.tables[self.table_name]
+        result = await self.db.db_select(table, {"id": run_id})
+        rows = result.fetchall()
+        if not rows:
+            raise NoResultFound(f"Task run with id {run_id} not found")
+        return _row_to_task_run(rows[0])
 
     async def _handle_update(self, task_run: TaskRun) -> None:
         if self.skip_db_tag in task_run.task.tags:
@@ -269,12 +280,10 @@ async def get_history(
     summary="Get a task run",
 )
 async def get_run(db_plugin: TaskDbPluginDep, run_id: str) -> TaskRunHistory:
-    table = db_plugin.db.tables[db_plugin.table_name]
-    result = await db_plugin.db.db_select(table, {"id": run_id})
-    rows = result.fetchall()
-    if not rows:
-        raise HTTPException(status_code=404, detail="Task run not found")
-    return _row_to_task_run(rows[0])
+    try:
+        return await db_plugin.get_run(run_id)
+    except NoResultFound:
+        raise HTTPException(status_code=404, detail="Task run not found") from None
 
 
 def _row_to_task_run(row: Any) -> TaskRunHistory:

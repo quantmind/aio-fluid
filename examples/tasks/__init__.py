@@ -55,6 +55,7 @@ def task_app() -> FastAPI:
 class Sleep(BaseModel):
     sleep: float = Field(default=0.1, ge=0, description="Sleep time")
     error: bool = False
+    abort: bool = False
 
 
 @task(max_concurrency=1, timeout_seconds=2)
@@ -69,6 +70,8 @@ async def fast(context: TaskRun[Sleep]) -> None:
 async def dummy(context: TaskRun[Sleep]) -> None:
     """A task that sleeps for a while or errors"""
     await asyncio.sleep(context.params.sleep)
+    if context.params.abort:
+        context.abort("aborted by request")
     if context.params.error:
         raise RuntimeError("just an error")
 
@@ -109,6 +112,8 @@ async def cpu_bound(context: TaskRun[Sleep]) -> None:
     CPU bound tasks are executed on a subprocess to avoid blocking the event loop.
     """
     time.sleep(context.params.sleep)
+    if context.params.abort:
+        context.abort("aborted by request")
     broker = cast(RedisTaskBroker, context.task_manager.broker)
     redis = broker.redis_cli
     data = dict(

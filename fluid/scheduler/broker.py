@@ -90,6 +90,14 @@ class TaskBroker(ABC):
         """The number of current task runs for a given task_name"""
 
     @abstractmethod
+    async def set_task_aborted(self, run_id: str, reason: str) -> None:
+        """Signal that a task run was aborted, storing the reason"""
+
+    @abstractmethod
+    async def get_task_aborted(self, run_id: str) -> str | None:
+        """Return the abort reason for a task run, or None if not aborted"""
+
+    @abstractmethod
     async def close(self) -> None:
         """Close the broker on shutdown"""
 
@@ -253,6 +261,16 @@ class RedisTaskBroker(TaskBroker):
 
     async def current_task_runs(self, task_name: str) -> int:
         return await self.redis_cli.scard(self.task_runs_set_name(task_name))
+
+    def task_aborted_key(self, run_id: str) -> str:
+        return f"{self.prefix}-aborted-{run_id}"
+
+    async def set_task_aborted(self, run_id: str, reason: str) -> None:
+        await self.redis_cli.setex(self.task_aborted_key(run_id), 60, reason)
+
+    async def get_task_aborted(self, run_id: str) -> str | None:
+        value = await self.redis_cli.get(self.task_aborted_key(run_id))
+        return value.decode() if value else None
 
     async def close(self) -> None:
         """Close the broker on shutdown"""

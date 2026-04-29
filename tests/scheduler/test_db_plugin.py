@@ -10,8 +10,9 @@ from examples import tasks
 from examples.db import get_db
 from fluid.scheduler import TaskState
 from fluid.scheduler.consumer import TaskConsumer
-from fluid.scheduler.db import TaskDbPlugin, with_task_history_router
+from fluid.scheduler.db import TaskDbPlugin, get_db_plugin, with_task_history_router
 from fluid.scheduler.endpoints import get_task_manager, task_manager_fastapi
+from fluid.utils.http_client import HttpResponseError
 from tests.scheduler.conftest import start_fastapi
 from tests.scheduler.tasks import TaskClient
 
@@ -87,7 +88,7 @@ async def test_task_run_stored_on_success(
     assert row.queued is not None
     assert row.start is not None
     assert row.end is not None
-    assert row.params == {"sleep": 0.1, "error": False}
+    assert row.params == {"sleep": 0.1, "error": False, "abort": False}
 
 
 async def test_task_run_stored_on_failure(
@@ -146,6 +147,16 @@ async def test_task_run_aborted(
     rows = (await db_plugin.db.db_select(table, dict(id=task_run.id))).fetchall()
     assert len(rows) == 1
     assert rows[0].state == TaskState.aborted
+
+
+async def test_task_run_aborted_via_context(
+    task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.execute("dummy", abort=True)
+    assert task_run.state == TaskState.aborted
+    await wait_for_row(db_plugin, task_run.id)
+    row = await get_db_plugin(task_manager_db).get_run(task_run.id)
+    assert row.state == TaskState.aborted
 
 
 async def get_history(cli_db: TaskClient, **params: Any) -> list[dict]:
@@ -234,8 +245,6 @@ async def test_get_run(
 
 
 async def test_get_run_404(cli_db: TaskClient) -> None:
-    from fluid.utils.http_client import HttpResponseError
-
     with pytest.raises(HttpResponseError):
         await cli_db.get(f"{cli_db.url}/task-history/nonexistent-run-id")
 
