@@ -2637,7 +2637,11 @@ database backend supported by CrudDB.</p>
 <span class="normal"><a href="#__codelineno-0-82">82</a></span>
 <span class="normal"><a href="#__codelineno-0-83">83</a></span>
 <span class="normal"><a href="#__codelineno-0-84">84</a></span>
-<span class="normal"><a href="#__codelineno-0-85">85</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_manager</span><span class="p">:</span> <span class="n">TaskManager</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="normal"><a href="#__codelineno-0-85">85</a></span>
+<span class="normal"><a href="#__codelineno-0-86">86</a></span>
+<span class="normal"><a href="#__codelineno-0-87">87</a></span>
+<span class="normal"><a href="#__codelineno-0-88">88</a></span>
+<span class="normal"><a href="#__codelineno-0-89">89</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-60"><a id="__codelineno-0-60" name="__codelineno-0-60"></a><span class="k">def</span><span class="w"> </span><span class="nf">register</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">task_manager</span><span class="p">:</span> <span class="n">TaskManager</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="__span-0-61"><a id="__codelineno-0-61" name="__codelineno-0-61"></a>    <span class="n">task_manager</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">task_db_plugin</span> <span class="o">=</span> <span class="bp">self</span>
 </span><span id="__span-0-62"><a id="__codelineno-0-62" name="__codelineno-0-62"></a>
 </span><span id="__span-0-63"><a id="__codelineno-0-63" name="__codelineno-0-63"></a>    <span class="k">if</span> <span class="n">is_in_cpu_process</span><span class="p">():</span>
@@ -2663,6 +2667,10 @@ database backend supported by CrudDB.</p>
 </span><span id="__span-0-83"><a id="__codelineno-0-83" name="__codelineno-0-83"></a>        <span class="n">Event</span><span class="p">(</span><span class="n">TaskState</span><span class="o">.</span><span class="n">rate_limited</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">),</span>
 </span><span id="__span-0-84"><a id="__codelineno-0-84" name="__codelineno-0-84"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_handle_update</span><span class="p">,</span>
 </span><span id="__span-0-85"><a id="__codelineno-0-85" name="__codelineno-0-85"></a>    <span class="p">)</span>
+</span><span id="__span-0-86"><a id="__codelineno-0-86" name="__codelineno-0-86"></a>    <span class="n">task_manager</span><span class="o">.</span><span class="n">register_async_handler</span><span class="p">(</span>
+</span><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a>        <span class="n">Event</span><span class="p">(</span><span class="n">TaskState</span><span class="o">.</span><span class="n">interrupted</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tag</span><span class="p">),</span>
+</span><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_handle_update</span><span class="p">,</span>
+</span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89"></a>    <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2724,11 +2732,7 @@ database backend supported by CrudDB.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/db.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-87"> 87</a></span>
-<span class="normal"><a href="#__codelineno-0-88"> 88</a></span>
-<span class="normal"><a href="#__codelineno-0-89"> 89</a></span>
-<span class="normal"><a href="#__codelineno-0-90"> 90</a></span>
-<span class="normal"><a href="#__codelineno-0-91"> 91</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-91"> 91</a></span>
 <span class="normal"><a href="#__codelineno-0-92"> 92</a></span>
 <span class="normal"><a href="#__codelineno-0-93"> 93</a></span>
 <span class="normal"><a href="#__codelineno-0-94"> 94</a></span>
@@ -2743,26 +2747,30 @@ database backend supported by CrudDB.</p>
 <span class="normal"><a href="#__codelineno-0-103">103</a></span>
 <span class="normal"><a href="#__codelineno-0-104">104</a></span>
 <span class="normal"><a href="#__codelineno-0-105">105</a></span>
-<span class="normal"><a href="#__codelineno-0-106">106</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-87"><a id="__codelineno-0-87" name="__codelineno-0-87"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_history</span><span class="p">(</span>
-</span><span id="__span-0-88"><a id="__codelineno-0-88" name="__codelineno-0-88"></a>    <span class="bp">self</span><span class="p">,</span>
-</span><span id="__span-0-89"><a id="__codelineno-0-89" name="__codelineno-0-89"></a>    <span class="n">q</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
-</span><span id="__span-0-90"><a id="__codelineno-0-90" name="__codelineno-0-90"></a>        <span class="n">HistoryQuery</span><span class="p">,</span> <span class="n">Doc</span><span class="p">(</span><span class="s2">&quot;Query parameters for fetching task run history&quot;</span><span class="p">)</span>
-</span><span id="__span-0-91"><a id="__codelineno-0-91" name="__codelineno-0-91"></a>    <span class="p">],</span>
-</span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRunHistoryPage</span><span class="p">:</span>
-</span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get task run history based on the provided query parameters.&quot;&quot;&quot;</span>
-</span><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94"></a>    <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">]</span>
-</span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a>    <span class="n">pagination</span> <span class="o">=</span> <span class="n">Pagination</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-</span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a>        <span class="s2">&quot;queued&quot;</span><span class="p">,</span>
-</span><span id="__span-0-97"><a id="__codelineno-0-97" name="__codelineno-0-97"></a>        <span class="n">filters</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">filters</span><span class="p">(),</span>
-</span><span id="__span-0-98"><a id="__codelineno-0-98" name="__codelineno-0-98"></a>        <span class="n">limit</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">limit</span><span class="p">,</span>
-</span><span id="__span-0-99"><a id="__codelineno-0-99" name="__codelineno-0-99"></a>        <span class="n">cursor</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">cursor</span><span class="p">,</span>
-</span><span id="__span-0-100"><a id="__codelineno-0-100" name="__codelineno-0-100"></a>        <span class="n">desc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-0-101"><a id="__codelineno-0-101" name="__codelineno-0-101"></a>    <span class="p">)</span>
-</span><span id="__span-0-102"><a id="__codelineno-0-102" name="__codelineno-0-102"></a>    <span class="n">rows</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="k">await</span> <span class="n">pagination</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span>
-</span><span id="__span-0-103"><a id="__codelineno-0-103" name="__codelineno-0-103"></a>    <span class="k">return</span> <span class="n">TaskRunHistoryPage</span><span class="p">(</span>
-</span><span id="__span-0-104"><a id="__codelineno-0-104" name="__codelineno-0-104"></a>        <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">_row_to_task_run</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">],</span>
-</span><span id="__span-0-105"><a id="__codelineno-0-105" name="__codelineno-0-105"></a>        <span class="n">cursor</span><span class="o">=</span><span class="n">cursor</span><span class="p">,</span>
-</span><span id="__span-0-106"><a id="__codelineno-0-106" name="__codelineno-0-106"></a>    <span class="p">)</span>
+<span class="normal"><a href="#__codelineno-0-106">106</a></span>
+<span class="normal"><a href="#__codelineno-0-107">107</a></span>
+<span class="normal"><a href="#__codelineno-0-108">108</a></span>
+<span class="normal"><a href="#__codelineno-0-109">109</a></span>
+<span class="normal"><a href="#__codelineno-0-110">110</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-91"><a id="__codelineno-0-91" name="__codelineno-0-91"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_history</span><span class="p">(</span>
+</span><span id="__span-0-92"><a id="__codelineno-0-92" name="__codelineno-0-92"></a>    <span class="bp">self</span><span class="p">,</span>
+</span><span id="__span-0-93"><a id="__codelineno-0-93" name="__codelineno-0-93"></a>    <span class="n">q</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+</span><span id="__span-0-94"><a id="__codelineno-0-94" name="__codelineno-0-94"></a>        <span class="n">HistoryQuery</span><span class="p">,</span> <span class="n">Doc</span><span class="p">(</span><span class="s2">&quot;Query parameters for fetching task run history&quot;</span><span class="p">)</span>
+</span><span id="__span-0-95"><a id="__codelineno-0-95" name="__codelineno-0-95"></a>    <span class="p">],</span>
+</span><span id="__span-0-96"><a id="__codelineno-0-96" name="__codelineno-0-96"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRunHistoryPage</span><span class="p">:</span>
+</span><span id="__span-0-97"><a id="__codelineno-0-97" name="__codelineno-0-97"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get task run history based on the provided query parameters.&quot;&quot;&quot;</span>
+</span><span id="__span-0-98"><a id="__codelineno-0-98" name="__codelineno-0-98"></a>    <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">]</span>
+</span><span id="__span-0-99"><a id="__codelineno-0-99" name="__codelineno-0-99"></a>    <span class="n">pagination</span> <span class="o">=</span> <span class="n">Pagination</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span><span id="__span-0-100"><a id="__codelineno-0-100" name="__codelineno-0-100"></a>        <span class="s2">&quot;queued&quot;</span><span class="p">,</span>
+</span><span id="__span-0-101"><a id="__codelineno-0-101" name="__codelineno-0-101"></a>        <span class="n">filters</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">filters</span><span class="p">(),</span>
+</span><span id="__span-0-102"><a id="__codelineno-0-102" name="__codelineno-0-102"></a>        <span class="n">limit</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">limit</span><span class="p">,</span>
+</span><span id="__span-0-103"><a id="__codelineno-0-103" name="__codelineno-0-103"></a>        <span class="n">cursor</span><span class="o">=</span><span class="n">q</span><span class="o">.</span><span class="n">cursor</span><span class="p">,</span>
+</span><span id="__span-0-104"><a id="__codelineno-0-104" name="__codelineno-0-104"></a>        <span class="n">desc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-105"><a id="__codelineno-0-105" name="__codelineno-0-105"></a>    <span class="p">)</span>
+</span><span id="__span-0-106"><a id="__codelineno-0-106" name="__codelineno-0-106"></a>    <span class="n">rows</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="k">await</span> <span class="n">pagination</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="p">,</span> <span class="n">table</span><span class="p">)</span>
+</span><span id="__span-0-107"><a id="__codelineno-0-107" name="__codelineno-0-107"></a>    <span class="k">return</span> <span class="n">TaskRunHistoryPage</span><span class="p">(</span>
+</span><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a>        <span class="n">data</span><span class="o">=</span><span class="p">[</span><span class="n">_row_to_task_run</span><span class="p">(</span><span class="n">row</span><span class="p">)</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">],</span>
+</span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a>        <span class="n">cursor</span><span class="o">=</span><span class="n">cursor</span><span class="p">,</span>
+</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a>    <span class="p">)</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2791,21 +2799,21 @@ database backend supported by CrudDB.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/db.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-108">108</a></span>
-<span class="normal"><a href="#__codelineno-0-109">109</a></span>
-<span class="normal"><a href="#__codelineno-0-110">110</a></span>
-<span class="normal"><a href="#__codelineno-0-111">111</a></span>
-<span class="normal"><a href="#__codelineno-0-112">112</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-112">112</a></span>
 <span class="normal"><a href="#__codelineno-0-113">113</a></span>
 <span class="normal"><a href="#__codelineno-0-114">114</a></span>
-<span class="normal"><a href="#__codelineno-0-115">115</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-108"><a id="__codelineno-0-108" name="__codelineno-0-108"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRunHistory</span><span class="p">:</span>
-</span><span id="__span-0-109"><a id="__codelineno-0-109" name="__codelineno-0-109"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a specific task run by its ID.&quot;&quot;&quot;</span>
-</span><span id="__span-0-110"><a id="__codelineno-0-110" name="__codelineno-0-110"></a>    <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">]</span>
-</span><span id="__span-0-111"><a id="__codelineno-0-111" name="__codelineno-0-111"></a>    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">db_select</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">run_id</span><span class="p">})</span>
-</span><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a>    <span class="n">rows</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
-</span><span id="__span-0-113"><a id="__codelineno-0-113" name="__codelineno-0-113"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
-</span><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a>        <span class="k">raise</span> <span class="n">NoResultFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task run with id </span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
-</span><span id="__span-0-115"><a id="__codelineno-0-115" name="__codelineno-0-115"></a>    <span class="k">return</span> <span class="n">_row_to_task_run</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="normal"><a href="#__codelineno-0-115">115</a></span>
+<span class="normal"><a href="#__codelineno-0-116">116</a></span>
+<span class="normal"><a href="#__codelineno-0-117">117</a></span>
+<span class="normal"><a href="#__codelineno-0-118">118</a></span>
+<span class="normal"><a href="#__codelineno-0-119">119</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-112"><a id="__codelineno-0-112" name="__codelineno-0-112"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">get_run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskRunHistory</span><span class="p">:</span>
+</span><span id="__span-0-113"><a id="__codelineno-0-113" name="__codelineno-0-113"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Get a specific task run by its ID.&quot;&quot;&quot;</span>
+</span><span id="__span-0-114"><a id="__codelineno-0-114" name="__codelineno-0-114"></a>    <span class="n">table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">tables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">table_name</span><span class="p">]</span>
+</span><span id="__span-0-115"><a id="__codelineno-0-115" name="__codelineno-0-115"></a>    <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">db_select</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">run_id</span><span class="p">})</span>
+</span><span id="__span-0-116"><a id="__codelineno-0-116" name="__codelineno-0-116"></a>    <span class="n">rows</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+</span><span id="__span-0-117"><a id="__codelineno-0-117" name="__codelineno-0-117"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">rows</span><span class="p">:</span>
+</span><span id="__span-0-118"><a id="__codelineno-0-118" name="__codelineno-0-118"></a>        <span class="k">raise</span> <span class="n">NoResultFound</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Task run with id </span><span class="si">{</span><span class="n">run_id</span><span class="si">}</span><span class="s2"> not found&quot;</span><span class="p">)</span>
+</span><span id="__span-0-119"><a id="__codelineno-0-119" name="__codelineno-0-119"></a>    <span class="k">return</span> <span class="n">_row_to_task_run</span><span class="p">(</span><span class="n">rows</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2866,25 +2874,25 @@ database backend supported by CrudDB.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/db.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-193">193</a></span>
-<span class="normal"><a href="#__codelineno-0-194">194</a></span>
-<span class="normal"><a href="#__codelineno-0-195">195</a></span>
-<span class="normal"><a href="#__codelineno-0-196">196</a></span>
-<span class="normal"><a href="#__codelineno-0-197">197</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-197">197</a></span>
 <span class="normal"><a href="#__codelineno-0-198">198</a></span>
 <span class="normal"><a href="#__codelineno-0-199">199</a></span>
 <span class="normal"><a href="#__codelineno-0-200">200</a></span>
 <span class="normal"><a href="#__codelineno-0-201">201</a></span>
-<span class="normal"><a href="#__codelineno-0-202">202</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a><span class="k">def</span><span class="w"> </span><span class="nf">with_task_history_router</span><span class="p">(</span>
-</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a>    <span class="n">app</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
-</span><span id="__span-0-195"><a id="__codelineno-0-195" name="__codelineno-0-195"></a>        <span class="n">FastAPI</span><span class="p">,</span>
-</span><span id="__span-0-196"><a id="__codelineno-0-196" name="__codelineno-0-196"></a>        <span class="n">Doc</span><span class="p">(</span><span class="s2">&quot;FastAPI app instance.&quot;</span><span class="p">),</span>
-</span><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a>    <span class="p">],</span>
-</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a>    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/task-history&quot;</span><span class="p">,</span>
-</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FastAPI</span><span class="p">:</span>
-</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Add task history endpoints to a FastAPI app.&quot;&quot;&quot;</span>
-</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a>    <span class="n">app</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">router</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span>
-</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a>    <span class="k">return</span> <span class="n">app</span>
+<span class="normal"><a href="#__codelineno-0-202">202</a></span>
+<span class="normal"><a href="#__codelineno-0-203">203</a></span>
+<span class="normal"><a href="#__codelineno-0-204">204</a></span>
+<span class="normal"><a href="#__codelineno-0-205">205</a></span>
+<span class="normal"><a href="#__codelineno-0-206">206</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-197"><a id="__codelineno-0-197" name="__codelineno-0-197"></a><span class="k">def</span><span class="w"> </span><span class="nf">with_task_history_router</span><span class="p">(</span>
+</span><span id="__span-0-198"><a id="__codelineno-0-198" name="__codelineno-0-198"></a>    <span class="n">app</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span>
+</span><span id="__span-0-199"><a id="__codelineno-0-199" name="__codelineno-0-199"></a>        <span class="n">FastAPI</span><span class="p">,</span>
+</span><span id="__span-0-200"><a id="__codelineno-0-200" name="__codelineno-0-200"></a>        <span class="n">Doc</span><span class="p">(</span><span class="s2">&quot;FastAPI app instance.&quot;</span><span class="p">),</span>
+</span><span id="__span-0-201"><a id="__codelineno-0-201" name="__codelineno-0-201"></a>    <span class="p">],</span>
+</span><span id="__span-0-202"><a id="__codelineno-0-202" name="__codelineno-0-202"></a>    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;/task-history&quot;</span><span class="p">,</span>
+</span><span id="__span-0-203"><a id="__codelineno-0-203" name="__codelineno-0-203"></a><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">FastAPI</span><span class="p">:</span>
+</span><span id="__span-0-204"><a id="__codelineno-0-204" name="__codelineno-0-204"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Add task history endpoints to a FastAPI app.&quot;&quot;&quot;</span>
+</span><span id="__span-0-205"><a id="__codelineno-0-205" name="__codelineno-0-205"></a>    <span class="n">app</span><span class="o">.</span><span class="n">include_router</span><span class="p">(</span><span class="n">router</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="n">prefix</span><span class="p">)</span>
+</span><span id="__span-0-206"><a id="__codelineno-0-206" name="__codelineno-0-206"></a>    <span class="k">return</span> <span class="n">app</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -2927,19 +2935,19 @@ from within a task by passing <code>context.task_manager</code>.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/db.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-184">184</a></span>
-<span class="normal"><a href="#__codelineno-0-185">185</a></span>
-<span class="normal"><a href="#__codelineno-0-186">186</a></span>
-<span class="normal"><a href="#__codelineno-0-187">187</a></span>
-<span class="normal"><a href="#__codelineno-0-188">188</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-188">188</a></span>
 <span class="normal"><a href="#__codelineno-0-189">189</a></span>
-<span class="normal"><a href="#__codelineno-0-190">190</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-184"><a id="__codelineno-0-184" name="__codelineno-0-184"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_db_plugin</span><span class="p">(</span><span class="n">task_manager</span><span class="p">:</span> <span class="n">TaskManagerDep</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskDbPlugin</span><span class="p">:</span>
-</span><span id="__span-0-185"><a id="__codelineno-0-185" name="__codelineno-0-185"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the registered [TaskDbPlugin][fluid.scheduler.db.TaskDbPlugin].</span>
-</span><span id="__span-0-186"><a id="__codelineno-0-186" name="__codelineno-0-186"></a>
-</span><span id="__span-0-187"><a id="__codelineno-0-187" name="__codelineno-0-187"></a><span class="sd">    Can be used as a FastAPI dependency in route handlers, or called directly</span>
-</span><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a><span class="sd">    from within a task by passing `context.task_manager`.</span>
-</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a>    <span class="k">return</span> <span class="n">task_manager</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">task_db_plugin</span>
+<span class="normal"><a href="#__codelineno-0-190">190</a></span>
+<span class="normal"><a href="#__codelineno-0-191">191</a></span>
+<span class="normal"><a href="#__codelineno-0-192">192</a></span>
+<span class="normal"><a href="#__codelineno-0-193">193</a></span>
+<span class="normal"><a href="#__codelineno-0-194">194</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-188"><a id="__codelineno-0-188" name="__codelineno-0-188"></a><span class="k">def</span><span class="w"> </span><span class="nf">get_db_plugin</span><span class="p">(</span><span class="n">task_manager</span><span class="p">:</span> <span class="n">TaskManagerDep</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskDbPlugin</span><span class="p">:</span>
+</span><span id="__span-0-189"><a id="__codelineno-0-189" name="__codelineno-0-189"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve the registered [TaskDbPlugin][fluid.scheduler.db.TaskDbPlugin].</span>
+</span><span id="__span-0-190"><a id="__codelineno-0-190" name="__codelineno-0-190"></a>
+</span><span id="__span-0-191"><a id="__codelineno-0-191" name="__codelineno-0-191"></a><span class="sd">    Can be used as a FastAPI dependency in route handlers, or called directly</span>
+</span><span id="__span-0-192"><a id="__codelineno-0-192" name="__codelineno-0-192"></a><span class="sd">    from within a task by passing `context.task_manager`.</span>
+</span><span id="__span-0-193"><a id="__codelineno-0-193" name="__codelineno-0-193"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-194"><a id="__codelineno-0-194" name="__codelineno-0-194"></a>    <span class="k">return</span> <span class="n">task_manager</span><span class="o">.</span><span class="n">state</span><span class="o">.</span><span class="n">task_db_plugin</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
@@ -3201,19 +3209,19 @@ or the HTTP endpoints added by <a class="autorefs autorefs-internal" title="    
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/db.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-256">256</a></span>
-<span class="normal"><a href="#__codelineno-0-257">257</a></span>
-<span class="normal"><a href="#__codelineno-0-258">258</a></span>
-<span class="normal"><a href="#__codelineno-0-259">259</a></span>
-<span class="normal"><a href="#__codelineno-0-260">260</a></span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-260">260</a></span>
 <span class="normal"><a href="#__codelineno-0-261">261</a></span>
-<span class="normal"><a href="#__codelineno-0-262">262</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-256"><a id="__codelineno-0-256" name="__codelineno-0-256"></a><span class="k">def</span><span class="w"> </span><span class="nf">filters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span id="__span-0-257"><a id="__codelineno-0-257" name="__codelineno-0-257"></a>    <span class="k">return</span> <span class="p">{</span>
-</span><span id="__span-0-258"><a id="__codelineno-0-258" name="__codelineno-0-258"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_filter_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span> <span class="n">v</span>
-</span><span id="__span-0-259"><a id="__codelineno-0-259" name="__codelineno-0-259"></a>        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span>
-</span><span id="__span-0-260"><a id="__codelineno-0-260" name="__codelineno-0-260"></a>            <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;limit&quot;</span><span class="p">,</span> <span class="s2">&quot;cursor&quot;</span><span class="p">}</span>
-</span><span id="__span-0-261"><a id="__codelineno-0-261" name="__codelineno-0-261"></a>        <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-</span><span id="__span-0-262"><a id="__codelineno-0-262" name="__codelineno-0-262"></a>    <span class="p">}</span>
+<span class="normal"><a href="#__codelineno-0-262">262</a></span>
+<span class="normal"><a href="#__codelineno-0-263">263</a></span>
+<span class="normal"><a href="#__codelineno-0-264">264</a></span>
+<span class="normal"><a href="#__codelineno-0-265">265</a></span>
+<span class="normal"><a href="#__codelineno-0-266">266</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-260"><a id="__codelineno-0-260" name="__codelineno-0-260"></a><span class="k">def</span><span class="w"> </span><span class="nf">filters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span id="__span-0-261"><a id="__codelineno-0-261" name="__codelineno-0-261"></a>    <span class="k">return</span> <span class="p">{</span>
+</span><span id="__span-0-262"><a id="__codelineno-0-262" name="__codelineno-0-262"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_filter_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span> <span class="n">v</span>
+</span><span id="__span-0-263"><a id="__codelineno-0-263" name="__codelineno-0-263"></a>        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span>
+</span><span id="__span-0-264"><a id="__codelineno-0-264" name="__codelineno-0-264"></a>            <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;limit&quot;</span><span class="p">,</span> <span class="s2">&quot;cursor&quot;</span><span class="p">}</span>
+</span><span id="__span-0-265"><a id="__codelineno-0-265" name="__codelineno-0-265"></a>        <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+</span><span id="__span-0-266"><a id="__codelineno-0-266" name="__codelineno-0-266"></a>    <span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
