@@ -376,7 +376,7 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
         """Abort the task run by raising
         [TaskAbortedError][fluid.scheduler.errors.TaskAbortedError].
         """
-        raise TaskAbortedError(reason)
+        raise TaskAbortedError(reason) from None
 
     @field_serializer("task")
     def _serialize_task(self, task: Task, _info: Any) -> str:

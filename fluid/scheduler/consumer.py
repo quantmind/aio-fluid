@@ -375,8 +375,12 @@ class TaskConsumer(TaskManager, Workers):
     def __init__(
         self,
         *,
+        name: Annotated[
+            str,
+            Doc("Worker's name, if not provided it is evaluated from the class name"),
+        ] = "",
         stopping_grace_period: Annotated[
-            int,
+            float,
             Doc(
                 "Grace period in seconds to wait for workers to stop running "
                 "when this worker is shutdown. "
@@ -387,7 +391,9 @@ class TaskConsumer(TaskManager, Workers):
         **config: Any,
     ) -> None:
         super().__init__(**config)
-        Workers.__init__(self, stopping_grace_period=2 * stopping_grace_period)
+        Workers.__init__(
+            self, name=name, stopping_grace_period=2 * stopping_grace_period
+        )
         self._async_dispatcher_worker = AsyncConsumer(
             AsyncTaskDispatcher(), stopping_grace_period=stopping_grace_period
         )

@@ -112,6 +112,8 @@ async def cpu_bound(context: TaskRun[Sleep]) -> None:
     CPU bound tasks are executed on a subprocess to avoid blocking the event loop.
     """
     time.sleep(context.params.sleep)
+    if context.params.error:
+        raise RuntimeError("deliberate cpu bound error")
     if context.params.abort:
         context.abort("aborted by request")
     broker = cast(RedisTaskBroker, context.task_manager.broker)

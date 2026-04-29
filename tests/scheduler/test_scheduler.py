@@ -81,6 +81,11 @@ async def test_cpu_bound_execution(
     assert data["sleep"] == 1.0
 
 
+async def test_cpu_bound_failure(task_scheduler: TaskScheduler) -> None:
+    task_run = await task_scheduler.queue_and_wait("cpu_bound", error=True, timeout=5)
+    assert task_run.state == TaskState.failure
+
+
 async def test_cpu_bound_abort(task_scheduler: TaskScheduler) -> None:
     task_run = await task_scheduler.queue_and_wait("cpu_bound", abort=True, timeout=5)
     assert task_run.state == TaskState.aborted
