@@ -6,6 +6,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, Iterable
 from uuid import uuid4
 
+from pydantic import BaseModel, Field
 from redis.asyncio import Redis
 from redis.asyncio.lock import Lock
 from typing_extensions import Annotated, Doc
@@ -26,6 +27,19 @@ _brokers: dict[str, type[TaskBroker]] = {}
 
 def broker_url_from_env() -> URL:
     return URL(settings.BROKER_URL)
+
+
+class TaskManagerStatus(BaseModel):
+    kind: str = Field(description="Type of task manager")
+    status: dict = Field(description="Task manager workers status")
+
+
+class TaskManagersStatus(BaseModel):
+    workers: list[TaskManagerStatus] = Field(description="Task manager workers status")
+    queues: dict[str, int] = Field(
+        description="Task queue lengths by priority",
+        default_factory=dict,
+    )
 
 
 class TaskRegistry(dict[str, Task[TP]]):
@@ -68,6 +82,18 @@ class TaskBroker(ABC):
     @abstractmethod
     async def queue_length(self) -> dict[str, int]:
         """Length of task queues"""
+
+    @abstractmethod
+    async def clear_queue(self, *priorities: TaskPriority) -> dict[str, int]:
+        """Clear task queues, returns number of removed items per priority"""
+
+    @abstractmethod
+    async def set_manager_status(self, manager_id: str, data: dict, ttl: int) -> None:
+        """Store the status of a running task manager"""
+
+    @abstractmethod
+    async def get_all_manager_statuses(self) -> TaskManagersStatus:
+        """Get statuses of all running task managers"""
 
     @abstractmethod
     async def get_tasks_info(self, *task_names: str) -> list[TaskInfo]:
@@ -198,9 +224,17 @@ class RedisTaskBroker(TaskBroker):
         """name of the key containing the task info"""
         return f"{self.prefix}-tasks-{name}"
 
-    def task_runs_set_name(self, name: str) -> str:
-        """name of the key containing the task runs info"""
-        return f"{self.prefix}-task-runs-{name}"
+    def task_run_key(self, task_name: str, run_id: str) -> str:
+        """Name of the key tracking a single in-flight task run.
+
+        Each running task run is represented by an individual key with a TTL
+        so that orphaned runs (e.g. from a task manager that died before the
+        run completed) are automatically cleaned up by Redis.
+
+        Pass ``"*"`` as ``run_id`` to obtain a match pattern for all in-flight
+        task run keys of the given task.
+        """
+        return f"{self.prefix}-task-run-{task_name}-{run_id}"
 
     def task_queue_name(self, priority: TaskPriority) -> str:
         return f"{self.prefix}-queue-{priority}"
@@ -245,22 +279,72 @@ class RedisTaskBroker(TaskBroker):
             return dict(zip(TaskPriority, result, strict=False))
         return {}
 
+    async def clear_queue(self, *priorities: TaskPriority) -> dict[str, int]:
+        targets = priorities or tuple(TaskPriority)
+        pipe = self.redis_cli.pipeline()
+        for p in targets:
+            pipe.llen(self.task_queue_name(p))
+        lengths = await pipe.execute()
+        pipe = self.redis_cli.pipeline()
+        for p in targets:
+            pipe.delete(self.task_queue_name(p))
+        await pipe.execute()
+        return {str(p): n for p, n in zip(targets, lengths, strict=False)}
+
+    def manager_status_key(self, manager_id: str) -> str:
+        return f"{self.prefix}-manager-{manager_id}"
+
+    async def set_manager_status(self, manager_id: str, data: dict, ttl: int) -> None:
+        await self.redis_cli.setex(
+            self.manager_status_key(manager_id), ttl, json.dumps(data)
+        )
+
+    async def get_all_manager_statuses(self) -> TaskManagersStatus:
+        queues = await self.queue_length()
+        keys = [
+            key async for key in self.redis_cli.scan_iter(self.manager_status_key("*"))
+        ]
+        if not keys:
+            return TaskManagersStatus(workers=[], queues=queues)
+        values = await self.redis_cli.mget(*keys)
+        return TaskManagersStatus(
+            workers=[
+                TaskManagerStatus(**json.loads(v)) for v in values if v is not None
+            ],
+            queues=queues,
+        )
+
     async def add_task_run(self, task_run: TaskRun) -> None:
-        """Add a task run to the broker"""
-        await self.redis_cli.sadd(
-            self.task_runs_set_name(task_run.name),
+        """Add a task run to the broker.
+
+        Each task run is stored as an individual key with a TTL slightly
+        greater than the task's `timeout_seconds`, so that runs orphaned by
+        a crashed task manager are cleaned up automatically. The tolerance
+        scales with the timeout (capped at 10s, floored at 1s) so short tasks
+        are reclaimed faster.
+        """
+        timeout_seconds = task_run.task.timeout_seconds
+        tol = min(10, max(1, int(0.5 * timeout_seconds)))
+        await self.redis_cli.setex(
+            self.task_run_key(task_run.name, task_run.id),
+            timeout_seconds + tol,
             task_run.id,
         )
 
     async def remove_task_run(self, task_run: TaskRun) -> None:
         """Remove a task run from the broker"""
-        await self.redis_cli.srem(
-            self.task_runs_set_name(task_run.name),
-            task_run.id,
+        await self.redis_cli.delete(
+            self.task_run_key(task_run.name, task_run.id),
         )
 
     async def current_task_runs(self, task_name: str) -> int:
-        return await self.redis_cli.scard(self.task_runs_set_name(task_name))
+        count = 0
+        async for _ in self.redis_cli.scan_iter(
+            match=self.task_run_key(task_name, "*"),
+            count=100,
+        ):
+            count += 1
+        return count
 
     def task_aborted_key(self, run_id: str) -> str:
         return f"{self.prefix}-aborted-{run_id}"

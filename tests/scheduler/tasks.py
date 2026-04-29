@@ -1,9 +1,28 @@
 import asyncio
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from datetime import datetime
+from typing import cast
+
+from fastapi import FastAPI
+from fastapi.concurrency import asynccontextmanager
 
 from fluid.scheduler import TaskInfo
+from fluid.scheduler.broker import RedisTaskBroker
+from fluid.scheduler.consumer import TaskManager
+from fluid.tools_fastapi import backdoor
 from fluid.utils.http_client import HttpxClient
+
+
+@asynccontextmanager
+async def start_fastapi(app: FastAPI) -> AsyncIterator:
+    backdoor.setup(app, port=0)
+    async with app.router.lifespan_context(app):
+        yield app
+
+
+def redis_broker(task_manager: TaskManager) -> RedisTaskBroker:
+    return cast(RedisTaskBroker, task_manager.broker)
 
 
 @dataclass
