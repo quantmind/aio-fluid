@@ -149,3 +149,33 @@ from fluid.scheduler import task, TaskRun, crontab
 async def scheduled(ctx: TaskRun) -> None:
     await asyncio.sleep(0.1)
 ```
+
+## Aborting a task
+
+Any task — IO or CPU bound — can signal a deliberate, non-error cancellation by calling [ctx.abort()][fluid.scheduler.TaskRun.abort]:
+
+```python
+from fluid.scheduler import task, TaskRun
+
+@task
+async def conditional_work(ctx: TaskRun) -> None:
+    if not should_proceed(ctx.params):
+        ctx.abort("precondition not met")
+    ...
+```
+
+When this happens the task run transitions to the `aborted` [TaskState][fluid.scheduler.TaskState], which is distinct from `failure`:
+
+- the event is logged at **info** level, not as an error
+- no retry policy is triggered
+- any registered abort handlers (e.g. the database plugin) are still notified
+
+### CPU-bound tasks
+
+For CPU-bound tasks (subprocess or Kubernetes Job) the task function runs in a **separate process**, so the abort signal must be relayed back to the consumer. The mechanism works as follows:
+
+1. The inner process calls `ctx.abort()`, which raises [TaskAbortedError][fluid.scheduler.TaskAbortedError].
+2. The consumer running *inside* that process catches the error and writes the reason to a short-lived Redis key (60-second TTL).
+3. After the subprocess or k8s Job exits, the outer consumer reads the Redis key. If an abort reason is found it re-raises [TaskAbortedError][fluid.scheduler.TaskAbortedError], marking the run as `aborted` instead of `success`.
+
+This means a CPU-bound task that aborts itself is always correctly reflected as `aborted` in the task run state, regardless of whether it ran locally or as a Kubernetes Job.

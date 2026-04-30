@@ -8,7 +8,7 @@ from kubernetes_asyncio.client.api_client import ApiClient
 from slugify import slugify
 
 from .common import cpu_env
-from .errors import TaskRunError
+from .errors import TaskAbortedError, TaskRunError
 
 if TYPE_CHECKING:
     from .models import K8sConfig, TaskRun
@@ -62,6 +62,8 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
             )
             if job_status.status.succeeded:
                 ctx.logger.info(f"status={job_status.status}")
+                if reason := await ctx.task_manager.broker.get_task_aborted(ctx.id):
+                    raise TaskAbortedError(reason)
                 break
             if job_status.status.failed is not None:
                 raise TaskRunError(f"K8s task failed status {job_status.status}")

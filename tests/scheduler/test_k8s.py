@@ -7,7 +7,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from fluid.scheduler.errors import TaskRunError
+from fluid.scheduler.errors import TaskAbortedError, TaskRunError
 from fluid.scheduler.k8s_job import get_job_name, run_on_k8s_job
 from fluid.scheduler.models import K8sConfig, K8sResourceRequirements
 
@@ -56,6 +56,7 @@ def make_ctx(
     ctx._container = container
     ctx._deployment = deployment
     ctx._cfg = cfg
+    ctx.task_manager.broker.get_task_aborted = AsyncMock(return_value=None)
     return ctx
 
 
@@ -210,6 +211,28 @@ async def test_job_failure_raises() -> None:
     with patches[0], patches[1], patches[2], patches[3]:
         with pytest.raises(TaskRunError, match="K8s task failed"):
             await run_on_k8s_job(ctx)
+
+
+async def test_job_succeeded_with_abort_flag_raises() -> None:
+    """K8s job succeeded but abort flag is set — must raise TaskAbortedError."""
+    ctx = make_ctx()
+    ctx.task_manager.broker.get_task_aborted = AsyncMock(
+        return_value="requested by user"
+    )
+    patches, _, _ = make_k8s_mocks(ctx, succeeded=1)
+
+    with patches[0], patches[1], patches[2], patches[3]:
+        with pytest.raises(TaskAbortedError, match="requested by user"):
+            await run_on_k8s_job(ctx)
+
+
+async def test_job_succeeded_without_abort_flag_completes() -> None:
+    ctx = make_ctx()
+    ctx.task_manager.broker.get_task_aborted = AsyncMock(return_value=None)
+    patches, _, _ = make_k8s_mocks(ctx, succeeded=1)
+
+    with patches[0], patches[1], patches[2], patches[3]:
+        await run_on_k8s_job(ctx)
 
 
 async def test_job_polls_until_succeeded() -> None:

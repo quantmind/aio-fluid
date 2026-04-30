@@ -357,21 +357,6 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
         description="Number of failure retries already consumed.",
     )
 
-    async def execute(self) -> None:
-        """Execute the task"""
-        try:
-            self.set_state(TaskState.running)
-            async with asyncio.timeout(self.task.timeout_seconds):
-                await self.task.executor(self)  # type: ignore [arg-type]
-        except TaskAbortedError:
-            self.set_state(TaskState.aborted)
-            raise
-        except Exception:
-            self.set_state(TaskState.failure)
-            raise
-        else:
-            self.set_state(TaskState.success)
-
     def abort(self, reason: str = "") -> None:
         """Abort the task run by raising
         [TaskAbortedError][fluid.scheduler.errors.TaskAbortedError].
@@ -436,6 +421,12 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
         state: TaskState,
         state_time: datetime | None = None,
     ) -> None:
+        """Set the state of the task run, with proper handling of timestamps
+        and state transitions.
+
+        This method is called by the task consumer and should not be called directly
+        by the task executor.
+        """
         if self.state == state:
             return
         state_time = as_utc(state_time)
@@ -475,9 +466,24 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
                 raise TaskRunError(f"invalid state transition {self.state} -> {state}")
 
     def lock(self, timeout: float | None) -> Lock:
+        """Get a lock for this task run"""
         return self.task_manager.broker.lock(f"tasks:{self.name}", timeout=timeout)
 
-    def maybe_rate_limit_retry(self, current_runs: int) -> Self | None:
+    async def _execute(self) -> None:
+        try:
+            self.set_state(TaskState.running)
+            async with asyncio.timeout(self.task.timeout_seconds):
+                await self.task.executor(self)  # type: ignore [arg-type]
+        except TaskAbortedError:
+            self.set_state(TaskState.aborted)
+            raise
+        except Exception:
+            self.set_state(TaskState.failure)
+            raise
+        else:
+            self.set_state(TaskState.success)
+
+    def _maybe_rate_limit_retry(self, current_runs: int) -> Self | None:
         if current_runs < self.task.max_concurrency:
             return None
         if policy := self.task.rate_limit_retry:
@@ -503,7 +509,7 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
         self.set_state(TaskState.rate_limited)
         return None
 
-    def maybe_failure_retry(self, exc: Exception) -> Self | None:
+    def _maybe_failure_retry(self, exc: Exception) -> Self | None:
         if policy := self.task.retry:
             if policy.matches(exc) and (
                 policy.max_attempts is None or self.retry_attempt < policy.max_attempts

@@ -80,7 +80,7 @@ def _make_task_run(t, task_manager: TaskScheduler, **kwargs) -> TaskRun:
 
 
 # ---------------------------------------------------------------------------
-# maybe_failure_retry unit tests
+# _maybe_failure_retry unit tests
 # ---------------------------------------------------------------------------
 
 
@@ -106,14 +106,14 @@ async def _unlimited_retry_task(ctx: TaskRun) -> None:
 
 async def test_failure_retry_no_policy_returns_none(task_scheduler: TaskScheduler):
     task_run = _make_task_run(_no_retry_task, task_scheduler)
-    assert task_run.maybe_failure_retry(RuntimeError("boom")) is None
+    assert task_run._maybe_failure_retry(RuntimeError("boom")) is None
 
 
 async def test_failure_retry_returns_copy_on_first_attempt(
     task_scheduler: TaskScheduler,
 ):
     task_run = _make_task_run(_retry_task, task_scheduler)
-    retry = task_run.maybe_failure_retry(RuntimeError("boom"))
+    retry = task_run._maybe_failure_retry(RuntimeError("boom"))
     assert retry is not None
     assert retry.retry_attempt == 1
     assert retry.execute_after is not None
@@ -125,41 +125,41 @@ async def test_failure_retry_returns_copy_on_first_attempt(
 
 async def test_failure_retry_increments_attempt(task_scheduler: TaskScheduler):
     task_run = _make_task_run(_retry_task, task_scheduler, retry_attempt=1)
-    retry = task_run.maybe_failure_retry(RuntimeError("boom"))
+    retry = task_run._maybe_failure_retry(RuntimeError("boom"))
     assert retry is not None
     assert retry.retry_attempt == 2
 
 
 async def test_failure_retry_exhausted_returns_none(task_scheduler: TaskScheduler):
     task_run = _make_task_run(_retry_task, task_scheduler, retry_attempt=2)
-    assert task_run.maybe_failure_retry(RuntimeError("boom")) is None
+    assert task_run._maybe_failure_retry(RuntimeError("boom")) is None
 
 
 async def test_failure_retry_unmatched_exception_returns_none(
     task_scheduler: TaskScheduler,
 ):
     task_run = _make_task_run(_typed_retry_task, task_scheduler)
-    assert task_run.maybe_failure_retry(RuntimeError("wrong type")) is None
+    assert task_run._maybe_failure_retry(RuntimeError("wrong type")) is None
 
 
 async def test_failure_retry_matched_exception_returns_copy(
     task_scheduler: TaskScheduler,
 ):
     task_run = _make_task_run(_typed_retry_task, task_scheduler)
-    retry = task_run.maybe_failure_retry(ValueError("right type"))
+    retry = task_run._maybe_failure_retry(ValueError("right type"))
     assert retry is not None
     assert retry.retry_attempt == 1
 
 
 async def test_failure_retry_unlimited_attempts(task_scheduler: TaskScheduler):
     task_run = _make_task_run(_unlimited_retry_task, task_scheduler, retry_attempt=999)
-    retry = task_run.maybe_failure_retry(RuntimeError("always retry"))
+    retry = task_run._maybe_failure_retry(RuntimeError("always retry"))
     assert retry is not None
     assert retry.retry_attempt == 1000
 
 
 # ---------------------------------------------------------------------------
-# maybe_rate_limit_retry unit tests
+# _maybe_rate_limit_retry unit tests
 # ---------------------------------------------------------------------------
 
 
@@ -177,7 +177,7 @@ async def test_rate_limit_retry_not_triggered_when_under_limit(
     task_scheduler: TaskScheduler,
 ):
     task_run = _make_task_run(_rate_limit_retry_task, task_scheduler)
-    result = task_run.maybe_rate_limit_retry(current_runs=0)
+    result = task_run._maybe_rate_limit_retry(current_runs=0)
     assert result is None
     assert task_run.state == TaskState.init
 
@@ -186,7 +186,7 @@ async def test_rate_limit_retry_returns_copy_when_at_limit(
     task_scheduler: TaskScheduler,
 ):
     task_run = _make_task_run(_rate_limit_retry_task, task_scheduler)
-    retry = task_run.maybe_rate_limit_retry(current_runs=1)
+    retry = task_run._maybe_rate_limit_retry(current_runs=1)
     assert retry is not None
     assert retry.rate_limit_attempt == 1
     assert retry.execute_after is not None
@@ -198,7 +198,7 @@ async def test_rate_limit_retry_exhausted_sets_rate_limited_state(
     task_run = _make_task_run(
         _rate_limit_retry_task, task_scheduler, rate_limit_attempt=2
     )
-    result = task_run.maybe_rate_limit_retry(current_runs=1)
+    result = task_run._maybe_rate_limit_retry(current_runs=1)
     assert result is None
     assert task_run.state == TaskState.rate_limited
 
@@ -207,7 +207,7 @@ async def test_rate_limit_no_retry_policy_sets_rate_limited_state(
     task_scheduler: TaskScheduler,
 ):
     task_run = _make_task_run(_rate_limit_no_retry_task, task_scheduler)
-    result = task_run.maybe_rate_limit_retry(current_runs=1)
+    result = task_run._maybe_rate_limit_retry(current_runs=1)
     assert result is None
     assert task_run.state == TaskState.rate_limited
 

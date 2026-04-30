@@ -165,7 +165,11 @@ class TaskManager:
             ),
         ],
     ) -> TaskRun:
-        """Execute a task and wait for it to finish"""
+        """Execute a task and wait for it to finish
+
+        This method is an async method that should be used in an asynchronous
+        context when one need to wait for the task to finish execution.
+        """
         task_run = self.create_task_run(
             task,
             run_id=run_id,
@@ -173,7 +177,7 @@ class TaskManager:
             **params,
         )
         try:
-            await task_run.execute()
+            await task_run._execute()
         except TaskAbortedError as exc:
             await self.broker.set_task_aborted(task_run.id, str(exc))
         return task_run
@@ -501,7 +505,7 @@ class TaskConsumer(TaskManager, Workers):
             else:
                 task_run.logger.info("%s - %s - start", task_run.id, params)
             try:
-                await task_run.execute()
+                await task_run._execute()
             except TaskRunError:
                 # no logging as this was a controlled exception
                 pass
@@ -519,7 +523,7 @@ class TaskConsumer(TaskManager, Workers):
                 raise
             except Exception as exc:
                 task_run.logger.exception("critical exception while executing")
-                if retry_task_run := task_run.maybe_failure_retry(exc):
+                if retry_task_run := task_run._maybe_failure_retry(exc):
                     await self._queue_task_run(retry_task_run)
             await self.broker.remove_task_run(task_run)
         await self._update_task_run_status(task_run)
@@ -554,7 +558,7 @@ class TaskConsumer(TaskManager, Workers):
         async with task_run.lock(timeout=5):
             if task_run.task.max_concurrency > 0:
                 current_runs = await self.broker.current_task_runs(task_run.name)
-                if new_task_run := task_run.maybe_rate_limit_retry(current_runs):
+                if new_task_run := task_run._maybe_rate_limit_retry(current_runs):
                     await self.broker.queue_task(new_task_run)
                     return True
             if task_run.state is not TaskState.rate_limited:
