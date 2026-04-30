@@ -1374,6 +1374,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#aborting-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aborting a task
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Aborting a task">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cpu-bound-tasks_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU-bound tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1583,6 +1611,34 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#aborting-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Aborting a task
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Aborting a task">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#cpu-bound-tasks_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        CPU-bound tasks
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1758,6 +1814,30 @@ for the task parameters</p>
 </span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">scheduled</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="k">await</span> <span class="n">asyncio</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
 </span></code></pre></div>
+<h2 id="aborting-a-task">Aborting a task<a class="headerlink" href="#aborting-a-task" title="Permanent link">&para;</a></h2>
+<p>Any task — IO or CPU bound — can signal a deliberate, non-error cancellation by calling <a class="autorefs autorefs-internal" title="            abort" href="../../reference/task_run/#fluid.scheduler.TaskRun.abort">ctx.abort()</a>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nd">@task</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">conditional_work</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">should_proceed</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="p">):</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        <span class="n">ctx</span><span class="o">.</span><span class="n">abort</span><span class="p">(</span><span class="s2">&quot;precondition not met&quot;</span><span class="p">)</span>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="o">...</span>
+</span></code></pre></div>
+<p>When this happens the task run transitions to the <code>aborted</code> <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskState" href="../../reference/task/#fluid.scheduler.TaskState">TaskState</a>, which is distinct from <code>failure</code>:</p>
+<ul>
+<li>the event is logged at <strong>info</strong> level, not as an error</li>
+<li>no retry policy is triggered</li>
+<li>any registered abort handlers (e.g. the database plugin) are still notified</li>
+</ul>
+<h3 id="cpu-bound-tasks_1">CPU-bound tasks<a class="headerlink" href="#cpu-bound-tasks_1" title="Permanent link">&para;</a></h3>
+<p>For CPU-bound tasks (subprocess or Kubernetes Job) the task function runs in a <strong>separate process</strong>, so the abort signal must be relayed back to the consumer. The mechanism works as follows:</p>
+<ol>
+<li>The inner process calls <code>ctx.abort()</code>, which raises [TaskAbortedError][fluid.scheduler.TaskAbortedError].</li>
+<li>The consumer running <em>inside</em> that process catches the error and writes the reason to a short-lived Redis key (60-second TTL).</li>
+<li>After the subprocess or k8s Job exits, the outer consumer reads the Redis key. If an abort reason is found it re-raises [TaskAbortedError][fluid.scheduler.TaskAbortedError], marking the run as <code>aborted</code> instead of <code>success</code>.</li>
+</ol>
+<p>This means a CPU-bound task that aborts itself is always correctly reflected as <code>aborted</code> in the task run state, regardless of whether it ran locally or as a Kubernetes Job.</p>
 
 
 
