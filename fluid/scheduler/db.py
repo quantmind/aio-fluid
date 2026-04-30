@@ -68,6 +68,10 @@ class TaskDbPlugin(TaskManagerPlugin):
             self._handle_update,
         )
         task_manager.register_async_handler(
+            Event(TaskState.running, self.tag),
+            self._handle_update,
+        )
+        task_manager.register_async_handler(
             Event(TaskState.success, self.tag),
             self._handle_update,
         )
