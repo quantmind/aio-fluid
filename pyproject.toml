@@ -60,6 +60,7 @@ db = [
     "sqlalchemy-utils >= 0.41.2",
 ]
 dev = [
+    "anthropic>=0.97.0",
     "black >= 26.1.0",
     "ipython >= 9.10.0",
     "isort >= 8.0.1",

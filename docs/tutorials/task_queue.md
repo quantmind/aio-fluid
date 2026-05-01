@@ -94,30 +94,6 @@ if is_in_cpu_process():
 
 Stdout and stderr from the subprocess are streamed back to the consumer in real time, so logs produced by the task appear in the consumer's output.
 
-#### Timeout
-
-CPU bound tasks respect the `timeout_seconds` parameter. If the subprocess has not finished within the timeout, it is killed and the task run transitions to the `failure` state.
-
-```python
-@task(cpu_bound=True, timeout_seconds=300)
-async def slow_calculation(ctx: TaskRun) -> None:
-    ...
-```
-
-The default timeout is **60 seconds**. For long-running tasks make sure to raise this to an appropriate value.
-
-#### Concurrency control
-
-Use `max_concurrency` to limit how many instances of a CPU bound task can run simultaneously. This is useful to prevent exhausting system resources when many tasks are queued at the same time.
-
-```python
-@task(cpu_bound=True, max_concurrency=2)
-async def heavy_calculation(ctx: TaskRun) -> None:
-    ...
-```
-
-A value of `0` (the default) means no limit.
-
 #### Kubernetes
 
 When the consumer is running inside a Kubernetes cluster, CPU bound tasks can be dispatched as Kubernetes Jobs instead of local subprocesses. See [K8s Jobs](task_k8s.md) for more details.
@@ -150,6 +126,46 @@ async def scheduled(ctx: TaskRun) -> None:
     await asyncio.sleep(0.1)
 ```
 
+## Timeout
+
+All tasks, both IO and CPU bound, respect the `timeout_seconds` parameter (default **60 seconds**). The timeout is measured from when the task starts executing.
+
+For IO bound tasks, `asyncio` raises a `TimeoutError` if the coroutine has not completed within the timeout, and the task run transitions to the `failure` state. For CPU bound tasks, the subprocess (or Kubernetes Job) is killed and the run likewise transitions to `failure`.
+
+```python
+from fluid.scheduler import task, TaskRun
+
+@task(timeout_seconds=300)
+async def slow_io_task(ctx: TaskRun) -> None:
+    ...
+
+@task(cpu_bound=True, timeout_seconds=300)
+async def slow_cpu_task(ctx: TaskRun) -> None:
+    ...
+```
+
+For long-running tasks make sure to raise `timeout_seconds` to an appropriate value.
+
+## Concurrency control
+
+Use `max_concurrency` to limit how many instances of a task can run simultaneously. This applies to both IO and CPU bound tasks, and is useful to avoid overwhelming downstream services or exhausting system resources when many tasks are queued at once.
+
+```python
+from fluid.scheduler import task, TaskRun
+
+@task(max_concurrency=5)
+async def fetch_data(ctx: TaskRun) -> None:
+    ...
+
+@task(cpu_bound=True, max_concurrency=2)
+async def heavy_calculation(ctx: TaskRun) -> None:
+    ...
+```
+
+A value of `0` (the default) means no limit.
+
+When the limit is reached the task run transitions to the `rate_limited` state. To automatically retry rate-limited tasks, combine `max_concurrency` with `rate_limit_retry`. See [Task Retry](task_retry.md) for details.
+
 ## Aborting a task
 
 Any task — IO or CPU bound — can signal a deliberate, non-error cancellation by calling [ctx.abort()][fluid.scheduler.TaskRun.abort]:
@@ -174,8 +190,8 @@ When this happens the task run transitions to the `aborted` [TaskState][fluid.sc
 
 For CPU-bound tasks (subprocess or Kubernetes Job) the task function runs in a **separate process**, so the abort signal must be relayed back to the consumer. The mechanism works as follows:
 
-1. The inner process calls `ctx.abort()`, which raises [TaskAbortedError][fluid.scheduler.TaskAbortedError].
+1. The inner process calls `ctx.abort()`, which raises [TaskAbortedError][fluid.scheduler.errors.TaskAbortedError].
 2. The consumer running *inside* that process catches the error and writes the reason to a short-lived Redis key (60-second TTL).
-3. After the subprocess or k8s Job exits, the outer consumer reads the Redis key. If an abort reason is found it re-raises [TaskAbortedError][fluid.scheduler.TaskAbortedError], marking the run as `aborted` instead of `success`.
+3. After the subprocess or k8s Job exits, the outer consumer reads the Redis key. If an abort reason is found it re-raises [TaskAbortedError][fluid.scheduler.errors.TaskAbortedError], marking the run as `aborted` instead of `success`.
 
 This means a CPU-bound task that aborts itself is always correctly reflected as `aborted` in the task run state, regardless of whether it ran locally or as a Kubernetes Job.
