@@ -104,6 +104,8 @@ def k8s_job_pod_template(
     env = list(container.env or [])
     for name, value in cpu_env().items():
         env.append(client.V1EnvVar(name=name, value=value))
+    for name, value in ctx.task.env.items():
+        env.append(client.V1EnvVar(name=name, value=value))
     container.env = env
     container.liveness_probe = None  # type: ignore[assignment]
     container.readiness_probe = None  # type: ignore[assignment]

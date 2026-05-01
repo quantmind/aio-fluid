@@ -105,6 +105,13 @@ async def datetime_task(context: TaskRun[DatetimeParams]) -> None:
     context.logger.info(f"Received datetime: {context.params.dt}")
 
 
+@task(cpu_bound=True, env={"FLUID_TEST_ENV": "hello_from_env"})
+async def cpu_bound_env(context: TaskRun) -> None:
+    """A CPU bound task that reads an env variable injected via the env argument"""
+    broker = cast(RedisTaskBroker, context.task_manager.broker)
+    await broker.redis_cli.setex(context.id, 10, os.environ.get("FLUID_TEST_ENV", ""))
+
+
 @task(cpu_bound=True)
 async def cpu_bound(context: TaskRun[Sleep]) -> None:
     """A CPU bound task running on subprocess

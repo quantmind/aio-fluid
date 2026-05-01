@@ -28,4 +28,6 @@ For retry configuration (`retry`, `rate_limit_retry`) see [Task Retry](task_retr
 
 ::: fluid.scheduler.K8sConfig
 
+::: fluid.scheduler.K8sResourceRequirements
+
 ::: fluid.scheduler.is_in_cpu_process

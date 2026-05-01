@@ -307,6 +307,8 @@ class Task(NamedTuple, Generic[TP]):
     """Retry policy for general execution failures."""
     rate_limit_retry: RetryPolicy | None = None
     """Retry policy when the executor raises `RateLimitError`."""
+    env: dict[str, str] = {}
+    """Extra environment variables injected into the subprocess or k8s job."""
 
     @property
     def cpu_bound(self) -> bool:
@@ -647,6 +649,10 @@ def task(
         RetryPolicy | None,
         Doc("Retry policy when the task is rate limited by max_concurrency"),
     ] = None,
+    env: Annotated[
+        dict[str, str] | None,
+        Doc("Extra environment variables injected into the subprocess or k8s job"),
+    ] = None,
 ) -> TaskConstructor: ...
 
 
@@ -725,6 +731,10 @@ def task(
         RetryPolicy | None,
         Doc("Retry policy when the task is rate limited by max_concurrency"),
     ] = None,
+    env: Annotated[
+        dict[str, str] | None,
+        Doc("Extra environment variables injected into the subprocess or k8s job"),
+    ] = None,
 ) -> Task | TaskConstructor:
     """Decorator to create a [Task][fluid.scheduler.Task] from a function
     and optional parameters.
@@ -749,6 +759,7 @@ def task(
         tags=frozenset(tags) if tags is not None else None,
         retry=retry,
         rate_limit_retry=rate_limit_retry,
+        env=env,
     )
     if kwargs and executor:
         raise TaskDecoratorError("cannot use positional parameters")
@@ -843,6 +854,7 @@ class RemoteLog:
 async def run_in_subprocess(ctx: TaskRun[TP]) -> None:
     env = dict(os.environ)
     env.update(cpu_env())
+    env.update(ctx.task.env)
     result = await kernel.run_python(
         "-W",
         "ignore",
