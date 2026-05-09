@@ -35,20 +35,4 @@ async with MyWorker() as worker:
 # worker is fully shut down here
 ```
 
-Resources that the worker needs for its entire lifetime can be opened and closed inside [Worker.run][fluid.utils.worker.Worker.run] using normal `async with` statements — no subclassing of lifecycle hooks is required. The example below subclasses [QueueConsumer][fluid.utils.worker.QueueConsumer] to build a worker that accepts text items via [send][fluid.utils.worker.QueueConsumer.send] and uses a [pydantic-ai](https://ai.pydantic.dev/) `Agent` backed by Google Gemini to produce a one-sentence summary for each item:
-
-```python
---8<-- "./examples/docs/worker_context_manager.py"
-```
-
-To run this example, create a `.env` file in the project root with your Google AI API key:
-
-```
-GOOGLE_API_KEY=your-api-key
-```
-
-Then run:
-
-```bash
-uv run python examples/docs/worker_context_manager.py
-```
+Resources that the worker needs for its entire lifetime can be opened and closed inside [Worker.run][fluid.utils.worker.Worker.run] using normal `async with` statements — no subclassing of lifecycle hooks is required.
