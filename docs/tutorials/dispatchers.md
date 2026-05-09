@@ -9,7 +9,7 @@ In this example we will create a simple dispatcher that will dispatch strings to
 The only requirement for the implementation of a [Dispatcher][fluid.utils.dispatcher.Dispatcher] is to implement the `event_type` method.
 
 ```python
---8<-- "./docs_src/simple_dispatcher.py"
+--8<-- "./examples/docs/simple_dispatcher.py"
 ```
 
 In this example we have a simple dispatcher that will dispatch strings to a list of handlers. The `event_type` method returns the type of the event, in this case always a "*" string.
@@ -22,5 +22,5 @@ In this example we will create a dispatcher that will dispatch data to a list of
 The event type of the message is given by the type of the data.
 
 ```python
---8<-- "./docs_src/data_dispatcher.py"
+--8<-- "./examples/docs/data_dispatcher.py"
 ```

@@ -14,7 +14,7 @@ To start a worker one uses the async method [Worker.startup][fluid.utils.worker.
 This is a very simple example of a worker that prints a message every second until it is stopped:
 
 ```python
---8<-- "./docs_src/simple_worker.py"
+--8<-- "./examples/docs/simple_worker.py"
 ```
 
 ### Shutdown
@@ -35,8 +35,20 @@ async with MyWorker() as worker:
 # worker is fully shut down here
 ```
 
-Resources that the worker needs for its entire lifetime can be opened and closed inside [Worker.run][fluid.utils.worker.Worker.run] using normal `async with` statements — no subclassing of lifecycle hooks is required. The example below subclasses [QueueConsumer][fluid.utils.worker.QueueConsumer] to build a worker that accepts text items via [send][fluid.utils.worker.QueueConsumer.send], opens an [AsyncAnthropic](https://github.com/anthropics/anthropic-sdk-python) client for the duration of `run`, and streams a one-sentence summary from Claude for each item:
+Resources that the worker needs for its entire lifetime can be opened and closed inside [Worker.run][fluid.utils.worker.Worker.run] using normal `async with` statements — no subclassing of lifecycle hooks is required. The example below subclasses [QueueConsumer][fluid.utils.worker.QueueConsumer] to build a worker that accepts text items via [send][fluid.utils.worker.QueueConsumer.send] and uses a [pydantic-ai](https://ai.pydantic.dev/) `Agent` backed by Google Gemini to produce a one-sentence summary for each item:
 
 ```python
---8<-- "./docs_src/worker_context_manager.py"
+--8<-- "./examples/docs/worker_context_manager.py"
+```
+
+To run this example, create a `.env` file in the project root with your Google AI API key:
+
+```
+GOOGLE_API_KEY=your-api-key
+```
+
+Then run:
+
+```bash
+uv run python examples/docs/worker_context_manager.py
 ```

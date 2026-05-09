@@ -1,6 +1,7 @@
 import asyncio
 
-import anthropic
+import dotenv
+from pydantic_ai import Agent
 
 from fluid.utils.worker import QueueConsumer
 
@@ -26,40 +27,36 @@ ARTICLES = [
 ]
 
 
-class AnthropicWorker(QueueConsumer[str]):
-
-    def __init__(self):
-        super().__init__()
-        self.results = []
+class AiAgent(QueueConsumer[str]):
 
     async def run(self) -> None:
-        async with anthropic.AsyncAnthropic() as client:
-            while not self.is_stopping():
-                item = await self.get_message()
-                if item is None:
-                    continue
-                if item == "":
-                    break
-                async with client.messages.stream(
-                    model="claude-opus-4-7",
-                    max_tokens=128,
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": f"Summarise in one sentence: {item}",
-                        }
-                    ],
-                ) as stream:
-                    self.results.append(await stream.get_final_text())
+        agent = Agent(
+            "google-gla:gemini-3-pro-preview",
+            instructions=(
+                "Your task is to summarise "
+                "text in one short sentence."
+            ),
+        )
+        while not self.is_stopping():
+            print(self.is_stopping())
+            item = await self.get_message()
+            if item is None:
+                continue
+            if item == "":
+                break
+            print(f"Summarize: {item}")
+            #result = await agent.run(item)
+            #print(result.output)
+            print(self.is_stopping())
 
 
 async def main() -> None:
-    async with AnthropicWorker() as worker:
+    async with AiAgent() as worker:
         for article in ARTICLES:
             worker.send(article)
-        worker.send("")  # signal end of input
-    print(worker.results)
+        worker.send("")
 
 
 if __name__ == "__main__":
+    dotenv.load_dotenv()
     asyncio.run(main())

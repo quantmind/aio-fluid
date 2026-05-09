@@ -24,7 +24,7 @@ docs-publish:		## publish the book to github pages
 
 .PHONY: docs-serve
 docs-serve:		## serve documentation
-	@uv run mkdocs serve --livereload -w fluid -w docs -w docs_src
+	@uv run mkdocs serve --livereload -w fluid -w docs -w examples
 
 .PHONY: example
 example:		## run task scheduler example
