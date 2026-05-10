@@ -1,8 +1,8 @@
 <h1>
   <a href="https://fluid.quantmind.com/">
     <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="https://fluid.quantmind.com/assets/fluid-banner-dark.svg">
-      <img alt="aio-fluid — async utilities for backend Python services" src="https://fluid.quantmind.com/assets/fluid-banner-light.svg" width="300">
+      <source media="(prefers-color-scheme: dark)" srcset="https://fluid.quantmind.com/assets/fluid-banner-light.svg" style="max-width: 400px; width: 100%;">
+      <img alt="aio-fluid — async utilities for backend Python services" src="https://fluid.quantmind.com/assets/fluid-banner-dark.svg" style="max-width: 400px; width: 100%;">
     </picture>
   </a>
 </h1>
