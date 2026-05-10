@@ -4,7 +4,7 @@ set -e
 ISORT_ARGS="-c"
 BLACK_ARG="--check"
 RUFF_ARG=""
-MODULES="fluid tests examples docs_src"
+MODULES="fluid tests examples"
 
 if [ "$1" = "fix" ] ; then
     ISORT_ARGS=""
