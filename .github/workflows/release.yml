@@ -1,0 +1,85 @@
+name: release
+
+# Triggered by `v*` tags (push one with `make release`). Runs the test suite,
+# publishes the package to PyPI, then extracts the matching section from
+# docs/release-notes.md and publishes it as the GitHub Release body. Re-runs
+# idempotently update an existing release rather than failing.
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHON_ENV: ci
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
+      FLUID_FLAMEGRAPH_EXECUTABLE: "./flamegraph.pl"
+
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Start Redis
+        uses: supercharge/redis-github-action@1.2.0
+        with:
+          redis-version: 7
+      - name: Install dependencies
+        run: make install
+      - name: Install flamegraph
+        env:
+          FG_PATH: "."
+        run: ./.dev/install-flamegraph
+      - name: run lint
+        run: make lint-test
+      - name: build docs
+        run: make docs
+      - name: tests
+        run: make test
+      - name: publish to PyPI
+        run: make publish
+      - name: Extract release notes
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          awk -v tag="## ${TAG}" '
+            $0 == tag { in_section = 1; next }
+            /^## / && in_section { exit }
+            in_section { print }
+          ' docs/release-notes.md > /tmp/notes.md
+          if [ ! -s /tmp/notes.md ]; then
+            echo "No section '## ${TAG}' found in docs/release-notes.md" >&2
+            exit 1
+          fi
+          echo "--- extracted notes for ${TAG} ---"
+          cat /tmp/notes.md
+      - name: Publish GitHub Release
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release edit "$TAG" --notes-file /tmp/notes.md
+          else
+            gh release create "$TAG" --title "$TAG" --notes-file /tmp/notes.md
+          fi
