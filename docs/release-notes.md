@@ -2,9 +2,10 @@
 
 ## v2.2.5
 
-- The [task][fluid.scheduler.task] decorator accepts an `env` mapping of extra
-  environment variables, injected into the subprocess for CPU-bound tasks and
-  forwarded to the container for tasks dispatched as Kubernetes Jobs.
+- The [task decorator](https://fluid.quantmind.com/reference/task/#fluid.scheduler.task)
+  accepts an `env` mapping of extra environment variables, injected into the
+  subprocess for CPU-bound tasks and forwarded to the container for tasks
+  dispatched as Kubernetes Jobs.
   ([#90](https://github.com/quantmind/aio-fluid/pull/90))
 
 ## v2.2.4

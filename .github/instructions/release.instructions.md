@@ -12,7 +12,13 @@ body (re-runs update the existing release instead of failing).
    `fluid.__version__` is read from the installed package metadata, so there
    is nothing else to edit.
 2. Add a `## vX.Y.Z` section at the top of `docs/release-notes.md` describing
-   the changes. The release workflow fails if this section is missing.
+   the changes. The release workflow fails if this section is missing. The
+   section is posted verbatim as the GitHub Release body, so:
+   - use absolute URLs (e.g. `https://fluid.quantmind.com/reference/...`) —
+     mkdocstrings `[Name][path]` cross-references do not render outside the
+     docs site;
+   - do not put backticks (code spans) inside link text — write
+     `[task decorator](url)`, not `` [`@task`](url) ``.
 3. Commit and push to `main`; let the `build` workflow pass.
 4. Run `make release` — it reads the version from `pyproject.toml`, asks for
    confirmation, then creates and pushes the `vX.Y.Z` tag. The `release`
