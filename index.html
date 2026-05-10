@@ -8,7 +8,7 @@
       
       
       
-        <link rel="canonical" href="https://aio-fluid.com/">
+        <link rel="canonical" href="https://fluid.quantmind.com/">
       
       
       
@@ -1502,9 +1502,15 @@
   
 
 
-  <h1>Home</h1>
+<h1>
+  <a href="https://fluid.quantmind.com/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://fluid.quantmind.com/assets/fluid-banner-dark.svg">
+      <img alt="aio-fluid — async utilities for backend Python services" src="https://fluid.quantmind.com/assets/fluid-banner-light.svg" width="300">
+    </picture>
+  </a>
+</h1>
 
-<p>Aio Fluid</p>
 <p>Async utilities for backend python services developed by <a href="https://quantmind.com">Quantmind</a>.</p>
 <p><a href="https://badge.fury.io/py/aio-fluid"><img alt="PyPI version" src="https://badge.fury.io/py/aio-fluid.svg" /></a>
 <a href="https://pypi.org/project/aio-fluid"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/aio-fluid.svg" /></a>
@@ -1515,9 +1521,12 @@
 <p><strong>Source Code</strong>: <a href="https://github.com/quantmind/aio-fluid">github.com/quantmind/aio-fluid</a></p>
 <h2 id="features">Features<a class="headerlink" href="#features" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Async workers</strong>: workers with start/stop capabilities.</li>
-<li><strong>Async tasks scheduler and consumer</strong>: A task scheduler and consumer for async and CPU bound tasks.</li>
-<li><strong>Async CRUD database operations</strong>: An async CRUD interface for postgres databases.</li>
+<li><strong>Async workers</strong> — composable components with a managed start/stop lifecycle; the building block everything else is built on. See <a href="https://fluid.quantmind.com/reference/workers/">Workers</a>.</li>
+<li><strong>Task scheduler &amp; consumer</strong> — declare tasks with a <code>@task</code> decorator, schedule them with <code>every()</code> or cron expressions, run them concurrently with priorities and concurrency limits, and offload CPU-bound work to subprocesses or Kubernetes Jobs. Backed by a pluggable broker (Redis by default). See <a href="https://fluid.quantmind.com/reference/task/">Tasks</a>.</li>
+<li><strong>Async Postgres CRUD</strong> — a typed CRUD layer over <code>asyncpg</code> and SQLAlchemy, with pagination and schema migrations. See <a href="https://fluid.quantmind.com/reference/db/">Database</a>.</li>
+<li><strong>Event dispatchers</strong> — sync and async <code>Dispatcher</code> types for decoupling event sources from handlers. See <a href="https://fluid.quantmind.com/reference/dispatchers/">Dispatchers</a>.</li>
+<li><strong>HTTP client helpers</strong> — a unified async client wrapping <code>httpx</code> and <code>aiohttp</code>. See <a href="https://fluid.quantmind.com/reference/http_client/">HTTP Client</a>.</li>
+<li><strong>CLI tooling</strong> — ready-made <code>click</code> / <code>rich</code> command-line interfaces for task managers and databases.</li>
 </ul>
 <h2 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h2>
 <p>This is a python package you can install via pip:</p>
