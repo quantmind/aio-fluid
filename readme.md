@@ -1,4 +1,11 @@
-Aio Fluid
+<h1>
+  <a href="https://fluid.quantmind.com/">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://fluid.quantmind.com/assets/fluid-banner-dark.svg">
+      <img alt="aio-fluid — async utilities for backend Python services" src="https://fluid.quantmind.com/assets/fluid-banner-light.svg" width="300">
+    </picture>
+  </a>
+</h1>
 
 Async utilities for backend python services developed by [Quantmind](https://quantmind.com).
 
@@ -15,9 +22,12 @@ Async utilities for backend python services developed by [Quantmind](https://qua
 
 ## Features
 
-- **Async workers**: workers with start/stop capabilities.
-- **Async tasks scheduler and consumer**: A task scheduler and consumer for async and CPU bound tasks.
-- **Async CRUD database operations**: An async CRUD interface for postgres databases.
+- **Async workers** — composable components with a managed start/stop lifecycle; the building block everything else is built on. See [Workers](https://fluid.quantmind.com/reference/workers/).
+- **Task scheduler & consumer** — declare tasks with a `@task` decorator, schedule them with `every()` or cron expressions, run them concurrently with priorities and concurrency limits, and offload CPU-bound work to subprocesses or Kubernetes Jobs. Backed by a pluggable broker (Redis by default). See [Tasks](https://fluid.quantmind.com/reference/task/).
+- **Async Postgres CRUD** — a typed CRUD layer over `asyncpg` and SQLAlchemy, with pagination and schema migrations. See [Database](https://fluid.quantmind.com/reference/db/).
+- **Event dispatchers** — sync and async `Dispatcher` types for decoupling event sources from handlers. See [Dispatchers](https://fluid.quantmind.com/reference/dispatchers/).
+- **HTTP client helpers** — a unified async client wrapping `httpx` and `aiohttp`. See [HTTP Client](https://fluid.quantmind.com/reference/http_client/).
+- **CLI tooling** — ready-made `click` / `rich` command-line interfaces for task managers and databases.
 
 ## Installation
 

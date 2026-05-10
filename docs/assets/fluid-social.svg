@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" width="1280" height="640" role="img" aria-label="fluid — async workers, schedulers, and queues for Python">
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#F5F3EE" stroke-width="0.5" opacity="0.06"></path>
+    </pattern>
+  </defs>
+
+  
+  <rect width="1280" height="640" fill="#0B0F14"></rect>
+  <rect width="1280" height="640" fill="url(#grid)"></rect>
+
+  
+  <g transform="translate(820, -40) scale(8.5)" opacity="0.95">
+    <rect x="10" y="22" width="9" height="20" rx="4.5" fill="#60A5FA"></rect>
+    <rect x="22" y="6" width="9" height="52" rx="4.5" fill="#FBBF24"></rect>
+    <rect x="34" y="14" width="9" height="36" rx="4.5" fill="#1E40AF"></rect>
+    <rect x="46" y="26" width="9" height="12" rx="4.5" fill="#60A5FA"></rect>
+  </g>
+
+  
+  <g transform="translate(80, 80)">
+    <g transform="scale(0.65)">
+      <rect x="10" y="22" width="9" height="20" rx="4.5" fill="#60A5FA"></rect>
+      <rect x="22" y="6" width="9" height="52" rx="4.5" fill="#FBBF24"></rect>
+      <rect x="34" y="14" width="9" height="36" rx="4.5" fill="#1E40AF"></rect>
+      <rect x="46" y="26" width="9" height="12" rx="4.5" fill="#60A5FA"></rect>
+    </g>
+    <text x="56" y="32" font-family="JetBrains Mono, ui-monospace, monospace" font-size="14" letter-spacing="1.1" fill="#8A929C" text-transform="uppercase">GITHUB.COM/QUANTMIND/AIO-FLUID</text>
+  </g>
+
+  
+  <g transform="translate(80, 360)">
+    <text font-family="Inter Tight, Inter, system-ui, sans-serif" font-weight="600" font-size="156" letter-spacing="-8.6" fill="#F5F3EE">fluid</text>
+    <text y="56" font-family="Inter Tight, Inter, system-ui, sans-serif" font-weight="500" font-size="34" letter-spacing="-0.8" fill="#F5F3EE" opacity="0.88">Async workers, schedulers, and queues for Python.</text>
+  </g>
+
+  
+  <g transform="translate(80, 528)">
+    <rect x="0" y="0" width="380" height="56" rx="10" fill="none" stroke="#F5F3EE" stroke-opacity="0.18" stroke-width="1"></rect>
+    <text x="20" y="36" font-family="JetBrains Mono, ui-monospace, monospace" font-size="20" font-weight="500"><tspan fill="#8A929C">$ </tspan><tspan fill="#F5F3EE">pip install </tspan><tspan fill="#FBBF24">aio-fluid</tspan></text>
+  </g>
+
+  
+  <text x="1200" y="564" text-anchor="end" font-family="JetBrains Mono, ui-monospace, monospace" font-size="13" fill="#8A929C" letter-spacing="1.2">MIT</text>
+</svg>
