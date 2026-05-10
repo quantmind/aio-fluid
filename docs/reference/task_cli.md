@@ -27,10 +27,16 @@ if __name__ == "__main__":
 
 ### `ls` — list registered tasks
 
-Prints a table of all registered tasks with their schedule, priority, timeout, and CPU-bound flag.
+Prints a table of all registered tasks with their schedule, priority, timeout, CPU-bound flag, and tags.
 
 ```bash
 python -m myapp ls
+```
+
+Pass `--tags`/`-t` (repeatable) to only list tasks that have at least one of the given tags:
+
+```bash
+python -m myapp ls --tags fast --tags slow
 ```
 
 ### `serve` — start the HTTP server

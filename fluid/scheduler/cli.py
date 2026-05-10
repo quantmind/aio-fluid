@@ -129,11 +129,17 @@ class ExecuteTasks(click.Group):
 
 
 @click.command()
+@click.option(
+    "--tags",
+    "-t",
+    multiple=True,
+    help="Only list tasks that have at least one of these tags",
+)
 @click.pass_context
-def ls(ctx: click.Context) -> None:
+def ls(ctx: click.Context, tags: tuple[str, ...]) -> None:
     """List all tasks with their schedules"""
     task_manager = ctx_task_manager(ctx)
-    table = asyncio.run(tasks_table(task_manager))
+    table = asyncio.run(tasks_table(task_manager, tags=set(tags)))
     console = Console()
     console.print(table)
 
@@ -219,7 +225,7 @@ async def enable_task(task_manager: TaskManager, task: str, enable: bool) -> Non
         raise click.ClickException(f"Task {task} not found") from e
 
 
-async def tasks_table(task_manager: TaskManager) -> Table:
+async def tasks_table(task_manager: TaskManager, tags: set[str] | None = None) -> Table:
     task_info = await task_manager.broker.get_tasks_info()
     dynamic = {t.name: t for t in task_info}
     table = Table(title="Tasks")
@@ -229,16 +235,20 @@ async def tasks_table(task_manager: TaskManager) -> Table:
     table.add_column("CPU bound", style="magenta")
     table.add_column("Timeout secs", style="green")
     table.add_column("Priority", style="magenta")
+    table.add_column("Tags", style="blue")
     table.add_column("Description", style="green")
     for name in sorted(task_manager.registry):
         task = task_manager.registry[name]
+        if tags and not tags.intersection(task.tags):
+            continue
         table.add_row(
             name,
             ":white_check_mark:" if dynamic[name].enabled else "[red]:x:",
-            str(task.schedule),
+            str(task.schedule) if task.schedule is not None else "[red]:x:",
             ":white_check_mark:" if task.cpu_bound else "[red]:x:",
             str(task.timeout_seconds),
             str(task.priority),
+            ", ".join(sorted(task.tags)),
             task.short_description,
         )
     return table
