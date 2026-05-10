@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Any, Callable, Sequence, cast
 
-from fastapi import APIRouter, Depends, FastAPI, HTTPException, Path, Request
+from fastapi import APIRouter, Depends, FastAPI, HTTPException, Path, Query, Request
 from pydantic import BaseModel, Field
 from typing_extensions import Annotated, Doc
 
@@ -132,8 +132,18 @@ def create_queue_task(task: Task) -> Callable:
     return queue_task
 
 
-async def get_tasks(task_manager: TaskManagerDep) -> list[TaskInfo]:
-    return await task_manager.broker.get_tasks_info()
+async def get_tasks(
+    task_manager: TaskManagerDep,
+    tags: Annotated[
+        list[str] | None,
+        Query(description="Only return tasks that have at least one of these tags"),
+    ] = None,
+) -> list[TaskInfo]:
+    tasks = await task_manager.broker.get_tasks_info()
+    if tags:
+        wanted = set(tags)
+        tasks = [task for task in tasks if wanted.intersection(task.tags)]
+    return tasks
 
 
 async def get_task(

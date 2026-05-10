@@ -14,6 +14,21 @@ async def test_get_tasks(cli: TaskClient) -> None:
     tasks = {task["name"]: TaskInfo(**task) for task in data}
     dummy = tasks["dummy"]
     assert dummy.name == "dummy"
+    assert set(dummy.tags) == {"test", "slow"}
+
+
+async def test_get_tasks_by_tags(cli: TaskClient) -> None:
+    data = await cli.get(f"{cli.url}/tasks?tags=test")
+    names = {task["name"] for task in data}
+    assert names == {"fast", "dummy"}
+    data = await cli.get(f"{cli.url}/tasks?tags=skip_db")
+    names = {task["name"] for task in data}
+    assert names == {"ping"}
+    data = await cli.get(f"{cli.url}/tasks?tags=skip_db&tags=fast")
+    names = {task["name"] for task in data}
+    assert names == {"ping", "fast"}
+    data = await cli.get(f"{cli.url}/tasks?tags=does-not-exist")
+    assert data == []
 
 
 async def test_get_tasks_status(cli: TaskClient) -> None:

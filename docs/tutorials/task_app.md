@@ -53,6 +53,14 @@ $ python -m examples.simple_fastapi
 
 and check the openapi UI at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
+The `GET /tasks` endpoint lists registered tasks and accepts a repeatable `tags`
+query parameter to only return tasks that have at least one of the given tags:
+
+```
+GET /tasks
+GET /tasks?tags=fast&tags=slow
+```
+
 
 ## Task App Command Line
 

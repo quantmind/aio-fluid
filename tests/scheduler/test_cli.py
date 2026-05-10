@@ -34,6 +34,21 @@ def test_cli_ls():
     result = runner.invoke(task_manager_cli, ["ls"])
     assert result.exit_code == 0
     assert result.output
+    assert "ping" in result.output
+    assert "dummy" in result.output
+
+
+def test_cli_ls_tags():
+    runner = CliRunner()
+    result = runner.invoke(task_manager_cli, ["ls", "--tags", "skip_db"])
+    assert result.exit_code == 0
+    assert "ping" in result.output
+    assert "dummy" not in result.output
+    result = runner.invoke(task_manager_cli, ["ls", "-t", "slow", "-t", "fast"])
+    assert result.exit_code == 0
+    assert "dummy" in result.output
+    assert "fast" in result.output
+    assert "ping" not in result.output
 
 
 def test_cli_exec_empty():

@@ -185,6 +185,7 @@ class TaskInfoBase(BaseModel):
     module: str = Field(description="Task module")
     priority: TaskPriority = Field(description="Task priority")
     schedule: str | None = Field(default=None, description="Task schedule")
+    tags: frozenset[str] = Field(default_factory=frozenset, description="Task tags")
 
 
 class TaskInfoUpdate(BaseModel):
@@ -327,6 +328,7 @@ class Task(NamedTuple, Generic[TP]):
             module=self.module,
             priority=self.priority,
             schedule=str(self.schedule) if self.schedule else None,
+            tags=self.tags,
         )
         return TaskInfo(**compact_dict(params))
 

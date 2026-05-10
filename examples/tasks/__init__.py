@@ -58,7 +58,11 @@ class Sleep(BaseModel):
     abort: bool = False
 
 
-@task(max_concurrency=1, timeout_seconds=2)
+@task(
+    max_concurrency=1,
+    timeout_seconds=2,
+    tags=("test", "fast"),
+)
 async def fast(context: TaskRun[Sleep]) -> None:
     """A task that sleeps for a while but has a 2 seconds timeout"""
     await asyncio.sleep(context.params.sleep)
@@ -66,7 +70,11 @@ async def fast(context: TaskRun[Sleep]) -> None:
         raise RuntimeError("just an error")
 
 
-@task(max_concurrency=1, timeout_seconds=120)
+@task(
+    max_concurrency=1,
+    timeout_seconds=120,
+    tags=("test", "slow"),
+)
 async def dummy(context: TaskRun[Sleep]) -> None:
     """A task that sleeps for a while or errors"""
     await asyncio.sleep(context.params.sleep)
@@ -76,7 +84,10 @@ async def dummy(context: TaskRun[Sleep]) -> None:
         raise RuntimeError("just an error")
 
 
-@task(schedule=every(timedelta(seconds=2)), tags=["skip_db"])
+@task(
+    schedule=every(timedelta(seconds=2)),
+    tags=("skip_db",),
+)
 async def ping(context: TaskRun) -> None:
     """A simple scheduled task that ping the broker"""
     redis_cli = cast(RedisTaskBroker, context.task_manager.broker).redis_cli
