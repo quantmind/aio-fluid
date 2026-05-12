@@ -469,9 +469,12 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
             case _:
                 raise TaskRunError(f"invalid state transition {self.state} -> {state}")
 
-    def lock(self, timeout: float | None) -> Lock:
+    def lock(self, timeout: float | None = None, name: str | None = None) -> Lock:
         """Get a lock for this task run"""
-        return self.task_manager.broker.lock(f"tasks:{self.name}", timeout=timeout)
+        lock_name = f"tasks:{self.name}"
+        if name:
+            lock_name = f"{lock_name}:{name}"
+        return self.task_manager.broker.lock(lock_name, timeout=timeout)
 
     async def _execute(self) -> None:
         try:

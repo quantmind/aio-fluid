@@ -125,19 +125,20 @@ class TaskDbPlugin(TaskManagerPlugin):
     async def _handle_update(self, task_run: TaskRun) -> None:
         if self.skip_db_tag in task_run.task.tags:
             return
-        await self.db.db_upsert(
-            self.db.tables[self.table_name],
-            dict(id=task_run.id),
-            dict(
-                state=task_run.state,
-                name=task_run.name,
-                priority=task_run.priority,
-                queued=task_run.queued,
-                start=task_run.start,
-                end=task_run.end,
-                params=task_run.params.model_dump(mode="json"),
-            ),
-        )
+        async with task_run.lock(timeout=5, name="db_upsert"):
+            await self.db.db_upsert(
+                self.db.tables[self.table_name],
+                dict(id=task_run.id),
+                dict(
+                    state=task_run.state,
+                    name=task_run.name,
+                    priority=task_run.priority,
+                    queued=task_run.queued,
+                    start=task_run.start,
+                    end=task_run.end,
+                    params=task_run.params.model_dump(mode="json"),
+                ),
+            )
 
 
 def task_meta(meta: sa.MetaData, table_name: str = "tasks") -> None:
