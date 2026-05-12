@@ -380,6 +380,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v226" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.2.6
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v225" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1444,6 +1455,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v226" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.2.6
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v225" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1494,6 +1516,27 @@
 
 
 <h1 id="release-notes">Release Notes<a class="headerlink" href="#release-notes" title="Permanent link">&para;</a></h1>
+<h2 id="v226">v2.2.6<a class="headerlink" href="#v226" title="Permanent link">&para;</a></h2>
+<p>Adds tag filtering for task listings and fixes a race in the task database plugin.</p>
+<ul>
+<li>Task listings can be filtered by tag: the <code>GET /tasks</code> endpoint and the <code>ls</code>
+  command of the <a href="https://fluid.quantmind.com/reference/task_cli/">task CLI</a>
+  accept a repeatable <code>tags</code> option that returns only tasks carrying at least
+  one of the given tags, and <code>TaskInfo</code> now reports each task's tags.
+  (<a href="https://github.com/quantmind/aio-fluid/pull/94">#94</a>)</li>
+<li>The <a href="https://fluid.quantmind.com/reference/task_plugin/#fluid.scheduler.db.TaskDbPlugin">task database plugin</a>
+  now serialises its per-run lifecycle writes with a dedicated task-run lock.
+  <code>CrudDB.db_upsert</code> is not atomic — it issues an <code>UPDATE</code> and only <code>INSERT</code>s
+  when nothing matched — so when the scheduler wrote the <code>queued</code> row and a
+  consumer wrote the <code>running</code> row a few milliseconds later, the consumer's
+  <code>UPDATE</code> could miss the not-yet-committed <code>INSERT</code>, fall through to its own
+  <code>INSERT</code> and violate the task-runs primary key. Holding the lock around the
+  upsert removes the race.
+  (<a href="https://github.com/quantmind/aio-fluid/pull/95">#95</a>)</li>
+<li><a href="https://fluid.quantmind.com/reference/task_run/#fluid.scheduler.TaskRun.lock">TaskRun.lock</a>
+  accepts an optional <code>name</code> to acquire a named sub-lock for the task run, and
+  <code>timeout</code> now defaults to <code>None</code>. (<a href="https://github.com/quantmind/aio-fluid/pull/95">#95</a>)</li>
+</ul>
 <h2 id="v225">v2.2.5<a class="headerlink" href="#v225" title="Permanent link">&para;</a></h2>
 <ul>
 <li>The <a href="https://fluid.quantmind.com/reference/task/#fluid.scheduler.task">task decorator</a>
