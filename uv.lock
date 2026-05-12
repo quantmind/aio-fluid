@@ -20,7 +20,7 @@ wheels = [
 
 [[package]]
 name = "aio-fluid"
-version = "2.2.5"
+version = "2.2.6"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
