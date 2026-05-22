@@ -9,7 +9,6 @@ from time import monotonic
 from types import ModuleType
 from typing import Any, Awaitable, Callable, Self
 
-from inflection import underscore
 from starlette.datastructures import State
 from typing_extensions import Annotated, Doc
 
@@ -18,6 +17,7 @@ from fluid.scheduler.plugin import TaskManagerPlugin
 from fluid.utils import log
 from fluid.utils.dates import utcnow
 from fluid.utils.dispatcher import AsyncDispatcher, Dispatcher, Event
+from fluid.utils.text import snake_case
 from fluid.utils.worker import AsyncConsumer, Worker, WorkerFunction, Workers
 
 from .broker import TaskBroker, TaskRegistry
@@ -134,7 +134,7 @@ class TaskManager:
     @property
     def type(self) -> str:
         """The type of the task manager"""
-        return underscore(self.__class__.__name__)
+        return snake_case(self.__class__.__name__)
 
     def register_task(self, task: Annotated[Task, Doc("Task to register")]) -> None:
         """Register a task with the task manager"""
