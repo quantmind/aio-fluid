@@ -16,10 +16,10 @@ from typing import (
     TypeVar,
 )
 
-from inflection import underscore
 from typing_extensions import Doc
 
 from fluid import settings
+from fluid.utils.text import snake_case
 
 from .dispatcher import AsyncDispatcher, MessageType
 from .errors import WorkerStartError
@@ -173,7 +173,7 @@ class Worker(ABC):
             ),
         ] = settings.STOPPING_GRACE_PERIOD,
     ) -> None:
-        self._worker_name: str = name or underscore(type(self).__name__)
+        self._worker_name: str = name or snake_case(type(self).__name__)
         self._worker_state: WorkerState = WorkerState.INIT
         self._stopping_grace_period = stopping_grace_period
         self._worker_task_runner: WorkerTaskRunner | None = None

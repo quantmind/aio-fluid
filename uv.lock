@@ -24,7 +24,6 @@ version = "2.2.6"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
-    { name = "inflection" },
     { name = "pydantic" },
     { name = "redis", extra = ["hiredis"] },
     { name = "typing-extensions" },
@@ -100,7 +99,6 @@ requires-dist = [
     { name = "griffe-pydantic", marker = "extra == 'docs'", specifier = ">=1.1.0" },
     { name = "griffe-typingdoc", marker = "extra == 'docs'", specifier = ">=0.3.1" },
     { name = "httpx", marker = "extra == 'http'", specifier = ">=0.28.1" },
-    { name = "inflection", specifier = ">=0.5.1" },
     { name = "ipython", marker = "extra == 'dev'", specifier = ">=9.10.0" },
     { name = "isort", marker = "extra == 'dev'", specifier = ">=8.0.1" },
     { name = "kubernetes", marker = "extra == 'k8s'", specifier = ">=32.0.0" },
@@ -1706,15 +1704,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/f3/49/3b30cad09e7771a4982d9975a8cbf64f00d4a1ececb53297f1d9a7be1b10/importlib_metadata-8.7.1.tar.gz", hash = "sha256:49fef1ae6440c182052f407c8d34a68f72efc36db9ca90dc0113398f2fdde8bb", size = 57107, upload-time = "2025-12-21T10:00:19.278Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/fa/5e/f8e9a1d23b9c20a551a8a02ea3637b4642e22c2626e3a13a9a29cdea99eb/importlib_metadata-8.7.1-py3-none-any.whl", hash = "sha256:5a1f80bf1daa489495071efbb095d75a634cf28a8bc299581244063b53176151", size = 27865, upload-time = "2025-12-21T10:00:18.329Z" },
-]
-
-[[package]]
-name = "inflection"
-version = "0.5.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/e1/7e/691d061b7329bc8d54edbf0ec22fbfb2afe61facb681f9aaa9bff7a27d04/inflection-0.5.1.tar.gz", hash = "sha256:1a29730d366e996aaacffb2f1f1cb9593dc38e2ddd30c91250c6dde09ea9b417", size = 15091, upload-time = "2020-08-22T08:16:29.139Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/59/91/aa6bde563e0085a02a435aa99b49ef75b0a4b062635e606dab23ce18d720/inflection-0.5.1-py2.py3-none-any.whl", hash = "sha256:f38b2b640938a4f35ade69ac3d053042959b62a0f1076a5bbaa1b9526605a8a2", size = 9454, upload-time = "2020-08-22T08:16:27.816Z" },
 ]
 
 [[package]]
