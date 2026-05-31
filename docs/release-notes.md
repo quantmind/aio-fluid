@@ -1,5 +1,24 @@
 # Release Notes
 
+## v2.3.1
+
+**v2.3.0 is broken — do not use it.**
+
+Fixes a regression in v2.3.0 where the `httpx2` dependency was pinned to
+`>=2.2.0`, which fails on Python 3.14 builds missing the `_zstd` C extension.
+Pins `httpx2` to `>=2.0.0, <2.1.0` and switches all `httpx` imports to
+`httpx2` for correct namespace resolution.
+
+- `httpx2` is now pinned to `>=2.0.0, <2.1.0` — versions 2.1.0+ require the
+  `compression.zstd` stdlib module which is not available in all Python 3.14
+  builds.
+  ([#98](https://github.com/quantmind/aio-fluid/pull/98))
+- All `import httpx` statements replaced with `import httpx2 as httpx` (or
+  `from httpx2 import ...`) to ensure correct namespace resolution regardless
+  of `httpx2` version.
+- Added test coverage for [HttpxClient](https://fluid.quantmind.com/reference/http_client/#fluid.utils.http_client.HttpxClient)
+  and [HttpxResponse](https://fluid.quantmind.com/reference/http_client/#fluid.utils.http_client.HttpxResponse).
+
 ## v2.3.0
 
 Moves development and documentation dependencies from optional-dependencies to
