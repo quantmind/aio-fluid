@@ -4,7 +4,7 @@ from typing import Any, AsyncIterator, cast
 
 import pytest
 from fastapi import FastAPI
-from httpx import ASGITransport, AsyncClient
+from httpx2 import ASGITransport, AsyncClient
 from sqlalchemy.exc import NoResultFound
 
 from examples import tasks

@@ -120,7 +120,7 @@ async def datetime_task(context: TaskRun[DatetimeParams]) -> None:
 async def cpu_bound_env(context: TaskRun) -> None:
     """A CPU bound task that reads an env variable injected via the env argument"""
     broker = cast(RedisTaskBroker, context.task_manager.broker)
-    await broker.redis_cli.setex(context.id, 10, os.environ.get("FLUID_TEST_ENV", ""))
+    await broker.redis_cli.set(context.id, os.environ.get("FLUID_TEST_ENV", ""), ex=10)
 
 
 @task(cpu_bound=True)
@@ -140,7 +140,7 @@ async def cpu_bound(context: TaskRun[Sleep]) -> None:
         pid=os.getpid(),
         sleep=context.params.sleep,
     )
-    await redis.setex(context.id, 10, json.dumps(data))
+    await redis.set(context.id, json.dumps(data), ex=10)
 
 
 class Scrape(BaseModel):
@@ -201,7 +201,7 @@ class RequiredPaletteParams(BaseModel):
 async def colorize(context: TaskRun[PaletteParams]) -> None:
     """A task with a StrEnum parameter"""
     broker = cast(RedisTaskBroker, context.task_manager.broker)
-    await broker.redis_cli.setex(context.id, 10, context.params.color)
+    await broker.redis_cli.set(context.id, context.params.color, ex=10)
     context.logger.info(f"Color: {context.params.color}")
 
 
@@ -210,7 +210,7 @@ async def colorize_optional(context: TaskRun[OptionalPaletteParams]) -> None:
     """A task with an optional StrEnum parameter"""
     if context.params.color is not None:
         broker = cast(RedisTaskBroker, context.task_manager.broker)
-        await broker.redis_cli.setex(context.id, 10, context.params.color)
+        await broker.redis_cli.set(context.id, context.params.color, ex=10)
     context.logger.info(f"Color: {context.params.color}")
 
 
@@ -218,5 +218,5 @@ async def colorize_optional(context: TaskRun[OptionalPaletteParams]) -> None:
 async def colorize_required(context: TaskRun[RequiredPaletteParams]) -> None:
     """A task with a required StrEnum parameter"""
     broker = cast(RedisTaskBroker, context.task_manager.broker)
-    await broker.redis_cli.setex(context.id, 10, context.params.color)
+    await broker.redis_cli.set(context.id, context.params.color, ex=10)
     context.logger.info(f"Color: {context.params.color}")

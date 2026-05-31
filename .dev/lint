@@ -15,7 +15,7 @@ fi
 echo isort
 isort ${MODULES} ${ISORT_ARGS}
 echo "run black"
-black ${MODULES} ${BLACK_ARG}
+black --fast ${MODULES} ${BLACK_ARG}
 echo "run ruff"
 ruff check ${MODULES} ${RUFF_ARG}
 echo "run mypy"
