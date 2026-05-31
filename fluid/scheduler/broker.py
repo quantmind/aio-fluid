@@ -295,8 +295,8 @@ class RedisTaskBroker(TaskBroker):
         return f"{self.prefix}-manager-{manager_id}"
 
     async def set_manager_status(self, manager_id: str, data: dict, ttl: int) -> None:
-        await self.redis_cli.setex(
-            self.manager_status_key(manager_id), ttl, json.dumps(data)
+        await self.redis_cli.set(
+            self.manager_status_key(manager_id), json.dumps(data), ex=ttl
         )
 
     async def get_all_manager_statuses(self) -> TaskManagersStatus:
@@ -325,10 +325,10 @@ class RedisTaskBroker(TaskBroker):
         """
         timeout_seconds = task_run.task.timeout_seconds
         tol = min(10, max(1, int(0.5 * timeout_seconds)))
-        await self.redis_cli.setex(
+        await self.redis_cli.set(
             self.task_run_key(task_run.name, task_run.id),
-            timeout_seconds + tol,
             task_run.id,
+            ex=timeout_seconds + tol,
         )
 
     async def remove_task_run(self, task_run: TaskRun) -> None:
@@ -350,7 +350,7 @@ class RedisTaskBroker(TaskBroker):
         return f"{self.prefix}-aborted-{run_id}"
 
     async def set_task_aborted(self, run_id: str, reason: str) -> None:
-        await self.redis_cli.setex(self.task_aborted_key(run_id), 60, reason)
+        await self.redis_cli.set(self.task_aborted_key(run_id), reason, ex=60)
 
     async def get_task_aborted(self, run_id: str) -> str | None:
         value = await self.redis_cli.get(self.task_aborted_key(run_id))

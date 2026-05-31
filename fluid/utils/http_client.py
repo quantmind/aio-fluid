@@ -7,7 +7,7 @@ from dataclasses import dataclass, field
 from inspect import Traceback
 from typing import Any, Callable, Generic, Self, Type, TypeVar
 
-import httpx
+import httpx2 as httpx
 from aiohttp import client
 
 from fluid import settings
@@ -244,11 +244,15 @@ class HttpClient(Generic[S, R], ABC):
 
     @classmethod
     async def response_data(cls, response: HttpResponse) -> ResponseType:
-        if "text/csv" in response.headers["content-type"]:
+        content_type = response.headers.get("content-type", "")
+        if "json" in content_type:
+            return await response.json()
+        elif "text" in content_type:
             return await response.text()
-        return await response.json()
+        return await response.bytes()
 
 
+@dataclass
 class AioHttpClient(HttpClient[client.ClientSession, client.ClientResponse]):
     def new_session(self, **kwargs: Any) -> client.ClientSession:
         return client.ClientSession(**kwargs)
@@ -264,6 +268,7 @@ class AioHttpClient(HttpClient[client.ClientSession, client.ClientResponse]):
             self.session = None
 
 
+@dataclass
 class HttpxClient(HttpClient[httpx.AsyncClient, httpx.Response]):
     def new_session(self, **kwargs: Any) -> httpx.AsyncClient:
         return httpx.AsyncClient(**kwargs)

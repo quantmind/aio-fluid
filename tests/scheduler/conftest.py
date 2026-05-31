@@ -2,7 +2,7 @@ from typing import Iterator
 
 import pytest
 from fastapi import FastAPI
-from httpx import ASGITransport, AsyncClient
+from httpx2 import ASGITransport, AsyncClient
 from redis.asyncio import Redis
 
 from examples import tasks
