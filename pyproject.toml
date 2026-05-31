@@ -1,6 +1,6 @@
 [project]
 name = "aio-fluid"
-version = "2.2.6"
+version = "2.3.0"
 description = "Tools for backend python services"
 authors = [
     { name = "Luca Sbardella", email = "luca@quantmind.com" },
@@ -58,6 +58,22 @@ db = [
     "sqlalchemy >= 2.0.23",
     "sqlalchemy-utils >= 0.41.2",
 ]
+http = [
+    "aiohttp >= 3.10.10",
+    "httpx2 >= 0.28.1",
+    "prometheus-client >= 0.21.0",
+    "python-slugify >= 8.0.4",
+]
+k8s = [
+    "kubernetes >= 32.0.0",
+    "kubernetes-asyncio >= 32.0.0",
+    "python-slugify >= 8.0.4",
+]
+log = [
+    "python-json-logger >= 3.2.1",
+]
+
+[dependency-groups]
 dev = [
     "black >= 26.1.0",
     "ipython >= 9.10.0",
@@ -79,20 +95,6 @@ docs = [
     "mkdocs-material >= 9.7.0",
     "mkdocs-redirects >= 1.2.1",
     "mkdocstrings[python] >= 1.0.3",
-]
-http = [
-    "aiohttp >= 3.10.10",
-    "httpx >= 0.28.1",
-    "prometheus-client >= 0.21.0",
-    "python-slugify >= 8.0.4",
-]
-k8s = [
-    "kubernetes >= 32.0.0",
-    "kubernetes-asyncio >= 32.0.0",
-    "python-slugify >= 8.0.4",
-]
-log = [
-    "python-json-logger >= 3.2.1",
 ]
 
 [build-system]

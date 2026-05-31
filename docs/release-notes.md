@@ -1,5 +1,20 @@
 # Release Notes
 
+## v2.3.0
+
+Moves development and documentation dependencies from optional-dependencies to
+[dependency groups](https://peps.python.org/pep-0735/), switches to
+[httpx2](https://pypi.org/project/httpx2/) for HTTP client support, and removes
+the `inflection` dependency.
+
+- `dev` and `docs` dependencies are now declared under `[dependency-groups]`
+  instead of `[project.optional-dependencies]`. Installed via `uv sync
+  --all-groups`.
+- The `http` extra now uses `httpx2` instead of `httpx`. `httpx2` provides the
+  same `httpx` module so no code changes are required.
+- The `inflection` dependency has been removed.
+  ([#96](https://github.com/quantmind/aio-fluid/pull/96))
+
 ## v2.2.6
 
 Adds tag filtering for task listings and fixes a race in the task database plugin.
