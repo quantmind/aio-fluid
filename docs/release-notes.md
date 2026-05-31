@@ -12,6 +12,7 @@ the `inflection` dependency.
   --all-groups`.
 - The `http` extra now uses `httpx2` instead of `httpx`. `httpx2` provides the
   same `httpx` module so no code changes are required.
+  ([#97](https://github.com/quantmind/aio-fluid/pull/97))
 - The `inflection` dependency has been removed.
   ([#96](https://github.com/quantmind/aio-fluid/pull/96))
 
