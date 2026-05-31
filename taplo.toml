@@ -18,11 +18,12 @@ include = [
     "pyproject.toml",
 ]
 keys = [
+    "dependency-groups",
+    "dependency-groups.dev",
+    "dependency-groups.docs",
     "project.optional-dependencies",
     "project.optional-dependencies.cli",
     "project.optional-dependencies.db",
-    "project.optional-dependencies.dev",
-    "project.optional-dependencies.docs",
     "project.optional-dependencies.http",
     "project.optional-dependencies.k8s",
     "project.optional-dependencies.log",
