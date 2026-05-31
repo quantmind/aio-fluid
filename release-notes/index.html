@@ -380,6 +380,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v231" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.3.1
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v230" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1466,6 +1477,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v231" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.3.1
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v230" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1538,6 +1560,23 @@
 
 
 <h1 id="release-notes">Release Notes<a class="headerlink" href="#release-notes" title="Permanent link">&para;</a></h1>
+<h2 id="v231">v2.3.1<a class="headerlink" href="#v231" title="Permanent link">&para;</a></h2>
+<p><strong>v2.3.0 is broken — do not use it.</strong></p>
+<p>Fixes a regression in v2.3.0 where the <code>httpx2</code> dependency was pinned to
+<code>&gt;=2.2.0</code>, which fails on Python 3.14 builds missing the <code>_zstd</code> C extension.
+Pins <code>httpx2</code> to <code>&gt;=2.0.0, &lt;2.1.0</code> and switches all <code>httpx</code> imports to
+<code>httpx2</code> for correct namespace resolution.</p>
+<ul>
+<li><code>httpx2</code> is now pinned to <code>&gt;=2.0.0, &lt;2.1.0</code> — versions 2.1.0+ require the
+  <code>compression.zstd</code> stdlib module which is not available in all Python 3.14
+  builds.
+  (<a href="https://github.com/quantmind/aio-fluid/pull/98">#98</a>)</li>
+<li>All <code>import httpx</code> statements replaced with <code>import httpx2 as httpx</code> (or
+  <code>from httpx2 import ...</code>) to ensure correct namespace resolution regardless
+  of <code>httpx2</code> version.</li>
+<li>Added test coverage for <a href="https://fluid.quantmind.com/reference/http_client/#fluid.utils.http_client.HttpxClient">HttpxClient</a>
+  and <a href="https://fluid.quantmind.com/reference/http_client/#fluid.utils.http_client.HttpxResponse">HttpxResponse</a>.</li>
+</ul>
 <h2 id="v230">v2.3.0<a class="headerlink" href="#v230" title="Permanent link">&para;</a></h2>
 <p>Moves development and documentation dependencies from optional-dependencies to
 <a href="https://peps.python.org/pep-0735/">dependency groups</a>, switches to
