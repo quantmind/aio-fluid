@@ -380,6 +380,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v230" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.3.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v226" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1455,6 +1466,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v230" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.3.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v226" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1516,6 +1538,20 @@
 
 
 <h1 id="release-notes">Release Notes<a class="headerlink" href="#release-notes" title="Permanent link">&para;</a></h1>
+<h2 id="v230">v2.3.0<a class="headerlink" href="#v230" title="Permanent link">&para;</a></h2>
+<p>Moves development and documentation dependencies from optional-dependencies to
+<a href="https://peps.python.org/pep-0735/">dependency groups</a>, switches to
+<a href="https://pypi.org/project/httpx2/">httpx2</a> for HTTP client support, and removes
+the <code>inflection</code> dependency.</p>
+<ul>
+<li><code>dev</code> and <code>docs</code> dependencies are now declared under <code>[dependency-groups]</code>
+  instead of <code>[project.optional-dependencies]</code>. Installed via <code>uv sync
+  --all-groups</code>.</li>
+<li>The <code>http</code> extra now uses <code>httpx2</code> instead of <code>httpx</code>. <code>httpx2</code> provides the
+  same <code>httpx</code> module so no code changes are required.</li>
+<li>The <code>inflection</code> dependency has been removed.
+  (<a href="https://github.com/quantmind/aio-fluid/pull/96">#96</a>)</li>
+</ul>
 <h2 id="v226">v2.2.6<a class="headerlink" href="#v226" title="Permanent link">&para;</a></h2>
 <p>Adds tag filtering for task listings and fixes a race in the task database plugin.</p>
 <ul>
