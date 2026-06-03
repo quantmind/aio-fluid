@@ -3,6 +3,7 @@ from typing import Any, Set, TypeAlias, cast
 
 from dateutil.parser import parse as parse_date
 from sqlalchemy import Column, Table, func, insert, select
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.engine.cursor import CursorResult
 from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncConnection
@@ -300,6 +301,11 @@ class CrudDB(Database):
         ],
     ) -> Any:
         """Build a SQLAlchemy WHERE clause expression for a single column filter"""
+        if isinstance(column.type, JSONB) and isinstance(value, dict):
+            if op == "eq":
+                return column.contains(value)
+            return None
+
         if multiple := isinstance(value, (list, tuple)):
             value = tuple(column_value_to_python(column, v) for v in value)
         else:
