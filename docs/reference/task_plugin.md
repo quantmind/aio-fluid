@@ -31,13 +31,13 @@ called directly from within a task by passing `context.task_manager`:
 
 ```python
 from fluid.scheduler import TaskRun, task
-from fluid.scheduler.db import get_db_plugin, HistoryQuery
+from fluid.scheduler.db import get_db_plugin, TaskHistoryQuery
 
 
 @task()
 async def report(context: TaskRun) -> None:
     db_plugin = get_db_plugin(context.task_manager)
-    page = await db_plugin.get_history(HistoryQuery(task="my-task", limit=10))
+    page = await db_plugin.get_history(TaskHistoryQuery(task="my-task", limit=10))
     for run in page.data:
         print(run.id, run.state)
 ```
@@ -53,10 +53,10 @@ or the HTTP endpoints added by [with_task_history_router][fluid.scheduler.db.wit
 They can be imported from `fluid.scheduler.db`:
 
 ```python
-from fluid.scheduler.db import HistoryQuery, TaskRunHistory, TaskRunHistoryPage
+from fluid.scheduler.db import TaskHistoryQuery, TaskRunHistory, TaskRunHistoryPage
 ```
 
-::: fluid.scheduler.db.HistoryQuery
+::: fluid.scheduler.db.TaskHistoryQuery
 
 ::: fluid.scheduler.db.TaskRunHistory
 

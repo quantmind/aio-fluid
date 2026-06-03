@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from typing import Any, ClassVar
 
 import sqlalchemy as sa
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, BeforeValidator, Field, model_validator
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.exc import NoResultFound
 from typing_extensions import Annotated, Doc
 
@@ -20,8 +22,18 @@ from .models import TaskPriority, TaskRun, TaskState
 from .plugin import TaskManagerPlugin
 
 
+def _parse_json_str(v: Any) -> Any:
+    """Parse a JSON string into a dict for JSONB query parameters."""
+    if isinstance(v, str):
+        return json.loads(v)
+    return v
+
+
+JsonDict = Annotated[dict[str, Any], BeforeValidator(_parse_json_str)]
+
+
 class TaskDbPlugin(TaskManagerPlugin):
-    """A plugin to store task runs in a database.
+    """A plugin to store [TaskRun][fluid.scheduler.TaskRun] in a postgresql database.
 
     This plugin listens to task state changes and updates the database accordingly.
     It requires a CrudDB instance to perform database operations and allows
@@ -95,7 +107,7 @@ class TaskDbPlugin(TaskManagerPlugin):
     async def get_history(
         self,
         q: Annotated[
-            HistoryQuery, Doc("Query parameters for fetching task run history")
+            TaskHistoryQuery, Doc("Query parameters for fetching task run history")
         ],
     ) -> TaskRunHistoryPage:
         """Get task run history based on the provided query parameters."""
@@ -169,10 +181,15 @@ def task_meta(meta: sa.MetaData, table_name: str = "tasks") -> None:
             nullable=False,
             index=True,
         ),
-        sa.Column("queued", sa.DateTime(timezone=True), nullable=False),
+        sa.Column("queued", sa.DateTime(timezone=True), nullable=False, index=True),
         sa.Column("start", sa.DateTime(timezone=True)),
         sa.Column("end", sa.DateTime(timezone=True)),
-        sa.Column("params", sa.JSON),
+        sa.Column("params", JSONB),
+        sa.Index(
+            f"ix_{table_name}_params",
+            "params",
+            postgresql_using="gin",
+        ),
     )
 
 
@@ -228,32 +245,52 @@ class TaskRunHistoryPage(BaseModel):
     cursor: str = Field(..., description="Pagination cursor to fetch the next page")
 
 
-class HistoryQuery(BaseModel):
+class TaskHistoryQuery(BaseModel):
     """Query parameters for fetching task run history."""
 
     task: Annotated[
         str | None,
         Query(description="Filter by task name"),
+        Doc("Filter by task name when provided"),
     ] = None
     start: Annotated[
         datetime | None,
         Query(description="Filter runs queued at or after this time"),
+        Doc("Filter runs queued at or after this time when provided"),
     ] = None
     end: Annotated[
         datetime | None,
         Query(description="Filter runs queued at or before this time"),
+        Doc("Filter runs queued at or before this time when provided"),
     ] = None
     state: Annotated[
         TaskState | None,
         Query(description="Filter by task state"),
+        Doc("Filter by task state when provided"),
     ] = None
+    params: Annotated[
+        dict[str, Any] | str | None,
+        Query(description="Filter by params using JSON containment"),
+        Doc("Filter by params using JSON containment when provided"),
+    ] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _parse_params_str(cls, data: Any) -> Any:
+        if isinstance(data, dict) and "params" in data:
+            data = {**data}
+            data["params"] = _parse_json_str(data["params"])
+        return data
+
     limit: Annotated[
         int | None,
         Query(description="Maximum number of results to return", ge=1),
+        Doc("Maximum number of results to return when provided"),
     ] = None
     cursor: Annotated[
         str,
         Query(description="Pagination cursor from a previous response"),
+        Doc("Pagination cursor from a previous response when provided"),
     ] = ""
 
     _filter_map: ClassVar[dict[str, str]] = {
@@ -278,7 +315,7 @@ class HistoryQuery(BaseModel):
 )
 async def get_history(
     db_plugin: TaskDbPluginDep,
-    q: Annotated[HistoryQuery, Depends()],
+    q: Annotated[TaskHistoryQuery, Query()],
 ) -> TaskRunHistoryPage:
     return await db_plugin.get_history(q)
 

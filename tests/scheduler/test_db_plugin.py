@@ -1,4 +1,5 @@
 import asyncio
+import json
 from datetime import datetime, timezone
 from typing import Any, AsyncIterator, cast
 
@@ -10,7 +11,12 @@ from sqlalchemy.exc import NoResultFound
 from examples import tasks
 from fluid.scheduler import TaskState
 from fluid.scheduler.consumer import TaskConsumer
-from fluid.scheduler.db import TaskDbPlugin, get_db_plugin, with_task_history_router
+from fluid.scheduler.db import (
+    TaskDbPlugin,
+    TaskHistoryQuery,
+    get_db_plugin,
+    with_task_history_router,
+)
 from fluid.scheduler.endpoints import get_task_manager, task_manager_fastapi
 from fluid.utils.http_client import HttpResponseError
 from tests.scheduler.tasks import TaskClient, redis_broker, start_fastapi
@@ -268,3 +274,44 @@ async def test_get_history_filter_by_end(
     assert any(item["id"] == task_run.id for item in data)
     data_empty = await get_history(cli_db, end="2000-01-01T00:00:00Z")
     assert data_empty == []
+
+
+async def test_get_history_filter_by_params_programmatic(
+    task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait("add", timeout=5, a=7.0, b=8.0)
+    assert task_run.state == TaskState.success
+
+    await wait_for_task_run(db_plugin, task_run.id)
+    page = await db_plugin.get_history(TaskHistoryQuery(params={"a": 7.0}))
+    assert len(page.data) >= 1
+    assert any(r.id == task_run.id for r in page.data)
+    assert all(7.0 == r.params.get("a") for r in page.data)
+
+    # Negative: filter that shouldn't match
+    page_empty = await db_plugin.get_history(TaskHistoryQuery(params={"a": 999.0}))
+    assert not any(r.id == task_run.id for r in page_empty.data)
+
+
+async def test_get_history_filter_by_params_http(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait("add", timeout=5, a=9.0, b=10.0)
+    assert task_run.state == TaskState.success
+
+    await wait_for_task_run(db_plugin, task_run.id)
+
+    data = await get_history(cli_db, params=json.dumps({"a": 9.0}))
+    assert any(item["id"] == task_run.id for item in data)
+    assert all(9.0 == item["params"].get("a") for item in data)
+
+
+async def test_get_history_filter_by_params_http_negative(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait("add", timeout=5, a=11.0, b=12.0)
+    assert task_run.state == TaskState.success
+
+    await wait_for_task_run(db_plugin, task_run.id)
+    data_empty = await get_history(cli_db, params=json.dumps({"a": 999.0}))
+    assert not any(item["id"] == task_run.id for item in data_empty)
