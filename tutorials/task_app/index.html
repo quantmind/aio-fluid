@@ -1723,19 +1723,18 @@ on top of the data.</p>
 </span></code></pre></div>
 <p>Register the plugin when building your task manager:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskScheduler</span><span class="p">,</span> <span class="n">task_manager_fastapi</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskDbPlugin</span><span class="p">,</span> <span class="n">with_task_history_router</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskDbPlugin</span>
 </span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">CrudDB</span>
 </span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
 </span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="n">db</span> <span class="o">=</span> <span class="n">CrudDB</span><span class="o">.</span><span class="n">from_env</span><span class="p">()</span>
 </span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="n">task_manager</span> <span class="o">=</span> <span class="n">TaskScheduler</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
 </span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="n">task_manager</span><span class="o">.</span><span class="n">with_plugin</span><span class="p">(</span><span class="n">TaskDbPlugin</span><span class="p">(</span><span class="n">db</span><span class="p">))</span>
 </span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="n">app</span> <span class="o">=</span> <span class="n">task_manager_fastapi</span><span class="p">(</span><span class="n">task_manager</span><span class="p">)</span>
-</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="n">with_task_history_router</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
 </span></code></pre></div>
 <p>The plugin creates a <code>fluid_tasks</code> table (configurable via <code>table_name</code>) and
 persists a row for each task run as it moves through its lifecycle states.
-Tasks tagged with <code>skip_db</code> are excluded from persistence.</p>
-<p><code>with_task_history_router</code> mounts a <code>/history</code> router on the app with two endpoints:</p>
+Tasks tagged with <code>skip_db</code> are excluded from persistence.
+The plugin mounts a <code>/tasks-history</code> router on the app with two endpoints:</p>
 <table>
 <thead>
 <tr>
@@ -1747,12 +1746,12 @@ Tasks tagged with <code>skip_db</code> are excluded from persistence.</p>
 <tbody>
 <tr>
 <td><code>GET</code></td>
-<td><code>/history</code></td>
+<td><code>/tasks-history</code></td>
 <td>List task run history with optional filters</td>
 </tr>
 <tr>
 <td><code>GET</code></td>
-<td><code>/history/{run_id}</code></td>
+<td><code>/tasks-history/{run_id}</code></td>
 <td>Fetch a single task run by ID</td>
 </tr>
 </tbody>
