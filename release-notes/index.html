@@ -380,6 +380,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v240" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.4.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v231" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1477,6 +1488,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v240" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.4.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v231" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1560,6 +1582,28 @@
 
 
 <h1 id="release-notes">Release Notes<a class="headerlink" href="#release-notes" title="Permanent link">&para;</a></h1>
+<h2 id="v240">v2.4.0<a class="headerlink" href="#v240" title="Permanent link">&para;</a></h2>
+<p>Lazy settings via pydantic-settings, JSONB params filtering for task
+history, and customisable route prefixes.</p>
+<ul>
+<li>Settings are now lazy — resolved on first access instead of at import
+  time. Env vars use a <code>FLUID_</code> prefix by default; legacy unprefixed names
+  are kept as aliases.
+  (<a href="https://github.com/quantmind/aio-fluid/pull/100">#100</a>)</li>
+<li>The task database plugin accepts a <code>route_prefix</code> parameter for
+  customising history route URLs and replaces <code>with_task_history_router()</code>
+  with a <code>register_routes()</code> method.
+  (<a href="https://github.com/quantmind/aio-fluid/pull/100">#100</a>)</li>
+<li>Task history queries support filtering by run params via a new <code>params</code>
+  field (renamed from <code>HistoryQuery</code> to <code>TaskHistoryQuery</code>).
+  (<a href="https://github.com/quantmind/aio-fluid/pull/99">#99</a>)</li>
+<li><strong>Database migration required:</strong> the <code>params</code> column is now <code>JSONB</code> with
+  a GIN index. See the example
+  <a href="https://github.com/quantmind/aio-fluid/blob/main/examples/tasks/migrations/versions/d941c11ca25a_jsonb.py">migration</a>
+  for the schema changes.</li>
+<li>Removed <code>get_logger</code> from <code>fluid.utils.log</code>. Task loggers are now obtained
+  directly via <code>logging.getLogger(module)</code>.</li>
+</ul>
 <h2 id="v231">v2.3.1<a class="headerlink" href="#v231" title="Permanent link">&para;</a></h2>
 <p><strong>v2.3.0 is broken — do not use it.</strong></p>
 <p>Fixes a regression in v2.3.0 where the <code>httpx2</code> dependency was pinned to
