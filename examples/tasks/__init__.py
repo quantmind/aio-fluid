@@ -48,8 +48,11 @@ def task_scheduler(
     return task_manager
 
 
-def task_app() -> FastAPI:
-    return task_manager_fastapi(task_scheduler(), app=FastAPI(title="Task Manager API"))
+def task_app(plugins: Sequence[TaskManagerPlugin] | None = None) -> FastAPI:
+    return task_manager_fastapi(
+        task_scheduler(plugins=plugins),
+        app=FastAPI(title="Task Manager API"),
+    )
 
 
 class Sleep(BaseModel):

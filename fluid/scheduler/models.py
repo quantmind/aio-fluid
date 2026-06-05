@@ -154,7 +154,7 @@ class TaskManagerConfig(BaseModel):
     schedule_tasks: bool = Field(default=True, description="Schedule tasks or sleep")
     consume_tasks: bool = Field(default=True, description="Consume tasks or sleep")
     max_concurrent_tasks: int = Field(
-        default=settings.MAX_CONCURRENT_TASKS,
+        default_factory=lambda: settings.MAX_CONCURRENT_TASKS,
         description=(
             "The number of coroutine workers consuming tasks. "
             "Each worker consumes one task at a time, therefore, "
@@ -164,7 +164,7 @@ class TaskManagerConfig(BaseModel):
         ),
     )
     sleep_millis: int = Field(
-        default=settings.SLEEP_MILLIS,
+        default_factory=lambda: settings.SLEEP_MILLIS,
         description=(
             "Milliseconds to async sleep when no tasks available to consume."
             "This value can be configured via the `FLUID_SLEEP_MILLIS` environment "

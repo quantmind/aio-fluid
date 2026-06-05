@@ -120,26 +120,24 @@ Register the plugin when building your task manager:
 
 ```python
 from fluid.scheduler import TaskScheduler, task_manager_fastapi
-from fluid.scheduler.db import TaskDbPlugin, with_task_history_router
+from fluid.scheduler.db import TaskDbPlugin
 from fluid.db import CrudDB
 
 db = CrudDB.from_env()
 task_manager = TaskScheduler(...)
 task_manager.with_plugin(TaskDbPlugin(db))
 app = task_manager_fastapi(task_manager)
-with_task_history_router(app)
 ```
 
 The plugin creates a `fluid_tasks` table (configurable via `table_name`) and
 persists a row for each task run as it moves through its lifecycle states.
 Tasks tagged with `skip_db` are excluded from persistence.
-
-`with_task_history_router` mounts a `/history` router on the app with two endpoints:
+The plugin mounts a `/tasks-history` router on the app with two endpoints:
 
 | Method | Path | Description |
 |--------|------|-------------|
-| `GET` | `/history` | List task run history with optional filters |
-| `GET` | `/history/{run_id}` | Fetch a single task run by ID |
+| `GET` | `/tasks-history` | List task run history with optional filters |
+| `GET` | `/tasks-history/{run_id}` | Fetch a single task run by ID |
 
 The list endpoint accepts the following query parameters:
 

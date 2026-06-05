@@ -15,7 +15,6 @@ from fluid.scheduler.db import (
     TaskDbPlugin,
     TaskHistoryQuery,
     get_db_plugin,
-    with_task_history_router,
 )
 from fluid.scheduler.endpoints import get_task_manager, task_manager_fastapi
 from fluid.utils.http_client import HttpResponseError
@@ -33,7 +32,6 @@ async def task_app_db(db_plugin: TaskDbPlugin) -> AsyncIterator[FastAPI]:
     )
     await redis_broker(task_manager).clear()
     app = task_manager_fastapi(task_manager)
-    with_task_history_router(app)
     async with start_fastapi(app) as app:
         yield app
 

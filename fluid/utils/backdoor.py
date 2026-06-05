@@ -1,6 +1,6 @@
 import logging
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from functools import partial
 
 import aioconsole
@@ -26,7 +26,7 @@ class Console(aioconsole.AsynchronousConsole):
 @dataclass
 class ConsoleManager:
     aio_console = None
-    port: int = settings.AIO_BACKDOOR_PORT
+    port: int = field(default_factory=lambda: settings.BACKDOOR_PORT)
     host: str = "127.0.0.1"
 
     async def on_startup(self, app) -> None:

@@ -224,6 +224,8 @@ def task_manager_fastapi(
     if include_router:
         tags_ = tags if tags is not None else ["Tasks"]
         app.include_router(get_router(task_manager), prefix=prefix, tags=list(tags_))
+        for plugin in task_manager._plugins:
+            plugin.register_routes(app, prefix=prefix, tags=list(tags_))
     app.state.task_manager = task_manager
     if isinstance(task_manager, Worker):
         app_workers(app).add_workers(task_manager)

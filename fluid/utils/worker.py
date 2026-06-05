@@ -164,15 +164,17 @@ class Worker(ABC):
             Doc("Worker's name, if not provided it is evaluated from the class name"),
         ] = "",
         stopping_grace_period: Annotated[
-            float,
+            float | None,
             Doc(
                 "Grace period in seconds to wait for workers to stop running "
                 "when this worker is shutdown. "
                 "It defaults to the `FLUID_STOPPING_GRACE_PERIOD` "
                 "environment variable or 10 seconds."
             ),
-        ] = settings.STOPPING_GRACE_PERIOD,
+        ] = None,
     ) -> None:
+        if stopping_grace_period is None:
+            stopping_grace_period = settings.STOPPING_GRACE_PERIOD
         self._worker_name: str = name or snake_case(type(self).__name__)
         self._worker_state: WorkerState = WorkerState.INIT
         self._stopping_grace_period = stopping_grace_period
@@ -311,9 +313,9 @@ class WorkerFunction(Worker):
             Doc("Worker's name, if not provided it is evaluated from the class name"),
         ] = "",
         stopping_grace_period: Annotated[
-            float,
+            float | None,
             Doc("Grace period in seconds before force-cancelling this worker"),
-        ] = settings.STOPPING_GRACE_PERIOD,
+        ] = None,
     ) -> None:
         super().__init__(name=name, stopping_grace_period=stopping_grace_period)
         self._run_function = run_function
@@ -349,14 +351,14 @@ class QueueConsumer(Worker, MessageProducer[MessageType]):
             Doc("Worker's name, if not provided it is evaluated from the class name"),
         ] = "",
         stopping_grace_period: Annotated[
-            float,
+            float | None,
             Doc(
                 "Grace period in seconds to wait for workers to stop running "
                 "when this worker is shutdown. "
                 "It defaults to the `FLUID_STOPPING_GRACE_PERIOD` "
                 "environment variable or 10 seconds."
             ),
-        ] = settings.STOPPING_GRACE_PERIOD,
+        ] = None,
     ) -> None:
         super().__init__(name=name, stopping_grace_period=stopping_grace_period)
         self._queue: asyncio.Queue[MessageType | None] = asyncio.Queue()
@@ -403,14 +405,14 @@ class QueueConsumerWorker(QueueConsumer[MessageType]):
             Doc("Worker's name, if not provided it is evaluated from the class name"),
         ] = "",
         stopping_grace_period: Annotated[
-            float,
+            float | None,
             Doc(
                 "Grace period in seconds to wait for workers to stop running "
                 "when this worker is shutdown. "
                 "It defaults to the `FLUID_STOPPING_GRACE_PERIOD` "
                 "environment variable or 10 seconds."
             ),
-        ] = settings.STOPPING_GRACE_PERIOD,
+        ] = None,
     ) -> None:
         super().__init__(name=name, stopping_grace_period=stopping_grace_period)
         self.on_message = on_message
@@ -446,14 +448,14 @@ class AsyncConsumer(QueueConsumer[MessageType]):
             Doc("Worker's name, if not provided it is evaluated from the class name"),
         ] = "",
         stopping_grace_period: Annotated[
-            float,
+            float | None,
             Doc(
                 "Grace period in seconds to wait for workers to stop running "
                 "when this worker is shutdown. "
                 "It defaults to the `FLUID_STOPPING_GRACE_PERIOD` "
                 "environment variable or 10 seconds."
             ),
-        ] = settings.STOPPING_GRACE_PERIOD,
+        ] = None,
     ) -> None:
         super().__init__(name=name, stopping_grace_period=stopping_grace_period)
         self.dispatcher: AsyncDispatcher[MessageType] = dispatcher
@@ -505,14 +507,14 @@ class Workers(Worker):
             Doc("The time to wait between each workers status check"),
         ] = 0.1,
         stopping_grace_period: Annotated[
-            float,
+            float | None,
             Doc(
                 "Grace period in seconds to wait for workers to stop running "
                 "when this worker is shutdown. "
                 "It defaults to the `FLUID_STOPPING_GRACE_PERIOD` "
                 "environment variable or 10 seconds."
             ),
-        ] = settings.STOPPING_GRACE_PERIOD,
+        ] = None,
     ) -> None:
         super().__init__(name=name, stopping_grace_period=stopping_grace_period)
         self._heartbeat = heartbeat

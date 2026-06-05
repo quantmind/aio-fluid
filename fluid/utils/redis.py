@@ -6,9 +6,6 @@ from typing import Any, Self
 from redis.asyncio import BlockingConnectionPool, Redis
 
 from fluid import settings
-from fluid.utils import log
-
-logger = log.get_logger(__name__)
 
 
 @dataclass
@@ -18,10 +15,14 @@ class FluidRedis:
     @classmethod
     def create(
         cls,
-        url: str = "",
-        name: str = settings.APP_NAME,
-        max_connections: int = settings.REDIS_MAX_CONNECTIONS,
+        url: str | None = None,
+        name: str | None = None,
+        max_connections: int | None = None,
     ) -> Self:
+        if name is None:
+            name = settings.APP_NAME
+        if max_connections is None:
+            max_connections = settings.REDIS_MAX_CONNECTIONS
         return cls(
             redis_cli=Redis(
                 connection_pool=BlockingConnectionPool.from_url(
