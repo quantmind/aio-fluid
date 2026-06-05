@@ -5,10 +5,7 @@ from typing import Any, Self
 from fastapi import FastAPI
 
 from fluid import settings
-from fluid.utils import log
 from fluid.utils.worker import Workers
-
-logger = log.get_logger(__name__)
 
 
 class FastapiAppWorkers(Workers):

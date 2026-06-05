@@ -25,7 +25,7 @@ if TYPE_CHECKING:
     from .models import TaskRun
 
 
-TaskManagerApp = FastAPI | Callable[..., Any] | str
+TaskManagerApp = FastAPI | Callable[[], FastAPI] | str
 
 
 class TaskManagerCLI(LazyGroup):

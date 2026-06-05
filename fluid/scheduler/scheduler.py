@@ -20,8 +20,10 @@ class ScheduleTasks(WorkerFunction):
     def __init__(
         self,
         task_manager: TaskScheduler,
-        heartbeat: float | int = 0.001 * settings.SCHEDULER_HEARTBEAT_MILLIS,
+        heartbeat: float | int | None = None,
     ) -> None:
+        if heartbeat is None:
+            heartbeat = 0.001 * settings.SCHEDULER_HEARTBEAT_MILLIS
         super().__init__(self.tick, heartbeat=heartbeat)
         self.task_manager: TaskScheduler = task_manager
         self.last_run: dict[str, CronRun] = {}

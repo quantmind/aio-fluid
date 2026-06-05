@@ -17,7 +17,7 @@ from tests.scheduler.tasks import TaskClient, redis_broker, start_fastapi
 @pytest.fixture(scope="module")
 def db_plugin() -> TaskDbPlugin:
     db = get_db()
-    plugin = TaskDbPlugin(db)
+    plugin = TaskDbPlugin(db, route_prefix="/task-history")
     mig = db.migration()
     if not mig.db_create():
         mig.drop_all_schemas()

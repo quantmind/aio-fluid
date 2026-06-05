@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime
+from enum import Enum
 from typing import Any, ClassVar
 
 import sqlalchemy as sa
@@ -61,6 +62,13 @@ class TaskDbPlugin(TaskManagerPlugin):
             str,
             Doc("The tag to skip database operations"),
         ] = "skip_db",
+        route_prefix: Annotated[
+            str | None,
+            Doc(
+                "Fix the URL prefix for the history routes. If None, "
+                "routes are registered using the prefix parameter from register_routes."
+            ),
+        ] = None,
     ) -> None:
         if table_name not in db.tables:
             task_meta(db.metadata, table_name=table_name)
@@ -68,6 +76,7 @@ class TaskDbPlugin(TaskManagerPlugin):
         self.db = db
         self.tag = tag
         self.skip_db_tag = skip_db_tag
+        self.route_prefix = route_prefix
 
     def register(self, task_manager: TaskManager) -> None:
         task_manager.state.task_db_plugin = self
@@ -103,6 +112,25 @@ class TaskDbPlugin(TaskManagerPlugin):
             Event(TaskState.interrupted, self.tag),
             self._handle_update,
         )
+
+    def register_routes(
+        self,
+        app: Annotated[
+            FastAPI,
+            Doc("FastAPI app instance."),
+        ],
+        prefix: Annotated[
+            str,
+            Doc("The URL prefix for the routes."),
+        ] = "/tasks",
+        tags: Annotated[
+            list[str | Enum] | None,
+            Doc("The tags for the routes."),
+        ] = None,
+    ) -> None:
+        """Register routes with the FastAPI app"""
+        prefix = self.route_prefix or f"{prefix}-history"
+        app.include_router(router, prefix=prefix, tags=tags)
 
     async def get_history(
         self,
@@ -214,18 +242,6 @@ def get_db_plugin(task_manager: TaskManagerDep) -> TaskDbPlugin:
     from within a task by passing `context.task_manager`.
     """
     return task_manager.state.task_db_plugin
-
-
-def with_task_history_router(
-    app: Annotated[
-        FastAPI,
-        Doc("FastAPI app instance."),
-    ],
-    prefix: str = "/task-history",
-) -> FastAPI:
-    """Add task history endpoints to a FastAPI app."""
-    app.include_router(router, prefix=prefix)
-    return app
 
 
 router = APIRouter()

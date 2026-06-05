@@ -1,48 +1,104 @@
 import os
+from functools import lru_cache
+from typing import Any, Self
 
-from .utils.text import to_bool
+from pydantic import Field, model_validator
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-APP_NAME: str = os.getenv("APP_NAME", "fluid")
-ENV: str = os.getenv("PYTHON_ENV", "dev")
-LOG_LEVEL = (os.getenv("LOG_LEVEL") or "info").upper()
-LOG_HANDLER = os.getenv("LOG_HANDLER", "plain")
-PYTHON_LOG_FORMAT = os.getenv(
-    "PYTHON_LOG_FORMAT",
-    "%(asctime)s %(levelname)s %(name)s %(message)s",
-)
+ENV_PREFIX = os.getenv("FLUID_ENV_PREFIX", "fluid_")
 
-# Workers
-STOPPING_GRACE_PERIOD: int = int(os.getenv("FLUID_STOPPING_GRACE_PERIOD") or "10")
-MAX_CONCURRENT_TASKS: int = int(os.getenv("FLUID_MAX_CONCURRENT_TASKS") or "5")
-SLEEP_MILLIS: int = int(os.getenv("FLUID_SLEEP_MILLIS") or "1000")
-SCHEDULER_HEARTBEAT_MILLIS: int = int(
-    os.getenv("FLUID_SCHEDULER_HEARTBEAT_MILLIS", "100")
-)
-REDIS_DEFAULT_URL = os.getenv("REDIS_DEFAULT_URL", "redis://localhost:6379")
-BROKER_URL: str = os.getenv("FLUID_BROKER_URL", REDIS_DEFAULT_URL)
-REDIS_MAX_CONNECTIONS = int(os.getenv("MAX_REDIS_CONNECTIONS", "5"))
 
-# Database
-DATABASE = os.getenv(
-    "DATABASE", "postgresql+asyncpg://postgres:postgres@localhost:5432/fluid"
-)
-DATABASE_SCHEMA: str | None = os.getenv("DATABASE_SCHEMA")
-DBPOOL_MAX_SIZE: int = int(os.getenv("FLUID_DBPOOL_MAX_SIZE") or "10")
-DBPOOL_MAX_OVERFLOW: int = int(os.getenv("FLUID_DBPOOL_MAX_OVERFLOW") or "10")
-DBECHO: bool = to_bool(os.getenv("FLUID_DBECHO") or "no")
+class Settings(BaseSettings):
+    """Lazy application settings sourced from environment variables.
 
-# HTTP
-HTTP_USER_AGENT = os.getenv("HTTP_USER_AGENT", f"python/{APP_NAME}")
+    Settings are read from the environment the first time
+    [get_settings][fluid.settings.get_settings] is called, not at import time.
+    Access the resolved values either via the cached instance or, for backwards
+    compatibility, via upper-case module attributes (``settings.APP_NAME``),
+    both of which resolve lazily.
+    """
 
-# Pagination
-DEFAULT_PAGINATION_LIMIT = int(os.getenv("DEFAULT_PAGINATION_LIMIT") or "250")
-DEFAULT_PAGINATION_MAX_LIMIT = int(os.getenv("DEFAULT_PAGINATION_MAX_LIMIT") or "500")
+    model_config = SettingsConfigDict(
+        case_sensitive=False,
+        extra="ignore",
+        env_prefix=ENV_PREFIX,
+    )
 
-# Console backdoor
-AIO_BACKDOOR_PORT: int = int(os.environ.get("AIO_BACKDOOR_PORT", "8087"))
+    # Externally-named settings keep an explicit alias so they stay unprefixed.
+    # Everything else resolves as ``{ENV_PREFIX}<field_name>`` (case-insensitive).
+    app_name: str = Field(default="fluid", validation_alias="APP_NAME")
+    env: str = Field(default="dev", validation_alias="PYTHON_ENV")
+    log_level: str = Field(default="info", validation_alias="LOG_LEVEL")
+    log_handler: str = Field(default="plain", validation_alias="LOG_HANDLER")
+    python_log_format: str = Field(
+        default="%(asctime)s %(levelname)s %(name)s %(message)s",
+        validation_alias="PYTHON_LOG_FORMAT",
+    )
+    database: str = Field(
+        default="postgresql+asyncpg://postgres:postgres@localhost:5432/fluid",
+        validation_alias="DATABASE",
+    )
+    redis_default_url: str = Field(
+        default="redis://localhost:6379", validation_alias="REDIS_DEFAULT_URL"
+    )
 
-# Flamegraph
-FLAMEGRAPH_EXECUTABLE: str = os.getenv("FLUID_FLAMEGRAPH_EXECUTABLE", "flamegraph.pl")
-STACK_SAMPLER_PERIOD_SECONDS: int = int(
-    os.getenv("FLUID_STACK_SAMPLER_PERIOD_SECONDS", "1")
-)
+    # Workers
+    stopping_grace_period: int = 10
+    max_concurrent_tasks: int = 5
+    sleep_millis: int = 1000
+    scheduler_heartbeat_millis: int = 100
+    broker_url: str = ""
+    redis_max_connections: int = Field(
+        default=5, validation_alias="MAX_REDIS_CONNECTIONS"
+    )
+
+    # Database
+    database_schema: str | None = None
+    dbpool_max_size: int = 10
+    dbpool_max_overflow: int = 10
+    dbecho: bool = False
+
+    # HTTP
+    http_user_agent: str = ""
+
+    # Pagination
+    default_pagination_limit: int = 250
+    default_pagination_max_limit: int = 500
+
+    # Console backdoor
+    backdoor_port: int = 8087
+
+    # Flamegraph
+    flamegraph_executable: str = "flamegraph.pl"
+    stack_sampler_period_seconds: int = 1
+
+    @model_validator(mode="after")
+    def _apply_derived_defaults(self) -> Self:
+        self.log_level = self.log_level.upper()
+        if not self.broker_url:
+            self.broker_url = self.redis_default_url
+        if not self.http_user_agent:
+            self.http_user_agent = f"python/{self.app_name}"
+        return self
+
+
+@lru_cache(maxsize=1)
+def get_settings() -> Settings:
+    """Return the process-wide [Settings][fluid.settings.Settings] instance.
+
+    The instance is built on first call (reading the environment then) and
+    cached for the lifetime of the process. Call ``get_settings.cache_clear()``
+    to force a re-read, which is mostly useful in tests.
+    """
+    return Settings()
+
+
+def __getattr__(name: str) -> Any:
+    """Resolve legacy upper-case settings (e.g. ``settings.APP_NAME``) lazily.
+
+    Dunder lookups are excluded so import machinery never instantiates the
+    settings (and so never fills the cache) before the environment is ready.
+    """
+    if name.startswith("__") and name.endswith("__"):
+        raise AttributeError(name)
+    return getattr(get_settings(), name.lower())

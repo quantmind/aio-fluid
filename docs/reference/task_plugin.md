@@ -8,19 +8,16 @@ and is registered via [TaskManager.with_plugin][fluid.scheduler.TaskManager.with
 
 ```python
 from fluid.scheduler import TaskScheduler, task_manager_fastapi
-from fluid.scheduler.db import TaskDbPlugin, with_task_history_router
+from fluid.scheduler.db import TaskDbPlugin
 
 task_manager = TaskScheduler(...)
 task_manager.with_plugin(TaskDbPlugin(db))
 app = task_manager_fastapi(task_manager)
-with_task_history_router(app)
 ```
 
 ::: fluid.scheduler.TaskManagerPlugin
 
 ::: fluid.scheduler.db.TaskDbPlugin
-
-::: fluid.scheduler.db.with_task_history_router
 
 ## Accessing the plugin from a task
 
@@ -48,7 +45,7 @@ async def report(context: TaskRun) -> None:
 
 The following models are used when querying task run history via
 [TaskDbPlugin.get_history][fluid.scheduler.db.TaskDbPlugin.get_history]
-or the HTTP endpoints added by [with_task_history_router][fluid.scheduler.db.with_task_history_router].
+or the HTTP endpoints.
 
 They can be imported from `fluid.scheduler.db`:
 

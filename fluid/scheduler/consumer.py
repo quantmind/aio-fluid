@@ -14,7 +14,6 @@ from typing_extensions import Annotated, Doc
 
 from fluid import settings
 from fluid.scheduler.plugin import TaskManagerPlugin
-from fluid.utils import log
 from fluid.utils.dates import utcnow
 from fluid.utils.dispatcher import AsyncDispatcher, Dispatcher, Event
 from fluid.utils.text import snake_case
@@ -33,7 +32,7 @@ from .models import (
 
 AsyncHandler = Callable[[TaskRun], Awaitable[None]]
 
-logger = log.get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
 class TaskDispatcher(Dispatcher[TaskRun]):
@@ -99,6 +98,7 @@ class TaskManager:
         ] = TaskDispatcher()
         self.broker = TaskBroker.from_url(self.config.broker_url)
         self.manager_id: str = self.broker.new_uuid()
+        self._plugins: list[TaskManagerPlugin] = []
         self._async_contexts: list[Any] = []
         self._stack = AsyncExitStack()
 
@@ -357,6 +357,7 @@ class TaskManager:
         plugin: Annotated[TaskManagerPlugin, Doc("The plugin to register")],
     ) -> Self:
         """Register a plugin with the task manager"""
+        self._plugins.append(plugin)
         plugin.register(self)
         return self
 
@@ -384,17 +385,19 @@ class TaskConsumer(TaskManager, Workers):
             Doc("Worker's name, if not provided it is evaluated from the class name"),
         ] = "",
         stopping_grace_period: Annotated[
-            float,
+            float | None,
             Doc(
                 "Grace period in seconds to wait for workers to stop running "
                 "when this worker is shutdown. "
                 "It defaults to the `FLUID_STOPPING_GRACE_PERIOD` "
                 "environment variable or 10 seconds."
             ),
-        ] = settings.STOPPING_GRACE_PERIOD,
+        ] = None,
         **config: Any,
     ) -> None:
         super().__init__(**config)
+        if stopping_grace_period is None:
+            stopping_grace_period = settings.STOPPING_GRACE_PERIOD
         Workers.__init__(
             self, name=name, stopping_grace_period=2 * stopping_grace_period
         )
@@ -590,14 +593,14 @@ class InProcessTaskQueue(Worker):
             Doc("Worker's name, if not provided it is evaluated from the class name"),
         ] = "",
         stopping_grace_period: Annotated[
-            float,
+            float | None,
             Doc(
                 "Grace period in seconds to wait for workers to stop running "
                 "when this worker is shutdown. "
                 "It defaults to the `FLUID_STOPPING_GRACE_PERIOD` "
                 "environment variable or 10 seconds."
             ),
-        ] = settings.STOPPING_GRACE_PERIOD,
+        ] = None,
     ) -> None:
         super().__init__(name=name, stopping_grace_period=stopping_grace_period)
         self.task_consumer = task_consumer

@@ -23,7 +23,7 @@ class Migration:
     cfg: Config = field(init=False, repr=False)
 
     def __post_init__(self) -> None:
-        self.cfg = create_config(self.db)
+        self.cfg = _create_config(self.db)
 
     @property
     def metadata(self) -> sa.MetaData:
@@ -36,6 +36,7 @@ class Migration:
     def init(self) -> str:
         dirname = self.cfg.get_main_option("script_location") or ""
         alembic_cmd.init(self.cfg, dirname)
+        _wire_metadata(Path(dirname) / "env.py")
         return self.message()
 
     def show(self, revision: str) -> str:
@@ -186,7 +187,25 @@ class Migration:
         return True
 
 
-def create_config(db: "Database") -> Config:
+def _wire_metadata(env_path: Path) -> None:
+    """Wire the generated ``env.py`` to the Database metadata.
+
+    ``alembic init`` writes a generic ``env.py`` with ``target_metadata =
+    None``, which makes ``--autogenerate`` fail. fluid attaches the Database
+    metadata to the alembic config (see :func:`_create_config`), so we patch
+    the generated file to read it back. ``getattr`` keeps it working when
+    ``env.py`` is run via the plain alembic CLI, where no metadata is attached.
+    """
+    content = env_path.read_text()
+    env_path.write_text(
+        content.replace(
+            "target_metadata = None",
+            'target_metadata = getattr(config, "metadata", None)',
+        )
+    )
+
+
+def _create_config(db: "Database") -> Config:
     """Programmatically create Alembic config"""
     cfg = Config(stdout=StringIO())
     cfg.set_main_option("script_location", str(db.migration_path))

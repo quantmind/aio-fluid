@@ -11,17 +11,16 @@ except ImportError:  # pragma: no cover
 
 from fluid import settings
 
-logger = logging.getLogger()
-
-
-logger = logging.getLogger(settings.APP_NAME)
-
 
 def get_logger(name: str = "", prefix: bool = False) -> logging.Logger:
-    if prefix:
-        return logger.getChild(name) if name else logger
-    else:
-        return logging.getLogger(name) if name else logger
+    # Only resolve the application base logger (and therefore the settings) on
+    # the paths that actually need it, so that the common module-level
+    # ``get_logger(__name__)`` call does not populate the settings cache at
+    # import time.
+    if not prefix and name:
+        return logging.getLogger(name)
+    base = logging.getLogger(settings.APP_NAME)
+    return base.getChild(name) if name else base
 
 
 def get_level_num(level: str | int) -> int:
@@ -31,13 +30,21 @@ def get_level_num(level: str | int) -> int:
 
 
 def log_config(
-    level: str | int = settings.LOG_LEVEL,
+    level: str | int | None = None,
     other_level: str | int = logging.WARNING,
-    app_names: Sequence[str] = (settings.APP_NAME,),
-    log_handler: str = settings.LOG_HANDLER,
-    log_format: str = settings.PYTHON_LOG_FORMAT,
+    app_names: Sequence[str] | None = None,
+    log_handler: str | None = None,
+    log_format: str | None = None,
     formatters: dict[str, dict[str, str]] | None = None,
 ) -> dict:
+    if level is None:
+        level = settings.LOG_LEVEL
+    if app_names is None:
+        app_names = (settings.APP_NAME,)
+    if log_handler is None:
+        log_handler = settings.LOG_HANDLER
+    if log_format is None:
+        log_format = settings.PYTHON_LOG_FORMAT
     level_num = get_level_num(level)
     other_level_num = max(level_num, get_level_num(other_level))
     log_handlers = {
@@ -92,37 +99,37 @@ def log_config(
 
 def config(
     level: Annotated[
-        str | int,
+        str | int | None,
         Doc(
             "Log levels for application loggers defined by the `app_names` parameter. "
             "By default this value is taken from the `LOG_LEVEL` env variable"
         ),
-    ] = settings.LOG_LEVEL,
+    ] = None,
     other_level: Annotated[
         str | int,
         Doc("log levels for loggers not prefixed by `app_names`"),
     ] = logging.WARNING,
     app_names: Annotated[
-        Sequence[str],
+        Sequence[str] | None,
         Doc(
             "Application names for which the log level is set, "
             "these are the prefixes which will be set at `log_level`"
         ),
-    ] = (settings.APP_NAME,),
+    ] = None,
     log_handler: Annotated[
-        str,
+        str | None,
         Doc(
             "Log handler to use, by default it is taken from the "
             "`LOG_HANDLER` env variable and if missing `plain` is used"
         ),
-    ] = settings.LOG_HANDLER,
+    ] = None,
     log_format: Annotated[
-        str,
+        str | None,
         Doc(
             "log format to use, by default it is taken from the "
             "`PYTHON_LOG_FORMAT` env variable"
         ),
-    ] = settings.PYTHON_LOG_FORMAT,
+    ] = None,
     formatters: Annotated[
         dict[str, dict[str, str]] | None,
         Doc("Additional formatters to add to the logging configuration"),

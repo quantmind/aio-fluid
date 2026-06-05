@@ -3,7 +3,7 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, AsyncIterator, Self
+from typing import AsyncIterator, Self
 
 import sqlalchemy as sa
 from sqlalchemy.engine import Engine, create_engine
@@ -11,6 +11,7 @@ from sqlalchemy.engine.url import make_url
 from sqlalchemy.ext.asyncio import AsyncConnection, AsyncEngine, create_async_engine
 
 from fluid import settings
+from fluid.utils.data import compact_dict
 
 from .migration import Migration
 
@@ -31,30 +32,50 @@ class Database:
     Currently, only `postgresql+asyncpg` is supported, but other databases may
     be supported in the future.
     """
-    echo: bool = settings.DBECHO
+    echo: bool = field(default_factory=lambda: settings.DBECHO)
     """Echo SQL queries to stdout
 
     It defaults to the `DBECHO` setting in the settings module
     """
-    pool_size: int = settings.DBPOOL_MAX_SIZE
-    max_overflow: int = settings.DBPOOL_MAX_OVERFLOW
+    pool_size: int = field(default_factory=lambda: settings.DBPOOL_MAX_SIZE)
+    max_overflow: int = field(default_factory=lambda: settings.DBPOOL_MAX_OVERFLOW)
     metadata: sa.MetaData = field(default_factory=sa.MetaData)
     migration_path: str | Path = ""
     """Path to the directory containing migration files. If empty, migrations will
     be stored in the default location `migrations` in the current working directory.
     """
-    app_name: str = settings.APP_NAME
+    app_name: str = field(default_factory=lambda: settings.APP_NAME)
     _engine: AsyncEngine | None = None
 
     @classmethod
     def from_env(
         cls,
         *,
-        dsn: str = settings.DATABASE,
-        schema: str | None = settings.DATABASE_SCHEMA,
-        **kwargs: Any,
+        dsn: str | None = None,
+        schema: str | None = None,
+        migration_path: str | Path | None = None,
+        app_name: str | None = None,
+        max_overflow: int | None = None,
+        pool_size: int | None = None,
+        db_name: str | None = None,
     ) -> Self:
         """Create a new database container from environment variables as defaults"""
+        if dsn is None:
+            dsn = settings.DATABASE
+        if schema is None:
+            schema = settings.DATABASE_SCHEMA
+        kwargs = compact_dict(
+            migration_path=migration_path,
+            app_name=app_name,
+            max_overflow=max_overflow,
+            pool_size=pool_size,
+        )
+        if db_name:
+            dsn = (
+                make_url(dsn)
+                .set(database=db_name)
+                .render_as_string(hide_password=False)
+            )
         return cls(dsn=dsn, metadata=sa.MetaData(schema=schema), **kwargs)
 
     @property

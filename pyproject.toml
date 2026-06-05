@@ -29,6 +29,7 @@ classifiers = [
 dependencies = [
     "redis[hiredis] >= 7.4.0",
     "pydantic >= 2.12.5",
+    "pydantic-settings >= 2.7.0",
     "yarl >= 1.23.0",
     "fastapi >= 0.135.2",
     "uvicorn >= 0.42.0",
@@ -60,7 +61,7 @@ db = [
 ]
 http = [
     "aiohttp >= 3.10.10",
-    "httpx2 >= 2.0.0, <2.1.0",
+    "httpx2 >= 2.3.0",
     "prometheus-client >= 0.21.0",
     "python-slugify >= 8.0.4",
 ]
@@ -120,8 +121,15 @@ filterwarnings = [
     "ignore:.*asyncio.DefaultEventLoopPolicy.*:DeprecationWarning:aioconsole",
 ]
 
+[tool.black]
+extend-exclude = "examples/(db|tasks)/migrations"
+
 [tool.isort]
 profile = "black"
+skip_glob = [
+    "examples/db/migrations/*",
+    "examples/tasks/migrations/*",
+]
 
 [tool.ruff]
 lint.select = [
@@ -136,10 +144,11 @@ lint.select = [
 line-length = 88
 exclude = [
     "examples/db/migrations",
+    "examples/tasks/migrations",
 ]
 
 [tool.mypy]
-exclude = "examples/db/migrations"
+exclude = "examples/(db|tasks)/migrations"
 
 [[tool.mypy.overrides]]
 module = [
