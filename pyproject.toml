@@ -121,8 +121,15 @@ filterwarnings = [
     "ignore:.*asyncio.DefaultEventLoopPolicy.*:DeprecationWarning:aioconsole",
 ]
 
+[tool.black]
+extend-exclude = "examples/(db|tasks)/migrations"
+
 [tool.isort]
 profile = "black"
+skip_glob = [
+    "examples/db/migrations/*",
+    "examples/tasks/migrations/*",
+]
 
 [tool.ruff]
 lint.select = [
@@ -137,10 +144,11 @@ lint.select = [
 line-length = 88
 exclude = [
     "examples/db/migrations",
+    "examples/tasks/migrations",
 ]
 
 [tool.mypy]
-exclude = "examples/db/migrations"
+exclude = "examples/(db|tasks)/migrations"
 
 [[tool.mypy.overrides]]
 module = [
