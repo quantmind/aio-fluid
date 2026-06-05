@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pytest
 import sqlalchemy as sa
 from click.testing import CliRunner
@@ -18,6 +20,21 @@ def mig_name():
 
 def test_cli():
     assert isinstance(cli.db, CrudDB)
+
+
+async def test_migrations_init_wires_metadata(tmp_path: Path, db: CrudDB):
+    """``init`` must generate an env.py wired to the database metadata so that
+    ``--autogenerate`` works without manual editing."""
+    new_db = CrudDB.from_env(
+        dsn=db.engine.url.render_as_string(hide_password=False),
+        migration_path=tmp_path / "migrations",
+    )
+    sa.Table("widget", new_db.metadata, sa.Column("id", sa.Integer, primary_key=True))
+    new_db.migration().init()
+
+    env = (tmp_path / "migrations" / "env.py").read_text()
+    assert 'target_metadata = getattr(config, "metadata", None)' in env
+    assert "target_metadata = None" not in env
 
 
 def test_create_drop_db(db: CrudDB):

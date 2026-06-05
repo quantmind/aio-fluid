@@ -9,18 +9,19 @@ from fluid.scheduler.db import TaskDbPlugin
 
 dotenv.load_dotenv()
 
-MIGRATIONS_PATH = Path(__file__).parent / "migrations"
+MIGRATIONS_PATH = Path(__file__).parent / "tasks" / "migrations"
 
 
 def create_cli() -> TaskManagerCLI:
     from examples.tasks import task_app
 
-    # create the database
+    # create the database for the db plugin
     db = CrudDB.from_env(migration_path=MIGRATIONS_PATH, db_name="fluid_full_cli")
     # create the client
     task_manager_cli = TaskManagerCLI(
         task_app(plugins=[TaskDbPlugin(db)]),
-        commands=list(DEFAULT_COMMANDS) + [DbGroup(db)],
+        commands=list(DEFAULT_COMMANDS)
+        + [DbGroup(db, help="Task database plugin management")],
         help="Task Manager CLI with db plugin",
     )
     return task_manager_cli
