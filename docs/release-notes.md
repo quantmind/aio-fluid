@@ -1,5 +1,28 @@
 # Release Notes
 
+## v2.4.0
+
+Lazy settings via pydantic-settings, JSONB params filtering for task
+history, and customisable route prefixes.
+
+- Settings are now lazy — resolved on first access instead of at import
+  time. Env vars use a `FLUID_` prefix by default; legacy unprefixed names
+  are kept as aliases.
+  ([#100](https://github.com/quantmind/aio-fluid/pull/100))
+- The task database plugin accepts a `route_prefix` parameter for
+  customising history route URLs and replaces `with_task_history_router()`
+  with a `register_routes()` method.
+  ([#100](https://github.com/quantmind/aio-fluid/pull/100))
+- Task history queries support filtering by run params via a new `params`
+  field (renamed from `HistoryQuery` to `TaskHistoryQuery`).
+  ([#99](https://github.com/quantmind/aio-fluid/pull/99))
+- **Database migration required:** the `params` column is now `JSONB` with
+  a GIN index. See the example
+  [migration](https://github.com/quantmind/aio-fluid/blob/main/examples/tasks/migrations/versions/d941c11ca25a_jsonb.py)
+  for the schema changes.
+- Removed `get_logger` from `fluid.utils.log`. Task loggers are now obtained
+  directly via `logging.getLogger(module)`.
+
 ## v2.3.1
 
 **v2.3.0 is broken — do not use it.**

@@ -26,7 +26,7 @@ from redis.asyncio.lock import Lock
 from typing_extensions import Annotated, Doc, TypedDict
 
 from fluid import settings
-from fluid.utils import kernel, log
+from fluid.utils import kernel
 from fluid.utils.data import compact_dict
 from fluid.utils.dates import as_utc, utcnow
 from fluid.utils.text import create_uid, trim_docstring
@@ -797,9 +797,10 @@ class TaskConstructor:
             kwargs.update(defaults)
         kwargs.update(compact_dict(self.kwargs))
         name = kwargs["name"]
+        module = kwargs.get("module") or settings.APP_NAME
         kwargs.update(
             executor=executor,
-            logger=log.get_logger(f"task.{name}", prefix=True),
+            logger=logging.getLogger(f"{module}.{name}"),
         )
         return Task(**kwargs)
 

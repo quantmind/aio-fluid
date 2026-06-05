@@ -12,24 +12,13 @@ except ImportError:  # pragma: no cover
 from fluid import settings
 
 
-def get_logger(name: str = "", prefix: bool = False) -> logging.Logger:
-    # Only resolve the application base logger (and therefore the settings) on
-    # the paths that actually need it, so that the common module-level
-    # ``get_logger(__name__)`` call does not populate the settings cache at
-    # import time.
-    if not prefix and name:
-        return logging.getLogger(name)
-    base = logging.getLogger(settings.APP_NAME)
-    return base.getChild(name) if name else base
-
-
 def get_level_num(level: str | int) -> int:
     if isinstance(level, int):
         return level
     return getattr(logging, level.upper())
 
 
-def log_config(
+def _log_config(
     level: str | int | None = None,
     other_level: str | int = logging.WARNING,
     app_names: Sequence[str] | None = None,
@@ -136,7 +125,7 @@ def config(
     ] = None,
 ) -> dict:
     """Configure logging for the application"""
-    cfg = log_config(
+    cfg = _log_config(
         level=level,
         other_level=other_level,
         app_names=app_names,

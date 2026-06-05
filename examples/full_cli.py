@@ -20,6 +20,7 @@ def create_cli() -> TaskManagerCLI:
     # create the client
     task_manager_cli = TaskManagerCLI(
         task_app(plugins=[TaskDbPlugin(db)]),
+        log_config=dict(app_names=["fluid", "examples"]),
         commands=list(DEFAULT_COMMANDS)
         + [DbGroup(db, help="Task database plugin management")],
         help="Task Manager CLI with db plugin",
