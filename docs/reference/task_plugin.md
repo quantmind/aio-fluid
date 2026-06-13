@@ -53,6 +53,19 @@ They can be imported from `fluid.scheduler.db`:
 from fluid.scheduler.db import TaskHistoryQuery, TaskRunHistory, TaskRunHistoryPage
 ```
 
+### Filtering by tags
+
+The `tags` field of [TaskHistoryQuery][fluid.scheduler.db.TaskHistoryQuery]
+filters runs by the tags of their [Task][fluid.scheduler.Task]. A run matches
+when its task carries **at least one** of the supplied tags (OR semantics, the
+same as the `tags` query parameter on the task list endpoint). Tags are
+resolved against the live task registry at query time, so they always reflect
+each task's *current* tags rather than the tags it had when the run executed.
+
+When combined with the `task` filter, the two are applied together (AND): the
+run's task must match the name *and* carry one of the tags. Tags that match no
+registered task return an empty result.
+
 ::: fluid.scheduler.db.TaskHistoryQuery
 
 ::: fluid.scheduler.db.TaskRunHistory

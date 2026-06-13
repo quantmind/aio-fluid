@@ -304,6 +304,54 @@ async def test_get_history_filter_by_params_http(
     assert all(9.0 == item["params"].get("a") for item in data)
 
 
+async def test_get_history_filter_by_tags(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait("dummy", timeout=5)
+    await wait_for_task_run(db_plugin, task_run.id)
+    # "dummy" carries the "slow" tag, "add" has no tags
+    data = await get_history(cli_db, tags=["slow"])
+    assert any(item["id"] == task_run.id for item in data)
+    assert all(item["task"] == "dummy" for item in data)
+
+
+async def test_get_history_filter_by_tags_any(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    dummy_run = await task_manager_db.queue_and_wait("dummy", timeout=5)
+    fast_run = await task_manager_db.queue_and_wait("fast", timeout=5)
+    await wait_for_task_run(db_plugin, dummy_run.id)
+    await wait_for_task_run(db_plugin, fast_run.id)
+    # OR semantics across tags: "fast" and "dummy" share the "test" tag
+    data = await get_history(cli_db, tags=["fast", "slow"])
+    assert all(item["task"] in {"fast", "dummy"} for item in data)
+    ids = {item["id"] for item in data}
+    assert dummy_run.id in ids
+    assert fast_run.id in ids
+
+
+async def test_get_history_filter_by_tags_no_match(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait("dummy", timeout=5)
+    await wait_for_task_run(db_plugin, task_run.id)
+    data = await get_history(cli_db, tags=["does-not-exist"])
+    assert data == []
+
+
+async def test_get_history_filter_by_tags_and_task(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait("dummy", timeout=5)
+    await wait_for_task_run(db_plugin, task_run.id)
+    # task + tags combine with AND: "dummy" has "slow" but not "fast"
+    data = await get_history(cli_db, task="dummy", tags=["slow"])
+    assert any(item["id"] == task_run.id for item in data)
+    assert all(item["task"] == "dummy" for item in data)
+    data_empty = await get_history(cli_db, task="dummy", tags=["fast"])
+    assert data_empty == []
+
+
 async def test_get_history_filter_by_params_http_negative(
     cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
 ) -> None:

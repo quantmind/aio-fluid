@@ -80,6 +80,7 @@ class TaskDbPlugin(TaskManagerPlugin):
 
     def register(self, task_manager: TaskManager) -> None:
         task_manager.state.task_db_plugin = self
+        self.task_manager = task_manager
 
         if is_in_cpu_process():
             return
@@ -140,9 +141,21 @@ class TaskDbPlugin(TaskManagerPlugin):
     ) -> TaskRunHistoryPage:
         """Get task run history based on the provided query parameters."""
         table = self.db.tables[self.table_name]
+        filters = q.filters()
+        if q.tags:
+            wanted = set(q.tags)
+            names = {
+                name
+                for name, task in self.task_manager.registry.items()
+                if wanted & task.tags
+            }
+            # AND with an explicit task filter; empty set → IN () → no rows
+            if "name" in filters:
+                names &= {filters["name"]}
+            filters["name"] = list(names)
         pagination = Pagination.create(
             "queued",
-            filters=q.filters(),
+            filters=filters,
             limit=q.limit,
             cursor=q.cursor,
             desc=True,
@@ -289,6 +302,15 @@ class TaskHistoryQuery(BaseModel):
         Query(description="Filter by params using JSON containment"),
         Doc("Filter by params using JSON containment when provided"),
     ] = None
+    tags: Annotated[
+        list[str] | None,
+        Query(description="Filter by task tags (matches any of the given tags)"),
+        Doc(
+            "Filter runs whose task has at least one of these tags when provided. "
+            "Tags are resolved against the live task registry, so they reflect "
+            "each task's current tags."
+        ),
+    ] = None
 
     @model_validator(mode="before")
     @classmethod
@@ -319,7 +341,7 @@ class TaskHistoryQuery(BaseModel):
         return {
             self._filter_map.get(k, k): v
             for k, v in self.model_dump(
-                exclude_none=True, exclude={"limit", "cursor"}
+                exclude_none=True, exclude={"limit", "cursor", "tags"}
             ).items()
         }
 
