@@ -1,5 +1,13 @@
 # Release Notes
 
+## v2.4.1
+
+Task history can now be filtered by task tags.
+
+- Added a `tags` field to task history queries. Runs match when their task
+  carries at least one of the given tags, resolved against the live registry.
+  ([#101](https://github.com/quantmind/aio-fluid/pull/101))
+
 ## v2.4.0
 
 Lazy settings via pydantic-settings, JSONB params filtering for task
