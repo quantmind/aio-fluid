@@ -380,6 +380,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v242" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.4.2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v241" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1499,6 +1510,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v242" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.4.2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v241" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1604,6 +1626,19 @@
 
 
 <h1 id="release-notes">Release Notes<a class="headerlink" href="#release-notes" title="Permanent link">&para;</a></h1>
+<h2 id="v242">v2.4.2<a class="headerlink" href="#v242" title="Permanent link">&para;</a></h2>
+<p>Tasks can now be tagged at registration time.</p>
+<ul>
+<li>The task registration methods accept an optional <code>tags</code> argument. When
+  provided, the extra tags are merged into each task's own tags as it is
+  registered — applied across <code>register_task</code>, <code>register_from_module</code>, and
+  <code>register_from_dict</code>.
+  (<a href="https://github.com/quantmind/aio-fluid/pull/102">#102</a>)</li>
+<li>Bumped <code>python-json-logger</code> to <code>&gt;= 4.1.0</code> and switched JSON logging to the
+  new <code>pythonjsonlogger.json</code> formatter path (the old <code>pythonjsonlogger.jsonlogger</code>
+  module is deprecated).
+  (<a href="https://github.com/quantmind/aio-fluid/pull/102">#102</a>)</li>
+</ul>
 <h2 id="v241">v2.4.1<a class="headerlink" href="#v241" title="Permanent link">&para;</a></h2>
 <p>Task history can now be filtered by task tags.</p>
 <ul>
