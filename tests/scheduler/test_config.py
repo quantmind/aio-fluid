@@ -50,6 +50,14 @@ def test_register_from_module() -> None:
     assert task_manager.registry["dummy"]
 
 
+def test_register_from_module_with_tags() -> None:
+    task_manager = TaskManager()
+    task_manager.register_from_module(example_tasks, tags=["extra", "module"])
+    assert task_manager.registry
+    dummy = task_manager.registry["dummy"]
+    assert {"extra", "module"} <= dummy.tags
+
+
 def test_cpu_bount_params() -> None:
     cpu_bound = example_tasks.cpu_bound
     assert cpu_bound.params_model is example_tasks.Sleep

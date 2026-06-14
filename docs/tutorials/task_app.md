@@ -28,6 +28,15 @@ if __name__ == "__main__":
     asyncio.run(consumer.run())
 ```
 
+Pass `tags` to [register_from_module][fluid.scheduler.TaskManager.register_from_module]
+(or [register_from_dict][fluid.scheduler.TaskManager.register_from_dict] /
+[register_task][fluid.scheduler.TaskManager.register_task]) to add extra tags to
+every registered task on top of the tags already declared on each task:
+
+```python
+consumer.register_from_module(task_module_a, tags=["module-a"])
+```
+
 ## FastAPI Integration
 
 A [TaskManager][fluid.scheduler.TaskManager] can be integrated with FastAPI so that

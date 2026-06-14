@@ -7,7 +7,7 @@ from contextlib import AsyncExitStack
 from functools import partial
 from time import monotonic
 from types import ModuleType
-from typing import Any, Awaitable, Callable, Self
+from typing import Any, Awaitable, Callable, Self, Sequence
 
 from starlette.datastructures import State
 from typing_extensions import Annotated, Doc
@@ -136,8 +136,17 @@ class TaskManager:
         """The type of the task manager"""
         return snake_case(self.__class__.__name__)
 
-    def register_task(self, task: Annotated[Task, Doc("Task to register")]) -> None:
+    def register_task(
+        self,
+        task: Annotated[Task, Doc("Task to register")],
+        tags: Annotated[
+            Sequence[str] | None,
+            Doc("Extra tags to add to the task before registering it"),
+        ] = None,
+    ) -> None:
         """Register a task with the task manager"""
+        if tags:
+            task = task._replace(tags=task.tags | frozenset(tags))
         self.broker.register_task(task)
 
     async def execute(
@@ -308,13 +317,17 @@ class TaskManager:
                 "- can contain any object, only instances of Task are registered"
             ),
         ],
+        tags: Annotated[
+            Sequence[str] | None,
+            Doc("Extra tags to add to every registered task"),
+        ] = None,
     ) -> None:
         """Register tasks from a python module"""
         for name in dir(module):
             if name.startswith("_"):
                 continue
             if isinstance(obj := getattr(module, name), Task):
-                self.register_task(obj)
+                self.register_task(obj, tags=tags)
 
     def register_from_dict(
         self,
@@ -325,13 +338,17 @@ class TaskManager:
                 "- can contain any object, only instances of Task are registered"
             ),
         ],
+        tags: Annotated[
+            Sequence[str] | None,
+            Doc("Extra tags to add to every registered task"),
+        ] = None,
     ) -> None:
         """Register tasks from a python dictionary"""
         for name, obj in data.items():
             if name.startswith("_"):
                 continue
             if isinstance(obj, Task):
-                self.register_task(obj)
+                self.register_task(obj, tags=tags)
 
     def register_async_handler(
         self,
