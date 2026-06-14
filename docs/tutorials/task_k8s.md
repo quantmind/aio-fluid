@@ -1,6 +1,6 @@
 # K8s Jobs
 
-When the [TaskConsumer][fluid.scheduler.TaskConsumer] runs inside a Kubernetes cluster, [CPU bound tasks](/tutorials/task_queue/#cpu-bound-tasks) can be dispatched as [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/) instead of local subprocesses.
+When the [TaskConsumer][fluid.scheduler.TaskConsumer] runs inside a Kubernetes cluster, [CPU bound tasks](task_queue.md#cpu-bound-tasks) can be dispatched as [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/) instead of local subprocesses.
 This offloads heavy computation to dedicated pods and keeps the consumer event loop free.
 
 ## How it works

@@ -1,5 +1,19 @@
 # Release Notes
 
+## v2.4.2
+
+Tasks can now be tagged at registration time.
+
+- The task registration methods accept an optional `tags` argument. When
+  provided, the extra tags are merged into each task's own tags as it is
+  registered — applied across `register_task`, `register_from_module`, and
+  `register_from_dict`.
+  ([#102](https://github.com/quantmind/aio-fluid/pull/102))
+- Bumped `python-json-logger` to `>= 4.1.0` and switched JSON logging to the
+  new `pythonjsonlogger.json` formatter path (the old `pythonjsonlogger.jsonlogger`
+  module is deprecated).
+  ([#102](https://github.com/quantmind/aio-fluid/pull/102))
+
 ## v2.4.1
 
 Task history can now be filtered by task tags.

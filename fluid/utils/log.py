@@ -59,11 +59,11 @@ def _log_config(
         )
         log_formatters.update(
             json={
-                "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+                "()": "pythonjsonlogger.json.JsonFormatter",
                 "format": log_format,
             },
             nicejson={
-                "()": "pythonjsonlogger.jsonlogger.JsonFormatter",
+                "()": "pythonjsonlogger.json.JsonFormatter",
                 "format": log_format,
                 "json_indent": 2,
             },

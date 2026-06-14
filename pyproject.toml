@@ -1,6 +1,6 @@
 [project]
 name = "aio-fluid"
-version = "2.4.1"
+version = "2.4.2"
 description = "Tools for backend python services"
 authors = [
     { name = "Luca Sbardella", email = "luca@quantmind.com" },
@@ -71,7 +71,7 @@ k8s = [
     "python-slugify >= 8.0.4",
 ]
 log = [
-    "python-json-logger >= 3.2.1",
+    "python-json-logger >= 4.1.0",
 ]
 
 [dependency-groups]

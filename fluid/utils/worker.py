@@ -477,16 +477,9 @@ class Workers(Worker):
     starts each child worker and monitors their health — if any child stops
     unexpectedly the whole group is gracefully stopped.
 
-    On shutdown all child workers are stopped concurrently via
-    [_wait_for_workers][fluid.utils.worker.Workers._wait_for_workers].
+    On shutdown all child workers are stopped concurrently.
     Workers that do not exit within `stopping_grace_period` seconds are
     force-cancelled.
-
-    !!! note "Shutdown ordering"
-        By default all child workers are shut down concurrently. If a subclass
-        needs a specific shutdown order (e.g. an event dispatcher that must
-        outlive the workers that produce events), override
-        [_wait_for_workers][fluid.utils.worker.Workers._wait_for_workers].
     """
 
     def __init__(
