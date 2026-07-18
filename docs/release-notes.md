@@ -1,5 +1,21 @@
 # Release Notes
 
+## v2.4.3
+
+Fixes two task queue issues: pydantic secret params were masked when a task
+run was serialized to the queue, and a params validation error on the
+consumer side crashed the worker.
+
+- Secret params now survive the round-trip through the task queue and the
+  cpu-bound subprocess. Task runs are serialized for the queue with secret
+  values revealed via the new `params_dump` helper; all other dumps (logs,
+  endpoints) keep secrets masked.
+  ([#103](https://github.com/quantmind/aio-fluid/pull/103))
+- A task run consumed from the queue with invalid params no longer kills the
+  consumer worker. The broker raises the new `TaskParamsError` carrying the
+  task run, and the consumer logs the error and marks the run as failed.
+  ([#103](https://github.com/quantmind/aio-fluid/pull/103))
+
 ## v2.4.2
 
 Tasks can now be tagged at registration time.

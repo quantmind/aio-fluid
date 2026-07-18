@@ -20,7 +20,7 @@ from fluid.utils.text import snake_case
 from fluid.utils.worker import AsyncConsumer, Worker, WorkerFunction, Workers
 
 from .broker import TaskBroker, TaskRegistry
-from .errors import TaskAbortedError, TaskRunError, UnknownTaskError
+from .errors import TaskAbortedError, TaskParamsError, TaskRunError, UnknownTaskError
 from .models import (
     Task,
     TaskManagerConfig,
@@ -510,6 +510,12 @@ class TaskConsumer(TaskManager, Workers):
                 worker_name,
                 exc,
             )
+            return
+        except TaskParamsError as exc:
+            task_run = exc.task_run
+            task_run.logger.error("%s - %s", task_run.id, exc)
+            task_run.set_state(TaskState.failure)
+            await self._update_task_run_status(task_run)
             return
         # re-queue if the task is not yet ready to execute
         if self._re_queue_if_not_ready(task_run):

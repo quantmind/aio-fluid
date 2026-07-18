@@ -1,3 +1,11 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:  # pragma: no cover
+    from .models import TaskRun
+
+
 class TaskError(RuntimeError):
     """Base class for all task scheduler errors."""
 
@@ -8,6 +16,18 @@ class UnknownTaskError(TaskError):
 
 class DisabledTaskError(TaskError):
     """Raised when attempting to queue or run a disabled task."""
+
+
+class TaskParamsError(TaskError):
+    """Raised when task run parameters fail validation when consumed from the broker.
+
+    It carries the task run, created with unvalidated params, so the consumer
+    can mark it as failed and log the error.
+    """
+
+    def __init__(self, task_run: TaskRun, message: str) -> None:
+        super().__init__(message)
+        self.task_run = task_run
 
 
 class TaskRunError(TaskError):

@@ -6,7 +6,7 @@ from functools import cached_property
 from typing import TYPE_CHECKING, Any, Iterable
 from uuid import uuid4
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 from redis.asyncio import Redis
 from redis.asyncio.lock import Lock
 from typing_extensions import Annotated, Doc
@@ -15,7 +15,7 @@ from yarl import URL
 from fluid import settings
 from fluid.utils.redis import FluidRedis
 
-from .errors import UnknownTaskError
+from .errors import TaskParamsError, UnknownTaskError
 from .models import TP, Task, TaskInfo, TaskInfoUpdate, TaskPriority, TaskRun
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -368,9 +368,23 @@ class RedisTaskBroker(TaskBroker):
             ):
                 data = json.loads(redis_data[1])
                 task = self.task_from_registry(data["task"])
+                try:
+                    params = task.params_model(**data["params"])
+                except ValidationError as exc:
+                    # create the params without validation so the task run can
+                    # be constructed and marked as failed by the consumer
+                    data.update(
+                        task=task,
+                        params=task.params_model.model_construct(**data["params"]),
+                        task_manager=task_manager,
+                    )
+                    raise TaskParamsError(
+                        TaskRun(**data),
+                        f"invalid params for task '{task.name}': {exc}",
+                    ) from exc
                 data.update(
                     task=task,
-                    params=task.params_model(**data["params"]),
+                    params=params,
                     task_manager=task_manager,
                 )
                 return TaskRun(**data)
@@ -379,7 +393,7 @@ class RedisTaskBroker(TaskBroker):
     async def queue_task(self, task_run: TaskRun) -> None:
         await self.redis_cli.lpush(
             self.task_queue_name(task_run.priority),
-            task_run.model_dump_json(),
+            task_run.queue_dump_json(),
         )
 
     def lock(self, name: str, timeout: float | None = None) -> Lock:
