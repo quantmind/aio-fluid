@@ -13,8 +13,10 @@ from fluid.scheduler import (
     TaskState,
 )
 from fluid.scheduler.errors import UnknownTaskError
+from fluid.scheduler.models import TaskRunWaiter
 from fluid.utils.stacksampler import Sampler
 from fluid.utils.waiter import wait_for
+from tests.scheduler.tasks import redis_broker
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
 
@@ -152,6 +154,34 @@ async def test_async_handler(task_scheduler: TaskScheduler) -> None:
     assert handler.task_run
     assert handler.task_run.state == TaskState.running
     assert task_scheduler.unregister_async_handler("running.test") is handler
+
+
+async def test_secret_params(
+    task_scheduler: TaskScheduler, redis: Redis  # type: ignore
+) -> None:
+    """Secret params must survive the round-trip through the task queue"""
+    task_run = await task_scheduler.queue_and_wait("whisper", secret="a-secret-1")
+    assert task_run.state == TaskState.success
+    value = await redis.get(task_run.id)
+    assert value == b"a-secret-1"
+
+
+async def test_invalid_params_failure(task_scheduler: TaskScheduler) -> None:
+    """A run with invalid params is marked as failure, the consumer survives"""
+    broker = redis_broker(task_scheduler)
+    task_run = task_scheduler.create_task_run("fast", sleep=0.1)
+    data = json.loads(task_run.model_dump_json())
+    data["params"]["sleep"] = "not-a-number"
+    with TaskRunWaiter(task_scheduler) as waiter:
+        await broker.redis_cli.lpush(
+            broker.task_queue_name(task_run.priority), json.dumps(data)
+        )
+        failed = await waiter.wait(task_run, timeout=5)
+    assert failed.id == task_run.id
+    assert failed.state == TaskState.failure
+    # the consumer is still processing tasks
+    ok = await task_scheduler.queue_and_wait("fast", sleep=0, timeout=5)
+    assert ok.state == TaskState.success
 
 
 async def test_sampler(sampler: Sampler) -> None:

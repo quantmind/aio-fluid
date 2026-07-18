@@ -30,6 +30,8 @@ from fluid.scheduler.errors import TaskError, UnknownTaskError, DisabledTaskErro
 
 ::: fluid.scheduler.errors.DisabledTaskError
 
+::: fluid.scheduler.errors.TaskParamsError
+
 ::: fluid.scheduler.errors.TaskRunError
 
 ::: fluid.scheduler.errors.TaskAbortedError

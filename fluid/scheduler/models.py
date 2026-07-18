@@ -22,12 +22,13 @@ from typing import (
 )
 
 from pydantic import BaseModel, Field, field_serializer
+from pydantic_core import to_json
 from redis.asyncio.lock import Lock
 from typing_extensions import Annotated, Doc, TypedDict
 
 from fluid import settings
 from fluid.utils import kernel
-from fluid.utils.data import compact_dict
+from fluid.utils.data import compact_dict, reveal_secrets
 from fluid.utils.dates import as_utc, utcnow
 from fluid.utils.text import create_uid, trim_docstring
 
@@ -48,6 +49,16 @@ if TYPE_CHECKING:
 TaskExecutor = Callable[["TaskRun"], Coroutine[Any, Any, Any]]
 RandomizeType = Callable[[], float | int]
 TP = TypeVar("TP", bound=BaseModel)
+
+
+def params_dump(params: BaseModel) -> Any:
+    """Dump task params with pydantic secret values revealed
+
+    Task params are re-validated when a task run is consumed from the queue
+    or executed in a subprocess, therefore secret values must be revealed
+    rather than masked so they survive the round-trip.
+    """
+    return reveal_secrets(params.model_dump(mode="python"))
 
 
 @dataclass(frozen=True)
@@ -476,6 +487,16 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
             lock_name = f"{lock_name}:{name}"
         return self.task_manager.broker.lock(lock_name, timeout=timeout)
 
+    def queue_dump_json(self) -> bytes:
+        """Serialize the task run for the task queue
+
+        Params are dumped with secret values revealed so they survive the
+        round-trip through the queue - all other dumps keep secrets masked.
+        """
+        data = self.model_dump(mode="json", exclude={"params"})
+        data["params"] = params_dump(self.params)
+        return to_json(data)
+
     async def _execute(self) -> None:
         try:
             self.set_state(TaskState.running)
@@ -869,7 +890,7 @@ async def run_in_subprocess(ctx: TaskRun[TP]) -> None:
         ctx.name,
         ctx.task.module,
         ctx.id,
-        ctx.params.model_dump_json(),
+        to_json(params_dump(ctx.params)).decode(),
         result_callback=RemoteLog(sys.stdout),
         error_callback=RemoteLog(sys.stderr),
         env=env,

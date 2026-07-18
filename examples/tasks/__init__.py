@@ -8,7 +8,7 @@ from enum import StrEnum, auto
 from typing import Any, Self, Sequence, cast
 
 from fastapi import FastAPI
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, SecretStr
 
 from fluid.scheduler import (
     RetryPolicy,
@@ -107,6 +107,19 @@ async def add(context: TaskRun[AddValues]) -> None:
     """Log the addition of two numbers"""
     c = context.params.a + context.params.b
     context.logger.info(f"Adding {context.params.a} + {context.params.b} = {c}")
+
+
+class SecretParams(BaseModel):
+    secret: SecretStr = Field(description="A secret parameter")
+
+
+@task
+async def whisper(context: TaskRun[SecretParams]) -> None:
+    """A task with a secret parameter"""
+    broker = cast(RedisTaskBroker, context.task_manager.broker)
+    await broker.redis_cli.set(
+        context.id, context.params.secret.get_secret_value(), ex=10
+    )
 
 
 class DatetimeParams(BaseModel):
