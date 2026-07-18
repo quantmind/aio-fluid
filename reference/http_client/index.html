@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.7">
     
     
       
@@ -29,7 +29,7 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.484c7ddc.min.css">
+      <link rel="stylesheet" href="../../assets/stylesheets/main.ec1eaa64.min.css">
       
         
         <link rel="stylesheet" href="../../assets/stylesheets/palette.ab4e12ef.min.css">
@@ -3602,9 +3602,9 @@
 <a href="#fluid.utils.http_client.HttpResponseError.data" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">data</span> <span class="o">=</span> <span class="p">{</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="s2">&quot;response&quot;</span><span class="p">:</span> <span class="n"><span title="fluid.utils.http_client.HttpResponseError(data)">data</span></span><span class="p">,</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="s2">&quot;request_url&quot;</span><span class="p">:</span> <span class="n"><span title="fluid.utils.http_client.HttpResponseError(response).url">url</span></span><span class="p">,</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="s2">&quot;request_method&quot;</span><span class="p">:</span> <span class="n"><span title="fluid.utils.http_client.HttpResponseError(response).method">method</span></span><span class="p">,</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="s2">&quot;response_status&quot;</span><span class="p">:</span> <span class="n"><span title="fluid.utils.http_client.HttpResponseError(self).status_code">status_code</span></span><span class="p">,</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="s2">&quot;request_url&quot;</span><span class="p">:</span> <span class="n"><span title="fluid.utils.http_client.HttpResponseError(response)">response</span></span><span class="o">.</span><span class="n"><span title="fluid.utils.http_client.HttpResponseError(response).url">url</span></span><span class="p">,</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="s2">&quot;request_method&quot;</span><span class="p">:</span> <span class="n"><span title="fluid.utils.http_client.HttpResponseError(response)">response</span></span><span class="o">.</span><span class="n"><span title="fluid.utils.http_client.HttpResponseError(response).method">method</span></span><span class="p">,</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="s2">&quot;response_status&quot;</span><span class="p">:</span> <span class="n"><span title="fluid.utils.http_client.HttpResponseError(self)">self</span></span><span class="o">.</span><span class="n"><span title="fluid.utils.http_client.HttpResponseError(self).status_code">status_code</span></span><span class="p">,</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="p">}</span>
 </span></code></pre></div>
 
@@ -3829,8 +3829,10 @@
 
 <a href="#fluid.utils.http_client.HttpClient.default_headers" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">default_headers</span> <span class="o">=</span> <span class="n"><span title="dataclasses.field">field</span></span><span class="p">(</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n"><span title="dataclasses.field(default_factory)">default_factory</span></span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;user-agent&quot;</span><span class="p">:</span> <span class="n"><span title="fluid.settings.HTTP_USER_AGENT">HTTP_USER_AGENT</span></span><span class="p">}</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n"><span title="dataclasses.field(default_factory)">default_factory</span></span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="s2">&quot;user-agent&quot;</span><span class="p">:</span> <span class="n"><span title="fluid.settings">settings</span></span><span class="o">.</span><span class="n"><span title="fluid.settings.HTTP_USER_AGENT">HTTP_USER_AGENT</span></span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">}</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -4549,8 +4551,10 @@
 
 <a href="#fluid.utils.http_client.AioHttpClient.default_headers" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">default_headers</span> <span class="o">=</span> <span class="n"><span title="dataclasses.field">field</span></span><span class="p">(</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n"><span title="dataclasses.field(default_factory)">default_factory</span></span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;user-agent&quot;</span><span class="p">:</span> <span class="n"><span title="fluid.settings.HTTP_USER_AGENT">HTTP_USER_AGENT</span></span><span class="p">}</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n"><span title="dataclasses.field(default_factory)">default_factory</span></span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="s2">&quot;user-agent&quot;</span><span class="p">:</span> <span class="n"><span title="fluid.settings">settings</span></span><span class="o">.</span><span class="n"><span title="fluid.settings.HTTP_USER_AGENT">HTTP_USER_AGENT</span></span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">}</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5268,8 +5272,10 @@
 
 <a href="#fluid.utils.http_client.HttpxClient.default_headers" class="headerlink" title="Permanent link">&para;</a></h3>
 <div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">default_headers</span> <span class="o">=</span> <span class="n"><span title="dataclasses.field">field</span></span><span class="p">(</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n"><span title="dataclasses.field(default_factory)">default_factory</span></span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;user-agent&quot;</span><span class="p">:</span> <span class="n"><span title="fluid.settings.HTTP_USER_AGENT">HTTP_USER_AGENT</span></span><span class="p">}</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="p">)</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="n"><span title="dataclasses.field(default_factory)">default_factory</span></span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">{</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="s2">&quot;user-agent&quot;</span><span class="p">:</span> <span class="n"><span title="fluid.settings">settings</span></span><span class="o">.</span><span class="n"><span title="fluid.settings.HTTP_USER_AGENT">HTTP_USER_AGENT</span></span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="p">}</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">)</span>
 </span></code></pre></div>
 
     <div class="doc doc-contents ">
@@ -5894,7 +5900,7 @@
       <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.footer", "navigation.indexes", "navigation.path", "content.code.copy"], "search": "../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
     
     
-      <script src="../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      <script src="../../assets/javascripts/bundle.d7400e89.min.js"></script>
       
     
   </body>
