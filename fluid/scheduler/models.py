@@ -490,9 +490,8 @@ class TaskRun(BaseModel, Generic[TP], arbitrary_types_allowed=True):
     def queue_dump_json(self) -> bytes:
         """Serialize the task run for the task queue
 
-        Params are dumped with secret values revealed via
-        [params_dump][fluid.scheduler.models.params_dump] - all other dumps
-        keep secrets masked.
+        Params are dumped with secret values revealed so they survive the
+        round-trip through the queue - all other dumps keep secrets masked.
         """
         data = self.model_dump(mode="json", exclude={"params"})
         data["params"] = params_dump(self.params)
