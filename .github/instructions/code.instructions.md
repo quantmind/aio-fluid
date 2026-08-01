@@ -15,7 +15,9 @@
 ## Prose style
 
 - Never use em dashes (`—`), en dashes (`–`) as sentence punctuation, or `--`
-  in prose. This applies to all Markdown, docstrings, the README, release
-  notes, code comments, and commit/PR text. Use a comma, colon, semicolon,
-  or parentheses, or split the sentence into two. Ordinary hyphens in
-  compound words (`CPU-bound`, `async-native`) are correct and stay.
+  in the main text body. This means the rendered prose a reader sees: all
+  Markdown body text, docstrings, the README, release notes, code comments,
+  and commit/PR text. Use a comma, colon, semicolon, or parentheses, or split
+  the sentence into two. Ordinary hyphens in compound words (`CPU-bound`,
+  `async-native`) are correct and stay, and non-prose such as HTML attribute
+  values (for example an image `alt`) is out of scope.
