@@ -30,6 +30,7 @@ theme:
 hooks:
   - .dev/docs.py
 plugins:
+- blog
 - search
 - mkdocstrings:
     handlers:
