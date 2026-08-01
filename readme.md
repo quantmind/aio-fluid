@@ -32,38 +32,34 @@ from fluid.scheduler import TaskScheduler, TaskRun, task, every
 
 
 class Report(BaseModel):
-    rows: int = 1_000_000
+    rows: int = 5_000_000
 
 
-# IO-bound task: runs concurrently on the event loop.
-@task
-async def fetch(ctx: TaskRun) -> None:
-    ctx.task_manager.queue("crunch", rows=5_000_000)
-
-
-# CPU-bound task: same decorator, one flag. Runs in a subprocess so blocking
-# is fine. Inside a Kubernetes cluster it runs as a Job instead, no code change.
-@task(cpu_bound=True, timeout_seconds=600)
-async def crunch(ctx: TaskRun[Report]) -> None:
-    heavy_pandas_work(ctx.params.rows)  # blocking CPU work, safely isolated
-
-
-# Scheduled task: interval or cron, for IO- and CPU-bound tasks alike.
-@task(schedule=every(timedelta(minutes=5)))
+# IO-bound task, scheduled every minute: runs concurrently on the event loop.
+@task(schedule=every(timedelta(minutes=1)))
 async def heartbeat(ctx: TaskRun) -> None:
     ctx.logger.info("still alive")
+
+
+# CPU-bound task, scheduled hourly: same decorator, one flag. Runs in a
+# subprocess (or a Kubernetes Job in-cluster) so the heavy work never blocks
+# the event loop. Identical code in both places.
+@task(cpu_bound=True, schedule=every(timedelta(hours=1)), timeout_seconds=600)
+async def crunch(ctx: TaskRun[Report]) -> None:
+    heavy_pandas_work(ctx.params.rows)
 
 
 async def main() -> None:
     scheduler = TaskScheduler()
     scheduler.register_from_dict(globals())
-    async with scheduler:
-        await scheduler.queue("fetch")
-        await asyncio.sleep(2)
+    await scheduler.run()  # run the scheduled tasks until interrupted
 
 
 asyncio.run(main())
 ```
+
+Need to fire a task on demand instead of on a schedule? Drop the `schedule=`
+and call `await scheduler.queue("crunch")` when you want it to run.
 
 ## Why aio-fluid?
 
