@@ -4,7 +4,7 @@ date: 2026-08-01
 
 # Running CPU-bound tasks from an async FastAPI app without freezing your event loop
 
-If you run an async Python service — FastAPI, aiohttp, a bare asyncio app — you have almost
+If you run an async Python service (FastAPI, aiohttp, a bare asyncio app), you have almost
 certainly hit this wall:
 
 Everything is fast and concurrent right up until one request needs to do *real* CPU work. Parse a
@@ -15,7 +15,7 @@ CPU-heavy task took your whole process hostage.
 <!-- more -->
 
 `asyncio` is cooperative. A coroutine that spends two seconds in NumPy is two seconds where *nothing
-else runs* — no other requests, no heartbeats, no graceful shutdown. `await` doesn't help; there's
+else runs*: no other requests, no heartbeats, no graceful shutdown. `await` doesn't help; there's
 nothing to await. This is the defining limitation of async Python, and it's why "just make it async"
 is not an answer for CPU-bound work.
 
@@ -26,7 +26,7 @@ is not an answer for CPU-bound work.
   practice. And a runaway thread is hard to cancel.
 - **`ProcessPoolExecutor`.** Now you're pickling arguments, managing a pool lifecycle, and losing
   your task's structured context. It works, but it's plumbing you write and re-write per project.
-- **Celery.** Battle-tested and powerful — but it predates asyncio, and the standard advice is to
+- **Celery.** Battle-tested and powerful, but it predates asyncio, and the standard advice is to
   run a *separate* worker fleet for CPU work. Two deployments, two scaling stories, two things to
   operate.
 - **Async-native queues (`arq`, `taskiq`).** Lovely for IO-bound tasks, but they assume your tasks
@@ -59,12 +59,12 @@ async def fetch(ctx: TaskRun) -> None:
 # blocking pandas call never touches your event loop.
 @task(cpu_bound=True, timeout_seconds=600)
 async def crunch(ctx: TaskRun[Report]) -> None:
-    heavy_pandas_work(ctx.params.rows)  # blocking is fine — it's isolated
+    heavy_pandas_work(ctx.params.rows)  # blocking is fine, it's isolated
 ```
 
 When a `cpu_bound` task is dispatched, the consumer spawns a **fresh Python subprocess**, imports the
 task's module, and runs the function there. The subprocess has its own interpreter and its own GIL,
-so it genuinely runs in parallel with your event loop — which stays free to serve requests, answer
+so it genuinely runs in parallel with your event loop, which stays free to serve requests, answer
 health checks, and shut down cleanly. Stdout and stderr stream back to the consumer in real time, so
 the task's logs show up where you'd expect. Task parameters are [pydantic](https://docs.pydantic.dev/)
 models, validated on the way in, so the subprocess boundary stays typed instead of becoming a bag of
@@ -78,11 +78,11 @@ on where it runs.
 Run your consumer inside a Kubernetes cluster (with the `k8s` extra installed), and every
 `cpu_bound=True` task dispatches as a **Kubernetes Job** instead of a local subprocess. No code
 change. No second decorator. No separate worker deployment to define and maintain. The switch is
-automatic — `aio-fluid` keys off the `KUBERNETES_SERVICE_HOST` variable that Kubernetes injects into
+automatic: `aio-fluid` keys off the `KUBERNETES_SERVICE_HOST` variable that Kubernetes injects into
 every pod.
 
 The Job's pod template is *derived from your consumer's own deployment*: same image, same volume
-mounts, same security context, same env — it reads the deployment and builds the Job spec from it,
+mounts, same security context, same env. It reads the deployment and builds the Job spec from it,
 overriding only what's needed to run the one task and clearing what doesn't apply (liveness and
 readiness probes, sidecars). Jobs clean themselves up via `ttlSecondsAfterFinished`. A failed Job
 propagates the error back to the consumer instead of silently retrying.
@@ -117,13 +117,13 @@ I'd rather be honest than oversell:
 - If you have zero CPU-bound work, a pure async queue like `arq` or `taskiq` is lighter and there's
   no reason to switch.
 - If you're deep in the Celery ecosystem and happy with a separate worker fleet, that maturity and
-  breadth is real — `aio-fluid` is younger. See how the landscape stacks up in the
+  breadth is real, and `aio-fluid` is younger. See how the landscape stacks up in the
   [task-queue comparison](https://fluid.quantmind.com/comparison/).
 - `aio-fluid` uses Redis as its default broker. If you've standardized on RabbitMQ or SQS, check the
   broker interface fits before committing.
 
-But if you run an async service and have ever watched one heavy task freeze the whole thing — or
-you're dreading standing up a parallel worker deployment just to move CPU work off the loop — this is
+But if you run an async service and have ever watched one heavy task freeze the whole thing, or
+you're dreading standing up a parallel worker deployment just to move CPU work off the loop, this is
 built for exactly that.
 
 ## Try it
@@ -137,4 +137,4 @@ pip install aio-fluid[cli,k8s]  # + Kubernetes Job offload
 - [CPU bound tasks](../../tutorials/task_queue.md#cpu-bound-tasks)
 - [Kubernetes Jobs](../../tutorials/task_k8s.md)
 
-If you try it, I'd genuinely like to hear where it breaks — [open an issue](https://github.com/quantmind/aio-fluid/issues).
+If you try it, I'd genuinely like to hear where it breaks. [Open an issue](https://github.com/quantmind/aio-fluid/issues).
