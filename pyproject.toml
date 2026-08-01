@@ -1,7 +1,7 @@
 [project]
 name = "aio-fluid"
 version = "2.4.3"
-description = "Tools for backend python services"
+description = "Async task queue for Python that offloads CPU-bound work to subprocesses or Kubernetes Jobs"
 authors = [
     { name = "Luca Sbardella", email = "luca@quantmind.com" },
 ]
@@ -14,6 +14,13 @@ keywords = [
     "task-scheduler",
     "task-queue",
     "workers",
+    "celery-alternative",
+    "cron",
+    "kubernetes",
+    "cpu-bound",
+    "distributed-tasks",
+    "redis",
+    "fastapi",
 ]
 classifiers = [
     "Development Status :: 5 - Production/Stable",

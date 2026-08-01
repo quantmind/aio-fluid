@@ -7,7 +7,7 @@
   </a>
 </h1>
 
-Async utilities for backend python services developed by [Quantmind](https://quantmind.com).
+**An async task queue for Python that offloads CPU-bound work to subprocesses — or Kubernetes Jobs — without blocking your event loop.**
 
 [![PyPI version](https://badge.fury.io/py/aio-fluid.svg)](https://badge.fury.io/py/aio-fluid)
 [![Python versions](https://img.shields.io/pypi/pyversions/aio-fluid.svg)](https://pypi.org/project/aio-fluid)
@@ -15,15 +15,96 @@ Async utilities for backend python services developed by [Quantmind](https://qua
 [![build](https://github.com/quantmind/fluid/workflows/build/badge.svg)](https://github.com/quantmind/aio-fluid/actions?query=workflow%3Abuild)
 [![codecov](https://codecov.io/gh/quantmind/aio-fluid/graph/badge.svg?token=81oWUoyEVp)](https://codecov.io/gh/quantmind/aio-fluid)
 
-**Documentation**: [fluid.quantmind.com](https://fluid.quantmind.com/)
+**Documentation**: [fluid.quantmind.com](https://fluid.quantmind.com/) &nbsp;·&nbsp; **Source**: [github.com/quantmind/aio-fluid](https://github.com/quantmind/aio-fluid)
 
-**Source Code**: [github.com/quantmind/aio-fluid](https://github.com/quantmind/aio-fluid)
+Declare tasks with a `@task` decorator, schedule them with `every()` or cron, and run them
+concurrently on asyncio. The part that sets `aio-fluid` apart: mark a task `cpu_bound=True` and
+it runs in a **fresh subprocess** so heavy CPU work never freezes the event loop — and when your
+consumer runs inside Kubernetes, the *same task* dispatches as a **Kubernetes Job** instead, with
+**no code change**.
+
+```python
+import asyncio
+from datetime import timedelta
+
+from pydantic import BaseModel
+from fluid.scheduler import TaskScheduler, TaskRun, task, every
 
 
-## Features
+class Report(BaseModel):
+    rows: int = 1_000_000
 
-- **Async workers** — composable components with a managed start/stop lifecycle; the building block everything else is built on. See [Workers](https://fluid.quantmind.com/reference/workers/).
-- **Task scheduler & consumer** — declare tasks with a `@task` decorator, schedule them with `every()` or cron expressions, run them concurrently with priorities and concurrency limits, and offload CPU-bound work to subprocesses or Kubernetes Jobs. Backed by a pluggable broker (Redis by default). See [Tasks](https://fluid.quantmind.com/reference/task/).
+
+# IO-bound task — runs concurrently on the event loop.
+@task
+async def fetch(ctx: TaskRun) -> None:
+    ctx.task_manager.queue("crunch", rows=5_000_000)
+
+
+# CPU-bound task — same decorator, one flag. Runs in a subprocess so blocking
+# is fine. Inside a Kubernetes cluster it runs as a Job instead — no code change.
+@task(cpu_bound=True, timeout_seconds=600)
+async def crunch(ctx: TaskRun[Report]) -> None:
+    heavy_pandas_work(ctx.params.rows)  # blocking CPU work, safely isolated
+
+
+# Scheduled task — interval or cron, for IO- and CPU-bound tasks alike.
+@task(schedule=every(timedelta(minutes=5)))
+async def heartbeat(ctx: TaskRun) -> None:
+    ctx.logger.info("still alive")
+
+
+async def main() -> None:
+    scheduler = TaskScheduler()
+    scheduler.register_from_dict(globals())
+    async with scheduler:
+        await scheduler.queue("fetch")
+        await asyncio.sleep(2)
+
+
+asyncio.run(main())
+```
+
+## Why aio-fluid?
+
+Most Python task queues force a choice: async-native runners (`arq`, `taskiq`) that assume your work
+never blocks the loop, or heavyweight brokers (`Celery`) that predate asyncio. Neither has a clean
+answer for *"this one task is CPU-heavy"* beyond "spin up a second worker fleet."
+
+`aio-fluid` treats CPU-bound work as a first-class task type:
+
+- **One decorator, two execution models.** `@task(cpu_bound=True)` runs locally as a subprocess and
+  in-cluster as a Kubernetes Job — the switch is automatic (`KUBERNETES_SERVICE_HOST` + the `k8s`
+  extra). Your task code is identical in both. See [K8s Jobs](https://fluid.quantmind.com/tutorials/task_k8s/).
+- **Async-native and typed.** Tasks are plain `async def` functions; parameters are
+  [pydantic](https://docs.pydantic.dev/) models, validated on the way in.
+- **The scheduling you expect.** `every(timedelta(...))` and `crontab(...)`, per-task
+  `max_concurrency`, priorities, `timeout_seconds`, and retry policies.
+- **FastAPI-ready.** Drop a task manager into a FastAPI app to queue and inspect runs over HTTP.
+- **Pluggable broker.** Redis by default; the broker is an interface, not a hard dependency.
+
+### How it compares
+
+| | aio-fluid | Celery | arq | taskiq |
+|---|---|---|---|---|
+| Async-native (`async def` tasks) | ✅ | partial | ✅ | ✅ |
+| CPU-bound tasks off the event loop | ✅ subprocess | separate worker | ❌ | ❌ |
+| Same task → Kubernetes Job, no code change | ✅ | ❌ | ❌ | ❌ |
+| Cron + interval scheduling built in | ✅ | via beat | ✅ | via scheduler |
+| Typed (pydantic) task parameters | ✅ | ❌ | ❌ | ✅ |
+| FastAPI integration | ✅ | ❌ | ❌ | partial |
+| Default broker | Redis | RabbitMQ/Redis | Redis | Redis/NATS/… |
+
+`Celery` is the mature, battle-tested default with the biggest ecosystem — reach for it when you
+need that breadth. `aio-fluid` is for async services that want CPU-bound work handled natively and
+scaled onto Kubernetes without a parallel worker deployment.
+
+## Batteries included
+
+Alongside the task queue, `aio-fluid` ships the building blocks Quantmind uses to run backend
+services:
+
+- **Async workers** — composable components with a managed start/stop lifecycle; the foundation the task queue is built on. See [Workers](https://fluid.quantmind.com/reference/workers/).
 - **Async Postgres CRUD** — a typed CRUD layer over `asyncpg` and SQLAlchemy, with pagination and schema migrations. See [Database](https://fluid.quantmind.com/reference/db/).
 - **Event dispatchers** — sync and async `Dispatcher` types for decoupling event sources from handlers. See [Dispatchers](https://fluid.quantmind.com/reference/dispatchers/).
 - **HTTP client helpers** — a unified async client wrapping `httpx` and `aiohttp`. See [HTTP Client](https://fluid.quantmind.com/reference/http_client/).
