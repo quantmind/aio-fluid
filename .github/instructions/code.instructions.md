@@ -11,3 +11,11 @@
   The docs build runs in strict mode and fails on unresolved references.
 - After changing docstrings or anything under `docs/`, run `make docs` to
   verify the strict build passes.
+
+## Prose style
+
+- Never use em dashes (`—`), en dashes (`–`) as sentence punctuation, or `--`
+  in prose. This applies to all Markdown, docstrings, the README, release
+  notes, code comments, and commit/PR text. Use a comma, colon, semicolon,
+  or parentheses, or split the sentence into two. Ordinary hyphens in
+  compound words (`CPU-bound`, `async-native`) are correct and stay.
