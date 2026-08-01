@@ -65,6 +65,10 @@ release:		## tag current version (from pyproject.toml) and push
 		echo "Aborted."; \
 	fi
 
+.PHONY: stats
+stats:			## refresh task-queue download stats in docs/comparison.md
+	@uv run python scripts/task_queue_stats.py
+
 .PHONY: taplo-fmt
 taplo-fmt:		## format toml files with taplo
 	taplo fmt
