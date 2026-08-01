@@ -1,0 +1,30 @@
+name: stats
+
+on:
+  schedule:
+    - cron: "0 6 1 * *"
+  workflow_dispatch:
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v4
+      - name: install uv
+        uses: astral-sh/setup-uv@v5
+      - name: refresh task-queue download stats
+        run: make stats
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.QMBOT_GITHUB_TOKEN }}
+          author: qmbot <bot@quantmind.com>
+          commit-message: refresh task-queue download stats
+          title: Refresh task-queue download stats
+          body: >
+            Auto-generated monthly refresh of the download table in
+            docs/comparison.md, produced by `make stats`.
+          branch: ci-task-queue-stats
+          labels: ci, automated pr
