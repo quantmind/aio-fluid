@@ -28,7 +28,7 @@ async def test_humanize() -> None:
     assert stats.humanize(2_400_000) == "2.4M"
     assert stats.humanize(117_240) == "117k"
     assert stats.humanize(898) == "898"
-    assert stats.humanize(None) == "—"
+    assert stats.humanize(None) == "n/a"
 
 
 async def test_render_table_contains_rows() -> None:

@@ -51,14 +51,14 @@ LIBRARIES: tuple[Library, ...] = (
         "Celery",
         "partial",
         "separate worker fleet",
-        "The incumbent — biggest ecosystem, broker-agnostic.",
+        "The incumbent: biggest ecosystem, broker-agnostic.",
     ),
     Library(
         "apscheduler",
         "APScheduler",
         "yes",
         "n/a",
-        "A *scheduler*, not a distributed queue — listed for scale.",
+        "A *scheduler*, not a distributed queue, listed for scale.",
     ),
     Library(
         "rq",
@@ -114,11 +114,11 @@ LIBRARIES: tuple[Library, ...] = (
         "aio-fluid",
         "yes",
         "subprocess / k8s Job",
-        "This library — CPU-bound work is a first-class task type.",
+        "This library: CPU-bound work is a first-class task type.",
     ),
 )
 
-_SUPPORT = {"yes": "✅", "partial": "partial", "no": "—"}
+_SUPPORT = {"yes": "✅", "partial": "partial", "no": "no"}
 
 
 def fetch_last_month(package: str, *, timeout: float = 30.0) -> int | None:
@@ -137,9 +137,9 @@ def fetch_last_month(package: str, *, timeout: float = 30.0) -> int | None:
 
 
 def humanize(count: int | None) -> str:
-    """Render a download count compactly: ``48.9M``, ``117k``, ``898``, ``—``."""
+    """Render a download count compactly: ``48.9M``, ``117k``, ``898``, ``n/a``."""
     if count is None:
-        return "—"
+        return "n/a"
     if count >= 1_000_000:
         return f"{count / 1_000_000:.1f}M"
     if count >= 1_000:
@@ -153,7 +153,7 @@ def render_table(rows: list[tuple[Library, int | None]], *, today: str) -> str:
         "_Downloads = last 30 days on PyPI, via "
         "[pypistats.org](https://pypistats.org). "
         f"Last refreshed {today}. Counts are inflated by CI, mirrors and Docker "
-        "builds — read them as orders of magnitude, not user counts._",
+        "builds, read them as orders of magnitude, not user counts._",
         "",
         "| Library | Downloads / mo | Async-native | CPU work off the loop | Notes |",
         "|---|---:|:---:|:---:|---|",
