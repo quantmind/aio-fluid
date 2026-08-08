@@ -19,6 +19,24 @@ class Search(NamedTuple):
 
 
 class Pagination(NamedTuple):
+    """Cursor-based pagination over a database table.
+
+    The `order_by_fields` must uniquely identify a row: the values of those
+    fields, taken together, must be distinct for every row matched by the
+    query. The cursor stores nothing but those values, so it can only resume
+    from an unambiguous position. Add a unique column, usually the primary
+    key, as the last ordering field when the other fields can tie:
+
+    ```python
+    Pagination.create("published_at", "id", limit=20)
+    ```
+
+    When the ordering is not unique, rows sharing the same ordering values can
+    be repeated across consecutive pages, and rows can be missed entirely
+    because the database is free to order tied rows differently between the
+    two queries.
+    """
+
     order_by_fields: Annotated[tuple[str, ...], Doc("Fields to order results by")]
     limit: Annotated[int, Doc("Maximum number of results per page")]
     filters: Annotated[dict[str, Any], Doc("Filters applied to the query")]
@@ -59,6 +77,9 @@ class Pagination(NamedTuple):
 
         If the cursor is provided, filters, limit and search are extracted from it,
         and the provided values for these parameters are ignored.
+
+        The `order_by_fields` must uniquely identify a row, otherwise pages can
+        repeat or miss rows.
         """
         if cursor:
             decoded_cursor = Cursor.decode(cursor, order_by_fields)

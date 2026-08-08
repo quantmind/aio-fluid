@@ -15,9 +15,9 @@ pip install aio-fluid[db,cli]
 There are two database classes:
 
 - [Database][fluid.db.Database] — provides connection management, transactions, and migrations.
-- [CrudDB][fluid.db.CrudDB] — extends `Database` with CRUD helpers for common query patterns.
+- [CrudDB][fluid.db.CrudDB] — extends [Database][fluid.db.Database] with CRUD helpers for common query patterns.
 
-Most applications should use `CrudDB` directly:
+Most applications should use [CrudDB][fluid.db.CrudDB] directly:
 
 ```python
 from fluid.db import CrudDB
@@ -198,7 +198,7 @@ n = await db.db_count(articles, {"author": "alice"})
 
 ## Pagination
 
-[Pagination][fluid.db.Pagination] implements cursor-based pagination on top of `CrudDB`.
+[Pagination][fluid.db.Pagination] implements cursor-based pagination on top of [CrudDB][fluid.db.CrudDB].
 It fetches one extra row beyond the requested limit to determine whether a next page exists, then encodes a cursor that the client returns with the next request.
 
 ```python
@@ -207,6 +207,7 @@ from fluid.db import Pagination
 # first page
 rows, cursor = await Pagination.create(
     "published_at",
+    "id",
     limit=20,
     filters={"author": "alice"},
     desc=True,
@@ -216,12 +217,19 @@ rows, cursor = await Pagination.create(
 if cursor:
     rows, cursor = await Pagination.create(
         "published_at",
+        "id",
         cursor=cursor,
         desc=True,
     ).execute(db, articles)
 ```
 
 When `cursor` is provided, the `filters` and `limit` arguments are ignored — they are decoded from the cursor itself, ensuring consistent pages even if the caller changes them between requests.
+
+### The ordering must be unique
+
+The ordering fields must uniquely identify a row. The cursor encodes only the values of those fields for the first row of the next page, and the next query resumes from that position, so ties are ambiguous: rows sharing the same ordering values can appear on two consecutive pages, and rows can be skipped altogether, because the database is free to order tied rows differently between the two queries.
+
+`published_at` alone is not unique — two articles can be published at the same instant — which is why the examples above order by `("published_at", "id")`. Appending the primary key makes the ordering total and the cursor unambiguous. The same rule applies to the ordering used with full-text search below.
 
 ### Full-text search
 
@@ -233,6 +241,7 @@ from fluid.db.pagination import Search
 
 rows, cursor = await Pagination.create(
     "published_at",
+    "id",
     limit=20,
     search=Search(search_fields=("title", "author"), search_text="fluid"),
     desc=True,
