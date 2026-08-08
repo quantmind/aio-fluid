@@ -12,7 +12,7 @@
       
       
       
-        <link rel="next" href="comparison/">
+        <link rel="next" href="reference/">
       
       
         
@@ -355,23 +355,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Why aio-fluid?">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#how-it-compares" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How it compares
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -422,60 +405,6 @@
   
 </nav>
       
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="comparison/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Python task queues compared
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="release-notes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Release Notes
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -543,7 +472,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -565,14 +494,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1216,7 +1145,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -1238,14 +1167,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1404,14 +1333,14 @@
   
   
     <li class="md-nav__item">
-      <a href="tutorials/task_queue/" class="md-nav__link">
+      <a href="tutorials/task_retry/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Tasks
+    Task Retries
   
 
     
@@ -1432,14 +1361,14 @@
   
   
     <li class="md-nav__item">
-      <a href="tutorials/task_retry/" class="md-nav__link">
+      <a href="tutorials/tasks/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Task Retries
+    Tasks
   
 
     
@@ -1488,6 +1417,60 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="comparison/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python task queues compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="release-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1520,23 +1503,6 @@
       
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Why aio-fluid?">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#how-it-compares" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        How it compares
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -1621,53 +1587,76 @@
   </a>
 </h1>
 
-<p><strong>An async task queue for Python that offloads CPU-bound work to subprocesses (or Kubernetes Jobs) without blocking your event loop.</strong></p>
+<p><strong>An async task queue that offloads CPU-bound work to subprocesses or Kubernetes Jobs</strong></p>
 <p><a href="https://badge.fury.io/py/aio-fluid"><img alt="PyPI version" src="https://badge.fury.io/py/aio-fluid.svg" /></a>
 <a href="https://pypi.org/project/aio-fluid"><img alt="Python versions" src="https://img.shields.io/pypi/pyversions/aio-fluid.svg" /></a>
 <a href="https://pepy.tech/project/aio-fluid"><img alt="Python downloads" src="https://static.pepy.tech/badge/aio-fluid/month" /></a>
 <a href="https://github.com/quantmind/aio-fluid/actions?query=workflow%3Abuild"><img alt="build" src="https://github.com/quantmind/fluid/workflows/build/badge.svg" /></a>
 <a href="https://codecov.io/gh/quantmind/aio-fluid"><img alt="codecov" src="https://codecov.io/gh/quantmind/aio-fluid/graph/badge.svg?token=81oWUoyEVp" /></a></p>
-<p><strong>Documentation</strong>: <a href="https://fluid.quantmind.com/">fluid.quantmind.com</a> &nbsp;·&nbsp; <strong>Source</strong>: <a href="https://github.com/quantmind/aio-fluid">github.com/quantmind/aio-fluid</a></p>
+<p><strong>Documentation</strong>: <a href="https://fluid.quantmind.com/">fluid.quantmind.com</a></p>
+<p><strong>Source</strong>: <a href="https://github.com/quantmind/aio-fluid">github.com/quantmind/aio-fluid</a></p>
 <p>Declare tasks with a <code>@task</code> decorator, schedule them with <code>every()</code> or cron, and run them
 concurrently on asyncio. The part that sets <code>aio-fluid</code> apart: mark a task <code>cpu_bound=True</code> and
 it runs in a <strong>fresh subprocess</strong> so heavy CPU work never freezes the event loop. And when your
 consumer runs inside Kubernetes, the <em>same task</em> dispatches as a <strong>Kubernetes Job</strong> instead, with
 <strong>no code change</strong>.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">asyncio</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">timedelta</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskScheduler</span><span class="p">,</span> <span class="n">TaskRun</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">every</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fastapi</span><span class="w"> </span><span class="kn">import</span> <span class="n">FastAPI</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">Report</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="n">rows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5_000_000</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskRun</span><span class="p">,</span> <span class="n">TaskScheduler</span><span class="p">,</span> <span class="n">every</span><span class="p">,</span> <span class="n">task</span><span class="p">,</span> <span class="n">task_manager_fastapi</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskManagerCLI</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="c1"># IO-bound task, scheduled every minute: runs concurrently on the event loop.</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="nd">@task</span><span class="p">(</span><span class="n">schedule</span><span class="o">=</span><span class="n">every</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="mi">1</span><span class="p">)))</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">heartbeat</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;still alive&quot;</span><span class="p">)</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="c1"># CPU-bound task, scheduled hourly: same decorator, one flag. Runs in a</span>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="c1"># subprocess (or a Kubernetes Job in-cluster) so the heavy work never blocks</span>
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="c1"># the event loop. Identical code in both places.</span>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="nd">@task</span><span class="p">(</span><span class="n">cpu_bound</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">schedule</span><span class="o">=</span><span class="n">every</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="mi">1</span><span class="p">)),</span> <span class="n">timeout_seconds</span><span class="o">=</span><span class="mi">600</span><span class="p">)</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">crunch</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">[</span><span class="n">Report</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">heavy_pandas_work</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="n">scheduler</span> <span class="o">=</span> <span class="n">TaskScheduler</span><span class="p">()</span>
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="n">scheduler</span><span class="o">.</span><span class="n">register_from_dict</span><span class="p">(</span><span class="nb">globals</span><span class="p">())</span>
-</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="k">await</span> <span class="n">scheduler</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>  <span class="c1"># run the scheduled tasks until interrupted</span>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="n">asyncio</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="k">class</span><span class="w"> </span><span class="nc">Report</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">rows</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5_000_000</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="k">def</span><span class="w"> </span><span class="nf">heavy_pandas_work</span><span class="p">(</span><span class="n">rows</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Stand-in for the CPU-heavy work you would do in a real task.&quot;&quot;&quot;</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="nb">sum</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">rows</span><span class="p">))</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="nd">@task</span><span class="p">(</span><span class="n">schedule</span><span class="o">=</span><span class="n">every</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">5</span><span class="p">)))</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">heartbeat</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;IO-bound task, scheduled every five seconds</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="sd">    runs concurrently on the event loop</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;still alive&quot;</span><span class="p">)</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a><span class="nd">@task</span><span class="p">(</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>    <span class="n">cpu_bound</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="n">schedule</span><span class="o">=</span><span class="n">every</span><span class="p">(</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">20</span><span class="p">),</span> <span class="n">delay</span><span class="o">=</span><span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="mi">5</span><span class="p">)),</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>    <span class="n">timeout_seconds</span><span class="o">=</span><span class="mi">600</span><span class="p">,</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="p">)</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">crunch</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">[</span><span class="n">Report</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;CPU-bound task, scheduled every 20 seconds with an initial delay of 5 seconds</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="sd">    Same decorator, one flag. Runs in a subprocess (or a Kubernetes Job in-cluster)</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="sd">    so the heavy work never blocks the event loop.</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="sd">    Identical code in both places.</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>    <span class="n">heavy_pandas_work</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">rows</span><span class="p">)</span>
+</span><span id="__span-0-42"><a id="__codelineno-0-42" name="__codelineno-0-42" href="#__codelineno-0-42"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;crunch finished on pid </span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">getpid</span><span class="p">())</span>
+</span><span id="__span-0-43"><a id="__codelineno-0-43" name="__codelineno-0-43" href="#__codelineno-0-43"></a>
+</span><span id="__span-0-44"><a id="__codelineno-0-44" name="__codelineno-0-44" href="#__codelineno-0-44"></a>
+</span><span id="__span-0-45"><a id="__codelineno-0-45" name="__codelineno-0-45" href="#__codelineno-0-45"></a><span class="k">def</span><span class="w"> </span><span class="nf">scheduler_app</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">FastAPI</span><span class="p">:</span>
+</span><span id="__span-0-46"><a id="__codelineno-0-46" name="__codelineno-0-46" href="#__codelineno-0-46"></a>    <span class="n">scheduler</span> <span class="o">=</span> <span class="n">TaskScheduler</span><span class="p">()</span>
+</span><span id="__span-0-47"><a id="__codelineno-0-47" name="__codelineno-0-47" href="#__codelineno-0-47"></a>    <span class="n">scheduler</span><span class="o">.</span><span class="n">register_from_dict</span><span class="p">(</span><span class="nb">globals</span><span class="p">())</span>
+</span><span id="__span-0-48"><a id="__codelineno-0-48" name="__codelineno-0-48" href="#__codelineno-0-48"></a>    <span class="k">return</span> <span class="n">task_manager_fastapi</span><span class="p">(</span><span class="n">scheduler</span><span class="p">)</span>
+</span><span id="__span-0-49"><a id="__codelineno-0-49" name="__codelineno-0-49" href="#__codelineno-0-49"></a>
+</span><span id="__span-0-50"><a id="__codelineno-0-50" name="__codelineno-0-50" href="#__codelineno-0-50"></a>
+</span><span id="__span-0-51"><a id="__codelineno-0-51" name="__codelineno-0-51" href="#__codelineno-0-51"></a><span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+</span><span id="__span-0-52"><a id="__codelineno-0-52" name="__codelineno-0-52" href="#__codelineno-0-52"></a>    <span class="n">TaskManagerCLI</span><span class="p">(</span>
+</span><span id="__span-0-53"><a id="__codelineno-0-53" name="__codelineno-0-53" href="#__codelineno-0-53"></a>        <span class="n">scheduler_app</span><span class="p">,</span>
+</span><span id="__span-0-54"><a id="__codelineno-0-54" name="__codelineno-0-54" href="#__codelineno-0-54"></a>        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Simple Task Manager CLI with default commands&quot;</span><span class="p">,</span>
+</span><span id="__span-0-55"><a id="__codelineno-0-55" name="__codelineno-0-55" href="#__codelineno-0-55"></a>        <span class="n">log_config</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">app_names</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;__main__&quot;</span><span class="p">,</span> <span class="s2">&quot;fluid&quot;</span><span class="p">)),</span>
+</span><span id="__span-0-56"><a id="__codelineno-0-56" name="__codelineno-0-56" href="#__codelineno-0-56"></a>    <span class="p">)()</span>
 </span></code></pre></div>
-<p>Need to fire a task on demand instead of on a schedule? Drop the <code>schedule=</code>
-and call <code>await scheduler.queue("crunch")</code> when you want it to run.</p>
 <h2 id="why-aio-fluid">Why aio-fluid?<a class="headerlink" href="#why-aio-fluid" title="Permanent link">&para;</a></h2>
 <p>Most Python task queues force a choice: async-native runners (<code>arq</code>, <code>taskiq</code>) that assume your work
 never blocks the loop, or heavyweight brokers (<code>Celery</code>) that predate asyncio. Neither has a clean
@@ -1682,74 +1671,19 @@ answer for <em>"this one task is CPU-heavy"</em> beyond "spin up a second worker
 <li><strong>The scheduling you expect.</strong> <code>every(timedelta(...))</code> and <code>crontab(...)</code>, per-task
   <code>max_concurrency</code>, priorities, <code>timeout_seconds</code>, and retry policies.</li>
 <li><strong>FastAPI-ready.</strong> Drop a task manager into a FastAPI app to queue and inspect runs over HTTP.</li>
+<li><strong>Task lifecycle callbacks.</strong> Every state a run moves through (<code>queued</code>, <code>running</code>, <code>success</code>,
+  <code>failure</code>, <code>aborted</code>) is dispatched as an event you can subscribe to, with sync or async
+  handlers, so metrics, alerting and bookkeeping hang off the queue instead of your task code.</li>
+<li><strong>Task manager plugins.</strong> Plugins hook into those same events and can mount their own HTTP
+  routes. The bundled database plugin persists every run to Postgres and serves a
+  <code>/tasks-history</code> API on top of it. See <a href="https://fluid.quantmind.com/tutorials/task_app/#plugins">Plugins</a>.</li>
 <li><strong>Pluggable broker.</strong> Redis by default; the broker is an interface, not a hard dependency.</li>
 </ul>
-<h3 id="how-it-compares">How it compares<a class="headerlink" href="#how-it-compares" title="Permanent link">&para;</a></h3>
-<table>
-<thead>
-<tr>
-<th></th>
-<th>aio-fluid</th>
-<th>Celery</th>
-<th>arq</th>
-<th>taskiq</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Async-native (<code>async def</code> tasks)</td>
-<td>✅</td>
-<td>partial</td>
-<td>✅</td>
-<td>✅</td>
-</tr>
-<tr>
-<td>CPU-bound tasks off the event loop</td>
-<td>✅ subprocess</td>
-<td>separate worker</td>
-<td>❌</td>
-<td>❌</td>
-</tr>
-<tr>
-<td>Same task as a Kubernetes Job, no code change</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>❌</td>
-</tr>
-<tr>
-<td>Cron + interval scheduling built in</td>
-<td>✅</td>
-<td>via beat</td>
-<td>✅</td>
-<td>via scheduler</td>
-</tr>
-<tr>
-<td>Typed (pydantic) task parameters</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>✅</td>
-</tr>
-<tr>
-<td>FastAPI integration</td>
-<td>✅</td>
-<td>❌</td>
-<td>❌</td>
-<td>partial</td>
-</tr>
-<tr>
-<td>Default broker</td>
-<td>Redis</td>
-<td>RabbitMQ/Redis</td>
-<td>Redis</td>
-<td>Redis/NATS/…</td>
-</tr>
-</tbody>
-</table>
 <p><code>Celery</code> is the mature, battle-tested default with the biggest ecosystem; reach for it when you
 need that breadth. <code>aio-fluid</code> is for async services that want CPU-bound work handled natively and
-scaled onto Kubernetes without a parallel worker deployment.</p>
+scaled onto Kubernetes without a parallel worker deployment. For a feature-by-feature look at
+<code>aio-fluid</code> next to Celery, RQ, arq and taskiq, backed by download data, see
+<a href="https://fluid.quantmind.com/comparison/">Python task queues compared</a>.</p>
 <h2 id="batteries-included">Batteries included<a class="headerlink" href="#batteries-included" title="Permanent link">&para;</a></h2>
 <p>Alongside the task queue, <code>aio-fluid</code> ships the building blocks Quantmind uses to run backend
 services:</p>
@@ -1812,13 +1746,13 @@ this includes the following extra dependencies:</p>
         
         
           
-          <a href="comparison/" class="md-footer__link md-footer__link--next" aria-label="Next: Python task queues compared">
+          <a href="reference/" class="md-footer__link md-footer__link--next" aria-label="Next: Reference">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Python task queues compared
+                Reference
               </div>
             </div>
             <div class="md-footer__button md-icon">

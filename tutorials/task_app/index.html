@@ -319,60 +319,6 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../../comparison/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Python task queues compared
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../release-notes/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Release Notes
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
     
     
       
@@ -430,7 +376,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -452,14 +398,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1105,7 +1051,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
           <div class="md-nav__link md-nav__container">
@@ -1127,14 +1073,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_5" id="__nav_5_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_5">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1302,6 +1248,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#setup-for-cpu-bound-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup for CPU bound tasks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#plugins" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1412,14 +1369,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_queue/" class="md-nav__link">
+      <a href="../task_retry/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Tasks
+    Task Retries
   
 
     
@@ -1440,14 +1397,14 @@
   
   
     <li class="md-nav__item">
-      <a href="../task_retry/" class="md-nav__link">
+      <a href="../tasks/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Task Retries
+    Tasks
   
 
     
@@ -1492,6 +1449,60 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../comparison/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Python task queues compared
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../release-notes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Release Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1549,6 +1560,17 @@
     <span class="md-ellipsis">
       
         Task App Command Line
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-for-cpu-bound-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Setup for CPU bound tasks
       
     </span>
   </a>
@@ -1738,6 +1760,20 @@ query parameter to only return tasks that have at least one of the given tags:</
 </span></code></pre></div>
 <p>The command line tool provides a powerful interface to execute tasks, parameters are
 passed as optional arguments using the standard click interface.</p>
+<h2 id="setup-for-cpu-bound-tasks">Setup for CPU bound tasks<a class="headerlink" href="#setup-for-cpu-bound-tasks" title="Permanent link">&para;</a></h2>
+<p>For an application with <a href="../tasks/#cpu-bound-tasks">CPU bound tasks</a> the command line entry point
+above is not optional, it is how those tasks are executed.</p>
+<p>A CPU bound task does not run in the consumer process, so it does not share the
+<a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskManager" href="../../reference/task_manager/#fluid.scheduler.TaskManager">TaskManager</a> instance the consumer is using. The process that runs
+the task builds its own task manager first, through the <code>exec</code> command, which means everything
+the application attaches to the manager, dependencies and plugins in particular, has to be built
+again there.</p>
+<p>So build the task manager in the entry point, with the same dependencies and plugins the consumer
+uses, and expose it through <a class="autorefs autorefs-internal" title="            fluid.scheduler.cli.TaskManagerCLI" href="../../reference/task_cli/#fluid.scheduler.cli.TaskManagerCLI">TaskManagerCLI</a>. A task then
+behaves the same whether it runs on the event loop or in a separate process, and the <code>cli</code> extra
+becomes a requirement rather than an option.</p>
+<p>The same entry point is what a <a href="../task_k8s/">Kubernetes Job</a> runs when a CPU bound task is
+dispatched in a cluster, with the Job command derived from the consumer deployment.</p>
 <h2 id="plugins">Plugins<a class="headerlink" href="#plugins" title="Permanent link">&para;</a></h2>
 <p>Plugins extend the task manager with additional behaviour by hooking into task lifecycle
 events. A plugin implements the <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskManagerPlugin" href="../../reference/task_plugin/#fluid.scheduler.TaskManagerPlugin">TaskManagerPlugin</a>
