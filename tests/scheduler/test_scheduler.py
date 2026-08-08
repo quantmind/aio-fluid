@@ -123,10 +123,10 @@ async def test_cpu_bound_timeout(
     task_scheduler: TaskScheduler, redis: Redis  # type: ignore
 ) -> None:
     """A timed out cpu bound task must not leave its subprocess running"""
-    task_run = await task_scheduler.queue_and_wait("cpu_bound_timeout", timeout=10)
+    task_run = await task_scheduler.queue_and_wait("cpu_bound_timeout", timeout=20)
     assert task_run.state == TaskState.failure
     result = await redis.get(task_run.id)
-    assert result
+    assert result, "the subprocess was killed before it published its pid"
     pid = int(result.decode())
 
     async def gone() -> bool:

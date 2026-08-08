@@ -147,12 +147,13 @@ async def cpu_bound_deps(context: TaskRun) -> None:
     await broker.redis_cli.set(context.id, type(deps.http_client).__name__, ex=10)
 
 
-@task(cpu_bound=True, timeout_seconds=1)
+@task(cpu_bound=True, timeout_seconds=5)
 async def cpu_bound_timeout(context: TaskRun) -> None:
     """A CPU bound task which runs for longer than its timeout
 
     It publishes its pid before blocking, so a test can check the subprocess
-    does not outlive the timeout.
+    does not outlive the timeout. The timeout has to be comfortably longer
+    than the subprocess startup, otherwise the task is killed before it runs.
     """
     broker = cast(RedisTaskBroker, context.task_manager.broker)
     await broker.redis_cli.set(context.id, os.getpid(), ex=10)
