@@ -140,6 +140,26 @@ async def cpu_bound_env(context: TaskRun) -> None:
 
 
 @task(cpu_bound=True)
+async def cpu_bound_deps(context: TaskRun) -> None:
+    """A CPU bound task using the task manager dependencies"""
+    deps = Deps.get(context)
+    broker = cast(RedisTaskBroker, context.task_manager.broker)
+    await broker.redis_cli.set(context.id, type(deps.http_client).__name__, ex=10)
+
+
+@task(cpu_bound=True, timeout_seconds=1)
+async def cpu_bound_timeout(context: TaskRun) -> None:
+    """A CPU bound task which runs for longer than its timeout
+
+    It publishes its pid before blocking, so a test can check the subprocess
+    does not outlive the timeout.
+    """
+    broker = cast(RedisTaskBroker, context.task_manager.broker)
+    await broker.redis_cli.set(context.id, os.getpid(), ex=10)
+    time.sleep(30)
+
+
+@task(cpu_bound=True)
 async def cpu_bound(context: TaskRun[Sleep]) -> None:
     """A CPU bound task running on subprocess
 

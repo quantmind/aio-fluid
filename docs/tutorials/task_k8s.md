@@ -1,6 +1,6 @@
 # K8s Jobs
 
-When the [TaskConsumer][fluid.scheduler.TaskConsumer] runs inside a Kubernetes cluster, [CPU bound tasks](task_queue.md#cpu-bound-tasks) can be dispatched as [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/) instead of local subprocesses.
+When the [TaskConsumer][fluid.scheduler.TaskConsumer] runs inside a Kubernetes cluster, [CPU bound tasks](tasks.md#cpu-bound-tasks) can be dispatched as [Kubernetes Jobs](https://kubernetes.io/docs/concepts/workloads/controllers/job/) instead of local subprocesses.
 This offloads heavy computation to dedicated pods and keeps the consumer event loop free.
 
 ## How it works
@@ -54,6 +54,12 @@ It requires both the `cli` and `k8s` extras:
 ```bash
 pip install aio-fluid[cli,k8s]
 ```
+
+The `cli` extra is not optional here. The Job runs the deployment's own command with
+`exec <task-name>` as its arguments, so the container entry point must be a
+[TaskManagerCLI][fluid.scheduler.cli.TaskManagerCLI]. That CLI is what builds the application
+[TaskManager][fluid.scheduler.TaskManager], with its dependencies and plugins, inside the Job
+pod. See [Setup for CPU bound tasks](task_app.md#setup-for-cpu-bound-tasks).
 
 ## Defining a CPU bound task
 

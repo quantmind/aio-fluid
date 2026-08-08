@@ -20,7 +20,14 @@ from fluid.utils.text import snake_case
 from fluid.utils.worker import AsyncConsumer, Worker, WorkerFunction, Workers
 
 from .broker import TaskBroker, TaskRegistry
-from .errors import TaskAbortedError, TaskParamsError, TaskRunError, UnknownTaskError
+from .common import is_in_cpu_process
+from .errors import (
+    CpuBoundEntryPointError,
+    TaskAbortedError,
+    TaskParamsError,
+    TaskRunError,
+    UnknownTaskError,
+)
 from .models import (
     Task,
     TaskManagerConfig,
@@ -412,6 +419,18 @@ class TaskConsumer(TaskManager, Workers):
         ] = None,
         **config: Any,
     ) -> None:
+        """Create the task consumer and the workers it runs.
+
+        Workers added via `add_workers` are started by `startup`, therefore
+        they only run in a process which consumes the task queue.
+
+        The async dispatcher is added as an async context manager instead, so
+        it is started by `__aenter__` and runs in every process which uses the
+        task manager. A cpu bound task runs in a process of its own, which
+        executes a single task and never starts the consumer workers, and it
+        still needs to dispatch the lifecycle events its plugins and handlers
+        subscribe to.
+        """
         super().__init__(**config)
         if stopping_grace_period is None:
             stopping_grace_period = settings.STOPPING_GRACE_PERIOD
@@ -443,6 +462,21 @@ class TaskConsumer(TaskManager, Workers):
                 stopping_grace_period=stopping_grace_period,
             )
         )
+
+    async def startup(self) -> None:
+        """Start the task consumer workers.
+
+        A cpu bound process executes a single task and exits, it never consumes
+        the queue. Reaching this point means the entry point ignored the `exec`
+        command, so it cannot run cpu bound tasks.
+        """
+        if is_in_cpu_process():
+            raise CpuBoundEntryPointError(
+                "a task consumer cannot start in a cpu bound process: "
+                "running cpu bound tasks requires the application entry point "
+                "to be a TaskManagerCLI"
+            )
+        await super().startup()
 
     def sync_queue(self, task: str | Task | TaskRun, delay: float = 0) -> None:
         """Queue a task synchronously"""

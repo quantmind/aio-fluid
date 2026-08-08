@@ -107,6 +107,25 @@ Commands:
 The command line tool provides a powerful interface to execute tasks, parameters are
 passed as optional arguments using the standard click interface.
 
+## Setup for CPU bound tasks
+
+For an application with [CPU bound tasks](tasks.md#cpu-bound-tasks) the command line entry point
+above is not optional, it is how those tasks are executed.
+
+A CPU bound task does not run in the consumer process, so it does not share the
+[TaskManager][fluid.scheduler.TaskManager] instance the consumer is using. The process that runs
+the task builds its own task manager first, through the `exec` command, which means everything
+the application attaches to the manager, dependencies and plugins in particular, has to be built
+again there.
+
+So build the task manager in the entry point, with the same dependencies and plugins the consumer
+uses, and expose it through [TaskManagerCLI][fluid.scheduler.cli.TaskManagerCLI]. A task then
+behaves the same whether it runs on the event loop or in a separate process, and the `cli` extra
+becomes a requirement rather than an option.
+
+The same entry point is what a [Kubernetes Job](task_k8s.md) runs when a CPU bound task is
+dispatched in a cluster, with the Job command derived from the consumer deployment.
+
 ## Plugins
 
 Plugins extend the task manager with additional behaviour by hooking into task lifecycle

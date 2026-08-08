@@ -37,3 +37,5 @@ from fluid.scheduler.errors import TaskError, UnknownTaskError, DisabledTaskErro
 ::: fluid.scheduler.errors.TaskAbortedError
 
 ::: fluid.scheduler.errors.TaskDecoratorError
+
+::: fluid.scheduler.errors.CpuBoundEntryPointError

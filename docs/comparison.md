@@ -13,7 +13,7 @@ If you are choosing for the first time, the short version:
   [taskiq](https://taskiq-python.github.io/).
 - **You run an async service *and* some tasks are CPU-heavy** (parsing, pandas, model
   scoring, rendering) that would otherwise freeze your event loop: this is exactly what
-  `aio-fluid` is built for. See [CPU bound tasks](tutorials/task_queue.md#cpu-bound-tasks)
+  `aio-fluid` is built for. See [CPU bound tasks](tutorials/tasks.md#cpu-bound-tasks)
   and [K8s Jobs](tutorials/task_k8s.md).
 
 ## Popularity
@@ -68,7 +68,7 @@ or cron), not a broker-backed distributed queue, so it solves a different proble
 
 `aio-fluid` is an async-native queue like arq/taskiq, but it treats CPU-bound work as a
 first-class task type instead of assuming it away. Mark a task
-[`cpu_bound=True`](tutorials/task_queue.md#cpu-bound-tasks) and it runs in a **fresh
+[`cpu_bound=True`](tutorials/tasks.md#cpu-bound-tasks) and it runs in a **fresh
 subprocess** so heavy work never blocks the event loop; when the consumer runs inside
 Kubernetes, the *same task* dispatches as a [Kubernetes Job](tutorials/task_k8s.md) instead,
 with no code change and no parallel worker deployment to maintain.

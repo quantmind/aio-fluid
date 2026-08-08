@@ -4,6 +4,8 @@ from typing import Any, Callable, Dict, Optional
 
 KernelCallback = Callable[[bytes], None]
 READ_LIMIT = 2**16  # 64 KiB
+TERMINATE_GRACE_PERIOD = 5.0
+"""Seconds to wait for a terminated process before killing it"""
 
 
 async def run_python(*args: str, **kwargs) -> int:
@@ -18,7 +20,14 @@ async def run(
     env: Optional[Dict[str, str]] = None,
     stream_output: bool = False,
     stream_error: bool = False,
+    terminate_grace_period: float = TERMINATE_GRACE_PERIOD,
 ) -> int:
+    """Run an executable in a subprocess and wait for it to finish.
+
+    The process is terminated when this coroutine is cancelled, which is what
+    happens when the caller times out, so the process cannot outlive the code
+    waiting for it.
+    """
     process = await asyncio.create_subprocess_exec(
         executable,
         *args,
@@ -30,17 +39,40 @@ async def run(
     )
     if not process.stdout or not process.stderr:
         raise RuntimeError("Failed to create subprocess")
-    await asyncio.wait(
-        [
-            asyncio.create_task(
-                _read_stream(process.stdout, stream_output, result_callback or noop)
-            ),
-            asyncio.create_task(
-                _read_stream(process.stderr, stream_error, error_callback or noop)
-            ),
-        ]
-    )
-    return await process.wait()
+    readers = [
+        asyncio.create_task(
+            _read_stream(process.stdout, stream_output, result_callback or noop)
+        ),
+        asyncio.create_task(
+            _read_stream(process.stderr, stream_error, error_callback or noop)
+        ),
+    ]
+    try:
+        await asyncio.wait(readers)
+        return await process.wait()
+    finally:
+        for reader in readers:
+            reader.cancel()
+        await terminate(process, terminate_grace_period)
+
+
+async def terminate(
+    process: asyncio.subprocess.Process,
+    grace_period: float = TERMINATE_GRACE_PERIOD,
+) -> None:
+    """Terminate a process unless it has already exited.
+
+    It sends a SIGTERM first and escalates to a SIGKILL when the process is
+    still running after the grace period.
+    """
+    if process.returncode is not None:
+        return
+    process.terminate()
+    try:
+        await asyncio.wait_for(asyncio.shield(process.wait()), grace_period)
+    except asyncio.TimeoutError:
+        process.kill()
+        await asyncio.shield(process.wait())
 
 
 async def _read_line(stream: asyncio.StreamReader) -> bytes:

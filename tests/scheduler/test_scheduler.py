@@ -6,13 +6,14 @@ from dataclasses import dataclass
 import pytest
 from redis.asyncio import Redis
 
+from examples import tasks
 from fluid.scheduler import (
     TaskPriority,
     TaskRun,
     TaskScheduler,
     TaskState,
 )
-from fluid.scheduler.errors import UnknownTaskError
+from fluid.scheduler.errors import CpuBoundEntryPointError, UnknownTaskError
 from fluid.scheduler.models import TaskRunWaiter
 from fluid.utils.stacksampler import Sampler
 from fluid.utils.waiter import wait_for
@@ -91,6 +92,51 @@ async def test_cpu_bound_env(
     result = await redis.get(task_run.id)
     assert result
     assert result.decode() == "hello_from_env"
+
+
+async def test_consumer_cannot_start_in_cpu_process(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A cpu bound process executes one task, it never consumes the queue.
+
+    Starting a consumer there means the entry point ignored the `exec` command
+    and cannot run cpu bound tasks.
+    """
+    monkeypatch.setenv("TASK_MANAGER_SPAWN", "true")
+    consumer = tasks.task_scheduler(schedule_tasks=False)
+    with pytest.raises(CpuBoundEntryPointError):
+        await consumer.startup()
+
+
+async def test_cpu_bound_deps(
+    task_scheduler: TaskScheduler, redis: Redis  # type: ignore
+) -> None:
+    """The task manager dependencies are available to a cpu bound task"""
+    task_run = await task_scheduler.queue_and_wait("cpu_bound_deps", timeout=5)
+    assert task_run.state == TaskState.success
+    result = await redis.get(task_run.id)
+    assert result
+    assert result.decode() == "HttpxClient"
+
+
+async def test_cpu_bound_timeout(
+    task_scheduler: TaskScheduler, redis: Redis  # type: ignore
+) -> None:
+    """A timed out cpu bound task must not leave its subprocess running"""
+    task_run = await task_scheduler.queue_and_wait("cpu_bound_timeout", timeout=10)
+    assert task_run.state == TaskState.failure
+    result = await redis.get(task_run.id)
+    assert result
+    pid = int(result.decode())
+
+    async def gone() -> bool:
+        try:
+            os.kill(pid, 0)
+        except ProcessLookupError:
+            return True
+        return False
+
+    await wait_for(gone, timeout=5.0)
 
 
 async def test_cpu_bound_failure(task_scheduler: TaskScheduler) -> None:

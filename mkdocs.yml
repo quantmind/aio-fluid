@@ -3,6 +3,43 @@ site_url: https://fluid.quantmind.com
 repo_name: quantmind/aio-fluid
 repo_url: https://github.com/quantmind/aio-fluid
 strict: true
+nav:
+- Home: index.md
+- Reference:
+  - reference/index.md
+  - reference/db.md
+  - reference/db_cli.md
+  - reference/db_crud.md
+  - reference/db_migrations.md
+  - reference/db_pagination.md
+  - reference/dispatchers.md
+  - reference/errors.md
+  - reference/http_client.md
+  - reference/task.md
+  - reference/task_broker.md
+  - reference/task_cli.md
+  - reference/task_consumer.md
+  - reference/task_manager.md
+  - reference/task_plugin.md
+  - reference/task_registry.md
+  - reference/task_retry.md
+  - reference/task_run.md
+  - reference/task_scheduler.md
+  - reference/task_scheduling.md
+  - reference/utils.md
+  - reference/workers.md
+- Tutorials:
+  - tutorials/index.md
+  - tutorials/db.md
+  - tutorials/dispatchers.md
+  - tutorials/task_app.md
+  - tutorials/task_broker.md
+  - tutorials/task_k8s.md
+  - tutorials/task_retry.md
+  - tutorials/tasks.md
+  - tutorials/workers.md
+- comparison.md
+- release-notes.md
 theme:
   name: material
   palette:
@@ -31,6 +68,9 @@ hooks:
   - .dev/docs.py
 plugins:
 - search
+- redirects:
+    redirect_maps:
+      tutorials/task_queue.md: tutorials/tasks.md
 - mkdocstrings:
     handlers:
       python:

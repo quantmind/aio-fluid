@@ -1,3 +1,4 @@
+import sys
 from typing import Iterator
 
 import pytest
@@ -31,6 +32,19 @@ def sampler() -> Iterator[Sampler]:
     sampler.start()
     yield sampler
     sampler.stop()
+
+
+@pytest.fixture(scope="module", autouse=True)
+def cli_entry_point():
+    """Execute cpu bound tasks through the example command line client.
+
+    The command running a cpu bound task is derived from the command which
+    started the process, and under pytest that is pytest itself.
+    """
+    orig_argv = sys.orig_argv
+    sys.orig_argv = [sys.executable, "-m", "examples.simple_cli"]
+    yield
+    sys.orig_argv = orig_argv
 
 
 @pytest.fixture(scope="module")

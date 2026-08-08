@@ -2,10 +2,12 @@
 
 from __future__ import annotations
 
+import json
 from contextlib import asynccontextmanager
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
+from pydantic import BaseModel, SecretStr
 
 from fluid.scheduler.errors import TaskAbortedError, TaskRunError
 from fluid.scheduler.k8s_job import get_job_name, run_on_k8s_job
@@ -19,6 +21,14 @@ pytestmark = pytest.mark.asyncio(loop_scope="function")
 # ---------------------------------------------------------------------------
 
 
+class NoParams(BaseModel):
+    pass
+
+
+class SecretParams(BaseModel):
+    token: SecretStr
+
+
 def make_ctx(
     name: str = "heavy_calc",
     run_id: str = "abc1234xyz",
@@ -27,11 +37,12 @@ def make_ctx(
     command: list[str] | None = None,
     env: list | None = None,
     image: str = "myapp:latest",
+    params: BaseModel | None = None,
 ) -> MagicMock:
     ctx = MagicMock()
     ctx.name = name
     ctx.id = run_id
-    ctx.params.model_dump_json.return_value = "{}"
+    ctx.params = params if params is not None else NoParams()
 
     cfg = k8s_config or K8sConfig(
         namespace="workers",
@@ -156,6 +167,35 @@ async def test_serve_suffix_stripped_from_command() -> None:
     job = call_kwargs.args[1]
     container = job.spec.template.spec.containers[0]
     assert "serve" not in container.command
+
+
+async def test_serve_options_stripped_from_command() -> None:
+    """`serve` takes its own options, they must not leak into the job command"""
+    ctx = make_ctx(command=["python", "-m", "myapp", "serve", "-p", "8080", "--reload"])
+    patches, _, mock_batch = make_k8s_mocks(ctx, succeeded=1)
+
+    with patches[0], patches[1], patches[2], patches[3]:
+        await run_on_k8s_job(ctx)
+
+    call_kwargs = mock_batch.create_namespaced_job.call_args
+    job = call_kwargs.args[1]
+    container = job.spec.template.spec.containers[0]
+    assert container.command == ["python", "-m", "myapp"]
+
+
+async def test_secret_params_revealed_in_job_args() -> None:
+    """Params are re-validated by the job, so secrets must survive the trip"""
+    ctx = make_ctx(params=SecretParams(token=SecretStr("s3cret")))
+    patches, _, mock_batch = make_k8s_mocks(ctx, succeeded=1)
+
+    with patches[0], patches[1], patches[2], patches[3]:
+        await run_on_k8s_job(ctx)
+
+    call_kwargs = mock_batch.create_namespaced_job.call_args
+    job = call_kwargs.args[1]
+    container = job.spec.template.spec.containers[0]
+    params = json.loads(container.args[container.args.index("--params") + 1])
+    assert params == {"token": "s3cret"}
 
 
 async def test_command_without_serve_unchanged() -> None:

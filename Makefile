@@ -15,7 +15,7 @@ clean:			## remove python cache files
 
 .PHONY: docs
 docs:			## build documentation
-	cp docs/index.md readme.md
+	@uv run python scripts/readme.py
 	@uv run mkdocs build
 
 .PHONY: docs-publish
@@ -52,7 +52,7 @@ publish:		## release to pypi
 
 .PHONY: readme
 readme:			## generate readme.md
-	cp docs/index.md readme.md
+	@uv run python scripts/readme.py
 
 .PHONY: release
 release:		## tag current version (from pyproject.toml) and push

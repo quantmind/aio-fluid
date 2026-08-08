@@ -78,9 +78,21 @@ async def heavy_calculation(ctx: TaskRun) -> None:
 
 #### How it works
 
-When a CPU bound task is dispatched, the consumer spawns a **fresh Python subprocess** that imports the task's module and executes the task function in isolation. This keeps the consumer's asyncio event loop completely unblocked while the subprocess runs.
+When a CPU bound task is dispatched, the consumer spawns a **fresh Python subprocess** which runs the
+task through the `exec` command of the application command line client. This keeps the consumer's
+asyncio event loop completely unblocked while the subprocess runs.
 
-The subprocess is identified by the `TASK_MANAGER_SPAWN=true` environment variable. Inside the subprocess, `@task(cpu_bound=True)` behaves like a plain `@task` — the wrapper is transparent and the executor function runs directly without any extra subprocess indirection.
+The command is derived from the one which started the consumer: the `serve` command is dropped,
+along with any option that belongs to it, and `exec <task-name>` is appended, with the run id and
+the task params passed as options. A [Kubernetes Job](task_k8s.md) derives its command from the
+consumer deployment in exactly the same way, so a task runs the same locally and in a cluster. It
+also means the entry point has to be a [TaskManagerCLI][fluid.scheduler.cli.TaskManagerCLI]: a
+consumer started any other way raises
+[CpuBoundEntryPointError][fluid.scheduler.errors.CpuBoundEntryPointError] on startup.
+
+The subprocess is identified by the `TASK_MANAGER_SPAWN=true` environment variable. Inside it,
+`@task(cpu_bound=True)` behaves like a plain `@task`, so the executor function runs directly without
+any extra subprocess indirection.
 
 You can check whether your code is running inside a CPU subprocess:
 
@@ -93,6 +105,12 @@ if is_in_cpu_process():
 ```
 
 Stdout and stderr from the subprocess are streamed back to the consumer in real time, so logs produced by the task appear in the consumer's output.
+
+A CPU bound task does not run in the consumer process, so it does not share the
+[TaskManager][fluid.scheduler.TaskManager] instance the consumer is using. The process that
+executes the task builds its own task manager first, which is why an application with CPU bound
+tasks has to be set up with a command line entry point. See
+[Setup for CPU bound tasks](task_app.md#setup-for-cpu-bound-tasks).
 
 #### Kubernetes
 
@@ -168,7 +186,7 @@ When the limit is reached the task run transitions to the `rate_limited` state. 
 
 ## Aborting a task
 
-Any task — IO or CPU bound — can signal a deliberate, non-error cancellation by calling [ctx.abort()][fluid.scheduler.TaskRun.abort]:
+Any task, IO or CPU bound, can signal a deliberate, non-error cancellation by calling [ctx.abort()][fluid.scheduler.TaskRun.abort]:
 
 ```python
 from fluid.scheduler import task, TaskRun

@@ -5,7 +5,6 @@ import enum
 import inspect
 import logging
 import os
-import sys
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta
 from typing import (
@@ -27,12 +26,12 @@ from redis.asyncio.lock import Lock
 from typing_extensions import Annotated, Doc, TypedDict
 
 from fluid import settings
-from fluid.utils import kernel
-from fluid.utils.data import compact_dict, reveal_secrets
+from fluid.utils.data import compact_dict
 from fluid.utils.dates import as_utc, utcnow
 from fluid.utils.text import create_uid, trim_docstring
 
-from .common import cpu_env, is_in_cpu_process
+from .common import is_in_cpu_process, params_dump
+from .cpubound import run_in_subprocess
 from .errors import TaskAbortedError, TaskDecoratorError, TaskRunError
 from .scheduler_crontab import Scheduler
 
@@ -49,16 +48,6 @@ if TYPE_CHECKING:
 TaskExecutor = Callable[["TaskRun"], Coroutine[Any, Any, Any]]
 RandomizeType = Callable[[], float | int]
 TP = TypeVar("TP", bound=BaseModel)
-
-
-def params_dump(params: BaseModel) -> Any:
-    """Dump task params with pydantic secret values revealed
-
-    Task params are re-validated when a task run is consumed from the queue
-    or executed in a subprocess, therefore secret values must be revealed
-    rather than masked so they survive the round-trip.
-    """
-    return reveal_secrets(params.model_dump(mode="python"))
 
 
 @dataclass(frozen=True)
@@ -162,7 +151,10 @@ FINISHED_STATES = frozenset(
 class TaskManagerConfig(BaseModel):
     """Task manager configuration"""
 
-    schedule_tasks: bool = Field(default=True, description="Schedule tasks or sleep")
+    schedule_tasks: bool = Field(
+        default_factory=lambda: not is_in_cpu_process(),
+        description="Schedule tasks or sleep",
+    )
     consume_tasks: bool = Field(default=True, description="Consume tasks or sleep")
     max_concurrent_tasks: int = Field(
         default_factory=lambda: settings.MAX_CONCURRENT_TASKS,
@@ -868,39 +860,6 @@ def is_subclass(cls: Any, parent: type) -> bool:
         return issubclass(cls, parent)
     except TypeError:
         return False
-
-
-class RemoteLog:
-    def __init__(self, out: Any) -> None:
-        self.out = out
-
-    def __call__(self, data: bytes) -> None:
-        self.out.write(data.decode("utf-8"))
-
-
-async def run_in_subprocess(ctx: TaskRun[TP]) -> None:
-    env = dict(os.environ)
-    env.update(cpu_env())
-    env.update(ctx.task.env)
-    result = await kernel.run_python(
-        "-W",
-        "ignore",
-        "-m",
-        "fluid.scheduler.cpubound",
-        ctx.name,
-        ctx.task.module,
-        ctx.id,
-        to_json(params_dump(ctx.params)).decode(),
-        result_callback=RemoteLog(sys.stdout),
-        error_callback=RemoteLog(sys.stderr),
-        env=env,
-        stream_output=True,
-        stream_error=True,
-    )
-    if reason := await ctx.task_manager.broker.get_task_aborted(ctx.id):
-        raise TaskAbortedError(reason)
-    if result:
-        raise TaskRunError(result)
 
 
 run_cpu_bound = run_in_subprocess

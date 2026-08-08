@@ -8,6 +8,7 @@ from kubernetes_asyncio.client.api_client import ApiClient
 from slugify import slugify
 
 from .common import cpu_env
+from .cpubound import exec_args, strip_serve
 from .errors import TaskAbortedError, TaskRunError
 
 if TYPE_CHECKING:
@@ -84,19 +85,8 @@ def k8s_job_pod_template(
     )
     if container is None:
         raise TaskRunError(f"Container {k8s_config.container} not found")
-    command = list(container.command or [])
-    if command and command[-1] == "serve":
-        command.pop()
-    container.command = command
-    container.args = [
-        "exec",
-        ctx.name,
-        "--log",
-        "--run-id",
-        ctx.id,
-        "--params",
-        ctx.params.model_dump_json(),
-    ]
+    container.command = strip_serve(container.command or [])
+    container.args = exec_args(ctx)
     # resources
     if resources := k8s_config.resources:
         container.resources = client.V1ResourceRequirements(**resources)

@@ -8,7 +8,7 @@ Step-by-step guides for using Aio Fluid in your backend applications. See the [h
 
 ## Task Queue
 
-- [Tasks](task_queue.md) — define tasks with the `@task` decorator, set priorities, scheduling, concurrency limits, and CPU-bound execution.
+- [Tasks](tasks.md) — define tasks with the `@task` decorator, set priorities, scheduling, concurrency limits, and CPU-bound execution.
 - [Task Queue App](task_app.md) — wire tasks into a full producer/consumer application with FastAPI and Redis.
 - [Task Broker](task_broker.md) — implement a custom broker to replace the default Redis backend.
 - [Task Retries](task_retry.md) — automatically retry tasks on failure or when rate-limited by concurrency.

@@ -17,6 +17,10 @@ async def wait_for(
         float,
         Doc("The maximum time to wait for the assertion to become true."),
     ] = 1.0,
+    sleep_interval: Annotated[
+        float,
+        Doc("The time to wait between checks of the assertion."),
+    ] = 0.01,
 ) -> None:
     """Async Wait for an assertion to become true.
     If the assertion does not become true within the timeout,
@@ -29,4 +33,4 @@ async def wait_for(
                 result = await result
             if result:
                 return
-            await asyncio.sleep(0)
+            await asyncio.sleep(sleep_interval)

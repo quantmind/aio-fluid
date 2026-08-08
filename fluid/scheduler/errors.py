@@ -49,3 +49,12 @@ class TaskAbortedError(TaskError):
 
 class TaskDecoratorError(TaskError):
     """Raised when a task is incorrectly decorated or configured."""
+
+
+class CpuBoundEntryPointError(TaskError):
+    """Raised when a cpu bound task cannot be executed by the entry point.
+
+    Cpu bound tasks run in a separate process, started by the `exec` command of
+    the task manager command line client. An application which does not expose
+    one cannot execute them.
+    """

@@ -1,4 +1,19 @@
 import os
+from typing import Any
+
+from pydantic import BaseModel
+
+from fluid.utils.data import reveal_secrets
+
+
+def params_dump(params: BaseModel) -> Any:
+    """Dump task params with pydantic secret values revealed
+
+    Task params are re-validated when a task run is consumed from the queue
+    or executed in a subprocess, therefore secret values must be revealed
+    rather than masked so they survive the round-trip.
+    """
+    return reveal_secrets(params.model_dump(mode="python"))
 
 
 def is_in_cpu_process() -> bool:
