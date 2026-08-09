@@ -365,6 +365,20 @@ class TaskRun(BaseModel, Generic[TP, TD], arbitrary_types_allowed=True):
         default=0,
         description="Number of failure retries already consumed.",
     )
+    from_run_id: str = Field(
+        default="",
+        description=(
+            "ID of the task run that queued this one, empty when the run was "
+            "not queued from another task run."
+        ),
+    )
+    root_run_id: str = Field(
+        default="",
+        description=(
+            "ID of the first task run in the chain, shared by every run queued "
+            "from it, directly or indirectly. Empty for a run that starts a chain."
+        ),
+    )
 
     def abort(self, reason: str = "") -> None:
         """Abort the task run by raising
@@ -480,6 +494,49 @@ class TaskRun(BaseModel, Generic[TP, TD], arbitrary_types_allowed=True):
                 self._dispatch()
             case _:
                 raise TaskRunError(f"invalid state transition {self.state} -> {state}")
+
+    async def queue(
+        self,
+        task: Annotated[
+            str | Task,
+            Doc(
+                "The task or task name,"
+                " if a task name it must be registered with the task manager."
+            ),
+        ],
+        *,
+        run_id: Annotated[
+            str,
+            Doc("Unique ID for the task run. If not provided a new UUID is generated."),
+        ] = "",
+        priority: Annotated[
+            TaskPriority | None, Doc("Override the default task priority if provided")
+        ] = None,
+        **params: Annotated[
+            Any,
+            Doc(
+                "The optional parameters for the task run. "
+                "They must match the task params model"
+            ),
+        ],
+    ) -> TaskRun:
+        """Queue another task from within this task run.
+
+        The new run records this run in
+        [from_run_id][fluid.scheduler.TaskRun.from_run_id] and inherits its
+        [root_run_id][fluid.scheduler.TaskRun.root_run_id], so a chain of tasks
+        queued this way can be traced back to the run that started it.
+
+        This returns as soon as the run is on the queue, it does not wait for it
+        to execute.
+        """
+        return await self.task_manager.queue(
+            task,
+            run_id=run_id,
+            priority=priority,
+            from_task_run=self,
+            **params,
+        )
 
     def lock(self, timeout: float | None = None, name: str | None = None) -> Lock:
         """Get a lock for this task run"""

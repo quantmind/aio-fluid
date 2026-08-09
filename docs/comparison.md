@@ -15,6 +15,9 @@ If you are choosing for the first time, the short version:
   scoring, rendering) that would otherwise freeze your event loop: this is exactly what
   `aio-fluid` is built for. See [CPU bound tasks](tutorials/tasks.md#cpu-bound-tasks)
   and [K8s Jobs](tutorials/task_k8s.md).
+- **You need ordered batch pipelines, backfills and data-aware scheduling**: you want a
+  workflow orchestrator (Airflow, Dagster, Prefect, Luigi), not a task queue. See
+  [Workflow orchestrators](#workflow-orchestrators-a-different-layer).
 
 ## Popularity
 
@@ -63,6 +66,25 @@ limitation that motivated `aio-fluid`.
 
 **APScheduler** is included only for scale: it is a *scheduler* (fire a job on an interval
 or cron), not a broker-backed distributed queue, so it solves a different problem.
+
+### Workflow orchestrators, a different layer
+
+**Luigi**, **Airflow**, **Prefect** and **Dagster** come up in the same searches, but they
+are workflow orchestrators rather than task queues. You declare a graph of batch steps and
+the framework owns ordering, backfills and data-aware scheduling. They do execute your
+code, and several of them delegate that execution to a queue (Airflow's `CeleryExecutor`,
+Dagster's Celery executor), which is the tell: they sit a layer above the field on this
+page, and can run on top of it.
+
+`aio-fluid` covers the simple end of that layer. A task queues the next one with
+[TaskRun.queue][fluid.scheduler.TaskRun.queue], and each run records the run it came from,
+so multi-step pipelines are ordinary Python with no extra machinery and can be traced back
+to whatever started them. See [Chaining tasks](tutorials/tasks.md#chaining-tasks). If your
+pipeline is a handful of steps triggered on a schedule, that is very likely all you need.
+
+Reach for a real orchestrator when you need backfills over historical partitions, resuming
+a run from the step that failed, or lineage across hundreds of datasets. `aio-fluid` models
+none of those, and pretending otherwise would waste your time.
 
 ## Where aio-fluid fits
 
