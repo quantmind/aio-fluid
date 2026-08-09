@@ -1,0 +1,54 @@
+# Aio Fluid
+
+An async task queue for Python backend services. Tasks are async functions declared with a decorator, scheduled with every() or crontab(), and run concurrently on asyncio. A task marked cpu_bound runs in a subprocess, or as a Kubernetes Job in a cluster, so heavy work never blocks the event loop.
+
+## Getting started
+
+- [Home](https://fluid.quantmind.com/index.md): Why the library exists, installation, and a complete example application.
+- [Recipes](https://fluid.quantmind.com/recipes/index.md): Cheat sheet of the canonical patterns, and the mistakes to avoid.
+- [Use with AI agents](https://fluid.quantmind.com/ai-agents/index.md): How to point a coding agent at this documentation.
+
+## Tutorials
+
+- [Tasks](https://fluid.quantmind.com/tutorials/tasks/index.md): Declare tasks, parameters, schedules, timeouts, concurrency, chaining and aborts.
+- [Task Managers](https://fluid.quantmind.com/tutorials/task_managers/index.md): Choose between TaskManager, TaskConsumer and TaskScheduler.
+- [Task Queue App](https://fluid.quantmind.com/tutorials/task_app/index.md): Wire tasks into a producer/consumer application, the CLI entry point and plugins.
+- [Task Dependencies](https://fluid.quantmind.com/tutorials/task_deps/index.md): Share a database manager, an HTTP client or any other resource across task runs.
+- [Extending the FastAPI App](https://fluid.quantmind.com/tutorials/task_fastapi/index.md): Add your own routes to the task manager app and inject the same dependencies.
+- [Task Retries](https://fluid.quantmind.com/tutorials/task_retry/index.md): Retry on failure and when rate limited by concurrency limits.
+- [K8s Jobs](https://fluid.quantmind.com/tutorials/task_k8s/index.md): Dispatch CPU bound tasks as Kubernetes Jobs.
+- [Task Broker](https://fluid.quantmind.com/tutorials/task_broker/index.md): Replace the default Redis broker.
+- [Workers](https://fluid.quantmind.com/tutorials/workers/index.md): The async worker lifecycle the task queue is built on.
+- [Async Database](https://fluid.quantmind.com/tutorials/db/index.md): Async Postgres CRUD and migrations.
+- [Event Dispatchers](https://fluid.quantmind.com/tutorials/dispatchers/index.md): Sync and async event dispatchers.
+
+## API reference
+
+- [Reference](https://fluid.quantmind.com/reference/index.md)
+- [Database](https://fluid.quantmind.com/reference/db/index.md)
+- [DB CLI](https://fluid.quantmind.com/reference/db_cli/index.md)
+- [CrudDB](https://fluid.quantmind.com/reference/db_crud/index.md)
+- [DB Migration](https://fluid.quantmind.com/reference/db_migrations/index.md)
+- [DB Pagination](https://fluid.quantmind.com/reference/db_pagination/index.md)
+- [Event Dispatchers](https://fluid.quantmind.com/reference/dispatchers/index.md)
+- [Errors](https://fluid.quantmind.com/reference/errors/index.md)
+- [HTTP Client](https://fluid.quantmind.com/reference/http_client/index.md)
+- [Task](https://fluid.quantmind.com/reference/task/index.md)
+- [Task Broker](https://fluid.quantmind.com/reference/task_broker/index.md)
+- [Task Manager CLI](https://fluid.quantmind.com/reference/task_cli/index.md)
+- [Task Consumer](https://fluid.quantmind.com/reference/task_consumer/index.md)
+- [Task Manager](https://fluid.quantmind.com/reference/task_manager/index.md)
+- [Task Manager Plugins](https://fluid.quantmind.com/reference/task_plugin/index.md)
+- [Task Registry](https://fluid.quantmind.com/reference/task_registry/index.md)
+- [Task Retry](https://fluid.quantmind.com/reference/task_retry/index.md)
+- [Task Run](https://fluid.quantmind.com/reference/task_run/index.md)
+- [Task Scheduler](https://fluid.quantmind.com/reference/task_scheduler/index.md)
+- [Task Scheduling](https://fluid.quantmind.com/reference/task_scheduling/index.md)
+- [Utils](https://fluid.quantmind.com/reference/utils/index.md)
+- [Workers](https://fluid.quantmind.com/reference/workers/index.md)
+
+## Background
+
+- [Python task queues compared](https://fluid.quantmind.com/comparison/index.md): How the library compares to Celery, RQ, arq and taskiq.
+- [Release Notes](https://fluid.quantmind.com/release-notes/index.md): Changes in each release.
+

@@ -14,7 +14,7 @@
         <link rel="prev" href="../task_broker/">
       
       
-        <link rel="next" href="../task_k8s/">
+        <link rel="next" href="../task_fastapi/">
       
       
         
@@ -319,6 +319,33 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="../../recipes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recipes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
     
     
       
@@ -376,7 +403,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
         
           
           <div class="md-nav__link md-nav__container">
@@ -398,14 +425,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_2" id="__nav_2_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_2">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1045,6 +1072,10 @@
       
         
       
+        
+      
+        
+      
     
     
     
@@ -1053,7 +1084,7 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
         
           
           <div class="md-nav__link md-nav__container">
@@ -1075,14 +1106,14 @@
             </a>
             
               
-              <label class="md-nav__link " for="__nav_3" id="__nav_3_label" tabindex="0">
+              <label class="md-nav__link " for="__nav_4" id="__nav_4_label" tabindex="0">
                 <span class="md-nav__icon md-icon"></span>
               </label>
             
           </div>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1332,6 +1363,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../task_fastapi/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Extending the FastAPI App
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../task_k8s/" class="md-nav__link">
         
   
@@ -1340,6 +1399,34 @@
     
   
     K8s Jobs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../task_managers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Managers
   
 
     
@@ -1440,6 +1527,33 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../ai-agents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Use with AI agents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1703,6 +1817,8 @@ pool for instance, should not be opened by each task. Register them with
 and the task manager enters them when it starts and exits them when it stops:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">scheduler</span><span class="o">.</span><span class="n">add_async_context_manager</span><span class="p">(</span><span class="n">deps</span><span class="o">.</span><span class="n">http_client</span><span class="p">)</span>
 </span></code></pre></div>
+<p>Routes served by the same task manager app share those resources with the task
+runs, see <a href="../task_fastapi/">Extending the FastAPI App</a>.</p>
 <h2 id="dependencies-are-not-shared-with-cpu-bound-tasks">Dependencies are not shared with CPU bound tasks<a class="headerlink" href="#dependencies-are-not-shared-with-cpu-bound-tasks" title="Permanent link">&para;</a></h2>
 <p>A task declared with <code>cpu_bound=True</code> does not run in the consumer process. It
 is executed by a separate process, or by a Kubernetes Job in a cluster, which
@@ -1779,13 +1895,13 @@ dependencies. See <a href="../task_app/#plugins">Plugins</a>.</p>
         
         
           
-          <a href="../task_k8s/" class="md-footer__link md-footer__link--next" aria-label="Next: K8s Jobs">
+          <a href="../task_fastapi/" class="md-footer__link md-footer__link--next" aria-label="Next: Extending the FastAPI App">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                K8s Jobs
+                Extending the FastAPI App
               </div>
             </div>
             <div class="md-footer__button md-icon">
