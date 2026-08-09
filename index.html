@@ -1137,6 +1137,8 @@
       
         
       
+        
+      
     
     
     
@@ -1285,6 +1287,34 @@
     
   
     Task Broker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="tutorials/task_deps/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Task Dependencies
   
 
     
@@ -1668,6 +1698,9 @@ answer for <em>"this one task is CPU-heavy"</em> beyond "spin up a second worker
   extra). Your task code is identical in both. See <a href="https://fluid.quantmind.com/tutorials/task_k8s/">K8s Jobs</a>.</li>
 <li><strong>Async-native and typed.</strong> Tasks are plain <code>async def</code> functions; parameters are
   <a href="https://docs.pydantic.dev/">pydantic</a> models, validated on the way in.</li>
+<li><strong>Dependency injection.</strong> A database manager, an HTTP client or any other resource is grouped
+  into a single typed <code>deps</code> object every task run can reach, with startup and shutdown handled by
+  the task manager. See <a href="https://fluid.quantmind.com/tutorials/task_deps/">Task Dependencies</a>.</li>
 <li><strong>The scheduling you expect.</strong> <code>every(timedelta(...))</code> and <code>crontab(...)</code>, per-task
   <code>max_concurrency</code>, priorities, <code>timeout_seconds</code>, and retry policies.</li>
 <li><strong>FastAPI-ready.</strong> Drop a task manager into a FastAPI app to queue and inspect runs over HTTP.</li>
