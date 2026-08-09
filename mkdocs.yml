@@ -34,6 +34,7 @@ nav:
   - tutorials/dispatchers.md
   - tutorials/task_app.md
   - tutorials/task_broker.md
+  - tutorials/task_deps.md
   - tutorials/task_k8s.md
   - tutorials/task_retry.md
   - tutorials/tasks.md

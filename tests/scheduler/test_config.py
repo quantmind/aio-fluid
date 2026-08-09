@@ -3,7 +3,7 @@ from typing import cast
 from pydantic import BaseModel
 
 from examples import tasks as example_tasks
-from fluid.scheduler import TaskConsumer, TaskManager
+from fluid.scheduler import TaskConsumer, TaskManager, TaskRun, task
 from fluid.scheduler.broker import RedisTaskBroker
 
 
@@ -35,12 +35,13 @@ async def test_two_queues() -> None:
 
 def test_params() -> None:
     tasks = list(example_tasks.task_scheduler().registry.values())
-    for task in tasks:
-        assert task.params_model is not None
-        assert issubclass(task.params_model, BaseModel)
-        assert task.params_model is not BaseModel
-        if not any(f.is_required() for f in task.params_model.model_fields.values()):
-            task.params_model().model_dump()
+    for registered in tasks:
+        assert registered.params_model is not None
+        assert issubclass(registered.params_model, BaseModel)
+        assert registered.params_model is not BaseModel
+        params_model = registered.params_model
+        if not any(f.is_required() for f in params_model.model_fields.values()):
+            params_model().model_dump()
 
 
 def test_register_from_module() -> None:
@@ -61,3 +62,23 @@ def test_register_from_module_with_tags() -> None:
 def test_cpu_bount_params() -> None:
     cpu_bound = example_tasks.cpu_bound
     assert cpu_bound.params_model is example_tasks.Sleep
+
+
+async def test_typed_deps_params() -> None:
+    """Annotating the deps type does not break the params model inference."""
+
+    @task
+    async def typed_deps(ctx: TaskRun[example_tasks.Sleep, example_tasks.Deps]) -> None:
+        """Task annotating both the params and the deps types."""
+
+    assert typed_deps.params_model is example_tasks.Sleep
+
+
+async def test_untyped_deps_params() -> None:
+    """A single type parameter keeps working, the deps type defaults to Any."""
+
+    @task
+    async def untyped_deps(ctx: TaskRun[example_tasks.Sleep]) -> None:
+        """Task annotating only the params type."""
+
+    assert untyped_deps.params_model is example_tasks.Sleep

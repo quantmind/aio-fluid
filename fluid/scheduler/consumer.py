@@ -65,9 +65,27 @@ class TaskManager:
     def __init__(
         self,
         *,
-        deps: Any = None,
-        config: TaskManagerConfig | None = None,
-        **kwargs: Any,
+        deps: Annotated[
+            Any,
+            Doc("""
+                Application dependencies available to every task run.
+
+                See the [Task Dependencies](../tutorials/task_deps.md)
+                tutorial.
+                """),
+        ] = None,
+        config: Annotated[
+            TaskManagerConfig | None,
+            Doc("""
+                Task manager configuration.
+
+                Built from the extra keyword arguments when not provided.
+                """),
+        ] = None,
+        **kwargs: Annotated[
+            Any,
+            Doc("Configuration fields, used when `config` is not provided."),
+        ],
     ) -> None:
         self.deps: Annotated[
             Any,
@@ -404,6 +422,23 @@ class TaskConsumer(TaskManager, Workers):
     def __init__(
         self,
         *,
+        deps: Annotated[
+            Any,
+            Doc("""
+                Application dependencies available to every task run.
+
+                See the [Task Dependencies](../tutorials/task_deps.md)
+                tutorial.
+                """),
+        ] = None,
+        config: Annotated[
+            TaskManagerConfig | None,
+            Doc("""
+                Task manager configuration.
+
+                Built from the extra keyword arguments when not provided.
+                """),
+        ] = None,
         name: Annotated[
             str,
             Doc("Worker's name, if not provided it is evaluated from the class name"),
@@ -417,7 +452,10 @@ class TaskConsumer(TaskManager, Workers):
                 "environment variable or 10 seconds."
             ),
         ] = None,
-        **config: Any,
+        **kwargs: Annotated[
+            Any,
+            Doc("Configuration fields, used when `config` is not provided."),
+        ],
     ) -> None:
         """Create the task consumer and the workers it runs.
 
@@ -431,7 +469,7 @@ class TaskConsumer(TaskManager, Workers):
         still needs to dispatch the lifecycle events its plugins and handlers
         subscribe to.
         """
-        super().__init__(**config)
+        super().__init__(deps=deps, config=config, **kwargs)
         if stopping_grace_period is None:
             stopping_grace_period = settings.STOPPING_GRACE_PERIOD
         Workers.__init__(
