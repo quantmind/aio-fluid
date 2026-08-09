@@ -1,6 +1,6 @@
 [project]
 name = "aio-fluid"
-version = "2.4.3"
+version = "2.5.0"
 description = "Async task queue for Python that offloads CPU-bound work to subprocesses or Kubernetes Jobs"
 authors = [
     { name = "Luca Sbardella", email = "luca@quantmind.com" },

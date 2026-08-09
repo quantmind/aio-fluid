@@ -16,6 +16,7 @@ nav:
   - reference/dispatchers.md
   - reference/errors.md
   - reference/http_client.md
+  - reference/settings.md
   - reference/task.md
   - reference/task_broker.md
   - reference/task_cli.md
@@ -127,6 +128,7 @@ plugins:
           - griffe_pydantic:
               schema: false
 markdown_extensions:
+  - admonition
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span

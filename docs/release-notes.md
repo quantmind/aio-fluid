@@ -1,5 +1,63 @@
 # Release Notes
 
+This page is the source of truth for aio-fluid release notes. Each section
+below maps to a tagged release on
+[GitHub](https://github.com/quantmind/aio-fluid/releases). When a new tag is
+pushed, the matching section is extracted by
+`.github/workflows/release.yml` and published as the GitHub Release body.
+
+## v2.5.0
+
+Task runs can queue other task runs and the chain is recorded on every run,
+CPU bound tasks behave the same way in a subprocess as on the event loop, and
+Kubernetes Jobs inherit the task timeout. The documentation gained a settings
+reference, a recipes cheat sheet and a page on pointing coding agents at the
+library.
+
+- A task run can queue another task run with
+  [TaskRun.queue](https://fluid.quantmind.com/reference/task_run/), which
+  records the queueing run in `from_run_id` and carries the `root_run_id` of
+  the first run in the chain, so any run can be traced back to the one that
+  started it.
+  ([#110](https://github.com/quantmind/aio-fluid/pull/110))
+- CPU bound tasks now start the async event dispatcher in the subprocess that
+  runs them, so lifecycle events reach the handlers and plugins there as well,
+  and a consumer with CPU bound tasks that is not started from
+  [TaskManagerCLI](https://fluid.quantmind.com/reference/task_cli/) raises the
+  new `CpuBoundEntryPointError` on startup rather than failing when the first
+  such task runs.
+- A Kubernetes Job created for a CPU bound task sets `active_deadline_seconds`
+  from the task `timeout_seconds`, so the cluster terminates a Job that
+  overruns.
+  ([#108](https://github.com/quantmind/aio-fluid/pull/108))
+- New [Settings](https://fluid.quantmind.com/reference/settings/) reference
+  page covering the environment variables that configure the task consumer,
+  broker, database and HTTP client, including the prefix rules and the fields
+  that keep an unprefixed name.
+- Fixed the [Task Broker](https://fluid.quantmind.com/tutorials/task_broker/)
+  tutorial, which imported a name that does not exist, quoted the wrong
+  default Redis port, and listed six outdated abstract methods instead of the
+  sixteen a broker has to implement.
+- Admonition blocks are rendered as admonitions instead of literal text, which
+  also fixes the note on retry delays in the
+  [Task Retry](https://fluid.quantmind.com/reference/task_retry/) reference.
+- New [recipes](https://fluid.quantmind.com/recipes/) cheat sheet, a page on
+  [using the docs with AI agents](https://fluid.quantmind.com/ai-agents/) and
+  an `AGENTS.md` for contributors.
+  ([#111](https://github.com/quantmind/aio-fluid/pull/111))
+- New tutorials on
+  [task dependencies](https://fluid.quantmind.com/tutorials/task_deps/),
+  [choosing a task manager](https://fluid.quantmind.com/tutorials/task_managers/)
+  and [extending the FastAPI app](https://fluid.quantmind.com/tutorials/task_fastapi/).
+  ([#109](https://github.com/quantmind/aio-fluid/pull/109),
+  [#111](https://github.com/quantmind/aio-fluid/pull/111))
+- New [comparison](https://fluid.quantmind.com/comparison/) page placing the
+  library next to Celery, RQ, arq and taskiq, with download numbers refreshed
+  by a scheduled workflow, and a landing page rewritten around CPU bound work.
+  ([#104](https://github.com/quantmind/aio-fluid/pull/104),
+  [#105](https://github.com/quantmind/aio-fluid/pull/105),
+  [#107](https://github.com/quantmind/aio-fluid/pull/107))
+
 ## v2.4.3
 
 Fixes two task queue issues: pydantic secret params were masked when a task

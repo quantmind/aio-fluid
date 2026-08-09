@@ -53,12 +53,26 @@ that queues one run and exits, a test that drives a task directly.
 ## TaskConsumer
 
 [TaskConsumer][fluid.scheduler.TaskConsumer] adds the machinery that executes
-queued work. It starts `max_concurrent_tasks` coroutine workers, each pulling one
+queued work. It starts
+[max_concurrent_tasks][fluid.scheduler.TaskManagerConfig.max_concurrent_tasks]
+coroutine workers, each pulling one
 task run at a time from the broker, so that setting is the concurrency ceiling
 for the process. Around them it starts the worker that dispatches async events,
 the in-process queue that holds delayed runs until they are due, and a heartbeat
 that publishes the manager status other processes read through
 `GET /tasks-status`.
+
+[max_concurrent_tasks][fluid.scheduler.TaskManagerConfig.max_concurrent_tasks] is
+a field of [TaskManagerConfig][fluid.scheduler.TaskManagerConfig] and defaults to
+5. Pass it to the constructor, `TaskConsumer(max_concurrent_tasks=20)`, or set
+`FLUID_MAX_CONCURRENT_TASKS` to size a deployment without touching the code; an
+explicit argument wins over the environment variable.
+[sleep_millis][fluid.scheduler.TaskManagerConfig.sleep_millis] behaves the same
+way, while
+[scheduler_heartbeat_millis][fluid.settings.Settings.scheduler_heartbeat_millis]
+is read from [Settings][fluid.settings.Settings] alone, with no constructor
+argument. See
+[Settings](../reference/settings.md) for the full list and the naming rules.
 
 Being a worker, it starts and stops with whatever runs it, and
 [TaskConsumer.queue_and_wait][fluid.scheduler.TaskConsumer.queue_and_wait]
