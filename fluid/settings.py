@@ -44,7 +44,10 @@ class Settings(BaseSettings):
 
     # Workers
     stopping_grace_period: int = 10
-    max_concurrent_tasks: int = 5
+    max_concurrent_tasks: int = Field(
+        default=5,
+        description="Maximum number of concurrent tasks per TaskConsumer",
+    )
     sleep_millis: int = 1000
     scheduler_heartbeat_millis: int = 100
     broker_url: str = ""
