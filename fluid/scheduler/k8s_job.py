@@ -50,6 +50,7 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
             metadata=client.V1ObjectMeta(name=job_name),
             spec=client.V1JobSpec(
                 ttl_seconds_after_finished=k8s_config.job_ttl,
+                active_deadline_seconds=task.timeout_seconds,
                 backoff_limit=0,
                 template=pod_template,
             ),

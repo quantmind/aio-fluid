@@ -38,11 +38,13 @@ def make_ctx(
     env: list | None = None,
     image: str = "myapp:latest",
     params: BaseModel | None = None,
+    timeout_seconds: int = 60,
 ) -> MagicMock:
     ctx = MagicMock()
     ctx.name = name
     ctx.id = run_id
     ctx.params = params if params is not None else NoParams()
+    ctx.task.timeout_seconds = timeout_seconds
 
     cfg = k8s_config or K8sConfig(
         namespace="workers",
@@ -209,6 +211,22 @@ async def test_command_without_serve_unchanged() -> None:
     job = call_kwargs.args[1]
     container = job.spec.template.spec.containers[0]
     assert container.command == ["python", "-m", "myapp"]
+
+
+async def test_job_deadline_is_the_task_timeout() -> None:
+    """K8s bounds the Job with the same timeout the consumer applies to the run.
+
+    Without it a Job outlives the consumer which stopped watching it, so a
+    redeployed or crashed consumer leaves work running in the cluster forever.
+    """
+    ctx = make_ctx(timeout_seconds=300)
+    patches, _, mock_batch = make_k8s_mocks(ctx, succeeded=1)
+
+    with patches[0], patches[1], patches[2], patches[3]:
+        await run_on_k8s_job(ctx)
+
+    job = mock_batch.create_namespaced_job.call_args.args[1]
+    assert job.spec.active_deadline_seconds == 300
 
 
 async def test_cpu_env_added_to_job_env() -> None:
