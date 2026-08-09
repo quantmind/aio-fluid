@@ -393,6 +393,8 @@
       
         
       
+        
+      
     
     
     
@@ -653,6 +655,34 @@
     
   
     HTTP Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings
   
 
     
@@ -1557,6 +1587,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v250" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.5.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v243" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1690,6 +1731,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v250" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.5.0
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v243" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1817,6 +1869,62 @@
 
 
 <h1 id="release-notes">Release Notes<a class="headerlink" href="#release-notes" title="Permanent link">&para;</a></h1>
+<p>This page is the source of truth for aio-fluid release notes. Each section
+below maps to a tagged release on
+<a href="https://github.com/quantmind/aio-fluid/releases">GitHub</a>. When a new tag is
+pushed, the matching section is extracted by
+<code>.github/workflows/release.yml</code> and published as the GitHub Release body.</p>
+<h2 id="v250">v2.5.0<a class="headerlink" href="#v250" title="Permanent link">&para;</a></h2>
+<p>Task runs can queue other task runs and the chain is recorded on every run,
+CPU bound tasks behave the same way in a subprocess as on the event loop, and
+Kubernetes Jobs inherit the task timeout. The documentation gained a settings
+reference, a recipes cheat sheet and a page on pointing coding agents at the
+library.</p>
+<ul>
+<li>A task run can queue another task run with
+  <a href="https://fluid.quantmind.com/reference/task_run/">TaskRun.queue</a>, which
+  records the queueing run in <code>from_run_id</code> and carries the <code>root_run_id</code> of
+  the first run in the chain, so any run can be traced back to the one that
+  started it.
+  (<a href="https://github.com/quantmind/aio-fluid/pull/110">#110</a>)</li>
+<li>CPU bound tasks now start the async event dispatcher in the subprocess that
+  runs them, so lifecycle events reach the handlers and plugins there as well,
+  and a consumer with CPU bound tasks that is not started from
+  <a href="https://fluid.quantmind.com/reference/task_cli/">TaskManagerCLI</a> raises the
+  new <code>CpuBoundEntryPointError</code> on startup rather than failing when the first
+  such task runs.</li>
+<li>A Kubernetes Job created for a CPU bound task sets <code>active_deadline_seconds</code>
+  from the task <code>timeout_seconds</code>, so the cluster terminates a Job that
+  overruns.
+  (<a href="https://github.com/quantmind/aio-fluid/pull/108">#108</a>)</li>
+<li>New <a href="https://fluid.quantmind.com/reference/settings/">Settings</a> reference
+  page covering the environment variables that configure the task consumer,
+  broker, database and HTTP client, including the prefix rules and the fields
+  that keep an unprefixed name.</li>
+<li>Fixed the <a href="https://fluid.quantmind.com/tutorials/task_broker/">Task Broker</a>
+  tutorial, which imported a name that does not exist, quoted the wrong
+  default Redis port, and listed six outdated abstract methods instead of the
+  sixteen a broker has to implement.</li>
+<li>Admonition blocks are rendered as admonitions instead of literal text, which
+  also fixes the note on retry delays in the
+  <a href="https://fluid.quantmind.com/reference/task_retry/">Task Retry</a> reference.</li>
+<li>New <a href="https://fluid.quantmind.com/recipes/">recipes</a> cheat sheet, a page on
+  <a href="https://fluid.quantmind.com/ai-agents/">using the docs with AI agents</a> and
+  an <code>AGENTS.md</code> for contributors.
+  (<a href="https://github.com/quantmind/aio-fluid/pull/111">#111</a>)</li>
+<li>New tutorials on
+  <a href="https://fluid.quantmind.com/tutorials/task_deps/">task dependencies</a>,
+  <a href="https://fluid.quantmind.com/tutorials/task_managers/">choosing a task manager</a>
+  and <a href="https://fluid.quantmind.com/tutorials/task_fastapi/">extending the FastAPI app</a>.
+  (<a href="https://github.com/quantmind/aio-fluid/pull/109">#109</a>,
+  <a href="https://github.com/quantmind/aio-fluid/pull/111">#111</a>)</li>
+<li>New <a href="https://fluid.quantmind.com/comparison/">comparison</a> page placing the
+  library next to Celery, RQ, arq and taskiq, with download numbers refreshed
+  by a scheduled workflow, and a landing page rewritten around CPU bound work.
+  (<a href="https://github.com/quantmind/aio-fluid/pull/104">#104</a>,
+  <a href="https://github.com/quantmind/aio-fluid/pull/105">#105</a>,
+  <a href="https://github.com/quantmind/aio-fluid/pull/107">#107</a>)</li>
+</ul>
 <h2 id="v243">v2.4.3<a class="headerlink" href="#v243" title="Permanent link">&para;</a></h2>
 <p>Fixes two task queue issues: pydantic secret params were masked when a task
 run was serialized to the queue, and a params validation error on the

@@ -395,6 +395,8 @@
       
         
       
+        
+      
     
     
     
@@ -655,6 +657,34 @@
     
   
     HTTP Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../reference/settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings
   
 
     
@@ -1870,12 +1900,51 @@ running it: an HTTP API in front of a separate worker fleet, a cron container
 that queues one run and exits, a test that drives a task directly.</p>
 <h2 id="taskconsumer">TaskConsumer<a class="headerlink" href="#taskconsumer" title="Permanent link">&para;</a></h2>
 <p><a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../../reference/task_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> adds the machinery that executes
-queued work. It starts <code>max_concurrent_tasks</code> coroutine workers, each pulling one
+queued work. It starts
+<a class="autorefs autorefs-internal" title="            max_concurrent_tasks
+
+
+  
+      pydantic-field
+  " href="../../reference/task_manager/#fluid.scheduler.TaskManagerConfig.max_concurrent_tasks">max_concurrent_tasks</a>
+coroutine workers, each pulling one
 task run at a time from the broker, so that setting is the concurrency ceiling
 for the process. Around them it starts the worker that dispatches async events,
 the in-process queue that holds delayed runs until they are due, and a heartbeat
 that publishes the manager status other processes read through
 <code>GET /tasks-status</code>.</p>
+<p><a class="autorefs autorefs-internal" title="            max_concurrent_tasks
+
+
+  
+      pydantic-field
+  " href="../../reference/task_manager/#fluid.scheduler.TaskManagerConfig.max_concurrent_tasks">max_concurrent_tasks</a> is
+a field of <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskManagerConfig
+
+
+  
+      pydantic-model
+  " href="../../reference/task_manager/#fluid.scheduler.TaskManagerConfig">TaskManagerConfig</a> and defaults to
+5. Pass it to the constructor, <code>TaskConsumer(max_concurrent_tasks=20)</code>, or set
+<code>FLUID_MAX_CONCURRENT_TASKS</code> to size a deployment without touching the code; an
+explicit argument wins over the environment variable.
+<a class="autorefs autorefs-internal" title="            sleep_millis
+
+
+  
+      pydantic-field
+  " href="../../reference/task_manager/#fluid.scheduler.TaskManagerConfig.sleep_millis">sleep_millis</a> behaves the same
+way, while
+<a class="autorefs autorefs-internal" title="            scheduler_heartbeat_millis
+
+
+  
+      class-attribute
+      instance-attribute
+  " href="../../reference/settings/#fluid.settings.Settings.scheduler_heartbeat_millis">scheduler_heartbeat_millis</a>
+is read from <a class="autorefs autorefs-internal" title="            fluid.settings.Settings" href="../../reference/settings/#fluid.settings.Settings">Settings</a> alone, with no constructor
+argument. See
+<a href="../../reference/settings/">Settings</a> for the full list and the naming rules.</p>
 <p>Being a worker, it starts and stops with whatever runs it, and
 <a class="autorefs autorefs-internal" title="            queue_and_wait
 

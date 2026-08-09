@@ -33,4 +33,5 @@ Complete API reference for all public classes, functions, and parameters in Aio 
 - [Event Dispatchers](https://fluid.quantmind.com/reference/dispatchers/index.md) — `Dispatcher` and `AsyncDispatcher` for decoupled event handling.
 - [HTTP Client](https://fluid.quantmind.com/reference/http_client/index.md) — unified async HTTP client wrappers for `aiohttp` and `httpx`.
 - [Errors](https://fluid.quantmind.com/reference/errors/index.md) — error hierarchies for utilities and the task scheduler.
+- [Settings](https://fluid.quantmind.com/reference/settings/index.md), environment variables configuring the task consumer, broker, database and HTTP client.
 - [Utils](https://fluid.quantmind.com/reference/utils/index.md) — miscellaneous helpers.

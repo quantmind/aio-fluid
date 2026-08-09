@@ -397,6 +397,8 @@
       
         
       
+        
+      
     
     
     
@@ -657,6 +659,34 @@
     
   
     HTTP Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../settings/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Settings
   
 
     
@@ -2298,9 +2328,11 @@ Without this policy, the <a class="autorefs autorefs-internal" title="          
 <li>The <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskConsumer" href="../task_consumer/#fluid.scheduler.TaskConsumer">TaskConsumer</a> is freed immediately — no sleeping.</li>
 <li>When the copy is next dequeued, if <code>execute_after</code> is still in the future it is re-scheduled via <code>call_later</code> and the worker moves on; otherwise execution proceeds normally.</li>
 </ol>
-<p>!!! note
-    The minimum effective re-queue delay is <strong>5 seconds</strong>, regardless of the <code>wait</code> value in the policy.
-    A <code>call_later</code> is used to avoid busy-looping, and the floor ensures the worker is not called back too aggressively.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The minimum effective re-queue delay is <strong>5 seconds</strong>, regardless of the <code>wait</code> value in the policy.
+A <code>call_later</code> is used to avoid busy-looping, and the floor ensures the worker is not called back too aggressively.</p>
+</div>
 
 
 

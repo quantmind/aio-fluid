@@ -151,4 +151,6 @@ Both retry modes share the same mechanism:
 1. The TaskConsumer is freed immediately — no sleeping.
 1. When the copy is next dequeued, if `execute_after` is still in the future it is re-scheduled via `call_later` and the worker moves on; otherwise execution proceeds normally.
 
-!!! note The minimum effective re-queue delay is **5 seconds**, regardless of the `wait` value in the policy. A `call_later` is used to avoid busy-looping, and the floor ensures the worker is not called back too aggressively.
+Note
+
+The minimum effective re-queue delay is **5 seconds**, regardless of the `wait` value in the policy. A `call_later` is used to avoid busy-looping, and the floor ensures the worker is not called back too aggressively.

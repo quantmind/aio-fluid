@@ -33,6 +33,7 @@ An async task queue for Python backend services. Tasks are async functions decla
 - [Event Dispatchers](https://fluid.quantmind.com/reference/dispatchers/index.md)
 - [Errors](https://fluid.quantmind.com/reference/errors/index.md)
 - [HTTP Client](https://fluid.quantmind.com/reference/http_client/index.md)
+- [Settings](https://fluid.quantmind.com/reference/settings/index.md)
 - [Task](https://fluid.quantmind.com/reference/task/index.md)
 - [Task Broker](https://fluid.quantmind.com/reference/task_broker/index.md)
 - [Task Manager CLI](https://fluid.quantmind.com/reference/task_cli/index.md)
