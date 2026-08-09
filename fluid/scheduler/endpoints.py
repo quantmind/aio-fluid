@@ -15,14 +15,32 @@ from .models import EmptyParams, Task, TaskInfo, TaskPriority, TaskRun
 
 
 def get_task_manager_from_request(request: Request) -> TaskManager:
+    """Get the task manager of the app serving the request.
+
+    This is the callable behind
+    [TaskManagerDep][fluid.scheduler.endpoints.TaskManagerDep].
+    """
     return get_task_manager(request.app)
 
 
 def get_task_manager(app: FastAPI) -> TaskManager:
+    """Get the task manager added to the app state by
+    [task_manager_fastapi][fluid.scheduler.task_manager_fastapi].
+
+    Use this outside a request, where there is an app but no request to depend
+    on, and [TaskManagerDep][fluid.scheduler.endpoints.TaskManagerDep] inside a
+    route.
+    """
     return cast(TaskManager, app.state.task_manager)
 
 
 TaskManagerDep = Annotated[TaskManager, Depends(get_task_manager_from_request)]
+"""FastAPI dependency injecting the [TaskManager][fluid.scheduler.TaskManager]
+into a route.
+
+Application routes use it to reach the task manager, and through it the
+dependencies and the resources shared with every task run.
+"""
 
 
 class TaskUpdate(BaseModel):

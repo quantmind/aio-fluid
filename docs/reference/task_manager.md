@@ -20,3 +20,9 @@ The Task Manager is useful if you want to execute tasks in a synchronous or asyn
 
 
 ::: fluid.scheduler.task_manager_fastapi
+
+::: fluid.scheduler.endpoints.get_task_manager
+
+::: fluid.scheduler.endpoints.get_task_manager_from_request
+
+::: fluid.scheduler.endpoints.TaskManagerDep

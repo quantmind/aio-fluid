@@ -149,6 +149,26 @@ this includes the following extra dependencies:
 - `log` for JSON logging support with [python-json-logger](https://github.com/madzak/python-json-logger)
 - `k8s` for Kubernetes support for CPU bound tasks
 
+## AI agents
+
+The documentation is published in a form coding agents can consume directly, following the
+[llms.txt](https://llmstxt.org/) convention:
+
+- [llms.txt](https://fluid.quantmind.com/llms.txt): an index of every page, each with a one-line
+  description, so an agent can fetch only what it needs.
+- [llms-full.txt](https://fluid.quantmind.com/llms-full.txt): the whole documentation in a single
+  file, API reference included.
+- [Recipes](https://fluid.quantmind.com/recipes/): a cheat sheet of the canonical patterns and the
+  mistakes that are easy to make.
+
+Every page is also served as markdown, by appending `index.md` to its URL. The package ships
+`py.typed`, so a type checker resolves every signature in your editor and in your agent's context.
+
+For what to put in your agent's instructions file, see
+[Use with AI agents](https://fluid.quantmind.com/ai-agents/). If you are pointing an
+agent at this repository to contribute, read
+[AGENTS.md](https://github.com/quantmind/aio-fluid/blob/main/AGENTS.md).
+
 ## Development
 
 You can run the examples via

@@ -5,6 +5,7 @@ repo_url: https://github.com/quantmind/aio-fluid
 strict: true
 nav:
 - Home: index.md
+- recipes.md
 - Reference:
   - reference/index.md
   - reference/db.md
@@ -35,10 +36,13 @@ nav:
   - tutorials/task_app.md
   - tutorials/task_broker.md
   - tutorials/task_deps.md
+  - tutorials/task_fastapi.md
   - tutorials/task_k8s.md
+  - tutorials/task_managers.md
   - tutorials/task_retry.md
   - tutorials/tasks.md
   - tutorials/workers.md
+- ai-agents.md
 - comparison.md
 - release-notes.md
 theme:
@@ -72,6 +76,35 @@ plugins:
 - redirects:
     redirect_maps:
       tutorials/task_queue.md: tutorials/tasks.md
+- llmstxt:
+    markdown_description: >-
+      An async task queue for Python backend services. Tasks are async functions
+      declared with a decorator, scheduled with every() or crontab(), and run
+      concurrently on asyncio. A task marked cpu_bound runs in a subprocess, or as
+      a Kubernetes Job in a cluster, so heavy work never blocks the event loop.
+    full_output: llms-full.txt
+    sections:
+      Getting started:
+      - index.md: Why the library exists, installation, and a complete example application.
+      - recipes.md: Cheat sheet of the canonical patterns, and the mistakes to avoid.
+      - ai-agents.md: How to point a coding agent at this documentation.
+      Tutorials:
+      - tutorials/tasks.md: Declare tasks, parameters, schedules, timeouts, concurrency, chaining and aborts.
+      - tutorials/task_managers.md: Choose between TaskManager, TaskConsumer and TaskScheduler.
+      - tutorials/task_app.md: Wire tasks into a producer/consumer application, the CLI entry point and plugins.
+      - tutorials/task_deps.md: Share a database manager, an HTTP client or any other resource across task runs.
+      - tutorials/task_fastapi.md: Add your own routes to the task manager app and inject the same dependencies.
+      - tutorials/task_retry.md: Retry on failure and when rate limited by concurrency limits.
+      - tutorials/task_k8s.md: Dispatch CPU bound tasks as Kubernetes Jobs.
+      - tutorials/task_broker.md: Replace the default Redis broker.
+      - tutorials/workers.md: The async worker lifecycle the task queue is built on.
+      - tutorials/db.md: Async Postgres CRUD and migrations.
+      - tutorials/dispatchers.md: Sync and async event dispatchers.
+      API reference:
+      - reference/*.md
+      Background:
+      - comparison.md: How the library compares to Celery, RQ, arq and taskiq.
+      - release-notes.md: Changes in each release.
 - mkdocstrings:
     handlers:
       python:

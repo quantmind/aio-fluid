@@ -62,6 +62,10 @@ $ python -m examples.simple_fastapi
 
 and check the openapi UI at [http://127.0.0.1:8000/docs](http://127.0.0.1:8000/docs).
 
+The app returned is an ordinary FastAPI app: your own routes can be added to it
+and reach the task manager, its dependencies and its resources. See
+[Extending the FastAPI App](task_fastapi.md).
+
 The `GET /tasks` endpoint lists registered tasks and accepts a repeatable `tags`
 query parameter to only return tasks that have at least one of the given tags:
 
