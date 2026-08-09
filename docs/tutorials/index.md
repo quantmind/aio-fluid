@@ -9,9 +9,11 @@ Step-by-step guides for using Aio Fluid in your backend applications. See the [h
 ## Task Queue
 
 - [Tasks](tasks.md) — define tasks with the `@task` decorator, set priorities, scheduling, concurrency limits, and CPU-bound execution.
+- [Task Managers](task_managers.md), when to use a TaskManager, a TaskConsumer or a TaskScheduler, and what each one does in a FastAPI app.
 - [Task Queue App](task_app.md) — wire tasks into a full producer/consumer application with FastAPI and Redis.
 - [Task Broker](task_broker.md) — implement a custom broker to replace the default Redis backend.
 - [Task Dependencies](task_deps.md) — share a database manager, an HTTP client or any other resource across task runs.
+- [Extending the FastAPI App](task_fastapi.md), add your own routes to the task manager app and inject the same dependencies into them.
 - [Task Retries](task_retry.md) — automatically retry tasks on failure or when rate-limited by concurrency.
 - [K8s Jobs](task_k8s.md) — dispatch CPU-bound tasks as Kubernetes Jobs instead of local subprocesses.
 

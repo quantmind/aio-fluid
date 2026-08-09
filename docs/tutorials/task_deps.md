@@ -33,6 +33,9 @@ and the task manager enters them when it starts and exits them when it stops:
 scheduler.add_async_context_manager(deps.http_client)
 ```
 
+Routes served by the same task manager app share those resources with the task
+runs, see [Extending the FastAPI App](task_fastapi.md).
+
 ## Dependencies are not shared with CPU bound tasks
 
 A task declared with `cpu_bound=True` does not run in the consumer process. It
