@@ -184,6 +184,39 @@ A value of `0` (the default) means no limit.
 
 When the limit is reached the task run transitions to the `rate_limited` state. To automatically retry rate-limited tasks, combine `max_concurrency` with `rate_limit_retry`. See [Task Retry](task_retry.md) for details.
 
+## Chaining tasks
+
+A task can queue another task with [TaskRun.queue][fluid.scheduler.TaskRun.queue], which
+is how multi-step pipelines are built. Each step ends by queueing the next one and
+returns:
+
+```python
+--8<-- "./examples/docs/task_chaining.py"
+```
+
+Queueing rather than waiting is what you want here. The next step is a durable message in
+the broker, so a consumer restart does not lose the pipeline, any consumer in the fleet can
+pick the step up, and the parent does not sit idle occupying a run slot while the rest of
+the chain executes. Error handling falls out of the shape: a step that fails never reaches
+its `queue` call, so the chain stops there.
+
+Every run queued this way records where it came from:
+
+- [from_run_id][fluid.scheduler.TaskRun.from_run_id] is the run that queued it.
+- [root_run_id][fluid.scheduler.TaskRun.root_run_id] is the first run in the chain, shared
+  by every run descending from it, so a whole pipeline can be retrieved in one query.
+
+Both are empty for a run that was not queued from another run, such as one started by a
+schedule or over HTTP.
+
+### Waiting for a result
+
+When the caller genuinely needs the outcome, for example an HTTP handler that must return
+it in the response, use [TaskConsumer.queue_and_wait][fluid.scheduler.TaskConsumer.queue_and_wait]
+instead. Note that it waits in memory on the local task manager, so the wait (not the queued
+run) is lost if that process restarts, and the caller holds its run slot for the duration.
+Prefer chaining for anything that looks like a pipeline.
+
 ## Aborting a task
 
 Any task, IO or CPU bound, can signal a deliberate, non-error cancellation by calling [ctx.abort()][fluid.scheduler.TaskRun.abort]:

@@ -39,6 +39,33 @@ async def test_queue_length(task_scheduler: TaskScheduler) -> None:
         assert ql[p.name] >= 0
 
 
+async def test_queue_records_no_chain(task_scheduler: TaskScheduler) -> None:
+    task_run = task_scheduler.create_task_run("dummy")
+    assert task_run.from_run_id == ""
+    assert task_run.root_run_id == ""
+
+
+async def test_task_run_queue_records_chain(task_scheduler: TaskScheduler) -> None:
+    parent = task_scheduler.create_task_run("dummy")
+    child = await parent.queue("dummy", sleep=0.0)
+    assert child.from_run_id == parent.id
+    # the parent starts the chain, so it is the root
+    assert child.root_run_id == parent.id
+
+    grandchild = await child.queue("dummy", sleep=0.0)
+    assert grandchild.from_run_id == child.id
+    assert grandchild.root_run_id == parent.id
+
+
+async def test_chain_survives_the_broker(task_scheduler: TaskScheduler) -> None:
+    """The lineage must round-trip through the queue, not just live in memory."""
+    parent = task_scheduler.create_task_run("dummy")
+    child = await parent.queue("dummy", sleep=0.0)
+    data = json.loads(child.queue_dump_json())
+    assert data["from_run_id"] == parent.id
+    assert data["root_run_id"] == parent.id
+
+
 async def test_execute(task_scheduler: TaskScheduler) -> None:
     task_run = await task_scheduler.execute("dummy")
     assert task_run.name == "dummy"

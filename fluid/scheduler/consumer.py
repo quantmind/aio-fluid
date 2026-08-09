@@ -272,6 +272,14 @@ class TaskManager:
         priority: Annotated[
             TaskPriority | None, Doc("Override the default task priority if provided")
         ] = None,
+        from_task_run: Annotated[
+            TaskRun | None,
+            Doc(
+                "The task run queueing this one, if any. "
+                "Prefer [TaskRun.queue][fluid.scheduler.TaskRun.queue], "
+                "which passes it for you."
+            ),
+        ] = None,
         **params: Annotated[
             Any,
             Doc(
@@ -293,6 +301,7 @@ class TaskManager:
             task,
             run_id=run_id,
             priority=priority,
+            from_task_run=from_task_run,
             **params,
         )
         return await self._queue_task_run(task_run)
@@ -314,6 +323,10 @@ class TaskManager:
         priority: Annotated[
             TaskPriority | None, Doc("Override the default task priority if provided")
         ] = None,
+        from_task_run: Annotated[
+            TaskRun | None,
+            Doc("The task run creating this one, if any. It records the chain."),
+        ] = None,
         **params: Annotated[
             Any,
             Doc(
@@ -331,6 +344,11 @@ class TaskManager:
             priority=priority or task.priority,
             params=task.params_model(**params),
             task_manager=self,
+            from_run_id=from_task_run.id if from_task_run else "",
+            # the first run in a chain has no root of its own, it is the root
+            root_run_id=(
+                (from_task_run.root_run_id or from_task_run.id) if from_task_run else ""
+            ),
         )
 
     def register_from_module(
