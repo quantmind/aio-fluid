@@ -42,6 +42,9 @@ answer for *"this one task is CPU-heavy"* beyond "spin up a second worker fleet.
   extra). Your task code is identical in both. See [K8s Jobs](https://fluid.quantmind.com/tutorials/task_k8s/).
 - **Async-native and typed.** Tasks are plain `async def` functions; parameters are
   [pydantic](https://docs.pydantic.dev/) models, validated on the way in.
+- **Dependency injection.** A database manager, an HTTP client or any other resource is grouped
+  into a single typed `deps` object every task run can reach, with startup and shutdown handled by
+  the task manager. See [Task Dependencies](https://fluid.quantmind.com/tutorials/task_deps/).
 - **The scheduling you expect.** `every(timedelta(...))` and `crontab(...)`, per-task
   `max_concurrency`, priorities, `timeout_seconds`, and retry policies.
 - **FastAPI-ready.** Drop a task manager into a FastAPI app to queue and inspect runs over HTTP.
