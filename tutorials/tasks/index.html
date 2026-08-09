@@ -1468,6 +1468,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#chaining-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chaining tasks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Chaining tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#waiting-for-a-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Waiting for a result
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#aborting-a-task" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1731,6 +1759,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#chaining-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chaining tasks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Chaining tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#waiting-for-a-result" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Waiting for a result
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#aborting-a-task" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1963,15 +2019,98 @@ tasks has to be set up with a command line entry point. See
 </span></code></pre></div>
 <p>A value of <code>0</code> (the default) means no limit.</p>
 <p>When the limit is reached the task run transitions to the <code>rate_limited</code> state. To automatically retry rate-limited tasks, combine <code>max_concurrency</code> with <code>rate_limit_retry</code>. See <a href="../task_retry/">Task Retry</a> for details.</p>
+<h2 id="chaining-tasks">Chaining tasks<a class="headerlink" href="#chaining-tasks" title="Permanent link">&para;</a></h2>
+<p>A task can queue another task with <a class="autorefs autorefs-internal" title="            queue
+
+
+  
+      async
+  " href="../../reference/task_run/#fluid.scheduler.TaskRun.queue">TaskRun.queue</a>, which
+is how multi-step pipelines are built. Each step ends by queueing the next one and
+returns:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">TaskRun</span><span class="p">,</span> <span class="n">TaskScheduler</span><span class="p">,</span> <span class="n">task</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="n">SYMBOLS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;BTC-USD&quot;</span><span class="p">,</span> <span class="s2">&quot;ETH-USD&quot;</span><span class="p">)</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="k">class</span><span class="w"> </span><span class="nc">Symbol</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>    <span class="n">symbol</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;BTC-USD&quot;</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="nd">@task</span>
+</span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">daily_pipeline</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-10-14"><a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Start one chain per symbol.&quot;&quot;&quot;</span>
+</span><span id="__span-10-15"><a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>    <span class="k">for</span> <span class="n">symbol</span> <span class="ow">in</span> <span class="n">SYMBOLS</span><span class="p">:</span>
+</span><span id="__span-10-16"><a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>        <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="n">extract</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="n">symbol</span><span class="p">)</span>
+</span><span id="__span-10-17"><a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>
+</span><span id="__span-10-18"><a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>
+</span><span id="__span-10-19"><a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a><span class="nd">@task</span>
+</span><span id="__span-10-20"><a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">extract</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">[</span><span class="n">Symbol</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-10-21"><a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Download the raw data, then hand over to the next step.&quot;&quot;&quot;</span>
+</span><span id="__span-10-22"><a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;extracting </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
+</span><span id="__span-10-23"><a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>    <span class="c1"># queue the next step and return, nothing blocks here.</span>
+</span><span id="__span-10-24"><a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>    <span class="c1"># if this task fails, transform is never queued</span>
+</span><span id="__span-10-25"><a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>    <span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="n">symbol</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">symbol</span><span class="p">)</span>
+</span><span id="__span-10-26"><a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a>
+</span><span id="__span-10-27"><a id="__codelineno-10-27" name="__codelineno-10-27" href="#__codelineno-10-27"></a>
+</span><span id="__span-10-28"><a id="__codelineno-10-28" name="__codelineno-10-28" href="#__codelineno-10-28"></a><span class="nd">@task</span>
+</span><span id="__span-10-29"><a id="__codelineno-10-29" name="__codelineno-10-29" href="#__codelineno-10-29"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">transform</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">[</span><span class="n">Symbol</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-10-30"><a id="__codelineno-10-30" name="__codelineno-10-30" href="#__codelineno-10-30"></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalise what extract downloaded.&quot;&quot;&quot;</span>
+</span><span id="__span-10-31"><a id="__codelineno-10-31" name="__codelineno-10-31" href="#__codelineno-10-31"></a>    <span class="n">ctx</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+</span><span id="__span-10-32"><a id="__codelineno-10-32" name="__codelineno-10-32" href="#__codelineno-10-32"></a>        <span class="s2">&quot;transforming </span><span class="si">%s</span><span class="s2">, chain started by </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">symbol</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">root_run_id</span>
+</span><span id="__span-10-33"><a id="__codelineno-10-33" name="__codelineno-10-33" href="#__codelineno-10-33"></a>    <span class="p">)</span>
+</span><span id="__span-10-34"><a id="__codelineno-10-34" name="__codelineno-10-34" href="#__codelineno-10-34"></a>
+</span><span id="__span-10-35"><a id="__codelineno-10-35" name="__codelineno-10-35" href="#__codelineno-10-35"></a>
+</span><span id="__span-10-36"><a id="__codelineno-10-36" name="__codelineno-10-36" href="#__codelineno-10-36"></a><span class="k">def</span><span class="w"> </span><span class="nf">task_scheduler</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">TaskScheduler</span><span class="p">:</span>
+</span><span id="__span-10-37"><a id="__codelineno-10-37" name="__codelineno-10-37" href="#__codelineno-10-37"></a>    <span class="n">scheduler</span> <span class="o">=</span> <span class="n">TaskScheduler</span><span class="p">()</span>
+</span><span id="__span-10-38"><a id="__codelineno-10-38" name="__codelineno-10-38" href="#__codelineno-10-38"></a>    <span class="n">scheduler</span><span class="o">.</span><span class="n">register_from_dict</span><span class="p">(</span><span class="nb">globals</span><span class="p">())</span>
+</span><span id="__span-10-39"><a id="__codelineno-10-39" name="__codelineno-10-39" href="#__codelineno-10-39"></a>    <span class="k">return</span> <span class="n">scheduler</span>
+</span></code></pre></div>
+<p>Queueing rather than waiting is what you want here. The next step is a durable message in
+the broker, so a consumer restart does not lose the pipeline, any consumer in the fleet can
+pick the step up, and the parent does not sit idle occupying a run slot while the rest of
+the chain executes. Error handling falls out of the shape: a step that fails never reaches
+its <code>queue</code> call, so the chain stops there.</p>
+<p>Every run queued this way records where it came from:</p>
+<ul>
+<li><a class="autorefs autorefs-internal" title="            from_run_id
+
+
+  
+      pydantic-field
+  " href="../../reference/task_run/#fluid.scheduler.TaskRun.from_run_id">from_run_id</a> is the run that queued it.</li>
+<li><a class="autorefs autorefs-internal" title="            root_run_id
+
+
+  
+      pydantic-field
+  " href="../../reference/task_run/#fluid.scheduler.TaskRun.root_run_id">root_run_id</a> is the first run in the chain, shared
+  by every run descending from it, so a whole pipeline can be retrieved in one query.</li>
+</ul>
+<p>Both are empty for a run that was not queued from another run, such as one started by a
+schedule or over HTTP.</p>
+<h3 id="waiting-for-a-result">Waiting for a result<a class="headerlink" href="#waiting-for-a-result" title="Permanent link">&para;</a></h3>
+<p>When the caller genuinely needs the outcome, for example an HTTP handler that must return
+it in the response, use <a class="autorefs autorefs-internal" title="            queue_and_wait
+
+
+  
+      async
+  " href="../../reference/task_consumer/#fluid.scheduler.TaskConsumer.queue_and_wait">TaskConsumer.queue_and_wait</a>
+instead. Note that it waits in memory on the local task manager, so the wait (not the queued
+run) is lost if that process restarts, and the caller holds its run slot for the duration.
+Prefer chaining for anything that looks like a pipeline.</p>
 <h2 id="aborting-a-task">Aborting a task<a class="headerlink" href="#aborting-a-task" title="Permanent link">&para;</a></h2>
 <p>Any task, IO or CPU bound, can signal a deliberate, non-error cancellation by calling <a class="autorefs autorefs-internal" title="            abort" href="../../reference/task_run/#fluid.scheduler.TaskRun.abort">ctx.abort()</a>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="nd">@task</span>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">conditional_work</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">should_proceed</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="p">):</span>
-</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>        <span class="n">ctx</span><span class="o">.</span><span class="n">abort</span><span class="p">(</span><span class="s2">&quot;precondition not met&quot;</span><span class="p">)</span>
-</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="o">...</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">task</span><span class="p">,</span> <span class="n">TaskRun</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="nd">@task</span>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">conditional_work</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>    <span class="k">if</span> <span class="ow">not</span> <span class="n">should_proceed</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="p">):</span>
+</span><span id="__span-11-6"><a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>        <span class="n">ctx</span><span class="o">.</span><span class="n">abort</span><span class="p">(</span><span class="s2">&quot;precondition not met&quot;</span><span class="p">)</span>
+</span><span id="__span-11-7"><a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>    <span class="o">...</span>
 </span></code></pre></div>
 <p>When this happens the task run transitions to the <code>aborted</code> <a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskState" href="../../reference/task/#fluid.scheduler.TaskState">TaskState</a>, which is distinct from <code>failure</code>:</p>
 <ul>

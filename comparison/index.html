@@ -1437,6 +1437,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="The libraries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#workflow-orchestrators-a-different-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow orchestrators, a different layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1553,6 +1570,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="The libraries">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#workflow-orchestrators-a-different-layer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Workflow orchestrators, a different layer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1631,6 +1665,9 @@ real download data, and explains where <code>aio-fluid</code> does, and does not
   scoring, rendering) that would otherwise freeze your event loop: this is exactly what
   <code>aio-fluid</code> is built for. See <a href="../tutorials/tasks/#cpu-bound-tasks">CPU bound tasks</a>
   and <a href="../tutorials/task_k8s/">K8s Jobs</a>.</li>
+<li><strong>You need ordered batch pipelines, backfills and data-aware scheduling</strong>: you want a
+  workflow orchestrator (Airflow, Dagster, Prefect, Luigi), not a task queue. See
+  <a href="#workflow-orchestrators-a-different-layer">Workflow orchestrators</a>.</li>
 </ul>
 <h2 id="popularity">Popularity<a class="headerlink" href="#popularity" title="Permanent link">&para;</a></h2>
 <p>Is Celery still the one everyone uses? Yes, decisively. It out-downloads the nearest real
@@ -1741,6 +1778,26 @@ assume tasks do not block the loop, so CPU-bound work is out of scope. That is t
 limitation that motivated <code>aio-fluid</code>.</p>
 <p><strong>APScheduler</strong> is included only for scale: it is a <em>scheduler</em> (fire a job on an interval
 or cron), not a broker-backed distributed queue, so it solves a different problem.</p>
+<h3 id="workflow-orchestrators-a-different-layer">Workflow orchestrators, a different layer<a class="headerlink" href="#workflow-orchestrators-a-different-layer" title="Permanent link">&para;</a></h3>
+<p><strong>Luigi</strong>, <strong>Airflow</strong>, <strong>Prefect</strong> and <strong>Dagster</strong> come up in the same searches, but they
+are workflow orchestrators rather than task queues. You declare a graph of batch steps and
+the framework owns ordering, backfills and data-aware scheduling. They do execute your
+code, and several of them delegate that execution to a queue (Airflow's <code>CeleryExecutor</code>,
+Dagster's Celery executor), which is the tell: they sit a layer above the field on this
+page, and can run on top of it.</p>
+<p><code>aio-fluid</code> covers the simple end of that layer. A task queues the next one with
+<a class="autorefs autorefs-internal" title="            queue
+
+
+  
+      async
+  " href="../reference/task_run/#fluid.scheduler.TaskRun.queue">TaskRun.queue</a>, and each run records the run it came from,
+so multi-step pipelines are ordinary Python with no extra machinery and can be traced back
+to whatever started them. See <a href="../tutorials/tasks/#chaining-tasks">Chaining tasks</a>. If your
+pipeline is a handful of steps triggered on a schedule, that is very likely all you need.</p>
+<p>Reach for a real orchestrator when you need backfills over historical partitions, resuming
+a run from the step that failed, or lineage across hundreds of datasets. <code>aio-fluid</code> models
+none of those, and pretending otherwise would waste your time.</p>
 <h2 id="where-aio-fluid-fits">Where aio-fluid fits<a class="headerlink" href="#where-aio-fluid-fits" title="Permanent link">&para;</a></h2>
 <p><code>aio-fluid</code> is an async-native queue like arq/taskiq, but it treats CPU-bound work as a
 first-class task type instead of assuming it away. Mark a task
