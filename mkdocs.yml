@@ -73,6 +73,7 @@ theme:
 hooks:
   - .dev/docs.py
 plugins:
+- blog
 - search
 - redirects:
     redirect_maps:
