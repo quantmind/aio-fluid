@@ -16,7 +16,10 @@ from typing import (
     NamedTuple,
     Self,
     Sequence,
+    TypeAliasType,
     cast,
+    get_args,
+    get_origin,
     overload,
 )
 
@@ -905,8 +908,9 @@ class TaskConstructor:
     def get_params_model(self, executor: TaskExecutor) -> type[BaseModel]:
         signature = inspect.signature(executor)
         for p in signature.parameters.values():
-            if is_subclass(p.annotation, TaskRun):
-                params_model = p.annotation.model_fields["params"]
+            annotation = resolve_type_alias(p.annotation)
+            if is_subclass(annotation, TaskRun):
+                params_model = annotation.model_fields["params"]
                 a = params_model.annotation
                 return a if is_subclass(a, BaseModel) else EmptyParams
         return EmptyParams
@@ -926,6 +930,22 @@ def is_subclass(cls: Any, parent: type) -> bool:
         return issubclass(cls, parent)
     except TypeError:
         return False
+
+
+def resolve_type_alias(annotation: Any) -> Any:
+    """Resolve a type alias to the type it stands for.
+
+    An application aliasing the task run to bind its dependencies, as in
+    ``type AppTaskRun[P] = TaskRun[P, AppDeps]``, annotates its tasks with the
+    alias. An alias is not a class, so it has to be resolved before the
+    annotation can be inspected, otherwise the parameters model is lost.
+    """
+    if isinstance(annotation, TypeAliasType):
+        return annotation.__value__
+    origin = get_origin(annotation)
+    if isinstance(origin, TypeAliasType):
+        return origin.__value__[get_args(annotation)]
+    return annotation
 
 
 run_cpu_bound = run_in_subprocess

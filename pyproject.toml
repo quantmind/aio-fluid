@@ -1,13 +1,13 @@
 [project]
 name = "aio-fluid"
-version = "2.5.0"
+version = "2.6.0"
 description = "Async task queue for Python that offloads CPU-bound work to subprocesses or Kubernetes Jobs"
 authors = [
     { name = "Luca Sbardella", email = "luca@quantmind.com" },
 ]
 license = "BSD-3-Clause"
 readme = "readme.md"
-requires-python = ">=3.11,<4.0"
+requires-python = ">=3.12,<4.0"
 keywords = [
     "async",
     "asyncio",
@@ -28,7 +28,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
