@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from examples import tasks as example_tasks
 from fluid.scheduler import TaskConsumer, TaskManager, TaskRun, task
 from fluid.scheduler.broker import RedisTaskBroker
+from fluid.scheduler.models import EmptyParams
 
 
 def test_no_workers() -> None:
@@ -82,3 +83,21 @@ async def test_untyped_deps_params() -> None:
         """Task annotating only the params type."""
 
     assert untyped_deps.params_model is example_tasks.Sleep
+
+
+type AppTaskRun[P: BaseModel] = TaskRun[P, example_tasks.Deps]
+
+
+async def test_aliased_task_run_params() -> None:
+    """An application aliasing the task run to bind its deps keeps its params."""
+
+    @task
+    async def aliased(ctx: AppTaskRun[example_tasks.Sleep]) -> None:
+        """Task annotated with the application alias."""
+
+    @task
+    async def aliased_no_params(ctx: AppTaskRun) -> None:
+        """Task annotated with the bare application alias."""
+
+    assert aliased.params_model is example_tasks.Sleep
+    assert aliased_no_params.params_model is EmptyParams

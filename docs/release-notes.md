@@ -6,6 +6,30 @@ below maps to a tagged release on
 pushed, the matching section is extracted by
 `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.6.0
+
+An application that aliases the task run to bind its dependencies keeps the
+parameters of its tasks. Python 3.11 is no longer supported: see **Breaking
+changes** below.
+
+### Breaking changes
+
+- Python 3.11 is no longer supported, the minimum version is now 3.12. The
+  alias resolution below relies on `typing.TypeAliasType`, which the standard
+  library only exposes from 3.12.
+
+### Improvements and fixes
+
+- A task annotated with a type alias of the task run keeps its parameters
+  model. An application binding its dependencies once, as in
+  `type AppTaskRun[P] = TaskRun[P, AppDeps]`, and annotating a task with
+  `AppTaskRun[Params]` used to silently get
+  [EmptyParams](https://fluid.quantmind.com/reference/task_run/): an alias is
+  not a class, so it did not survive the inspection of the annotation, and the
+  parameters passed when queueing the task were dropped. The alias is now
+  resolved to the type it stands for before the annotation is read, both bare
+  and subscripted.
+
 ## v2.5.0
 
 Task runs can queue other task runs and the chain is recorded on every run,
