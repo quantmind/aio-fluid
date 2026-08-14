@@ -1587,6 +1587,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v260" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.6.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.6.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breaking-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#improvements-and-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Improvements and fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v250" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1729,6 +1768,45 @@
       Table of contents
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v260" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.6.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.6.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breaking-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#improvements-and-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Improvements and fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v250" class="md-nav__link">
@@ -1874,6 +1952,28 @@ below maps to a tagged release on
 <a href="https://github.com/quantmind/aio-fluid/releases">GitHub</a>. When a new tag is
 pushed, the matching section is extracted by
 <code>.github/workflows/release.yml</code> and published as the GitHub Release body.</p>
+<h2 id="v260">v2.6.0<a class="headerlink" href="#v260" title="Permanent link">&para;</a></h2>
+<p>An application that aliases the task run to bind its dependencies keeps the
+parameters of its tasks. Python 3.11 is no longer supported: see <strong>Breaking
+changes</strong> below.</p>
+<h3 id="breaking-changes">Breaking changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Python 3.11 is no longer supported, the minimum version is now 3.12. The
+  alias resolution below relies on <code>typing.TypeAliasType</code>, which the standard
+  library only exposes from 3.12.</li>
+</ul>
+<h3 id="improvements-and-fixes">Improvements and fixes<a class="headerlink" href="#improvements-and-fixes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>A task annotated with a type alias of the task run keeps its parameters
+  model. An application binding its dependencies once, as in
+  <code>type AppTaskRun[P] = TaskRun[P, AppDeps]</code>, and annotating a task with
+  <code>AppTaskRun[Params]</code> used to silently get
+  <a href="https://fluid.quantmind.com/reference/task_run/">EmptyParams</a>: an alias is
+  not a class, so it did not survive the inspection of the annotation, and the
+  parameters passed when queueing the task were dropped. The alias is now
+  resolved to the type it stands for before the annotation is read, both bare
+  and subscripted.</li>
+</ul>
 <h2 id="v250">v2.5.0<a class="headerlink" href="#v250" title="Permanent link">&para;</a></h2>
 <p>Task runs can queue other task runs and the chain is recorded on every run,
 CPU bound tasks behave the same way in a subprocess as on the event loop, and
