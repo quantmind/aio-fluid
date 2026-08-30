@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from io import StringIO
 from pathlib import Path
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Sequence, cast
 
 import sqlalchemy as sa
 from alembic import command as alembic_cmd
@@ -105,8 +105,21 @@ class Migration:
         return False
 
     def create_all(self) -> None:
-        """Create all tables from :attr:`metadata` in database"""
+        """Create all tables from :attr:`metadata` in database.
+
+        A schema is created before the tables that live in it. SQLAlchemy's
+        ``MetaData.create_all`` only emits ``CREATE TABLE`` and does not create
+        the schema itself, so tables registered on a non-``public`` schema
+        would otherwise fail with ``InvalidSchemaName``.
+        """
+        schemas = {
+            table.schema
+            for table in self.metadata.sorted_tables
+            if table.schema is not None
+        }
         with self.sync_engine.begin() as conn:
+            for schema in sorted(schemas):
+                conn.execute(sa.schema.CreateSchema(schema, if_not_exists=True))
             self.metadata.create_all(conn)
 
     def truncate(self, table: str, *, cascade: bool = False) -> None:
@@ -120,11 +133,33 @@ class Migration:
         with self.sync_engine.begin() as conn:
             conn.execute(sa.text(f'truncate {", ".join(self.metadata.tables)}'))
 
-    def drop_all_schemas(self) -> None:
-        """Drop all schema in database"""
+    def schemas(self) -> list[str]:
+        """Return the non-system schemas in the database.
+
+        System schemas (``pg_*`` and ``information_schema``) are excluded.
+        """
+        with self.sync_engine.connect() as conn:
+            rows = conn.execute(
+                sa.text(
+                    "SELECT nspname FROM pg_namespace "
+                    "WHERE nspname NOT LIKE 'pg_%' "
+                    "AND nspname <> 'information_schema'"
+                )
+            )
+            return [row[0] for row in rows]
+
+    def drop_all_schemas(self, schemas: Sequence[str] | None = None) -> None:
+        """Drop the given schemas, or ``public`` when none are given.
+
+        When ``schemas`` is ``None`` only ``public`` is dropped, for backwards
+        compatibility. Pass an explicit sequence to drop additional schemas,
+        for example the application schemas created by multi-schema setups.
+        """
+        names: tuple[str, ...] = ("public",) if schemas is None else tuple(schemas)
         with self.sync_engine.begin() as conn:
-            conn.execute(sa.text("DROP SCHEMA IF EXISTS public CASCADE"))
-            conn.execute(sa.text("CREATE SCHEMA IF NOT EXISTS public"))
+            for name in names:
+                conn.execute(sa.schema.DropSchema(name, cascade=True, if_exists=True))
+            conn.execute(sa.schema.CreateSchema("public", if_not_exists=True))
 
     def create_ro_user(
         self,

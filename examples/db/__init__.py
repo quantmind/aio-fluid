@@ -4,6 +4,7 @@ from fluid.db import CrudDB
 
 from .tables1 import meta
 from .tables2 import additional_meta
+from .tables3 import fluid_meta
 
 MIGRATIONS_PATH = Path(__file__).parent / "migrations"
 
@@ -11,6 +12,7 @@ MIGRATIONS_PATH = Path(__file__).parent / "migrations"
 def setup_tables(db: CrudDB) -> CrudDB:
     meta(db.metadata)
     additional_meta(db.metadata)
+    fluid_meta(db.metadata)
     return db
 
 

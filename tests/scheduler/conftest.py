@@ -21,7 +21,7 @@ def db_plugin() -> TaskDbPlugin:
     plugin = TaskDbPlugin(db, route_prefix="/task-history")
     mig = db.migration()
     if not mig.db_create():
-        mig.drop_all_schemas()
+        mig.drop_all_schemas(["public", "fluid"])
     mig.create_all()
     return plugin
 
