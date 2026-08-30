@@ -2,6 +2,16 @@
 
 This page is the source of truth for aio-fluid release notes. Each section below maps to a tagged release on [GitHub](https://github.com/quantmind/aio-fluid/releases). When a new tag is pushed, the matching section is extracted by `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.7.0
+
+An application can now place its tables on a database schema other than `public`. The database layer creates the schema for `create_all`, lists non-system schemas, and `drop_all_schemas` drops an explicit set of schemas.
+
+### New features
+
+- The [Database](https://fluid.quantmind.com/reference/db/) metadata can hold tables on a schema other than `public` by passing `schema` to the table or a `MetaData(schema=...)` to [`CrudDB.from_env`](https://fluid.quantmind.com/reference/db_crud/). `Migration.create_all` creates the declared schemas before the tables, so the tables do not fail with `InvalidSchemaName`.
+- `Migration.schemas()` returns the non-system schemas in the database.
+- `Migration.drop_all_schemas(schemas=None)` accepts an explicit sequence of schemas to drop; when omitted it keeps dropping only `public`, as before.
+
 ## v2.6.0
 
 An application that aliases the task run to bind its dependencies keeps the parameters of its tasks. Python 3.11 is no longer supported: see **Breaking changes** below.
