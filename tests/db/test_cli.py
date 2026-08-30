@@ -10,12 +10,12 @@ from fluid.db import CrudDB
 
 @pytest.fixture
 def mig_id():
-    return "b2ee259b4966"
+    return "c0ffee000001"
 
 
 @pytest.fixture
 def mig_name():
-    return "initial"
+    return "fluid schema table"
 
 
 def test_cli():
@@ -152,3 +152,66 @@ def test_delete_rows(db: CrudDB):
     result = runner.invoke(cli, ["delete-rows", "tasks"])
     assert result.exit_code == 0
     assert "removing" in result.output
+
+
+def test_schemas_lists_non_system_schemas(db: CrudDB):
+    mig = db.migration()
+    with db.sync_engine.begin() as conn:
+        conn.execute(sa.schema.CreateSchema("app_schema", if_not_exists=True))
+    try:
+        schemas = mig.schemas()
+    finally:
+        with db.sync_engine.begin() as conn:
+            conn.execute(
+                sa.schema.DropSchema("app_schema", cascade=True, if_exists=True)
+            )
+    assert "app_schema" in schemas
+    assert "public" in schemas
+    assert not any(s.startswith("pg_") for s in schemas)
+    assert "information_schema" not in schemas
+
+
+def test_drop_all_schemas_defaults_to_public(db: CrudDB):
+    mig = db.migration()
+    with db.sync_engine.begin() as conn:
+        conn.execute(sa.schema.CreateSchema("app_schema", if_not_exists=True))
+    mig.drop_all_schemas()
+    schemas = mig.schemas()
+    assert "public" in schemas
+    assert "app_schema" in schemas
+
+
+def test_drop_all_schemas_explicit_list(db: CrudDB):
+    mig = db.migration()
+    with db.sync_engine.begin() as conn:
+        conn.execute(sa.schema.CreateSchema("app_schema", if_not_exists=True))
+    try:
+        mig.drop_all_schemas(["app_schema"])
+        schemas = mig.schemas()
+    finally:
+        with db.sync_engine.begin() as conn:
+            conn.execute(
+                sa.schema.DropSchema("app_schema", cascade=True, if_exists=True)
+            )
+    assert "app_schema" not in schemas
+    assert "public" in schemas
+
+
+def test_table_on_separate_schema(db: CrudDB):
+    """A table registered on its own schema is created and queryable there."""
+    table = db.tables["fluid.fluid_tasks"]
+    with db.sync_engine.begin() as conn:
+        conn.execute(sa.insert(table), [dict(name="first")])
+        rows = conn.execute(sa.select(table)).fetchall()
+    assert rows
+    assert rows[0].name == "first"
+    mig = db.migration()
+    assert "fluid" in mig.schemas()
+
+
+def test_drop_all_schemas_with_fluid(db: CrudDB):
+    """`drop_all_schemas` drops the extra schema when passed explicitly."""
+    db.tables["fluid.fluid_tasks"]
+    mig = db.migration()
+    mig.drop_all_schemas(["fluid", "public"])
+    assert "fluid" not in mig.schemas()

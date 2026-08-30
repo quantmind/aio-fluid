@@ -9,6 +9,6 @@ def db() -> CrudDB:
     db = get_db()
     mig = db.migration()
     if not mig.db_create():
-        mig.drop_all_schemas()
+        mig.drop_all_schemas(["public", "fluid"])
     mig.upgrade("heads")
     return db
