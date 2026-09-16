@@ -2098,9 +2098,13 @@ consumer deployment in exactly the same way, so a task runs the same locally and
 also means the entry point has to be a <a class="autorefs autorefs-internal" title="            fluid.scheduler.cli.TaskManagerCLI" href="../../reference/task_cli/#fluid.scheduler.cli.TaskManagerCLI">TaskManagerCLI</a>: a
 consumer started any other way raises
 <a class="autorefs autorefs-internal" title="            fluid.scheduler.errors.CpuBoundEntryPointError" href="../../reference/errors/#fluid.scheduler.errors.CpuBoundEntryPointError">CpuBoundEntryPointError</a> on startup.</p>
-<p>The subprocess is identified by the <code>TASK_MANAGER_SPAWN=true</code> environment variable. Inside it,
-<code>@task(cpu_bound=True)</code> behaves like a plain <code>@task</code>, so the executor function runs directly without
-any extra subprocess indirection.</p>
+<p>A CPU bound task keeps the function it was declared with, and the <code>exec</code> command calls it directly
+rather than spawning a further subprocess for it. That holds wherever <code>exec</code> runs: in the subprocess
+the consumer spawned, and equally when you run <code>exec</code> yourself to execute a CPU bound task once,
+without a consumer.</p>
+<p>The subprocess is identified by the <code>TASK_MANAGER_SPAWN=true</code> environment variable, which says only
+that the process was spawned to run a single task. The consumer uses it to refuse to start there, and
+the task database plugin to leave the run record to the consumer that spawned it.</p>
 <p>You can check whether your code is running inside a CPU subprocess:</p>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.scheduler.common</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_in_cpu_process</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>

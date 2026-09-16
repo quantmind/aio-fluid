@@ -495,19 +495,27 @@ def register_task(
 ### execute
 
 ```python
-execute(task, *, run_id='', priority=None, **params)
+execute(
+    task,
+    *,
+    run_id="",
+    priority=None,
+    in_process=False,
+    **params
+)
 ```
 
 Execute a task and wait for it to finish
 
 This method is an async method that should be used in an asynchronous context when one need to wait for the task to finish execution.
 
-| PARAMETER  | DESCRIPTION                                                                                                       |
-| ---------- | ----------------------------------------------------------------------------------------------------------------- |
-| `task`     | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                |
-| `run_id`   | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`            |
-| `priority` | Override the default task priority if provided **TYPE:** \`TaskPriority                                           |
-| `**params` | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}` |
+| PARAMETER    | DESCRIPTION                                                                                                                                  |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `task`       | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                                           |
+| `run_id`     | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`                                       |
+| `priority`   | Override the default task priority if provided **TYPE:** \`TaskPriority                                                                      |
+| `in_process` | Run a cpu bound task in this process rather than spawning one for it. Has no effect on any other task. **TYPE:** `bool` **DEFAULT:** `False` |
+| `**params`   | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}`                            |
 
 Source code in `fluid/scheduler/consumer.py`
 
@@ -529,6 +537,13 @@ async def execute(
     priority: Annotated[
         TaskPriority | None, Doc("Override the default task priority if provided")
     ] = None,
+    in_process: Annotated[
+        bool,
+        Doc(
+            "Run a cpu bound task in this process rather than spawning one"
+            " for it. Has no effect on any other task."
+        ),
+    ] = False,
     **params: Annotated[
         Any,
         Doc(
@@ -549,7 +564,7 @@ async def execute(
         **params,
     )
     try:
-        await task_run._execute()
+        await task_run._execute(in_process=in_process)
     except TaskAbortedError as exc:
         await self.broker.set_task_aborted(task_run.id, str(exc))
     return task_run
@@ -563,7 +578,7 @@ execute_sync(task, *, run_id='', priority=None, **params)
 
 Execute a task synchronously
 
-This method is a blocking method that should be used in a synchronous context.
+This method is a blocking method that should be used in a synchronous context. It runs the task to completion in this process, a cpu bound one included: it is what the `exec` command of the task manager client calls, and that command is the one a cpu bound task is executed by.
 
 | PARAMETER  | DESCRIPTION                                                                                                       |
 | ---------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -603,7 +618,9 @@ def execute_sync(
     """Execute a task synchronously
 
     This method is a blocking method that should be used in a synchronous
-    context.
+    context. It runs the task to completion in this process, a cpu bound
+    one included: it is what the `exec` command of the task manager client
+    calls, and that command is the one a cpu bound task is executed by.
     """
     return asyncio.run(
         self._execute_and_exit(

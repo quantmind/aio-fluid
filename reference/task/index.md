@@ -247,6 +247,16 @@ logger
 
 Task logger
 
+### cpu_executor
+
+```python
+cpu_executor = None
+```
+
+Function of a cpu bound task, run by the process executing it.
+
+A cpu bound task has the subprocess runner as its `executor` and the function it was declared with here, so the process which executes the task can call it directly instead of spawning another one for it.
+
 ### module
 
 ```python
@@ -358,6 +368,33 @@ cpu_bound
 ```
 
 True if the task is CPU bound
+
+### run_executor
+
+```python
+run_executor(*, in_process=False)
+```
+
+The function which runs the task.
+
+A cpu bound task is executed by the `exec` command of the task manager client, which runs it to completion in its own process. `in_process` is true there, and the function the task was declared with is called directly. Anywhere else `executor` is called, and for a cpu bound task that is the runner which spawns the `exec` command.
+
+Source code in `fluid/scheduler/models.py`
+
+```python
+def run_executor(self, *, in_process: bool = False) -> TaskExecutor:
+    """The function which runs the task.
+
+    A cpu bound task is executed by the `exec` command of the task manager
+    client, which runs it to completion in its own process. `in_process`
+    is true there, and the function the task was declared with is called
+    directly. Anywhere else `executor` is called, and for a cpu bound task
+    that is the runner which spawns the `exec` command.
+    """
+    if in_process and self.cpu_executor is not None:
+        return self.cpu_executor
+    return self.executor
+```
 
 ### get_k8s_config
 

@@ -446,7 +446,9 @@ When a CPU bound task is dispatched, the consumer spawns a **fresh Python subpro
 
 The command is derived from the one which started the consumer: the `serve` command is dropped, along with any option that belongs to it, and `exec <task-name>` is appended, with the run id and the task params passed as options. A [Kubernetes Job](https://fluid.quantmind.com/tutorials/task_k8s/index.md) derives its command from the consumer deployment in exactly the same way, so a task runs the same locally and in a cluster. It also means the entry point has to be a TaskManagerCLI: a consumer started any other way raises CpuBoundEntryPointError on startup.
 
-The subprocess is identified by the `TASK_MANAGER_SPAWN=true` environment variable. Inside it, `@task(cpu_bound=True)` behaves like a plain `@task`, so the executor function runs directly without any extra subprocess indirection.
+A CPU bound task keeps the function it was declared with, and the `exec` command calls it directly rather than spawning a further subprocess for it. That holds wherever `exec` runs: in the subprocess the consumer spawned, and equally when you run `exec` yourself to execute a CPU bound task once, without a consumer.
+
+The subprocess is identified by the `TASK_MANAGER_SPAWN=true` environment variable, which says only that the process was spawned to run a single task. The consumer uses it to refuse to start there, and the task database plugin to leave the run record to the consumer that spawned it.
 
 You can check whether your code is running inside a CPU subprocess:
 
@@ -6315,6 +6317,16 @@ logger
 
 Task logger
 
+### cpu_executor
+
+```python
+cpu_executor = None
+```
+
+Function of a cpu bound task, run by the process executing it.
+
+A cpu bound task has the subprocess runner as its `executor` and the function it was declared with here, so the process which executes the task can call it directly instead of spawning another one for it.
+
 ### module
 
 ```python
@@ -6426,6 +6438,33 @@ cpu_bound
 ```
 
 True if the task is CPU bound
+
+### run_executor
+
+```python
+run_executor(*, in_process=False)
+```
+
+The function which runs the task.
+
+A cpu bound task is executed by the `exec` command of the task manager client, which runs it to completion in its own process. `in_process` is true there, and the function the task was declared with is called directly. Anywhere else `executor` is called, and for a cpu bound task that is the runner which spawns the `exec` command.
+
+Source code in `fluid/scheduler/models.py`
+
+```python
+def run_executor(self, *, in_process: bool = False) -> TaskExecutor:
+    """The function which runs the task.
+
+    A cpu bound task is executed by the `exec` command of the task manager
+    client, which runs it to completion in its own process. `in_process`
+    is true there, and the function the task was declared with is called
+    directly. Anywhere else `executor` is called, and for a cpu bound task
+    that is the runner which spawns the `exec` command.
+    """
+    if in_process and self.cpu_executor is not None:
+        return self.cpu_executor
+    return self.executor
+```
 
 ### get_k8s_config
 
@@ -7868,19 +7907,27 @@ def register_task(
 ### execute
 
 ```python
-execute(task, *, run_id='', priority=None, **params)
+execute(
+    task,
+    *,
+    run_id="",
+    priority=None,
+    in_process=False,
+    **params
+)
 ```
 
 Execute a task and wait for it to finish
 
 This method is an async method that should be used in an asynchronous context when one need to wait for the task to finish execution.
 
-| PARAMETER  | DESCRIPTION                                                                                                       |
-| ---------- | ----------------------------------------------------------------------------------------------------------------- |
-| `task`     | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                |
-| `run_id`   | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`            |
-| `priority` | Override the default task priority if provided **TYPE:** \`TaskPriority                                           |
-| `**params` | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}` |
+| PARAMETER    | DESCRIPTION                                                                                                                                  |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `task`       | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                                           |
+| `run_id`     | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`                                       |
+| `priority`   | Override the default task priority if provided **TYPE:** \`TaskPriority                                                                      |
+| `in_process` | Run a cpu bound task in this process rather than spawning one for it. Has no effect on any other task. **TYPE:** `bool` **DEFAULT:** `False` |
+| `**params`   | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}`                            |
 
 Source code in `fluid/scheduler/consumer.py`
 
@@ -7902,6 +7949,13 @@ async def execute(
     priority: Annotated[
         TaskPriority | None, Doc("Override the default task priority if provided")
     ] = None,
+    in_process: Annotated[
+        bool,
+        Doc(
+            "Run a cpu bound task in this process rather than spawning one"
+            " for it. Has no effect on any other task."
+        ),
+    ] = False,
     **params: Annotated[
         Any,
         Doc(
@@ -7922,7 +7976,7 @@ async def execute(
         **params,
     )
     try:
-        await task_run._execute()
+        await task_run._execute(in_process=in_process)
     except TaskAbortedError as exc:
         await self.broker.set_task_aborted(task_run.id, str(exc))
     return task_run
@@ -7936,7 +7990,7 @@ execute_sync(task, *, run_id='', priority=None, **params)
 
 Execute a task synchronously
 
-This method is a blocking method that should be used in a synchronous context.
+This method is a blocking method that should be used in a synchronous context. It runs the task to completion in this process, a cpu bound one included: it is what the `exec` command of the task manager client calls, and that command is the one a cpu bound task is executed by.
 
 | PARAMETER  | DESCRIPTION                                                                                                       |
 | ---------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -7976,7 +8030,9 @@ def execute_sync(
     """Execute a task synchronously
 
     This method is a blocking method that should be used in a synchronous
-    context.
+    context. It runs the task to completion in this process, a cpu bound
+    one included: it is what the `exec` command of the task manager client
+    calls, and that command is the one a cpu bound task is executed by.
     """
     return asyncio.run(
         self._execute_and_exit(
@@ -8607,19 +8663,27 @@ def register_task(
 ### execute
 
 ```python
-execute(task, *, run_id='', priority=None, **params)
+execute(
+    task,
+    *,
+    run_id="",
+    priority=None,
+    in_process=False,
+    **params
+)
 ```
 
 Execute a task and wait for it to finish
 
 This method is an async method that should be used in an asynchronous context when one need to wait for the task to finish execution.
 
-| PARAMETER  | DESCRIPTION                                                                                                       |
-| ---------- | ----------------------------------------------------------------------------------------------------------------- |
-| `task`     | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                |
-| `run_id`   | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`            |
-| `priority` | Override the default task priority if provided **TYPE:** \`TaskPriority                                           |
-| `**params` | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}` |
+| PARAMETER    | DESCRIPTION                                                                                                                                  |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `task`       | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                                           |
+| `run_id`     | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`                                       |
+| `priority`   | Override the default task priority if provided **TYPE:** \`TaskPriority                                                                      |
+| `in_process` | Run a cpu bound task in this process rather than spawning one for it. Has no effect on any other task. **TYPE:** `bool` **DEFAULT:** `False` |
+| `**params`   | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}`                            |
 
 Source code in `fluid/scheduler/consumer.py`
 
@@ -8641,6 +8705,13 @@ async def execute(
     priority: Annotated[
         TaskPriority | None, Doc("Override the default task priority if provided")
     ] = None,
+    in_process: Annotated[
+        bool,
+        Doc(
+            "Run a cpu bound task in this process rather than spawning one"
+            " for it. Has no effect on any other task."
+        ),
+    ] = False,
     **params: Annotated[
         Any,
         Doc(
@@ -8661,7 +8732,7 @@ async def execute(
         **params,
     )
     try:
-        await task_run._execute()
+        await task_run._execute(in_process=in_process)
     except TaskAbortedError as exc:
         await self.broker.set_task_aborted(task_run.id, str(exc))
     return task_run
@@ -8675,7 +8746,7 @@ execute_sync(task, *, run_id='', priority=None, **params)
 
 Execute a task synchronously
 
-This method is a blocking method that should be used in a synchronous context.
+This method is a blocking method that should be used in a synchronous context. It runs the task to completion in this process, a cpu bound one included: it is what the `exec` command of the task manager client calls, and that command is the one a cpu bound task is executed by.
 
 | PARAMETER  | DESCRIPTION                                                                                                       |
 | ---------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -8715,7 +8786,9 @@ def execute_sync(
     """Execute a task synchronously
 
     This method is a blocking method that should be used in a synchronous
-    context.
+    context. It runs the task to completion in this process, a cpu bound
+    one included: it is what the `exec` command of the task manager client
+    calls, and that command is the one a cpu bound task is executed by.
     """
     return asyncio.run(
         self._execute_and_exit(
@@ -11068,19 +11141,27 @@ def register_task(
 ### execute
 
 ```python
-execute(task, *, run_id='', priority=None, **params)
+execute(
+    task,
+    *,
+    run_id="",
+    priority=None,
+    in_process=False,
+    **params
+)
 ```
 
 Execute a task and wait for it to finish
 
 This method is an async method that should be used in an asynchronous context when one need to wait for the task to finish execution.
 
-| PARAMETER  | DESCRIPTION                                                                                                       |
-| ---------- | ----------------------------------------------------------------------------------------------------------------- |
-| `task`     | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                |
-| `run_id`   | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`            |
-| `priority` | Override the default task priority if provided **TYPE:** \`TaskPriority                                           |
-| `**params` | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}` |
+| PARAMETER    | DESCRIPTION                                                                                                                                  |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `task`       | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                                           |
+| `run_id`     | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`                                       |
+| `priority`   | Override the default task priority if provided **TYPE:** \`TaskPriority                                                                      |
+| `in_process` | Run a cpu bound task in this process rather than spawning one for it. Has no effect on any other task. **TYPE:** `bool` **DEFAULT:** `False` |
+| `**params`   | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}`                            |
 
 Source code in `fluid/scheduler/consumer.py`
 
@@ -11102,6 +11183,13 @@ async def execute(
     priority: Annotated[
         TaskPriority | None, Doc("Override the default task priority if provided")
     ] = None,
+    in_process: Annotated[
+        bool,
+        Doc(
+            "Run a cpu bound task in this process rather than spawning one"
+            " for it. Has no effect on any other task."
+        ),
+    ] = False,
     **params: Annotated[
         Any,
         Doc(
@@ -11122,7 +11210,7 @@ async def execute(
         **params,
     )
     try:
-        await task_run._execute()
+        await task_run._execute(in_process=in_process)
     except TaskAbortedError as exc:
         await self.broker.set_task_aborted(task_run.id, str(exc))
     return task_run
@@ -11136,7 +11224,7 @@ execute_sync(task, *, run_id='', priority=None, **params)
 
 Execute a task synchronously
 
-This method is a blocking method that should be used in a synchronous context.
+This method is a blocking method that should be used in a synchronous context. It runs the task to completion in this process, a cpu bound one included: it is what the `exec` command of the task manager client calls, and that command is the one a cpu bound task is executed by.
 
 | PARAMETER  | DESCRIPTION                                                                                                       |
 | ---------- | ----------------------------------------------------------------------------------------------------------------- |
@@ -11176,7 +11264,9 @@ def execute_sync(
     """Execute a task synchronously
 
     This method is a blocking method that should be used in a synchronous
-    context.
+    context. It runs the task to completion in this process, a cpu bound
+    one included: it is what the `exec` command of the task manager client
+    calls, and that command is the one a cpu bound task is executed by.
     """
     return asyncio.run(
         self._execute_and_exit(

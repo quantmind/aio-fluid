@@ -81,7 +81,9 @@ When a CPU bound task is dispatched, the consumer spawns a **fresh Python subpro
 
 The command is derived from the one which started the consumer: the `serve` command is dropped, along with any option that belongs to it, and `exec <task-name>` is appended, with the run id and the task params passed as options. A [Kubernetes Job](https://fluid.quantmind.com/tutorials/task_k8s/index.md) derives its command from the consumer deployment in exactly the same way, so a task runs the same locally and in a cluster. It also means the entry point has to be a TaskManagerCLI: a consumer started any other way raises CpuBoundEntryPointError on startup.
 
-The subprocess is identified by the `TASK_MANAGER_SPAWN=true` environment variable. Inside it, `@task(cpu_bound=True)` behaves like a plain `@task`, so the executor function runs directly without any extra subprocess indirection.
+A CPU bound task keeps the function it was declared with, and the `exec` command calls it directly rather than spawning a further subprocess for it. That holds wherever `exec` runs: in the subprocess the consumer spawned, and equally when you run `exec` yourself to execute a CPU bound task once, without a consumer.
+
+The subprocess is identified by the `TASK_MANAGER_SPAWN=true` environment variable, which says only that the process was spawned to run a single task. The consumer uses it to refuse to start there, and the task database plugin to leave the run record to the consumer that spawned it.
 
 You can check whether your code is running inside a CPU subprocess:
 
