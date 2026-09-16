@@ -1587,6 +1587,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v280" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.8.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.8.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breaking-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v270" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1599,7 +1638,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#new-features" class="md-nav__link">
+  <a href="#new-features_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         New features
@@ -1627,7 +1666,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#breaking-changes" class="md-nav__link">
+  <a href="#breaking-changes_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Breaking changes
@@ -1798,6 +1837,45 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v280" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.8.0
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.8.0">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breaking-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breaking changes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#new-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v270" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1810,7 +1888,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#new-features" class="md-nav__link">
+  <a href="#new-features_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         New features
@@ -1838,7 +1916,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#breaking-changes" class="md-nav__link">
+  <a href="#breaking-changes_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Breaking changes
@@ -2008,11 +2086,40 @@ below maps to a tagged release on
 <a href="https://github.com/quantmind/aio-fluid/releases">GitHub</a>. When a new tag is
 pushed, the matching section is extracted by
 <code>.github/workflows/release.yml</code> and published as the GitHub Release body.</p>
+<h2 id="v280">v2.8.0<a class="headerlink" href="#v280" title="Permanent link">&para;</a></h2>
+<p>Upserts are atomic and can write many rows at once. <code>CrudDB.db_upsert</code> now
+runs a single <code>INSERT ... ON CONFLICT (...) DO UPDATE</code> statement, which
+requires its lookup columns to match a unique constraint: see <strong>Breaking
+changes</strong> below.</p>
+<h3 id="breaking-changes">Breaking changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://fluid.quantmind.com/reference/db_crud/#fluid.db.CrudDB.db_upsert">CrudDB.db_upsert</a>
+  requires the columns of <code>filters</code> to match exactly a primary key or unique
+  constraint of the table. Upserting on columns without one now fails with
+  <code>there is no unique or exclusion constraint matching the ON CONFLICT
+  specification</code>. Filter operators such as <code>score:gt</code> are no longer accepted
+  and raise <code>ValueError</code>.</li>
+<li>The <code>filters</code> and <code>data</code> passed to <code>db_upsert</code> must together form a valid
+  row to insert, even when the row already exists, since Postgres checks
+  <code>NOT NULL</code> constraints before it detects the conflict.</li>
+<li><code>db_upsert</code> without <code>data</code> updates the existing row to its own key values
+  instead of selecting it, so it takes a row lock and fires <code>UPDATE</code> triggers.</li>
+<li>Column <code>onupdate</code> defaults are not applied when <code>db_upsert</code> updates an
+  existing row.</li>
+</ul>
+<h3 id="new-features">New features<a class="headerlink" href="#new-features" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://fluid.quantmind.com/reference/db_crud/#fluid.db.CrudDB.db_upsert_many">CrudDB.db_upsert_many</a>
+  upserts a list of records on the given key columns, in batches of
+  <code>batch_size</code> records (1000 by default) within a single transaction. Every
+  record must have the same columns and no two records can share a key. See
+  the <a href="https://fluid.quantmind.com/tutorials/db/#upsert">upsert tutorial</a>.</li>
+</ul>
 <h2 id="v270">v2.7.0<a class="headerlink" href="#v270" title="Permanent link">&para;</a></h2>
 <p>An application can now place its tables on a database schema other than
 <code>public</code>. The database layer creates the schema for <code>create_all</code>, lists
 non-system schemas, and <code>drop_all_schemas</code> drops an explicit set of schemas.</p>
-<h3 id="new-features">New features<a class="headerlink" href="#new-features" title="Permanent link">&para;</a></h3>
+<h3 id="new-features_1">New features<a class="headerlink" href="#new-features_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>The <a href="https://fluid.quantmind.com/reference/db/">Database</a> metadata can hold
 tables on a schema other than <code>public</code> by passing <code>schema</code> to the table
@@ -2028,7 +2135,7 @@ schemas to drop; when omitted it keeps dropping only <code>public</code>, as bef
 <p>An application that aliases the task run to bind its dependencies keeps the
 parameters of its tasks. Python 3.11 is no longer supported: see <strong>Breaking
 changes</strong> below.</p>
-<h3 id="breaking-changes">Breaking changes<a class="headerlink" href="#breaking-changes" title="Permanent link">&para;</a></h3>
+<h3 id="breaking-changes_1">Breaking changes<a class="headerlink" href="#breaking-changes_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Python 3.11 is no longer supported, the minimum version is now 3.12. The
   alias resolution below relies on <code>typing.TypeAliasType</code>, which the standard

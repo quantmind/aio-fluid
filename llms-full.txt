@@ -14220,6 +14220,21 @@ It fetches last-30-days downloads from the [pypistats.org](https://pypistats.org
 
 This page is the source of truth for aio-fluid release notes. Each section below maps to a tagged release on [GitHub](https://github.com/quantmind/aio-fluid/releases). When a new tag is pushed, the matching section is extracted by `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.8.0
+
+Upserts are atomic and can write many rows at once. `CrudDB.db_upsert` now runs a single `INSERT ... ON CONFLICT (...) DO UPDATE` statement, which requires its lookup columns to match a unique constraint: see **Breaking changes** below.
+
+### Breaking changes
+
+- [CrudDB.db_upsert](https://fluid.quantmind.com/reference/db_crud/#fluid.db.CrudDB.db_upsert) requires the columns of `filters` to match exactly a primary key or unique constraint of the table. Upserting on columns without one now fails with `there is no unique or exclusion constraint matching the ON CONFLICT specification`. Filter operators such as `score:gt` are no longer accepted and raise `ValueError`.
+- The `filters` and `data` passed to `db_upsert` must together form a valid row to insert, even when the row already exists, since Postgres checks `NOT NULL` constraints before it detects the conflict.
+- `db_upsert` without `data` updates the existing row to its own key values instead of selecting it, so it takes a row lock and fires `UPDATE` triggers.
+- Column `onupdate` defaults are not applied when `db_upsert` updates an existing row.
+
+### New features
+
+- [CrudDB.db_upsert_many](https://fluid.quantmind.com/reference/db_crud/#fluid.db.CrudDB.db_upsert_many) upserts a list of records on the given key columns, in batches of `batch_size` records (1000 by default) within a single transaction. Every record must have the same columns and no two records can share a key. See the [upsert tutorial](https://fluid.quantmind.com/tutorials/db/#upsert).
+
 ## v2.7.0
 
 An application can now place its tables on a database schema other than `public`. The database layer creates the schema for `create_all`, lists non-system schemas, and `drop_all_schemas` drops an explicit set of schemas.
