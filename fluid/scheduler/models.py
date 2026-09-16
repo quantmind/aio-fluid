@@ -292,6 +292,13 @@ class Task(NamedTuple, Generic[TP]):
     params_model: Annotated[type[TP], Doc("Pydantic model for task parameters")]
     logger: logging.Logger
     """Task logger"""
+    cpu_executor: TaskExecutor | None = None
+    """Function of a cpu bound task, run by the process executing it.
+
+    A cpu bound task has the subprocess runner as its `executor` and the
+    function it was declared with here, so the process which executes the task
+    can call it directly instead of spawning another one for it.
+    """
     module: str = ""
     """Task python module"""
     short_description: str = ""
@@ -322,7 +329,20 @@ class Task(NamedTuple, Generic[TP]):
     @property
     def cpu_bound(self) -> bool:
         """True if the task is CPU bound"""
-        return self.executor is run_in_subprocess
+        return self.cpu_executor is not None
+
+    def run_executor(self, *, in_process: bool = False) -> TaskExecutor:
+        """The function which runs the task.
+
+        A cpu bound task is executed by the `exec` command of the task manager
+        client, which runs it to completion in its own process. `in_process`
+        is true there, and the function the task was declared with is called
+        directly. Anywhere else `executor` is called, and for a cpu bound task
+        that is the runner which spawns the `exec` command.
+        """
+        if in_process and self.cpu_executor is not None:
+            return self.cpu_executor
+        return self.executor
 
     def get_k8s_config(self) -> K8sConfig:
         """Get Kubernetes configuration for this task"""
@@ -558,11 +578,12 @@ class TaskRun(BaseModel, Generic[TP, TD], arbitrary_types_allowed=True):
         data["params"] = params_dump(self.params)
         return to_json(data)
 
-    async def _execute(self) -> None:
+    async def _execute(self, *, in_process: bool = False) -> None:
         try:
             self.set_state(TaskState.running)
             async with asyncio.timeout(self.task.timeout_seconds):
-                await self.task.executor(self)  # type: ignore [arg-type]
+                executor = self.task.run_executor(in_process=in_process)
+                await executor(self)  # type: ignore [arg-type]
         except TaskAbortedError:
             self.set_state(TaskState.aborted)
             raise
@@ -887,10 +908,14 @@ class TaskConstructor:
         return Task(**kwargs)
 
     def cpu_bound_task(self, executor: TaskExecutor) -> Task:
-        if is_in_cpu_process():
-            return self.create_task(executor)
-        else:
-            return self.create_task(run_cpu_bound, self.kwargs_defaults(executor))
+        """Build a cpu bound task, keeping the function it was declared with.
+
+        Which of the two runs is decided when the task run is executed rather
+        than here, so the same task object works in a consumer, which spawns a
+        process for it, and in that process, which runs it.
+        """
+        defaults = self.kwargs_defaults(executor) | dict(cpu_executor=executor)
+        return self.create_task(run_cpu_bound, defaults)
 
     def kwargs_defaults(self, executor: TaskExecutor) -> dict[str, Any]:
         module = inspect.getmodule(executor)

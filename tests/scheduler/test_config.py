@@ -5,6 +5,7 @@ from pydantic import BaseModel
 from examples import tasks as example_tasks
 from fluid.scheduler import TaskConsumer, TaskManager, TaskRun, task
 from fluid.scheduler.broker import RedisTaskBroker
+from fluid.scheduler.cpubound import run_in_subprocess
 from fluid.scheduler.models import EmptyParams
 
 
@@ -63,6 +64,31 @@ def test_register_from_module_with_tags() -> None:
 def test_cpu_bount_params() -> None:
     cpu_bound = example_tasks.cpu_bound
     assert cpu_bound.params_model is example_tasks.Sleep
+
+
+def test_cpu_bound_keeps_its_function() -> None:
+    """The declared function is kept so the process executing it can call it"""
+    cpu_bound = example_tasks.cpu_bound
+    assert cpu_bound.cpu_bound is True
+    assert cpu_bound.executor is run_in_subprocess
+    assert cpu_bound.cpu_executor is not None
+    assert cpu_bound.cpu_executor is not cpu_bound.executor
+
+
+def test_cpu_bound_run_executor() -> None:
+    """In process the task runs, anywhere else the subprocess runner does"""
+    cpu_bound = example_tasks.cpu_bound
+    assert cpu_bound.run_executor() is run_in_subprocess
+    assert cpu_bound.run_executor(in_process=True) is cpu_bound.cpu_executor
+
+
+def test_run_executor_of_a_normal_task() -> None:
+    """in_process changes nothing for a task which is not cpu bound"""
+    dummy = example_tasks.dummy
+    assert dummy.cpu_bound is False
+    assert dummy.cpu_executor is None
+    assert dummy.run_executor() is dummy.executor
+    assert dummy.run_executor(in_process=True) is dummy.executor
 
 
 async def test_typed_deps_params() -> None:

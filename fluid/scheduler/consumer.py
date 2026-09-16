@@ -191,6 +191,13 @@ class TaskManager:
         priority: Annotated[
             TaskPriority | None, Doc("Override the default task priority if provided")
         ] = None,
+        in_process: Annotated[
+            bool,
+            Doc(
+                "Run a cpu bound task in this process rather than spawning one"
+                " for it. Has no effect on any other task."
+            ),
+        ] = False,
         **params: Annotated[
             Any,
             Doc(
@@ -211,7 +218,7 @@ class TaskManager:
             **params,
         )
         try:
-            await task_run._execute()
+            await task_run._execute(in_process=in_process)
         except TaskAbortedError as exc:
             await self.broker.set_task_aborted(task_run.id, str(exc))
         return task_run
@@ -244,7 +251,9 @@ class TaskManager:
         """Execute a task synchronously
 
         This method is a blocking method that should be used in a synchronous
-        context.
+        context. It runs the task to completion in this process, a cpu bound
+        one included: it is what the `exec` command of the task manager client
+        calls, and that command is the one a cpu bound task is executed by.
         """
         return asyncio.run(
             self._execute_and_exit(
@@ -423,7 +432,7 @@ class TaskManager:
 
     async def _execute_and_exit(self, task: Task | str, **params: Any) -> TaskRun:
         async with self:
-            return await self.execute(task, **params)
+            return await self.execute(task, in_process=True, **params)
 
     async def _queue_task_run(self, task_run: TaskRun) -> TaskRun:
         self.dispatcher.dispatch(task_run)

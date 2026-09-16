@@ -6,6 +6,7 @@ from examples.cli import task_manager_cli
 from examples.tasks import Palette, PaletteParams
 from fluid import settings
 from fluid.scheduler.cli import TaskManagerCLI
+from fluid.scheduler.errors import TaskRunError
 
 
 @pytest.fixture(scope="module")
@@ -97,6 +98,23 @@ def test_cli_exec_params_json_overrides_model_defaults():
     # the JSON value and the task would succeed (exit_code=0).
     assert result.exit_code == 1
     assert isinstance(result.exception, RuntimeError)
+
+
+def test_cli_exec_cpu_bound_runs_in_process():
+    """`exec` runs a cpu bound task rather than spawning one for it.
+
+    It is the command a cpu bound task is executed by, so spawning would
+    recurse. The error the task raises reaches the caller as itself; a spawned
+    process would report the exit code as a TaskRunError instead.
+    """
+    runner = CliRunner()
+    result = runner.invoke(
+        task_manager_cli, ["exec", "cpu_bound", "--params", '{"error": true}']
+    )
+    assert result.exit_code == 1
+    assert isinstance(result.exception, RuntimeError)
+    assert not isinstance(result.exception, TaskRunError)
+    assert str(result.exception) == "deliberate cpu bound error"
 
 
 def test_cli_enable():
