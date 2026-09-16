@@ -257,6 +257,10 @@ async def test_invalid_params_failure(task_scheduler: TaskScheduler) -> None:
     assert ok.state == TaskState.success
 
 
+@pytest.mark.skipif(
+    "FLUID_FLAMEGRAPH_EXECUTABLE" not in os.environ,
+    reason="FLUID_FLAMEGRAPH_EXECUTABLE is not set",
+)
 async def test_sampler(sampler: Sampler) -> None:
     assert sampler.started
     stats = sampler.stats()

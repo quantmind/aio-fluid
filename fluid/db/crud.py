@@ -1,9 +1,10 @@
 from datetime import date, datetime
-from typing import Any, Set, TypeAlias, cast
+from typing import Any, Sequence, Set, TypeAlias, cast
 
 from dateutil.parser import parse as parse_date
 from sqlalchemy import Column, Table, func, insert, select
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.engine.cursor import CursorResult
 from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncConnection
@@ -98,7 +99,11 @@ class CrudDB(Database):
         self,
         table: Annotated[Table, Doc("The table to upsert into")],
         filters: Annotated[
-            dict, Doc("Key-value pairs used to look up the existing row")
+            dict,
+            Doc(
+                "Column values identifying the row; the columns must match a "
+                "primary key or unique constraint of the table"
+            ),
         ],
         data: Annotated[
             dict | None,
@@ -112,18 +117,69 @@ class CrudDB(Database):
             AsyncConnection | None, Doc("Optional existing connection to reuse")
         ] = None,
     ) -> Row:
-        """Update a single row if it exists, otherwise insert it, returning the row"""
-        if data:
-            result = await self.db_update(table, filters, data, conn=conn)
-        else:
-            result = await self.db_select(table, filters, conn=conn)
-        record = result.one_or_none()
-        if record is None:
-            insert_data = data.copy() if data else {}
-            insert_data.update(filters)
-            result = await self.db_insert(table, insert_data, conn=conn)
-            record = result.one()
-        return record
+        """Update a single row if it exists, otherwise insert it, returning the row
+
+        The operation is atomic: it issues a single
+        `INSERT ... ON CONFLICT (...) DO UPDATE` statement, so concurrent
+        upserts of the same row never violate the unique constraint.
+        """
+        sql_query = self.upsert_query(
+            table, [{**(data or {}), **filters}], tuple(filters)
+        )
+        async with self.ensure_transaction(conn) as conn:
+            result = await conn.execute(sql_query)
+            return result.one()
+
+    async def db_upsert_many(
+        self,
+        table: Annotated[Table, Doc("The table to upsert into")],
+        records: Annotated[
+            list[dict],
+            Doc(
+                "Rows to upsert; every row must have the same columns, "
+                "including the key columns, and no two rows can share a key"
+            ),
+        ],
+        key: Annotated[
+            Sequence[str],
+            Doc(
+                "Columns identifying a row; they must match a primary key or "
+                "unique constraint of the table"
+            ),
+        ],
+        *,
+        batch_size: Annotated[
+            int,
+            Doc(
+                "Maximum number of records sent in a single statement; Postgres "
+                "accepts at most 32767 bind parameters per statement and each "
+                "record uses one per column, so lower it for tables with more "
+                "than 32 columns"
+            ),
+        ] = 1000,
+        conn: Annotated[
+            AsyncConnection | None, Doc("Optional existing connection to reuse")
+        ] = None,
+    ) -> list[Row]:
+        """Update rows that exist and insert the others, returning all rows
+
+        Records are sent in batches of `batch_size`, each as a single
+        `INSERT ... ON CONFLICT (...) DO UPDATE` statement, all within one
+        transaction. The returned rows are not guaranteed to follow the order
+        of the records: match them by key.
+        """
+        if not records:
+            return []
+        check_upsert_records(table, records, key)
+        rows: list[Row] = []
+        async with self.ensure_transaction(conn) as conn:
+            for start in range(0, len(records), batch_size):
+                sql_query = self.upsert_query(
+                    table, records[start : start + batch_size], key
+                )
+                result = await conn.execute(sql_query)
+                rows.extend(result.all())
+        return rows
 
     async def db_delete(
         self,
@@ -199,6 +255,36 @@ class CrudDB(Database):
                 new_records.append(record)
             records = new_records
         return insert(table).values(records).returning(*table.columns)
+
+    def upsert_query(
+        self,
+        table: Annotated[Table, Doc("The table to upsert into")],
+        records: Annotated[
+            list[dict],
+            Doc("Rows to upsert; every row must have the same columns"),
+        ],
+        key: Annotated[
+            Sequence[str],
+            Doc(
+                "Columns identifying a row; they must match a primary key or "
+                "unique constraint of the table"
+            ),
+        ],
+    ) -> Insert:
+        """Build an atomic `INSERT ... ON CONFLICT (...) DO UPDATE` query
+
+        On conflict, every column of the records that is not part of the key is
+        updated with the new value.
+        """
+        check_upsert_records(table, records, key)
+        sql_query = pg_insert(table).values(records)
+        # with nothing to update, set the key columns to themselves so that
+        # RETURNING still yields the existing rows
+        update_columns = [name for name in records[0] if name not in key]
+        return sql_query.on_conflict_do_update(
+            index_elements=list(key),
+            set_={name: sql_query.excluded[name] for name in update_columns or key},
+        ).returning(*table.columns)
 
     def get_query(
         self,
@@ -348,3 +434,25 @@ def column_value_to_python(column: Column, value: Any) -> Any:
             return value
     except Exception as e:
         raise ValidationError("cursor", "invalid cursor") from e
+
+
+def check_upsert_records(table: Table, records: list[dict], key: Sequence[str]) -> None:
+    """Raise ValueError if the records cannot be upserted on the key"""
+    if not key:
+        raise ValueError("upsert requires at least one key column")
+    for name in key:
+        if name not in table.c:
+            raise ValueError(f"upsert key '{name}' is not a column of {table}")
+    if not records:
+        raise ValueError("upsert requires at least one record")
+    columns = set(records[0])
+    if missing := set(key).difference(columns):
+        raise ValueError(f"upsert records are missing key columns {missing}")
+    keys: set[tuple] = set()
+    for record in records:
+        if set(record) != columns:
+            raise ValueError("upsert records must all have the same columns")
+        record_key = tuple(record[name] for name in key)
+        if record_key in keys:
+            raise ValueError(f"upsert records repeat the key {record_key}")
+        keys.add(record_key)
