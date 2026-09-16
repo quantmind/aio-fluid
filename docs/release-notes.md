@@ -6,6 +6,23 @@ below maps to a tagged release on
 pushed, the matching section is extracted by
 `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.8.1
+
+A fix for CPU bound tasks run with the `exec` command of the task manager CLI.
+
+### Improvements and fixes
+
+- Running a CPU bound task with `exec` outside a consumer no longer spawns a
+  further subprocess: the command calls the function the task was declared
+  with directly, in its own process. A CPU bound task keeps that function
+  wherever it is loaded, so the same task object works both in the consumer
+  and in the subprocess it spawns
+  ([#117](https://github.com/quantmind/aio-fluid/pull/117)).
+- [TaskManager.execute](https://fluid.quantmind.com/reference/task_manager/#fluid.scheduler.TaskManager.execute)
+  accepts `in_process=True` to run a CPU bound task in the current process
+  instead of spawning one for it
+  ([#117](https://github.com/quantmind/aio-fluid/pull/117)).
+
 ## v2.8.0
 
 Upserts are atomic and can write many rows at once. `CrudDB.db_upsert` now
