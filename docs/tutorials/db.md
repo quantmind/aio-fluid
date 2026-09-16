@@ -182,6 +182,44 @@ row = await db.db_upsert(
 )
 ```
 
+The upsert is atomic: it runs a single `INSERT ... ON CONFLICT (...) DO UPDATE`
+statement, so concurrent upserts of the same record never clash. Two rules
+follow from that statement:
+
+- the lookup key columns must match a primary key or unique constraint of the
+  table (here `title` must be unique), and filter operators such as
+  `score:gt` are not supported;
+- the lookup key and data together must be a valid row to insert, since
+  Postgres checks `NOT NULL` constraints before it detects the conflict.
+
+To upsert several records at once, use
+[db_upsert_many][fluid.db.CrudDB.db_upsert_many] with full rows and the key
+columns:
+
+```python
+rows = await db.db_upsert_many(
+    articles,
+    [
+        {"title": "Hello", "score": 42},
+        {"title": "World", "score": 7},
+    ],
+    key=("title",),
+)
+```
+
+The same rules apply, plus a few more:
+
+- every record must have the same columns, so that an update never overwrites
+  a column with `NULL` because a record left it out;
+- no two records can share a key, since Postgres cannot update the same row
+  twice in one statement;
+- the returned rows do not follow the order of the records, so match them by
+  key.
+
+Large lists are sent in batches of `batch_size` records (1000 by default),
+all within one transaction, so either every record is upserted or
+none is.
+
 ### Delete
 
 ```python
