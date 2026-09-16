@@ -2328,12 +2328,51 @@
 </span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>    <span class="p">{</span><span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">},</span>        <span class="c1"># data to set</span>
 </span><span id="__span-17-6"><a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="p">)</span>
 </span></code></pre></div>
+<p>The upsert is atomic: it runs a single <code>INSERT ... ON CONFLICT (...) DO UPDATE</code>
+statement, so concurrent upserts of the same record never clash. Two rules
+follow from that statement:</p>
+<ul>
+<li>the lookup key columns must match a primary key or unique constraint of the
+  table (here <code>title</code> must be unique), and filter operators such as
+  <code>score:gt</code> are not supported;</li>
+<li>the lookup key and data together must be a valid row to insert, since
+  Postgres checks <code>NOT NULL</code> constraints before it detects the conflict.</li>
+</ul>
+<p>To upsert several records at once, use
+<a class="autorefs autorefs-internal" title="            db_upsert_many
+
+
+  
+      async
+  " href="../../reference/db_crud/#fluid.db.CrudDB.db_upsert_many">db_upsert_many</a> with full rows and the key
+columns:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">rows</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">db_upsert_many</span><span class="p">(</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="n">articles</span><span class="p">,</span>
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    <span class="p">[</span>
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>        <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">},</span>
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>        <span class="p">{</span><span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;World&quot;</span><span class="p">,</span> <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">},</span>
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="p">],</span>
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    <span class="n">key</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,),</span>
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a><span class="p">)</span>
+</span></code></pre></div>
+<p>The same rules apply, plus a few more:</p>
+<ul>
+<li>every record must have the same columns, so that an update never overwrites
+  a column with <code>NULL</code> because a record left it out;</li>
+<li>no two records can share a key, since Postgres cannot update the same row
+  twice in one statement;</li>
+<li>the returned rows do not follow the order of the records, so match them by
+  key.</li>
+</ul>
+<p>Large lists are sent in batches of <code>batch_size</code> records (1000 by default),
+all within one transaction, so either every record is upserted or
+none is.</p>
 <h3 id="delete">Delete<a class="headerlink" href="#delete" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="n">deleted</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">db_delete</span><span class="p">(</span><span class="n">articles</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;alice&quot;</span><span class="p">}))</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">deleted</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">db_delete</span><span class="p">(</span><span class="n">articles</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;alice&quot;</span><span class="p">}))</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
 </span></code></pre></div>
 <p>Returns all deleted rows via <code>RETURNING *</code>.</p>
 <h3 id="count">Count<a class="headerlink" href="#count" title="Permanent link">&para;</a></h3>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="n">n</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">db_count</span><span class="p">(</span><span class="n">articles</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;alice&quot;</span><span class="p">})</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">n</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">db_count</span><span class="p">(</span><span class="n">articles</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;alice&quot;</span><span class="p">})</span>
 </span></code></pre></div>
 <h2 id="pagination">Pagination<a class="headerlink" href="#pagination" title="Permanent link">&para;</a></h2>
 <p><a class="autorefs autorefs-internal" title="            fluid.db.Pagination" href="../../reference/db_pagination/#fluid.db.Pagination">Pagination</a> implements cursor-based pagination on top of <a class="autorefs autorefs-internal" title="            fluid.db.CrudDB
@@ -2343,25 +2382,25 @@
       dataclass
   " href="../../reference/db_crud/#fluid.db.CrudDB">CrudDB</a>.
 It fetches one extra row beyond the requested limit to determine whether a next page exists, then encodes a cursor that the client returns with the next request.</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pagination</span>
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>
-</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="c1"># first page</span>
-</span><span id="__span-20-4"><a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="n">rows</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Pagination</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-</span><span id="__span-20-5"><a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    <span class="s2">&quot;published_at&quot;</span><span class="p">,</span>
-</span><span id="__span-20-6"><a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="s2">&quot;id&quot;</span><span class="p">,</span>
-</span><span id="__span-20-7"><a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>    <span class="n">limit</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-</span><span id="__span-20-8"><a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>    <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;alice&quot;</span><span class="p">},</span>
-</span><span id="__span-20-9"><a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>    <span class="n">desc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-20-10"><a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">articles</span><span class="p">)</span>
-</span><span id="__span-20-11"><a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>
-</span><span id="__span-20-12"><a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a><span class="c1"># next page — filters and limit are embedded in the cursor</span>
-</span><span id="__span-20-13"><a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a><span class="k">if</span> <span class="n">cursor</span><span class="p">:</span>
-</span><span id="__span-20-14"><a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>    <span class="n">rows</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Pagination</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-</span><span id="__span-20-15"><a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>        <span class="s2">&quot;published_at&quot;</span><span class="p">,</span>
-</span><span id="__span-20-16"><a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a>        <span class="s2">&quot;id&quot;</span><span class="p">,</span>
-</span><span id="__span-20-17"><a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a>        <span class="n">cursor</span><span class="o">=</span><span class="n">cursor</span><span class="p">,</span>
-</span><span id="__span-20-18"><a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a>        <span class="n">desc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-20-19"><a id="__codelineno-20-19" name="__codelineno-20-19" href="#__codelineno-20-19"></a>    <span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">articles</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pagination</span>
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>
+</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a><span class="c1"># first page</span>
+</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="n">rows</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Pagination</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    <span class="s2">&quot;published_at&quot;</span><span class="p">,</span>
+</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>    <span class="s2">&quot;id&quot;</span><span class="p">,</span>
+</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>    <span class="n">limit</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>    <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;alice&quot;</span><span class="p">},</span>
+</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>    <span class="n">desc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">articles</span><span class="p">)</span>
+</span><span id="__span-21-11"><a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>
+</span><span id="__span-21-12"><a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a><span class="c1"># next page — filters and limit are embedded in the cursor</span>
+</span><span id="__span-21-13"><a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a><span class="k">if</span> <span class="n">cursor</span><span class="p">:</span>
+</span><span id="__span-21-14"><a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>    <span class="n">rows</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Pagination</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span><span id="__span-21-15"><a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a>        <span class="s2">&quot;published_at&quot;</span><span class="p">,</span>
+</span><span id="__span-21-16"><a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a>        <span class="s2">&quot;id&quot;</span><span class="p">,</span>
+</span><span id="__span-21-17"><a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a>        <span class="n">cursor</span><span class="o">=</span><span class="n">cursor</span><span class="p">,</span>
+</span><span id="__span-21-18"><a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a>        <span class="n">desc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-21-19"><a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a>    <span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">articles</span><span class="p">)</span>
 </span></code></pre></div>
 <p>When <code>cursor</code> is provided, the <code>filters</code> and <code>limit</code> arguments are ignored — they are decoded from the cursor itself, ensuring consistent pages even if the caller changes them between requests.</p>
 <h3 id="the-ordering-must-be-unique">The ordering must be unique<a class="headerlink" href="#the-ordering-must-be-unique" title="Permanent link">&para;</a></h3>
@@ -2369,16 +2408,16 @@ It fetches one extra row beyond the requested limit to determine whether a next 
 <p><code>published_at</code> alone is not unique — two articles can be published at the same instant — which is why the examples above order by <code>("published_at", "id")</code>. Appending the primary key makes the ordering total and the cursor unambiguous. The same rule applies to the ordering used with full-text search below.</p>
 <h3 id="full-text-search">Full-text search<a class="headerlink" href="#full-text-search" title="Permanent link">&para;</a></h3>
 <p>Combine pagination with a full-text search across multiple columns:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pagination</span>
-</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db.pagination</span><span class="w"> </span><span class="kn">import</span> <span class="n">Search</span>
-</span><span id="__span-21-3"><a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
-</span><span id="__span-21-4"><a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a><span class="n">rows</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Pagination</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
-</span><span id="__span-21-5"><a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    <span class="s2">&quot;published_at&quot;</span><span class="p">,</span>
-</span><span id="__span-21-6"><a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>    <span class="s2">&quot;id&quot;</span><span class="p">,</span>
-</span><span id="__span-21-7"><a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>    <span class="n">limit</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
-</span><span id="__span-21-8"><a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>    <span class="n">search</span><span class="o">=</span><span class="n">Search</span><span class="p">(</span><span class="n">search_fields</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="p">),</span> <span class="n">search_text</span><span class="o">=</span><span class="s2">&quot;fluid&quot;</span><span class="p">),</span>
-</span><span id="__span-21-9"><a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>    <span class="n">desc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-21-10"><a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">articles</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pagination</span>
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.db.pagination</span><span class="w"> </span><span class="kn">import</span> <span class="n">Search</span>
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>
+</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="n">rows</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Pagination</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+</span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a>    <span class="s2">&quot;published_at&quot;</span><span class="p">,</span>
+</span><span id="__span-22-6"><a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>    <span class="s2">&quot;id&quot;</span><span class="p">,</span>
+</span><span id="__span-22-7"><a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a>    <span class="n">limit</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+</span><span id="__span-22-8"><a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>    <span class="n">search</span><span class="o">=</span><span class="n">Search</span><span class="p">(</span><span class="n">search_fields</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="s2">&quot;author&quot;</span><span class="p">),</span> <span class="n">search_text</span><span class="o">=</span><span class="s2">&quot;fluid&quot;</span><span class="p">),</span>
+</span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>    <span class="n">desc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">articles</span><span class="p">)</span>
 </span></code></pre></div>
 
 
