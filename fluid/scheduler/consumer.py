@@ -24,6 +24,7 @@ from .common import is_in_cpu_process
 from .errors import (
     CpuBoundEntryPointError,
     TaskAbortedError,
+    TaskError,
     TaskParamsError,
     TaskRunError,
     UnknownTaskError,
@@ -585,6 +586,11 @@ class TaskConsumer(TaskManager, Workers):
         return self._async_dispatcher_worker.dispatcher.unregister_handler(event)
 
     async def _ping_status(self) -> None:
+        # the async dispatcher is not one of the consumer workers, it is stopped
+        # after them so events of interrupted runs are still dispatched.
+        # Check it here so the consumer stops if it dies unexpectedly
+        if not self._async_dispatcher_worker.is_running():
+            raise TaskError("async dispatcher stopped running")
         await self.broker.set_manager_status(
             self.manager_id,
             {"kind": self.type, "status": await self.status()},
