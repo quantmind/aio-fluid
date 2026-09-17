@@ -1587,6 +1587,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v282" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.8.2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.8.2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#improvements-and-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Improvements and fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v281" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1599,7 +1627,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#improvements-and-fixes" class="md-nav__link">
+  <a href="#improvements-and-fixes_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Improvements and fixes
@@ -1705,7 +1733,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#improvements-and-fixes_1" class="md-nav__link">
+  <a href="#improvements-and-fixes_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Improvements and fixes
@@ -1865,6 +1893,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v282" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.8.2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.8.2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#improvements-and-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Improvements and fixes
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v281" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1877,7 +1933,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#improvements-and-fixes" class="md-nav__link">
+  <a href="#improvements-and-fixes_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         Improvements and fixes
@@ -1983,7 +2039,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#improvements-and-fixes_1" class="md-nav__link">
+  <a href="#improvements-and-fixes_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         Improvements and fixes
@@ -2142,9 +2198,25 @@ below maps to a tagged release on
 <a href="https://github.com/quantmind/aio-fluid/releases">GitHub</a>. When a new tag is
 pushed, the matching section is extracted by
 <code>.github/workflows/release.yml</code> and published as the GitHub Release body.</p>
+<h2 id="v282">v2.8.2<a class="headerlink" href="#v282" title="Permanent link">&para;</a></h2>
+<p>A fix for async task event handlers, the task database plugin included,
+silently stopping in a running consumer.</p>
+<h3 id="improvements-and-fixes">Improvements and fixes<a class="headerlink" href="#improvements-and-fixes" title="Permanent link">&para;</a></h3>
+<ul>
+<li>The <a href="https://fluid.quantmind.com/reference/task_plugin/#fluid.scheduler.db.TaskDbPlugin">task database plugin</a>
+  no longer holds a Redis lock around its writes. The lock expired when a write
+  took longer than five seconds, and releasing it raised <code>LockNotOwnedError</code>.
+  Since <code>CrudDB.db_upsert</code> is atomic (v2.8.0) the lock is not needed
+  (<a href="https://github.com/quantmind/aio-fluid/pull/118">#118</a>).</li>
+<li>A task consumer stops when its async dispatcher stops running. An exception
+  raised by an async handler ended the dispatcher while the consumer kept
+  executing tasks, so every later event was silently dropped. The consumer now
+  shuts down instead, and the application restarts
+  (<a href="https://github.com/quantmind/aio-fluid/pull/118">#118</a>).</li>
+</ul>
 <h2 id="v281">v2.8.1<a class="headerlink" href="#v281" title="Permanent link">&para;</a></h2>
 <p>A fix for CPU bound tasks run with the <code>exec</code> command of the task manager CLI.</p>
-<h3 id="improvements-and-fixes">Improvements and fixes<a class="headerlink" href="#improvements-and-fixes" title="Permanent link">&para;</a></h3>
+<h3 id="improvements-and-fixes_1">Improvements and fixes<a class="headerlink" href="#improvements-and-fixes_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li>Running a CPU bound task with <code>exec</code> outside a consumer no longer spawns a
   further subprocess: the command calls the function the task was declared
@@ -2212,7 +2284,7 @@ changes</strong> below.</p>
   alias resolution below relies on <code>typing.TypeAliasType</code>, which the standard
   library only exposes from 3.12.</li>
 </ul>
-<h3 id="improvements-and-fixes_1">Improvements and fixes<a class="headerlink" href="#improvements-and-fixes_1" title="Permanent link">&para;</a></h3>
+<h3 id="improvements-and-fixes_2">Improvements and fixes<a class="headerlink" href="#improvements-and-fixes_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li>A task annotated with a type alias of the task run keeps its parameters
   model. An application binding its dependencies once, as in

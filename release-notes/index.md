@@ -2,6 +2,15 @@
 
 This page is the source of truth for aio-fluid release notes. Each section below maps to a tagged release on [GitHub](https://github.com/quantmind/aio-fluid/releases). When a new tag is pushed, the matching section is extracted by `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.8.2
+
+A fix for async task event handlers, the task database plugin included, silently stopping in a running consumer.
+
+### Improvements and fixes
+
+- The [task database plugin](https://fluid.quantmind.com/reference/task_plugin/#fluid.scheduler.db.TaskDbPlugin) no longer holds a Redis lock around its writes. The lock expired when a write took longer than five seconds, and releasing it raised `LockNotOwnedError`. Since `CrudDB.db_upsert` is atomic (v2.8.0) the lock is not needed ([#118](https://github.com/quantmind/aio-fluid/pull/118)).
+- A task consumer stops when its async dispatcher stops running. An exception raised by an async handler ended the dispatcher while the consumer kept executing tasks, so every later event was silently dropped. The consumer now shuts down instead, and the application restarts ([#118](https://github.com/quantmind/aio-fluid/pull/118)).
+
 ## v2.8.1
 
 A fix for CPU bound tasks run with the `exec` command of the task manager CLI.
