@@ -192,6 +192,11 @@ class TaskInfoBase(BaseModel):
     description: str = Field(description="Task description")
     module: str = Field(description="Task module")
     priority: TaskPriority = Field(description="Task priority")
+    cpu_bound: bool = Field(default=False, description="Whether the task is CPU bound")
+    max_concurrency: int = Field(
+        default=0,
+        description="How many task runs can execute concurrently, 0 means no limit",
+    )
     schedule: str | None = Field(default=None, description="Task schedule")
     tags: frozenset[str] = Field(default_factory=frozenset, description="Task tags")
 
@@ -355,6 +360,8 @@ class Task(NamedTuple, Generic[TP]):
             description=self.description,
             module=self.module,
             priority=self.priority,
+            cpu_bound=self.cpu_bound,
+            max_concurrency=self.max_concurrency,
             schedule=str(self.schedule) if self.schedule else None,
             tags=self.tags,
         )

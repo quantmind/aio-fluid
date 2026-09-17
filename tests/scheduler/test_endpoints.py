@@ -17,6 +17,21 @@ async def test_get_tasks(cli: TaskClient) -> None:
     assert set(dummy.tags) == {"test", "slow"}
 
 
+async def test_get_tasks_serializes_execution_fields(cli: TaskClient) -> None:
+    """cpu_bound and max_concurrency must reach the wire.
+
+    cpu_bound is a property of the task, not a field, so it is only in the
+    payload because `Task.info` passes it. Assert on the raw payload: building
+    a TaskInfo first would fill a missing key with its default and hide that.
+    """
+    data = await cli.get(f"{cli.url}/tasks")
+    tasks = {task["name"]: task for task in data}
+    assert tasks["dummy"]["cpu_bound"] is False
+    assert tasks["dummy"]["max_concurrency"] == 1
+    assert tasks["cpu_bound"]["cpu_bound"] is True
+    assert tasks["cpu_bound"]["max_concurrency"] == 0
+
+
 async def test_get_tasks_by_tags(cli: TaskClient) -> None:
     data = await cli.get(f"{cli.url}/tasks?tags=test")
     names = {task["name"] for task in data}
