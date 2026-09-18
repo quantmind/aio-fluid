@@ -33,6 +33,8 @@ You can also load the DSN from an environment variable (defaults to `DATABASE`):
 db = CrudDB.from_env()
 ```
 
+Connections are pooled. The pool size is set by the `FLUID_DBPOOL_MAX_SIZE` and `FLUID_DBPOOL_MAX_OVERFLOW` environment variables, and each pooled connection is tested when it is taken from the pool (`FLUID_DBPOOL_PRE_PING`, on by default), so connections the server has dropped, for instance on a database restart, are replaced rather than failing the next query. See [settings](../reference/settings.md) for how settings are read from the environment.
+
 ## Register a Table
 
 Register tables against the database's `metadata` so that migrations and CRUD helpers can discover them:
@@ -139,6 +141,21 @@ Pass `order_by` to sort results. Prefix a field name with `-` for descending ord
 
 ```python
 rows = (await db.db_select(articles, {}, order_by=("-published_at",))).fetchall()
+```
+
+Pass `columns` to select only some columns, rather than every column of the table.
+This avoids reading large columns you do not need, and accepts computed expressions too:
+
+```python
+from sqlalchemy import func
+
+rows = (
+    await db.db_select(
+        articles,
+        {"author": "alice"},
+        columns=[articles.c.id, func.lower(articles.c.title).label("title")],
+    )
+).fetchall()
 ```
 
 #### Filter operators
@@ -284,4 +301,23 @@ rows, cursor = await Pagination.create(
     search=Search(search_fields=("title", "author"), search_text="fluid"),
     desc=True,
 ).execute(db, articles)
+```
+
+### Selecting columns
+
+By default every column of the table is selected. Pass `columns` to
+[execute][fluid.db.Pagination.execute] to select only some of them, for instance to
+leave out large columns a listing does not show. The cursor is built from the
+ordering fields of the last row, so the columns must include them:
+
+```python
+rows, cursor = await Pagination.create(
+    "published_at",
+    "id",
+    limit=20,
+).execute(
+    db,
+    articles,
+    columns=[articles.c.id, articles.c.published_at, articles.c.title],
+)
 ```
