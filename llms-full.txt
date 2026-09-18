@@ -14312,6 +14312,14 @@ It fetches last-30-days downloads from the [pypistats.org](https://pypistats.org
 
 This page is the source of truth for aio-fluid release notes. Each section below maps to a tagged release on [GitHub](https://github.com/quantmind/aio-fluid/releases). When a new tag is pushed, the matching section is extracted by `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.8.3
+
+A small addition to the task information served by the task manager API.
+
+### Improvements and fixes
+
+- Task information returned by the `/tasks` endpoint now includes `cpu_bound` and `max_concurrency`, so clients can see how each task executes without inspecting its code ([#119](https://github.com/quantmind/aio-fluid/pull/119)).
+
 ## v2.8.2
 
 A fix for async task event handlers, the task database plugin included, silently stopping in a running consumer.
