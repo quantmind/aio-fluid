@@ -430,6 +430,8 @@ def info(self, **params: Any) -> TaskInfo:
         description=self.description,
         module=self.module,
         priority=self.priority,
+        cpu_bound=self.cpu_bound,
+        max_concurrency=self.max_concurrency,
         schedule=str(self.schedule) if self.schedule else None,
         tags=self.tags,
     )
