@@ -2,6 +2,18 @@
 
 This page is the source of truth for aio-fluid release notes. Each section below maps to a tagged release on [GitHub](https://github.com/quantmind/aio-fluid/releases). When a new tag is pushed, the matching section is extracted by `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.9.0
+
+Database queries can select only the columns they need, and pooled connections survive a database restart.
+
+### New features
+
+- `CrudDB.db_select` and `Pagination.execute` accept a `columns` argument to select only some columns rather than every column of the table. Large columns a query does not use are no longer read, and computed expressions can be selected alongside table columns ([database tutorial](https://fluid.quantmind.com/tutorials/db/#select), [#120](https://github.com/quantmind/aio-fluid/pull/120)).
+
+### Improvements and fixes
+
+- Pooled database connections are tested when taken from the pool, so the connections a server dropped, for instance on a database restart or failover, are replaced rather than failing the next query. It is on by default and set by the new `FLUID_DBPOOL_PRE_PING` setting ([settings](https://fluid.quantmind.com/reference/settings/), [#120](https://github.com/quantmind/aio-fluid/pull/120)).
+
 ## v2.8.3
 
 A small addition to the task information served by the task manager API.
