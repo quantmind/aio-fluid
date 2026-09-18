@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any, NamedTuple, Self, Sequence, cast
 
 from sqlalchemy.ext.asyncio import AsyncConnection
-from sqlalchemy.sql import FromClause, tuple_
+from sqlalchemy.sql import FromClause, select, tuple_
 from sqlalchemy.sql.expression import ColumnElement
 from typing_extensions import Annotated, Doc
 
@@ -114,11 +114,19 @@ class Pagination(NamedTuple):
             AsyncConnection | None,
             Doc("Optional existing connection to reuse"),
         ] = None,
+        columns: Annotated[
+            Sequence[ColumnElement],
+            Doc(
+                "Columns to select, every column of the table when empty; "
+                "they must include the order_by_fields, which the cursor is "
+                "built from"
+            ),
+        ] = (),
     ) -> tuple[Sequence[Row], str]:
         """Execute the paginated query and return the results
         along with the next cursor.
         """
-        sql_query = self.query(db, table)
+        sql_query = self.query(db, table, columns)
         async with db.ensure_connection(conn) as conn:
             result = await conn.execute(sql_query)
         data = result.all()
@@ -128,10 +136,16 @@ class Pagination(NamedTuple):
             data = data[:-1]
         return data, cursor
 
-    def query(self, db: CrudDB, table: FromClause) -> Select:
+    def query(
+        self,
+        db: CrudDB,
+        table: FromClause,
+        columns: Sequence[ColumnElement] = (),
+    ) -> Select:
+        select_query = select(*columns) if columns else table.select()
         sql_query = cast(
             Select,
-            db.get_query(table, table.select(), params=self.filters),
+            db.get_query(table, select_query, params=self.filters),
         )
         if self.search:
             sql_query = db.search_query(

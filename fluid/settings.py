@@ -59,6 +59,7 @@ class Settings(BaseSettings):
     database_schema: str | None = None
     dbpool_max_size: int = 10
     dbpool_max_overflow: int = 10
+    dbpool_pre_ping: bool = True
     dbecho: bool = False
 
     # HTTP

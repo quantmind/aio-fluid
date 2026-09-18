@@ -3,7 +3,7 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import AsyncIterator, Self
+from typing import AsyncGenerator, Self
 
 import sqlalchemy as sa
 from sqlalchemy.engine import Engine, create_engine
@@ -39,6 +39,12 @@ class Database:
     """
     pool_size: int = field(default_factory=lambda: settings.DBPOOL_MAX_SIZE)
     max_overflow: int = field(default_factory=lambda: settings.DBPOOL_MAX_OVERFLOW)
+    pool_pre_ping: bool = field(default_factory=lambda: settings.DBPOOL_PRE_PING)
+    """Test pooled connections on checkout and replace the ones the server has
+    dropped, e.g. on a database restart, rather than failing the next query
+
+    It defaults to the `DBPOOL_PRE_PING` setting in the settings module
+    """
     metadata: sa.MetaData = field(default_factory=sa.MetaData)
     migration_path: str | Path = ""
     """Path to the directory containing migration files. If empty, migrations will
@@ -93,6 +99,7 @@ class Database:
                 echo=self.echo,
                 pool_size=self.pool_size,
                 max_overflow=self.max_overflow,
+                pool_pre_ping=self.pool_pre_ping,
                 connect_args=dict(server_settings=dict(application_name=self.app_name)),
             )
         return self._engine
@@ -113,7 +120,7 @@ class Database:
         return create_engine(url)
 
     @asynccontextmanager
-    async def connection(self) -> AsyncIterator[AsyncConnection]:
+    async def connection(self) -> AsyncGenerator[AsyncConnection]:
         """Context manager for obtaining an asynchronous connection"""
         async with self.engine.connect() as conn:
             yield conn
@@ -122,7 +129,7 @@ class Database:
     async def ensure_connection(
         self,
         conn: AsyncConnection | None = None,
-    ) -> AsyncIterator[AsyncConnection]:
+    ) -> AsyncGenerator[AsyncConnection]:
         """Context manager for obtaining an asynchronous connection"""
         if conn:
             yield conn
@@ -131,7 +138,7 @@ class Database:
                 yield conn
 
     @asynccontextmanager
-    async def transaction(self) -> AsyncIterator[AsyncConnection]:
+    async def transaction(self) -> AsyncGenerator[AsyncConnection]:
         """Context manager for initializing an asynchronous database transaction"""
         async with self.engine.begin() as conn:
             yield conn
@@ -140,7 +147,7 @@ class Database:
     async def ensure_transaction(
         self,
         conn: AsyncConnection | None = None,
-    ) -> AsyncIterator[AsyncConnection]:
+    ) -> AsyncGenerator[AsyncConnection]:
         """Context manager for ensuring we a connection has initialized
         a database transaction"""
         if conn:
