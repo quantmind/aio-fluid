@@ -8,7 +8,7 @@ from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.engine.cursor import CursorResult
 from sqlalchemy.engine.row import Row
 from sqlalchemy.ext.asyncio import AsyncConnection
-from sqlalchemy.sql import FromClause, Select, and_, or_
+from sqlalchemy.sql import ColumnElement, FromClause, Select, and_, or_
 from sqlalchemy.sql.dml import Delete, Insert, Update
 from typing_extensions import Annotated, Doc
 
@@ -40,9 +40,14 @@ class CrudDB(Database):
         conn: Annotated[
             AsyncConnection | None, Doc("Optional existing connection to reuse")
         ] = None,
+        columns: Annotated[
+            Sequence[ColumnElement],
+            Doc("Columns to select, every column of the table when empty"),
+        ] = (),
     ) -> CursorResult:
         """Select rows from a given table"""
-        sql_query = self.get_query(table, Select(table), params=filters)
+        select_query: Select[Any] = Select(*columns) if columns else Select(table)
+        sql_query = self.get_query(table, select_query, params=filters)
         if order_by:
             sql_query = self.order_by_query(table, cast(Select, sql_query), order_by)
         async with self.ensure_transaction(conn) as conn:

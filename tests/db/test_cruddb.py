@@ -3,7 +3,7 @@ from datetime import datetime
 from typing import cast
 
 import pytest
-from sqlalchemy import text
+from sqlalchemy import func, text
 
 from fluid.db import CrudDB
 from fluid.utils.waiter import wait_for
@@ -165,6 +165,19 @@ async def test_insert_missing_columns(db: CrudDB) -> None:
     assert severities["Task2"] is None
 
 
+async def test_select_columns(db: CrudDB) -> None:
+    table = db.tables["tasks"]
+    await db.db_insert(table, dict(title="SelectMe"))
+    result = await db.db_select(
+        table,
+        dict(title="SelectMe"),
+        columns=[table.c.title, func.lower(table.c.title).label("lower_title")],
+    )
+    row = result.one()
+    assert row._fields == ("title", "lower_title")
+    assert row.lower_title == "selectme"
+
+
 async def test_search_query(db: CrudDB) -> None:
     table = db.tables["tasks"]
     await db.db_insert(table, dict(title="SearchMe", random="foo"))
@@ -185,6 +198,24 @@ async def test_search_query(db: CrudDB) -> None:
     async with db.ensure_connection() as conn:
         all_rows2 = (await conn.execute(sql_noop2)).fetchall()
     assert len(all_rows2) >= 2
+
+
+async def test_pool_pre_ping(db: CrudDB) -> None:
+    # fill the pool, then drop every other pooled connection server side, as
+    # a restart would
+    async with db.connection(), db.connection(), db.connection():
+        pass
+    async with db.connection() as conn:
+        await conn.execute(
+            text(
+                "SELECT pg_terminate_backend(pid) FROM pg_stat_activity"
+                " WHERE application_name = :app AND pid <> pg_backend_pid()"
+            ),
+            dict(app=db.app_name),
+        )
+    for _ in range(db.pool_size):
+        async with db.connection() as conn:
+            assert (await conn.execute(text("SELECT 1"))).scalar() == 1
 
 
 async def test_delete(db: CrudDB) -> None:
