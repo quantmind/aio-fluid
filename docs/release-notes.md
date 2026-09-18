@@ -6,6 +6,17 @@ below maps to a tagged release on
 pushed, the matching section is extracted by
 `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.8.3
+
+A small addition to the task information served by the task manager API.
+
+### Improvements and fixes
+
+- Task information returned by the `/tasks` endpoint now includes `cpu_bound`
+  and `max_concurrency`, so clients can see how each task executes without
+  inspecting its code
+  ([#119](https://github.com/quantmind/aio-fluid/pull/119)).
+
 ## v2.8.2
 
 A fix for async task event handlers, the task database plugin included,
