@@ -20,6 +20,7 @@ Database(
     echo=(lambda: DBECHO)(),
     pool_size=(lambda: DBPOOL_MAX_SIZE)(),
     max_overflow=(lambda: DBPOOL_MAX_OVERFLOW)(),
+    pool_pre_ping=(lambda: DBPOOL_PRE_PING)(),
     metadata=MetaData(),
     migration_path="",
     app_name=(lambda: APP_NAME)(),
@@ -68,6 +69,18 @@ max_overflow = field(
     default_factory=lambda: settings.DBPOOL_MAX_OVERFLOW
 )
 ```
+
+### pool_pre_ping
+
+```python
+pool_pre_ping = field(
+    default_factory=lambda: settings.DBPOOL_PRE_PING
+)
+```
+
+Test pooled connections on checkout and replace the ones the server has dropped, e.g. on a database restart, rather than failing the next query
+
+It defaults to the `DBPOOL_PRE_PING` setting in the settings module
 
 ### metadata
 
@@ -185,7 +198,7 @@ Source code in `fluid/db/container.py`
 
 ```python
 @asynccontextmanager
-async def connection(self) -> AsyncIterator[AsyncConnection]:
+async def connection(self) -> AsyncGenerator[AsyncConnection]:
     """Context manager for obtaining an asynchronous connection"""
     async with self.engine.connect() as conn:
         yield conn
@@ -206,7 +219,7 @@ Source code in `fluid/db/container.py`
 async def ensure_connection(
     self,
     conn: AsyncConnection | None = None,
-) -> AsyncIterator[AsyncConnection]:
+) -> AsyncGenerator[AsyncConnection]:
     """Context manager for obtaining an asynchronous connection"""
     if conn:
         yield conn
@@ -227,7 +240,7 @@ Source code in `fluid/db/container.py`
 
 ```python
 @asynccontextmanager
-async def transaction(self) -> AsyncIterator[AsyncConnection]:
+async def transaction(self) -> AsyncGenerator[AsyncConnection]:
     """Context manager for initializing an asynchronous database transaction"""
     async with self.engine.begin() as conn:
         yield conn
@@ -248,7 +261,7 @@ Source code in `fluid/db/container.py`
 async def ensure_transaction(
     self,
     conn: AsyncConnection | None = None,
-) -> AsyncIterator[AsyncConnection]:
+) -> AsyncGenerator[AsyncConnection]:
     """Context manager for ensuring we a connection has initialized
     a database transaction"""
     if conn:

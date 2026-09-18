@@ -1573,6 +1573,8 @@ You can also load the DSN from an environment variable (defaults to `DATABASE`):
 db = CrudDB.from_env()
 ```
 
+Connections are pooled. The pool size is set by the `FLUID_DBPOOL_MAX_SIZE` and `FLUID_DBPOOL_MAX_OVERFLOW` environment variables, and each pooled connection is tested when it is taken from the pool (`FLUID_DBPOOL_PRE_PING`, on by default), so connections the server has dropped, for instance on a database restart, are replaced rather than failing the next query. See [settings](https://fluid.quantmind.com/reference/settings/index.md) for how settings are read from the environment.
+
 ## Register a Table
 
 Register tables against the database's `metadata` so that migrations and CRUD helpers can discover them:
@@ -1679,6 +1681,20 @@ Pass `order_by` to sort results. Prefix a field name with `-` for descending ord
 
 ```python
 rows = (await db.db_select(articles, {}, order_by=("-published_at",))).fetchall()
+```
+
+Pass `columns` to select only some columns, rather than every column of the table. This avoids reading large columns you do not need, and accepts computed expressions too:
+
+```python
+from sqlalchemy import func
+
+rows = (
+    await db.db_select(
+        articles,
+        {"author": "alice"},
+        columns=[articles.c.id, func.lower(articles.c.title).label("title")],
+    )
+).fetchall()
 ```
 
 #### Filter operators
@@ -1811,6 +1827,22 @@ rows, cursor = await Pagination.create(
     search=Search(search_fields=("title", "author"), search_text="fluid"),
     desc=True,
 ).execute(db, articles)
+```
+
+### Selecting columns
+
+By default every column of the table is selected. Pass `columns` to execute to select only some of them, for instance to leave out large columns a listing does not show. The cursor is built from the ordering fields of the last row, so the columns must include them:
+
+```python
+rows, cursor = await Pagination.create(
+    "published_at",
+    "id",
+    limit=20,
+).execute(
+    db,
+    articles,
+    columns=[articles.c.id, articles.c.published_at, articles.c.title],
+)
 ```
 
 # Event Dispatchers
@@ -1953,6 +1985,7 @@ Database(
     echo=(lambda: DBECHO)(),
     pool_size=(lambda: DBPOOL_MAX_SIZE)(),
     max_overflow=(lambda: DBPOOL_MAX_OVERFLOW)(),
+    pool_pre_ping=(lambda: DBPOOL_PRE_PING)(),
     metadata=MetaData(),
     migration_path="",
     app_name=(lambda: APP_NAME)(),
@@ -2001,6 +2034,18 @@ max_overflow = field(
     default_factory=lambda: settings.DBPOOL_MAX_OVERFLOW
 )
 ```
+
+### pool_pre_ping
+
+```python
+pool_pre_ping = field(
+    default_factory=lambda: settings.DBPOOL_PRE_PING
+)
+```
+
+Test pooled connections on checkout and replace the ones the server has dropped, e.g. on a database restart, rather than failing the next query
+
+It defaults to the `DBPOOL_PRE_PING` setting in the settings module
 
 ### metadata
 
@@ -2118,7 +2163,7 @@ Source code in `fluid/db/container.py`
 
 ```python
 @asynccontextmanager
-async def connection(self) -> AsyncIterator[AsyncConnection]:
+async def connection(self) -> AsyncGenerator[AsyncConnection]:
     """Context manager for obtaining an asynchronous connection"""
     async with self.engine.connect() as conn:
         yield conn
@@ -2139,7 +2184,7 @@ Source code in `fluid/db/container.py`
 async def ensure_connection(
     self,
     conn: AsyncConnection | None = None,
-) -> AsyncIterator[AsyncConnection]:
+) -> AsyncGenerator[AsyncConnection]:
     """Context manager for obtaining an asynchronous connection"""
     if conn:
         yield conn
@@ -2160,7 +2205,7 @@ Source code in `fluid/db/container.py`
 
 ```python
 @asynccontextmanager
-async def transaction(self) -> AsyncIterator[AsyncConnection]:
+async def transaction(self) -> AsyncGenerator[AsyncConnection]:
     """Context manager for initializing an asynchronous database transaction"""
     async with self.engine.begin() as conn:
         yield conn
@@ -2181,7 +2226,7 @@ Source code in `fluid/db/container.py`
 async def ensure_transaction(
     self,
     conn: AsyncConnection | None = None,
-) -> AsyncIterator[AsyncConnection]:
+) -> AsyncGenerator[AsyncConnection]:
     """Context manager for ensuring we a connection has initialized
     a database transaction"""
     if conn:
@@ -2357,6 +2402,7 @@ CrudDB(
     echo=(lambda: DBECHO)(),
     pool_size=(lambda: DBPOOL_MAX_SIZE)(),
     max_overflow=(lambda: DBPOOL_MAX_OVERFLOW)(),
+    pool_pre_ping=(lambda: DBPOOL_PRE_PING)(),
     metadata=MetaData(),
     migration_path="",
     app_name=(lambda: APP_NAME)(),
@@ -2407,6 +2453,18 @@ max_overflow = field(
     default_factory=lambda: settings.DBPOOL_MAX_OVERFLOW
 )
 ```
+
+### pool_pre_ping
+
+```python
+pool_pre_ping = field(
+    default_factory=lambda: settings.DBPOOL_PRE_PING
+)
+```
+
+Test pooled connections on checkout and replace the ones the server has dropped, e.g. on a database restart, rather than failing the next query
+
+It defaults to the `DBPOOL_PRE_PING` setting in the settings module
 
 ### metadata
 
@@ -2524,7 +2582,7 @@ Source code in `fluid/db/container.py`
 
 ```python
 @asynccontextmanager
-async def connection(self) -> AsyncIterator[AsyncConnection]:
+async def connection(self) -> AsyncGenerator[AsyncConnection]:
     """Context manager for obtaining an asynchronous connection"""
     async with self.engine.connect() as conn:
         yield conn
@@ -2545,7 +2603,7 @@ Source code in `fluid/db/container.py`
 async def ensure_connection(
     self,
     conn: AsyncConnection | None = None,
-) -> AsyncIterator[AsyncConnection]:
+) -> AsyncGenerator[AsyncConnection]:
     """Context manager for obtaining an asynchronous connection"""
     if conn:
         yield conn
@@ -2566,7 +2624,7 @@ Source code in `fluid/db/container.py`
 
 ```python
 @asynccontextmanager
-async def transaction(self) -> AsyncIterator[AsyncConnection]:
+async def transaction(self) -> AsyncGenerator[AsyncConnection]:
     """Context manager for initializing an asynchronous database transaction"""
     async with self.engine.begin() as conn:
         yield conn
@@ -2587,7 +2645,7 @@ Source code in `fluid/db/container.py`
 async def ensure_transaction(
     self,
     conn: AsyncConnection | None = None,
-) -> AsyncIterator[AsyncConnection]:
+) -> AsyncGenerator[AsyncConnection]:
     """Context manager for ensuring we a connection has initialized
     a database transaction"""
     if conn:
@@ -2657,7 +2715,9 @@ def migration(self) -> Migration:
 ### db_select
 
 ```python
-db_select(table, filters, *, order_by=None, conn=None)
+db_select(
+    table, filters, *, order_by=None, conn=None, columns=()
+)
 ```
 
 Select rows from a given table
@@ -2668,6 +2728,7 @@ Select rows from a given table
 | `filters`  | Key-value pairs for filtering rows; supports 'field:op' syntax for operators (eq, ne, gt, ge, lt, le) **TYPE:** `dict` |
 | `order_by` | Column names to order by; prefix with '-' for descending **TYPE:** \`tuple[str, ...]                                   |
 | `conn`     | Optional existing connection to reuse **TYPE:** \`AsyncConnection                                                      |
+| `columns`  | Columns to select, every column of the table when empty **TYPE:** `Sequence[ColumnElement]` **DEFAULT:** `()`          |
 
 Source code in `fluid/db/crud.py`
 
@@ -2690,9 +2751,14 @@ async def db_select(
     conn: Annotated[
         AsyncConnection | None, Doc("Optional existing connection to reuse")
     ] = None,
+    columns: Annotated[
+        Sequence[ColumnElement],
+        Doc("Columns to select, every column of the table when empty"),
+    ] = (),
 ) -> CursorResult:
     """Select rows from a given table"""
-    sql_query = self.get_query(table, Select(table), params=filters)
+    select_query: Select[Any] = Select(*columns) if columns else Select(table)
+    sql_query = self.get_query(table, select_query, params=filters)
     if order_by:
         sql_query = self.order_by_query(table, cast(Select, sql_query), order_by)
     async with self.ensure_transaction(conn) as conn:
@@ -3934,16 +4000,17 @@ def create(
 ### execute
 
 ```python
-execute(db, table, *, conn=None)
+execute(db, table, *, conn=None, columns=())
 ```
 
 Execute the paginated query and return the results along with the next cursor.
 
-| PARAMETER | DESCRIPTION                                                       |
-| --------- | ----------------------------------------------------------------- |
-| `db`      | Database instance to execute the query on **TYPE:** `CrudDB`      |
-| `table`   | SQLAlchemy table to query **TYPE:** `FromClause`                  |
-| `conn`    | Optional existing connection to reuse **TYPE:** \`AsyncConnection |
+| PARAMETER | DESCRIPTION                                                                                                                                                                          |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `db`      | Database instance to execute the query on **TYPE:** `CrudDB`                                                                                                                         |
+| `table`   | SQLAlchemy table to query **TYPE:** `FromClause`                                                                                                                                     |
+| `conn`    | Optional existing connection to reuse **TYPE:** \`AsyncConnection                                                                                                                    |
+| `columns` | Columns to select, every column of the table when empty; they must include the order_by_fields, which the cursor is built from **TYPE:** `Sequence[ColumnElement]` **DEFAULT:** `()` |
 
 Source code in `fluid/db/pagination.py`
 
@@ -3957,11 +4024,19 @@ async def execute(
         AsyncConnection | None,
         Doc("Optional existing connection to reuse"),
     ] = None,
+    columns: Annotated[
+        Sequence[ColumnElement],
+        Doc(
+            "Columns to select, every column of the table when empty; "
+            "they must include the order_by_fields, which the cursor is "
+            "built from"
+        ),
+    ] = (),
 ) -> tuple[Sequence[Row], str]:
     """Execute the paginated query and return the results
     along with the next cursor.
     """
-    sql_query = self.query(db, table)
+    sql_query = self.query(db, table, columns)
     async with db.ensure_connection(conn) as conn:
         result = await conn.execute(sql_query)
     data = result.all()
@@ -3975,16 +4050,22 @@ async def execute(
 ### query
 
 ```python
-query(db, table)
+query(db, table, columns=())
 ```
 
 Source code in `fluid/db/pagination.py`
 
 ```python
-def query(self, db: CrudDB, table: FromClause) -> Select:
+def query(
+    self,
+    db: CrudDB,
+    table: FromClause,
+    columns: Sequence[ColumnElement] = (),
+) -> Select:
+    select_query = select(*columns) if columns else table.select()
     sql_query = cast(
         Select,
-        db.get_query(table, table.select(), params=self.filters),
+        db.get_query(table, select_query, params=self.filters),
     )
     if self.search:
         sql_query = db.search_query(
@@ -6000,6 +6081,12 @@ dbpool_max_size = 10
 
 ```python
 dbpool_max_overflow = 10
+```
+
+### dbpool_pre_ping
+
+```python
+dbpool_pre_ping = True
 ```
 
 ### dbecho

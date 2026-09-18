@@ -172,16 +172,17 @@ def create(
 ### execute
 
 ```python
-execute(db, table, *, conn=None)
+execute(db, table, *, conn=None, columns=())
 ```
 
 Execute the paginated query and return the results along with the next cursor.
 
-| PARAMETER | DESCRIPTION                                                       |
-| --------- | ----------------------------------------------------------------- |
-| `db`      | Database instance to execute the query on **TYPE:** `CrudDB`      |
-| `table`   | SQLAlchemy table to query **TYPE:** `FromClause`                  |
-| `conn`    | Optional existing connection to reuse **TYPE:** \`AsyncConnection |
+| PARAMETER | DESCRIPTION                                                                                                                                                                          |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `db`      | Database instance to execute the query on **TYPE:** `CrudDB`                                                                                                                         |
+| `table`   | SQLAlchemy table to query **TYPE:** `FromClause`                                                                                                                                     |
+| `conn`    | Optional existing connection to reuse **TYPE:** \`AsyncConnection                                                                                                                    |
+| `columns` | Columns to select, every column of the table when empty; they must include the order_by_fields, which the cursor is built from **TYPE:** `Sequence[ColumnElement]` **DEFAULT:** `()` |
 
 Source code in `fluid/db/pagination.py`
 
@@ -195,11 +196,19 @@ async def execute(
         AsyncConnection | None,
         Doc("Optional existing connection to reuse"),
     ] = None,
+    columns: Annotated[
+        Sequence[ColumnElement],
+        Doc(
+            "Columns to select, every column of the table when empty; "
+            "they must include the order_by_fields, which the cursor is "
+            "built from"
+        ),
+    ] = (),
 ) -> tuple[Sequence[Row], str]:
     """Execute the paginated query and return the results
     along with the next cursor.
     """
-    sql_query = self.query(db, table)
+    sql_query = self.query(db, table, columns)
     async with db.ensure_connection(conn) as conn:
         result = await conn.execute(sql_query)
     data = result.all()
@@ -213,16 +222,22 @@ async def execute(
 ### query
 
 ```python
-query(db, table)
+query(db, table, columns=())
 ```
 
 Source code in `fluid/db/pagination.py`
 
 ```python
-def query(self, db: CrudDB, table: FromClause) -> Select:
+def query(
+    self,
+    db: CrudDB,
+    table: FromClause,
+    columns: Sequence[ColumnElement] = (),
+) -> Select:
+    select_query = select(*columns) if columns else table.select()
     sql_query = cast(
         Select,
-        db.get_query(table, table.select(), params=self.filters),
+        db.get_query(table, select_query, params=self.filters),
     )
     if self.search:
         sql_query = db.search_query(

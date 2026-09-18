@@ -197,6 +197,12 @@ dbpool_max_size = 10
 dbpool_max_overflow = 10
 ```
 
+### dbpool_pre_ping
+
+```python
+dbpool_pre_ping = True
+```
+
 ### dbecho
 
 ```python

@@ -22,6 +22,7 @@ CrudDB(
     echo=(lambda: DBECHO)(),
     pool_size=(lambda: DBPOOL_MAX_SIZE)(),
     max_overflow=(lambda: DBPOOL_MAX_OVERFLOW)(),
+    pool_pre_ping=(lambda: DBPOOL_PRE_PING)(),
     metadata=MetaData(),
     migration_path="",
     app_name=(lambda: APP_NAME)(),
@@ -72,6 +73,18 @@ max_overflow = field(
     default_factory=lambda: settings.DBPOOL_MAX_OVERFLOW
 )
 ```
+
+### pool_pre_ping
+
+```python
+pool_pre_ping = field(
+    default_factory=lambda: settings.DBPOOL_PRE_PING
+)
+```
+
+Test pooled connections on checkout and replace the ones the server has dropped, e.g. on a database restart, rather than failing the next query
+
+It defaults to the `DBPOOL_PRE_PING` setting in the settings module
 
 ### metadata
 
@@ -189,7 +202,7 @@ Source code in `fluid/db/container.py`
 
 ```python
 @asynccontextmanager
-async def connection(self) -> AsyncIterator[AsyncConnection]:
+async def connection(self) -> AsyncGenerator[AsyncConnection]:
     """Context manager for obtaining an asynchronous connection"""
     async with self.engine.connect() as conn:
         yield conn
@@ -210,7 +223,7 @@ Source code in `fluid/db/container.py`
 async def ensure_connection(
     self,
     conn: AsyncConnection | None = None,
-) -> AsyncIterator[AsyncConnection]:
+) -> AsyncGenerator[AsyncConnection]:
     """Context manager for obtaining an asynchronous connection"""
     if conn:
         yield conn
@@ -231,7 +244,7 @@ Source code in `fluid/db/container.py`
 
 ```python
 @asynccontextmanager
-async def transaction(self) -> AsyncIterator[AsyncConnection]:
+async def transaction(self) -> AsyncGenerator[AsyncConnection]:
     """Context manager for initializing an asynchronous database transaction"""
     async with self.engine.begin() as conn:
         yield conn
@@ -252,7 +265,7 @@ Source code in `fluid/db/container.py`
 async def ensure_transaction(
     self,
     conn: AsyncConnection | None = None,
-) -> AsyncIterator[AsyncConnection]:
+) -> AsyncGenerator[AsyncConnection]:
     """Context manager for ensuring we a connection has initialized
     a database transaction"""
     if conn:
@@ -322,7 +335,9 @@ def migration(self) -> Migration:
 ### db_select
 
 ```python
-db_select(table, filters, *, order_by=None, conn=None)
+db_select(
+    table, filters, *, order_by=None, conn=None, columns=()
+)
 ```
 
 Select rows from a given table
@@ -333,6 +348,7 @@ Select rows from a given table
 | `filters`  | Key-value pairs for filtering rows; supports 'field:op' syntax for operators (eq, ne, gt, ge, lt, le) **TYPE:** `dict` |
 | `order_by` | Column names to order by; prefix with '-' for descending **TYPE:** \`tuple[str, ...]                                   |
 | `conn`     | Optional existing connection to reuse **TYPE:** \`AsyncConnection                                                      |
+| `columns`  | Columns to select, every column of the table when empty **TYPE:** `Sequence[ColumnElement]` **DEFAULT:** `()`          |
 
 Source code in `fluid/db/crud.py`
 
@@ -355,9 +371,14 @@ async def db_select(
     conn: Annotated[
         AsyncConnection | None, Doc("Optional existing connection to reuse")
     ] = None,
+    columns: Annotated[
+        Sequence[ColumnElement],
+        Doc("Columns to select, every column of the table when empty"),
+    ] = (),
 ) -> CursorResult:
     """Select rows from a given table"""
-    sql_query = self.get_query(table, Select(table), params=filters)
+    select_query: Select[Any] = Select(*columns) if columns else Select(table)
+    sql_query = self.get_query(table, select_query, params=filters)
     if order_by:
         sql_query = self.order_by_query(table, cast(Select, sql_query), order_by)
     async with self.ensure_transaction(conn) as conn:
