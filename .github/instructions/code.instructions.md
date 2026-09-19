@@ -21,3 +21,11 @@
   the sentence into two. Ordinary hyphens in compound words (`CPU-bound`,
   `async-native`) are correct and stay, and non-prose such as HTML attribute
   values (for example an image `alt`) is out of scope.
+
+## Commit messages
+
+- A commit message is a single line, its first word capitalised: no body and
+  no trailers. Anything that needs explaining goes in the docs, not the
+  commit message.
+- Even when the developer has asked for a commit, show them the commit message
+  and wait for their approval before committing.
