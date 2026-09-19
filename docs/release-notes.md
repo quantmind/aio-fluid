@@ -6,6 +6,20 @@ below maps to a tagged release on
 pushed, the matching section is extracted by
 `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.9.1
+
+A fix for database filters with long lists of values.
+
+### Improvements and fixes
+
+- A list passed as a filter value is sent to the database as a single array
+  parameter (`= ANY` for `eq`, `<> ALL` for `ne`) rather than one parameter
+  per value, so it can hold any number of values without hitting the 32767
+  parameter limit of a query. An empty list matches no row with `eq` and
+  excludes none with `ne`
+  ([database tutorial](https://fluid.quantmind.com/tutorials/db/),
+  [#121](https://github.com/quantmind/aio-fluid/pull/121)).
+
 ## v2.9.0
 
 Database queries can select only the columns they need, and pooled
