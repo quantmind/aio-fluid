@@ -5,6 +5,7 @@ from typing import cast
 import pytest
 from sqlalchemy import func, text
 
+from examples.db.tables1 import TaskType
 from fluid.db import CrudDB
 from fluid.utils.waiter import wait_for
 
@@ -227,3 +228,33 @@ async def test_delete(db: CrudDB) -> None:
     assert len(deleted) == 1
     assert deleted[0].id == task.id
     assert await db.db_count(table, dict(title="ToDelete")) == 0
+
+
+async def test_filter_many_values(db: CrudDB) -> None:
+    # more values than a query can carry as separate parameters
+    table = db.tables["tasks"]
+    await db.db_insert(table, dict(title="ManyValues"))
+    titles = ["ManyValues", *(f"missing-{i}" for i in range(40000))]
+    assert await db.db_count(table, {"title": titles}) == 1
+    assert await db.db_count(table, {"title": titles[1:]}) == 0
+    assert (
+        await db.db_count(table, {"title": "ManyValues", "title:ne": titles[1:]}) == 1
+    )
+    assert await db.db_count(table, {"title": "ManyValues", "title:ne": titles}) == 0
+
+
+async def test_filter_values_enum(db: CrudDB) -> None:
+    table = db.tables["tasks"]
+    await db.db_insert(table, dict(title="EnumValues", type=TaskType.issue))
+    filters = dict(title="EnumValues")
+    assert await db.db_count(table, {**filters, "type": [TaskType.issue]}) == 1
+    assert await db.db_count(table, {**filters, "type": [TaskType.todo]}) == 0
+    assert await db.db_count(table, {**filters, "type:ne": [TaskType.todo]}) == 1
+
+
+async def test_filter_values_empty(db: CrudDB) -> None:
+    # an empty list matches nothing, and excludes nothing
+    table = db.tables["tasks"]
+    await db.db_insert(table, dict(title="EmptyValues"))
+    assert await db.db_count(table, {"title": "EmptyValues", "id": []}) == 0
+    assert await db.db_count(table, {"title": "EmptyValues", "id:ne": []}) == 1

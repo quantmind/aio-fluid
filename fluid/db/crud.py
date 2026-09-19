@@ -2,8 +2,8 @@ from datetime import date, datetime
 from typing import Any, Sequence, Set, TypeAlias, cast
 
 from dateutil.parser import parse as parse_date
-from sqlalchemy import Column, Table, func, insert, select
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Column, Table, all_, any_, bindparam, func, insert, select
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.engine.cursor import CursorResult
 from sqlalchemy.engine.row import Row
@@ -388,7 +388,11 @@ class CrudDB(Database):
             str, Doc("Comparison operator: `eq`, `ne`, `gt`, `ge`, `lt`, or `le`")
         ],
         value: Annotated[
-            Any, Doc("Comparison value; a list triggers IN / NOT IN for `eq` / `ne`")
+            Any,
+            Doc(
+                "Comparison value; a list matches any / none of its values for"
+                " `eq` / `ne`, sent as a single array parameter"
+            ),
         ],
     ) -> Any:
         """Build a SQLAlchemy WHERE clause expression for a single column filter"""
@@ -403,10 +407,12 @@ class CrudDB(Database):
             value = column_value_to_python(column, value)
 
         if multiple and op in ("eq", "ne"):
+            # one array parameter rather than one per value: drivers cap the
+            # parameters of a query (32767 for asyncpg)
+            values = bindparam(None, list(value), type_=ARRAY(column.type))
             if op == "eq":
-                return column.in_(value)
-            elif op == "ne":
-                return ~column.in_(value)
+                return column == any_(values)
+            return column != all_(values)
         else:
             if multiple:
                 assert len(value) > 0

@@ -48,6 +48,9 @@ The points most often missed:
 - Test functions are always `async def`, even when they do not await.
 - Never use em dashes or en dashes as punctuation in prose, code comments or
   commit messages. Use a comma, a colon, parentheses, or two sentences.
+- A commit message is one line, its first word capitalised, with no body and
+  no trailers. Explanations go in the docs. Show it to the developer and wait
+  for their approval before committing.
 - Python examples longer than a few lines belong in `examples/docs/` and are
   embedded in the docs with a snippet include, not pasted into the markdown.
 - Cross-reference public classes and functions in the docs with the mkdocstrings
