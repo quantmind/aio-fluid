@@ -170,12 +170,14 @@ Filters use a `"field:op"` key syntax. The default operator is `eq`:
 | `"score:lt"`              | `score < value`  |
 | `"score:le"`              | `score <= value` |
 
-Pass a list as the value to use `IN` / `NOT IN`:
+Pass a list as the value to match any of its values with `eq`, or none of them with `ne`:
 
 ```python
-# WHERE score IN (5, 10, 15)
+# WHERE score = ANY($1), with $1 the array [5, 10, 15]
 rows = (await db.db_select(articles, {"score": [5, 10, 15]})).fetchall()
 ```
+
+The list is sent as a single array parameter, `= ANY` for `eq` and `<> ALL` for `ne`, rather than one parameter per value, so it can hold any number of values: a query can carry at most 32767 parameters. An empty list matches no row with `eq` and excludes none with `ne`.
 
 ### Update
 

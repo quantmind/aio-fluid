@@ -958,11 +958,11 @@ default_filter_column(column, op, value)
 
 Build a SQLAlchemy WHERE clause expression for a single column filter
 
-| PARAMETER | DESCRIPTION                                                               |
-| --------- | ------------------------------------------------------------------------- |
-| `column`  | The SQLAlchemy column to filter on **TYPE:** `Column`                     |
-| `op`      | Comparison operator: eq, ne, gt, ge, lt, or le **TYPE:** `str`            |
-| `value`   | Comparison value; a list triggers IN / NOT IN for eq / ne **TYPE:** `Any` |
+| PARAMETER | DESCRIPTION                                                                                                             |
+| --------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `column`  | The SQLAlchemy column to filter on **TYPE:** `Column`                                                                   |
+| `op`      | Comparison operator: eq, ne, gt, ge, lt, or le **TYPE:** `str`                                                          |
+| `value`   | Comparison value; a list matches any / none of its values for eq / ne, sent as a single array parameter **TYPE:** `Any` |
 
 Source code in `fluid/db/crud.py`
 
@@ -974,7 +974,11 @@ def default_filter_column(
         str, Doc("Comparison operator: `eq`, `ne`, `gt`, `ge`, `lt`, or `le`")
     ],
     value: Annotated[
-        Any, Doc("Comparison value; a list triggers IN / NOT IN for `eq` / `ne`")
+        Any,
+        Doc(
+            "Comparison value; a list matches any / none of its values for"
+            " `eq` / `ne`, sent as a single array parameter"
+        ),
     ],
 ) -> Any:
     """Build a SQLAlchemy WHERE clause expression for a single column filter"""
@@ -989,10 +993,12 @@ def default_filter_column(
         value = column_value_to_python(column, value)
 
     if multiple and op in ("eq", "ne"):
+        # one array parameter rather than one per value: drivers cap the
+        # parameters of a query (32767 for asyncpg)
+        values = bindparam(None, list(value), type_=ARRAY(column.type))
         if op == "eq":
-            return column.in_(value)
-        elif op == "ne":
-            return ~column.in_(value)
+            return column == any_(values)
+        return column != all_(values)
     else:
         if multiple:
             assert len(value) > 0

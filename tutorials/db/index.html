@@ -2346,10 +2346,15 @@ This avoids reading large columns you do not need, and accepts computed expressi
 </tr>
 </tbody>
 </table>
-<p>Pass a list as the value to use <code>IN</code> / <code>NOT IN</code>:</p>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># WHERE score IN (5, 10, 15)</span>
+<p>Pass a list as the value to match any of its values with <code>eq</code>, or none of them
+with <code>ne</code>:</p>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="c1"># WHERE score = ANY($1), with $1 the array [5, 10, 15]</span>
 </span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a><span class="n">rows</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">db_select</span><span class="p">(</span><span class="n">articles</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">5</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">15</span><span class="p">]}))</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
 </span></code></pre></div>
+<p>The list is sent as a single array parameter, <code>= ANY</code> for <code>eq</code> and <code>&lt;&gt; ALL</code>
+for <code>ne</code>, rather than one parameter per value, so it can hold any number of
+values: a query can carry at most 32767 parameters. An empty list matches no
+row with <code>eq</code> and excludes none with <code>ne</code>.</p>
 <h3 id="update">Update<a class="headerlink" href="#update" title="Permanent link">&para;</a></h3>
 <div class="language-python highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="n">rows</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="n">db</span><span class="o">.</span><span class="n">db_update</span><span class="p">(</span><span class="n">articles</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;alice&quot;</span><span class="p">},</span> <span class="p">{</span><span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="mi">99</span><span class="p">}))</span><span class="o">.</span><span class="n">fetchall</span><span class="p">()</span>
 </span></code></pre></div>
