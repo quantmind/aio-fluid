@@ -1587,6 +1587,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v292" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.9.2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.9.2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v291" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1627,7 +1655,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#new-features" class="md-nav__link">
+  <a href="#new-features_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         New features
@@ -1761,7 +1789,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#new-features_1" class="md-nav__link">
+  <a href="#new-features_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         New features
@@ -1789,7 +1817,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#new-features_2" class="md-nav__link">
+  <a href="#new-features_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         New features
@@ -1988,6 +2016,34 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v292" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v2.9.2
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="v2.9.2">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#new-features" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        New features
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v291" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2028,7 +2084,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#new-features" class="md-nav__link">
+  <a href="#new-features_1" class="md-nav__link">
     <span class="md-ellipsis">
       
         New features
@@ -2162,7 +2218,7 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#new-features_1" class="md-nav__link">
+  <a href="#new-features_2" class="md-nav__link">
     <span class="md-ellipsis">
       
         New features
@@ -2190,7 +2246,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#new-features_2" class="md-nav__link">
+  <a href="#new-features_3" class="md-nav__link">
     <span class="md-ellipsis">
       
         New features
@@ -2388,6 +2444,18 @@ below maps to a tagged release on
 <a href="https://github.com/quantmind/aio-fluid/releases">GitHub</a>. When a new tag is
 pushed, the matching section is extracted by
 <code>.github/workflows/release.yml</code> and published as the GitHub Release body.</p>
+<h2 id="v292">v2.9.2<a class="headerlink" href="#v292" title="Permanent link">&para;</a></h2>
+<p>The task info served by the task manager reports every serializable field of
+a task.</p>
+<h3 id="new-features">New features<a class="headerlink" href="#new-features" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>TaskInfo</code> now includes <code>short_description</code>, <code>timeout_seconds</code>,
+  <code>k8s_config</code>, <code>retry</code>, <code>rate_limit_retry</code> and <code>env</code>, so the <code>/tasks</code>
+  endpoints expose the full task configuration. Retry policies are reported
+  as <code>RetryPolicyInfo</code>, with exception types listed by class name. Note that
+  <code>env</code> values are returned as they are, so do not put secrets there
+  (<a href="https://fluid.quantmind.com/reference/task_retry/">task retry reference</a>).</li>
+</ul>
 <h2 id="v291">v2.9.1<a class="headerlink" href="#v291" title="Permanent link">&para;</a></h2>
 <p>A fix for database filters with long lists of values.</p>
 <h3 id="improvements-and-fixes">Improvements and fixes<a class="headerlink" href="#improvements-and-fixes" title="Permanent link">&para;</a></h3>
@@ -2403,7 +2471,7 @@ pushed, the matching section is extracted by
 <h2 id="v290">v2.9.0<a class="headerlink" href="#v290" title="Permanent link">&para;</a></h2>
 <p>Database queries can select only the columns they need, and pooled
 connections survive a database restart.</p>
-<h3 id="new-features">New features<a class="headerlink" href="#new-features" title="Permanent link">&para;</a></h3>
+<h3 id="new-features_1">New features<a class="headerlink" href="#new-features_1" title="Permanent link">&para;</a></h3>
 <ul>
 <li><code>CrudDB.db_select</code> and <code>Pagination.execute</code> accept a <code>columns</code> argument to
   select only some columns rather than every column of the table. Large
@@ -2482,7 +2550,7 @@ changes</strong> below.</p>
 <li>Column <code>onupdate</code> defaults are not applied when <code>db_upsert</code> updates an
   existing row.</li>
 </ul>
-<h3 id="new-features_1">New features<a class="headerlink" href="#new-features_1" title="Permanent link">&para;</a></h3>
+<h3 id="new-features_2">New features<a class="headerlink" href="#new-features_2" title="Permanent link">&para;</a></h3>
 <ul>
 <li><a href="https://fluid.quantmind.com/reference/db_crud/#fluid.db.CrudDB.db_upsert_many">CrudDB.db_upsert_many</a>
   upserts a list of records on the given key columns, in batches of
@@ -2494,7 +2562,7 @@ changes</strong> below.</p>
 <p>An application can now place its tables on a database schema other than
 <code>public</code>. The database layer creates the schema for <code>create_all</code>, lists
 non-system schemas, and <code>drop_all_schemas</code> drops an explicit set of schemas.</p>
-<h3 id="new-features_2">New features<a class="headerlink" href="#new-features_2" title="Permanent link">&para;</a></h3>
+<h3 id="new-features_3">New features<a class="headerlink" href="#new-features_3" title="Permanent link">&para;</a></h3>
 <ul>
 <li>The <a href="https://fluid.quantmind.com/reference/db/">Database</a> metadata can hold
 tables on a schema other than <code>public</code> by passing <code>schema</code> to the table
