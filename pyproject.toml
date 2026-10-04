@@ -57,13 +57,12 @@ console = [
     "aioconsole >= 0.8.2",
 ]
 db = [
-    "alembic >= 1.18.4",
+    "alembic >= 1.20.0",
     "asyncpg >= 0.30.0",
     "click >= 8.1.7",
     "psycopg2-binary >= 2.9.9",
     "python-dateutil >= 2.9.0",
     "sqlalchemy >= 2.0.23",
-    "sqlalchemy-utils >= 0.41.2",
 ]
 http = [
     "aiohttp >= 3.10.10",
@@ -162,7 +161,6 @@ module = [
     "aioconsole.*",
     "kubernetes.*",
     "kubernetes_asyncio.*",
-    "sqlalchemy_utils.*",
 ]
 ignore_missing_imports = true
 
