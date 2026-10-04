@@ -32,6 +32,22 @@ async def test_get_tasks_serializes_execution_fields(cli: TaskClient) -> None:
     assert tasks["cpu_bound"]["max_concurrency"] == 0
 
 
+async def test_get_tasks_serializes_task_fields(cli: TaskClient) -> None:
+    data = await cli.get(f"{cli.url}/tasks")
+    tasks = {task["name"]: task for task in data}
+    assert tasks["dummy"]["timeout_seconds"] == 120
+    assert tasks["dummy"]["retry"] is None
+    assert tasks["cpu_bound_env"]["env"] == {"FLUID_TEST_ENV": "hello_from_env"}
+    assert tasks["retryable"]["retry"] == {
+        "max_attempts": 3,
+        "wait": 0.0,
+        "backoff": 1.0,
+        "max_wait": 60.0,
+        "exceptions": [],
+    }
+    assert tasks["exclusive"]["rate_limit_retry"]["max_attempts"] == 5
+
+
 async def test_get_tasks_by_tags(cli: TaskClient) -> None:
     data = await cli.get(f"{cli.url}/tasks?tags=test")
     names = {task["name"] for task in data}
