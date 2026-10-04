@@ -6592,6 +6592,7 @@ def info(self, **params: Any) -> TaskInfo:
     """Return task info object"""
     params.update(
         name=self.name,
+        short_description=self.short_description,
         description=self.description,
         module=self.module,
         priority=self.priority,
@@ -6599,6 +6600,13 @@ def info(self, **params: Any) -> TaskInfo:
         max_concurrency=self.max_concurrency,
         schedule=str(self.schedule) if self.schedule else None,
         tags=self.tags,
+        timeout_seconds=self.timeout_seconds,
+        k8s_config=self.k8s_config,
+        retry=self.retry.info() if self.retry else None,
+        rate_limit_retry=(
+            self.rate_limit_retry.info() if self.rate_limit_retry else None
+        ),
+        env=self.env,
     )
     return TaskInfo(**compact_dict(params))
 ```
@@ -10297,6 +10305,28 @@ def matches(self, exc: Exception) -> bool:
     if not self.exceptions:
         return True
     return isinstance(exc, self.exceptions)
+```
+
+### info
+
+```python
+info()
+```
+
+Return a serializable view of the retry policy
+
+Source code in `fluid/scheduler/models.py`
+
+```python
+def info(self) -> RetryPolicyInfo:
+    """Return a serializable view of the retry policy"""
+    return RetryPolicyInfo(
+        max_attempts=self.max_attempts,
+        wait=self.wait,
+        backoff=self.backoff,
+        max_wait=self.max_wait,
+        exceptions=[exc.__name__ for exc in self.exceptions],
+    )
 ```
 
 ## Configuring retries on a task

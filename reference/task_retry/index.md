@@ -104,6 +104,28 @@ def matches(self, exc: Exception) -> bool:
     return isinstance(exc, self.exceptions)
 ```
 
+### info
+
+```python
+info()
+```
+
+Return a serializable view of the retry policy
+
+Source code in `fluid/scheduler/models.py`
+
+```python
+def info(self) -> RetryPolicyInfo:
+    """Return a serializable view of the retry policy"""
+    return RetryPolicyInfo(
+        max_attempts=self.max_attempts,
+        wait=self.wait,
+        backoff=self.backoff,
+        max_wait=self.max_wait,
+        exceptions=[exc.__name__ for exc in self.exceptions],
+    )
+```
+
 ## Configuring retries on a task
 
 ### Failure retry

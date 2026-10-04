@@ -427,6 +427,7 @@ def info(self, **params: Any) -> TaskInfo:
     """Return task info object"""
     params.update(
         name=self.name,
+        short_description=self.short_description,
         description=self.description,
         module=self.module,
         priority=self.priority,
@@ -434,6 +435,13 @@ def info(self, **params: Any) -> TaskInfo:
         max_concurrency=self.max_concurrency,
         schedule=str(self.schedule) if self.schedule else None,
         tags=self.tags,
+        timeout_seconds=self.timeout_seconds,
+        k8s_config=self.k8s_config,
+        retry=self.retry.info() if self.retry else None,
+        rate_limit_retry=(
+            self.rate_limit_retry.info() if self.rate_limit_retry else None
+        ),
+        env=self.env,
     )
     return TaskInfo(**compact_dict(params))
 ```
