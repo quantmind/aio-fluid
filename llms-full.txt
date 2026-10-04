@@ -14454,6 +14454,16 @@ It fetches last-30-days downloads from the [pypistats.org](https://pypistats.org
 
 This page is the source of truth for aio-fluid release notes. Each section below maps to a tagged release on [GitHub](https://github.com/quantmind/aio-fluid/releases). When a new tag is pushed, the matching section is extracted by `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.10.0
+
+The `db` extra drops `sqlalchemy-utils` and requires a newer alembic. No public API changes, but check the minimum versions below before upgrading.
+
+### Improvements and fixes
+
+- `sqlalchemy-utils` is no longer a dependency. Creating, dropping and checking for a database now use plain SQLAlchemy against the `postgres` maintenance database. If your code imports `sqlalchemy_utils`, add it to your own dependencies ([database reference](https://fluid.quantmind.com/reference/db/), [#123](https://github.com/quantmind/aio-fluid/pull/123)).
+- Dropping a database terminates its open connections with `DROP DATABASE ... WITH (FORCE)`, which requires PostgreSQL 13 or later ([#123](https://github.com/quantmind/aio-fluid/pull/123)).
+- The `db` extra requires `alembic >= 1.20.0`, which in turn requires SQLAlchemy 2 ([#123](https://github.com/quantmind/aio-fluid/pull/123)).
+
 ## v2.9.2
 
 The task info served by the task manager reports every serializable field of a task.
