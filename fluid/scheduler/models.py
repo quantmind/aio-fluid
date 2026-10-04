@@ -95,6 +95,29 @@ class RetryPolicy:
             return True
         return isinstance(exc, self.exceptions)
 
+    def info(self) -> RetryPolicyInfo:
+        """Return a serializable view of the retry policy"""
+        return RetryPolicyInfo(
+            max_attempts=self.max_attempts,
+            wait=self.wait,
+            backoff=self.backoff,
+            max_wait=self.max_wait,
+            exceptions=[exc.__name__ for exc in self.exceptions],
+        )
+
+
+class RetryPolicyInfo(BaseModel):
+    max_attempts: int | None = Field(
+        default=None, description="Maximum number of retry attempts"
+    )
+    wait: float = Field(description="Base wait time in seconds before the first retry")
+    backoff: float = Field(description="Multiplier applied to wait on each attempt")
+    max_wait: float = Field(description="Upper bound on wait time in seconds")
+    exceptions: list[str] = Field(
+        default_factory=list,
+        description="Exception names which trigger a retry, empty means all",
+    )
+
 
 class EmptyParams(BaseModel):
     pass
@@ -189,6 +212,7 @@ class TaskManagerConfig(BaseModel):
 
 class TaskInfoBase(BaseModel):
     name: str = Field(description="Task name")
+    short_description: str = Field(default="", description="Task short description")
     description: str = Field(description="Task description")
     module: str = Field(description="Task module")
     priority: TaskPriority = Field(description="Task priority")
@@ -199,6 +223,20 @@ class TaskInfoBase(BaseModel):
     )
     schedule: str | None = Field(default=None, description="Task schedule")
     tags: frozenset[str] = Field(default_factory=frozenset, description="Task tags")
+    timeout_seconds: int = Field(default=60, description="Task timeout in seconds")
+    k8s_config: K8sConfig | None = Field(
+        default=None, description="Kubernetes configuration for the task"
+    )
+    retry: RetryPolicyInfo | None = Field(
+        default=None, description="Retry policy for general execution failures"
+    )
+    rate_limit_retry: RetryPolicyInfo | None = Field(
+        default=None, description="Retry policy for rate limit errors"
+    )
+    env: dict[str, str] = Field(
+        default_factory=dict,
+        description="Extra environment variables injected into the task process",
+    )
 
 
 class TaskInfoUpdate(BaseModel):
@@ -357,6 +395,7 @@ class Task(NamedTuple, Generic[TP]):
         """Return task info object"""
         params.update(
             name=self.name,
+            short_description=self.short_description,
             description=self.description,
             module=self.module,
             priority=self.priority,
@@ -364,6 +403,13 @@ class Task(NamedTuple, Generic[TP]):
             max_concurrency=self.max_concurrency,
             schedule=str(self.schedule) if self.schedule else None,
             tags=self.tags,
+            timeout_seconds=self.timeout_seconds,
+            k8s_config=self.k8s_config,
+            retry=self.retry.info() if self.retry else None,
+            rate_limit_retry=(
+                self.rate_limit_retry.info() if self.rate_limit_retry else None
+            ),
+            env=self.env,
         )
         return TaskInfo(**compact_dict(params))
 
