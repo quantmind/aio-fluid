@@ -59,6 +59,27 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./build/coverage.xml
+
+  publish-docs:
+    needs: build
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    concurrency:
+      group: docs-publish
+      cancel-in-progress: false
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+      - name: Install dependencies
+        run: make install
+      - name: fetch gh-pages
+        run: git fetch origin gh-pages:gh-pages
       - name: publish-docs
-        if: ${{ github.ref == 'refs/heads/main' && matrix.python-version == '3.14' }}
         run: make docs-publish
