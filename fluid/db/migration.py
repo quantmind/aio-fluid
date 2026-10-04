@@ -8,8 +8,7 @@ from typing import TYPE_CHECKING, Sequence, cast
 import sqlalchemy as sa
 from alembic import command as alembic_cmd
 from alembic.config import Config
-from sqlalchemy.engine import Engine
-from sqlalchemy_utils import create_database, database_exists, drop_database
+from sqlalchemy.engine import Connection, Engine
 
 if TYPE_CHECKING:
     from .container import Database
@@ -80,29 +79,54 @@ class Migration:
         return msg
 
     def db_exists(self, dbname: str = "") -> bool:
-        url = self.sync_engine.url
-        if dbname:
-            url = url.set(database=dbname)
-        return database_exists(url)
+        """Check if a database exists"""
+        name = dbname or self._dbname()
+        engine = self._admin_engine()
+        try:
+            with engine.connect() as conn:
+                return _database_exists(conn, name)
+        finally:
+            engine.dispose()
 
     def db_create(self, dbname: str = "") -> bool:
         """Creates a new database if it does not exist"""
-        url = self.sync_engine.url
-        if dbname:
-            url = url.set(database=dbname)
-        if database_exists(url):
-            return False
-        create_database(url)
-        return True
+        name = dbname or self._dbname()
+        engine = self._admin_engine()
+        try:
+            with engine.connect() as conn:
+                if _database_exists(conn, name):
+                    return False
+                quoted = engine.dialect.identifier_preparer.quote(name)
+                conn.execute(sa.text(f"CREATE DATABASE {quoted}"))
+                return True
+        finally:
+            engine.dispose()
 
     def db_drop(self, dbname: str = "") -> bool:
-        url = self.sync_engine.url
-        if dbname:
-            url = url.set(database=dbname)
-        if database_exists(url):
-            drop_database(url)
-            return True
-        return False
+        """Drop a database if it exists, terminating any open connections"""
+        name = dbname or self._dbname()
+        engine = self._admin_engine()
+        try:
+            with engine.connect() as conn:
+                if not _database_exists(conn, name):
+                    return False
+                quoted = engine.dialect.identifier_preparer.quote(name)
+                conn.execute(sa.text(f"DROP DATABASE {quoted} WITH (FORCE)"))
+                return True
+        finally:
+            engine.dispose()
+
+    def _dbname(self) -> str:
+        return self.sync_engine.url.database or ""
+
+    def _admin_engine(self) -> Engine:
+        """Engine connected to the ``postgres`` maintenance database
+
+        ``CREATE DATABASE`` and ``DROP DATABASE`` cannot run inside a
+        transaction, hence the ``AUTOCOMMIT`` isolation level.
+        """
+        url = self.sync_engine.url.set(database="postgres")
+        return sa.create_engine(url, isolation_level="AUTOCOMMIT")
 
     def create_all(self) -> None:
         """Create all tables from :attr:`metadata` in database.
@@ -220,6 +244,14 @@ class Migration:
                 raise
             return False
         return True
+
+
+def _database_exists(conn: Connection, name: str) -> bool:
+    result = conn.execute(
+        sa.text("SELECT 1 FROM pg_database WHERE datname = :name"),
+        {"name": name},
+    )
+    return result.scalar() is not None
 
 
 def _wire_metadata(env_path: Path) -> None:

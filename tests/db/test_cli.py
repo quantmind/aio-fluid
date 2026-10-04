@@ -53,6 +53,23 @@ def test_create_drop_db(db: CrudDB):
     assert "database 'test_db_abc' not found" in result.output
 
 
+async def test_db_exists_and_drop_with_open_connection(db: CrudDB):
+    mig = db.migration()
+    name = "test_db_open_conn"
+    assert mig.db_exists()
+    assert not mig.db_exists(name)
+    assert mig.db_create(name)
+    assert mig.db_exists(name)
+    engine = sa.create_engine(mig.sync_engine.url.set(database=name))
+    conn = engine.connect()
+    try:
+        assert conn.execute(sa.text("SELECT 1")).scalar() == 1
+        assert mig.db_drop(name)
+    finally:
+        engine.dispose()
+    assert not mig.db_exists(name)
+
+
 def test_migrations_show(mig_id: str, mig_name: str, db: CrudDB):
     runner = CliRunner()
     result = runner.invoke(cli, ["show"])
