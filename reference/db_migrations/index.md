@@ -172,14 +172,20 @@ def message(self) -> str:
 db_exists(dbname='')
 ```
 
+Check if a database exists
+
 Source code in `fluid/db/migration.py`
 
 ```python
 def db_exists(self, dbname: str = "") -> bool:
-    url = self.sync_engine.url
-    if dbname:
-        url = url.set(database=dbname)
-    return database_exists(url)
+    """Check if a database exists"""
+    name = dbname or self._dbname()
+    engine = self._admin_engine()
+    try:
+        with engine.connect() as conn:
+            return _database_exists(conn, name)
+    finally:
+        engine.dispose()
 ```
 
 ### db_create
@@ -195,13 +201,17 @@ Source code in `fluid/db/migration.py`
 ```python
 def db_create(self, dbname: str = "") -> bool:
     """Creates a new database if it does not exist"""
-    url = self.sync_engine.url
-    if dbname:
-        url = url.set(database=dbname)
-    if database_exists(url):
-        return False
-    create_database(url)
-    return True
+    name = dbname or self._dbname()
+    engine = self._admin_engine()
+    try:
+        with engine.connect() as conn:
+            if _database_exists(conn, name):
+                return False
+            quoted = engine.dialect.identifier_preparer.quote(name)
+            conn.execute(sa.text(f"CREATE DATABASE {quoted}"))
+            return True
+    finally:
+        engine.dispose()
 ```
 
 ### db_drop
@@ -210,17 +220,24 @@ def db_create(self, dbname: str = "") -> bool:
 db_drop(dbname='')
 ```
 
+Drop a database if it exists, terminating any open connections
+
 Source code in `fluid/db/migration.py`
 
 ```python
 def db_drop(self, dbname: str = "") -> bool:
-    url = self.sync_engine.url
-    if dbname:
-        url = url.set(database=dbname)
-    if database_exists(url):
-        drop_database(url)
-        return True
-    return False
+    """Drop a database if it exists, terminating any open connections"""
+    name = dbname or self._dbname()
+    engine = self._admin_engine()
+    try:
+        with engine.connect() as conn:
+            if not _database_exists(conn, name):
+                return False
+            quoted = engine.dialect.identifier_preparer.quote(name)
+            conn.execute(sa.text(f"DROP DATABASE {quoted} WITH (FORCE)"))
+            return True
+    finally:
+        engine.dispose()
 ```
 
 ### create_all
