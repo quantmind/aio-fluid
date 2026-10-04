@@ -6,6 +6,20 @@ below maps to a tagged release on
 pushed, the matching section is extracted by
 `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.9.2
+
+The task info served by the task manager reports every serializable field of
+a task.
+
+### New features
+
+- `TaskInfo` now includes `short_description`, `timeout_seconds`,
+  `k8s_config`, `retry`, `rate_limit_retry` and `env`, so the `/tasks`
+  endpoints expose the full task configuration. Retry policies are reported
+  as `RetryPolicyInfo`, with exception types listed by class name. Note that
+  `env` values are returned as they are, so do not put secrets there
+  ([task retry reference](https://fluid.quantmind.com/reference/task_retry/)).
+
 ## v2.9.1
 
 A fix for database filters with long lists of values.
