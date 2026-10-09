@@ -6,6 +6,27 @@ below maps to a tagged release on
 pushed, the matching section is extracted by
 `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.10.1
+
+The task run history endpoint gets more flexible filters: several values per
+filter and a new priority filter.
+
+### New features
+
+- The `GET /tasks-history` endpoint accepts several values for the `task` and
+  `state` filters and matches runs with any of them, for example
+  `?state=failure&state=aborted`. A single value works as before
+  ([task plugin reference](https://fluid.quantmind.com/reference/task_plugin/),
+  [#124](https://github.com/quantmind/aio-fluid/pull/124)).
+- A new `priority` filter returns runs with any of the given priorities
+  ([#124](https://github.com/quantmind/aio-fluid/pull/124)).
+
+### Improvements and fixes
+
+- The `params` filter responds with a 422 error when its value is not a JSON
+  object, instead of passing it to the database query
+  ([#124](https://github.com/quantmind/aio-fluid/pull/124)).
+
 ## v2.10.0
 
 The `db` extra drops `sqlalchemy-utils` and requires a newer alembic. No
