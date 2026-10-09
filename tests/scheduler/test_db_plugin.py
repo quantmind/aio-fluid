@@ -9,7 +9,7 @@ from httpx2 import ASGITransport, AsyncClient
 from sqlalchemy.exc import NoResultFound
 
 from examples import tasks
-from fluid.scheduler import TaskState
+from fluid.scheduler import TaskPriority, TaskState
 from fluid.scheduler.consumer import TaskConsumer
 from fluid.scheduler.db import (
     TaskDbPlugin,
@@ -217,6 +217,19 @@ async def test_get_history_filter_by_name(
     assert all(item["task"] == "add" for item in data_other)
 
 
+async def test_get_history_filter_by_multiple_names(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    run_dummy = await task_manager_db.queue_and_wait("dummy", timeout=5)
+    run_add = await task_manager_db.queue_and_wait("add", timeout=5, a=1.0, b=2.0)
+    await wait_for_task_run(db_plugin, run_dummy.id)
+    await wait_for_task_run(db_plugin, run_add.id)
+    data = await get_history(cli_db, task=["dummy", "add"])
+    ids = {item["id"] for item in data}
+    assert {run_dummy.id, run_add.id} <= ids
+    assert all(item["task"] in ("dummy", "add") for item in data)
+
+
 async def test_get_history_filter_by_state(
     cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
 ) -> None:
@@ -224,6 +237,34 @@ async def test_get_history_filter_by_state(
     await wait_for_task_run(db_plugin, task_run.id)
     data = await get_history(cli_db, state="success")
     assert all(item["state"] == "success" for item in data)
+
+
+async def test_get_history_filter_by_multiple_states(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait("dummy", timeout=5)
+    await wait_for_task_run(db_plugin, task_run.id)
+    data = await get_history(cli_db, state=["success", "failure"])
+    assert all(item["state"] in ("success", "failure") for item in data)
+    assert any(item["id"] == task_run.id for item in data)
+    data = await get_history(cli_db, state=["failure", "aborted"])
+    assert all(item["state"] in ("failure", "aborted") for item in data)
+    assert not any(item["id"] == task_run.id for item in data)
+
+
+async def test_get_history_filter_by_priority(
+    cli_db: TaskClient, task_manager_db: TaskConsumer, db_plugin: TaskDbPlugin
+) -> None:
+    task_run = await task_manager_db.queue_and_wait(
+        "dummy", timeout=5, priority=TaskPriority.high
+    )
+    await wait_for_task_run(db_plugin, task_run.id)
+    data = await get_history(cli_db, priority=["high"])
+    assert any(item["id"] == task_run.id for item in data)
+    assert all(item["priority"] == "high" for item in data)
+    data = await get_history(cli_db, priority=["medium", "low"])
+    assert all(item["priority"] in ("medium", "low") for item in data)
+    assert not any(item["id"] == task_run.id for item in data)
 
 
 async def test_get_history_filter_by_start(
@@ -361,3 +402,10 @@ async def test_get_history_filter_by_params_http_negative(
     await wait_for_task_run(db_plugin, task_run.id)
     data_empty = await get_history(cli_db, params=json.dumps({"a": 999.0}))
     assert not any(item["id"] == task_run.id for item in data_empty)
+
+
+async def test_get_history_filter_by_params_invalid(cli_db: TaskClient) -> None:
+    for value in ("not-json", json.dumps("a string"), json.dumps([1, 2])):
+        with pytest.raises(HttpResponseError) as exc:
+            await get_history(cli_db, params=value)
+        assert exc.value.status_code == 422
