@@ -34,7 +34,7 @@ from fluid.scheduler.db import get_db_plugin, TaskHistoryQuery
 @task()
 async def report(context: TaskRun) -> None:
     db_plugin = get_db_plugin(context.task_manager)
-    page = await db_plugin.get_history(TaskHistoryQuery(task="my-task", limit=10))
+    page = await db_plugin.get_history(TaskHistoryQuery(task=["my-task"], limit=10))
     for run in page.data:
         print(run.id, run.state)
 ```

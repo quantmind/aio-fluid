@@ -151,7 +151,7 @@ class TaskDbPlugin(TaskManagerPlugin):
             }
             # AND with an explicit task filter; empty set → IN () → no rows
             if "name" in filters:
-                names &= {filters["name"]}
+                names &= set(filters["name"])
             filters["name"] = list(names)
         pagination = Pagination.create(
             "queued",
@@ -277,9 +277,9 @@ class TaskHistoryQuery(BaseModel):
     """Query parameters for fetching task run history."""
 
     task: Annotated[
-        str | None,
-        Query(description="Filter by task name"),
-        Doc("Filter by task name when provided"),
+        list[str] | None,
+        Query(description="Filter by task name (matches any of the given names)"),
+        Doc("Filter runs of any of these tasks when provided"),
     ] = None
     start: Annotated[
         datetime | None,
@@ -292,9 +292,14 @@ class TaskHistoryQuery(BaseModel):
         Doc("Filter runs queued at or before this time when provided"),
     ] = None
     state: Annotated[
-        TaskState | None,
-        Query(description="Filter by task state"),
-        Doc("Filter by task state when provided"),
+        list[TaskState] | None,
+        Query(description="Filter by task state (matches any of the given states)"),
+        Doc("Filter runs in any of these states when provided"),
+    ] = None
+    priority: Annotated[
+        list[TaskPriority] | None,
+        Query(description="Filter by priority (matches any of the given priorities)"),
+        Doc("Filter runs with any of these priorities when provided"),
     ] = None
     params: Annotated[
         dict[str, Any] | str | None,
@@ -316,7 +321,9 @@ class TaskHistoryQuery(BaseModel):
     def _parse_params_str(cls, data: Any) -> Any:
         if isinstance(data, dict) and "params" in data:
             data = {**data}
-            data["params"] = _parse_json_str(data["params"])
+            data["params"] = params = _parse_json_str(data["params"])
+            if params is not None and not isinstance(params, dict):
+                raise ValueError("params must be a JSON object")
         return data
 
     limit: Annotated[
