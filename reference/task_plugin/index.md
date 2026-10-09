@@ -282,7 +282,7 @@ async def get_history(
         }
         # AND with an explicit task filter; empty set → IN () → no rows
         if "name" in filters:
-            names &= {filters["name"]}
+            names &= set(filters["name"])
         filters["name"] = list(names)
     pagination = Pagination.create(
         "queued",
@@ -331,7 +331,7 @@ from fluid.scheduler.db import get_db_plugin, TaskHistoryQuery
 @task()
 async def report(context: TaskRun) -> None:
     db_plugin = get_db_plugin(context.task_manager)
-    page = await db_plugin.get_history(TaskHistoryQuery(task="my-task", limit=10))
+    page = await db_plugin.get_history(TaskHistoryQuery(task=["my-task"], limit=10))
     for run in page.data:
         print(run.id, run.state)
 ```
@@ -382,10 +382,11 @@ Query parameters for fetching task run history.
 
 Fields:
 
-- `task` (`str | None`)
+- `task` (`list[str] | None`)
 - `start` (`datetime | None`)
 - `end` (`datetime | None`)
-- `state` (`TaskState | None`)
+- `state` (`list[TaskState] | None`)
+- `priority` (`list[TaskPriority] | None`)
 - `params` (`dict[str, Any] | str | None`)
 - `tags` (`list[str] | None`)
 - `limit` (`int | None`)
@@ -401,7 +402,7 @@ Validators:
 task = None
 ```
 
-Filter by task name when provided
+Filter runs of any of these tasks when provided
 
 ### start
 
@@ -425,7 +426,15 @@ Filter runs queued at or before this time when provided
 state = None
 ```
 
-Filter by task state when provided
+Filter runs in any of these states when provided
+
+### priority
+
+```python
+priority = None
+```
+
+Filter runs with any of these priorities when provided
 
 ### params
 

@@ -1168,6 +1168,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#fluid.scheduler.db.TaskHistoryQuery.priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;priority
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fluid.scheduler.db.TaskHistoryQuery.params" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2351,6 +2362,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#fluid.scheduler.db.TaskHistoryQuery.priority" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        <code class="doc-symbol doc-symbol-toc doc-symbol-attribute"></code>&nbsp;priority
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#fluid.scheduler.db.TaskHistoryQuery.params" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -3489,7 +3511,7 @@ database backend supported by CrudDB.</p>
 </span><span id="__span-0-151"><a id="__codelineno-0-151" name="__codelineno-0-151"></a>        <span class="p">}</span>
 </span><span id="__span-0-152"><a id="__codelineno-0-152" name="__codelineno-0-152"></a>        <span class="c1"># AND with an explicit task filter; empty set → IN () → no rows</span>
 </span><span id="__span-0-153"><a id="__codelineno-0-153" name="__codelineno-0-153"></a>        <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">filters</span><span class="p">:</span>
-</span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a>            <span class="n">names</span> <span class="o">&amp;=</span> <span class="p">{</span><span class="n">filters</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]}</span>
+</span><span id="__span-0-154"><a id="__codelineno-0-154" name="__codelineno-0-154"></a>            <span class="n">names</span> <span class="o">&amp;=</span> <span class="nb">set</span><span class="p">(</span><span class="n">filters</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
 </span><span id="__span-0-155"><a id="__codelineno-0-155" name="__codelineno-0-155"></a>        <span class="n">filters</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
 </span><span id="__span-0-156"><a id="__codelineno-0-156" name="__codelineno-0-156"></a>    <span class="n">pagination</span> <span class="o">=</span> <span class="n">Pagination</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
 </span><span id="__span-0-157"><a id="__codelineno-0-157" name="__codelineno-0-157"></a>        <span class="s2">&quot;queued&quot;</span><span class="p">,</span>
@@ -3570,7 +3592,7 @@ called directly from within a task by passing <code>context.task_manager</code>:
 </span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="nd">@task</span><span class="p">()</span>
 </span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">report</span><span class="p">(</span><span class="n">context</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">db_plugin</span> <span class="o">=</span> <span class="n">get_db_plugin</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">task_manager</span><span class="p">)</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">page</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db_plugin</span><span class="o">.</span><span class="n">get_history</span><span class="p">(</span><span class="n">TaskHistoryQuery</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="s2">&quot;my-task&quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">page</span> <span class="o">=</span> <span class="k">await</span> <span class="n">db_plugin</span><span class="o">.</span><span class="n">get_history</span><span class="p">(</span><span class="n">TaskHistoryQuery</span><span class="p">(</span><span class="n">task</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;my-task&quot;</span><span class="p">],</span> <span class="n">limit</span><span class="o">=</span><span class="mi">10</span><span class="p">))</span>
 </span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="k">for</span> <span class="n">run</span> <span class="ow">in</span> <span class="n">page</span><span class="o">.</span><span class="n">data</span><span class="p">:</span>
 </span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>        <span class="nb">print</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">run</span><span class="o">.</span><span class="n">state</span><span class="p">)</span>
 </span></code></pre></div>
@@ -3674,7 +3696,7 @@ registered task return an empty result.</p>
   
       pydantic-field
    (fluid.scheduler.db.TaskHistoryQuery.task)" href="#fluid.scheduler.db.TaskHistoryQuery.task">task</a></code>
-                (<code><span title="str">str</span> | None</code>)
+                (<code><span title="list">list</span>[<span title="str">str</span>] | None</code>)
             </li>
             <li>
               <code><a class="autorefs autorefs-internal" title="            start
@@ -3701,7 +3723,16 @@ registered task return an empty result.</p>
   
       pydantic-field
    (fluid.scheduler.db.TaskHistoryQuery.state)" href="#fluid.scheduler.db.TaskHistoryQuery.state">state</a></code>
-                (<code><a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskState (fluid.scheduler.models.TaskState)" href="../task/#fluid.scheduler.TaskState">TaskState</a> | None</code>)
+                (<code><span title="list">list</span>[<a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskState (fluid.scheduler.models.TaskState)" href="../task/#fluid.scheduler.TaskState">TaskState</a>] | None</code>)
+            </li>
+            <li>
+              <code><a class="autorefs autorefs-internal" title="            priority
+
+
+  
+      pydantic-field
+   (fluid.scheduler.db.TaskHistoryQuery.priority)" href="#fluid.scheduler.db.TaskHistoryQuery.priority">priority</a></code>
+                (<code><span title="list">list</span>[<a class="autorefs autorefs-internal" title="            fluid.scheduler.TaskPriority (fluid.scheduler.models.TaskPriority)" href="../task/#fluid.scheduler.TaskPriority">TaskPriority</a>] | None</code>)
             </li>
             <li>
               <code><a class="autorefs autorefs-internal" title="            params
@@ -3776,7 +3807,7 @@ registered task return an empty result.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Filter by task name when provided</p>
+        <p>Filter runs of any of these tasks when provided</p>
 
     </div>
 
@@ -3848,7 +3879,31 @@ registered task return an empty result.</p>
 
     <div class="doc doc-contents ">
 
-        <p>Filter by task state when provided</p>
+        <p>Filter runs in any of these states when provided</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-attribute">
+
+
+
+<h3 id="fluid.scheduler.db.TaskHistoryQuery.priority" class="doc doc-heading">
+<code class="doc-symbol doc-symbol-heading doc-symbol-attribute"></code>            <span class="doc doc-object-name doc-attribute-name">priority</span>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-pydantic-field"><code>pydantic-field</code></small>
+  </span>
+
+<a href="#fluid.scheduler.db.TaskHistoryQuery.priority" class="headerlink" title="Permanent link">&para;</a></h3>
+<div class="language-python doc-signature highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="n">priority</span> <span class="o">=</span> <span class="kc">None</span>
+</span></code></pre></div>
+
+    <div class="doc doc-contents ">
+
+        <p>Filter runs with any of these priorities when provided</p>
 
     </div>
 
@@ -3969,19 +4024,19 @@ registered task return an empty result.</p>
 
             <details class="mkdocstrings-source">
               <summary>Source code in <code>fluid/scheduler/db.py</code></summary>
-              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-339">339</a></span>
-<span class="normal"><a href="#__codelineno-0-340">340</a></span>
-<span class="normal"><a href="#__codelineno-0-341">341</a></span>
-<span class="normal"><a href="#__codelineno-0-342">342</a></span>
-<span class="normal"><a href="#__codelineno-0-343">343</a></span>
-<span class="normal"><a href="#__codelineno-0-344">344</a></span>
-<span class="normal"><a href="#__codelineno-0-345">345</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-339"><a id="__codelineno-0-339" name="__codelineno-0-339"></a><span class="k">def</span><span class="w"> </span><span class="nf">filters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-</span><span id="__span-0-340"><a id="__codelineno-0-340" name="__codelineno-0-340"></a>    <span class="k">return</span> <span class="p">{</span>
-</span><span id="__span-0-341"><a id="__codelineno-0-341" name="__codelineno-0-341"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_filter_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span> <span class="n">v</span>
-</span><span id="__span-0-342"><a id="__codelineno-0-342" name="__codelineno-0-342"></a>        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span>
-</span><span id="__span-0-343"><a id="__codelineno-0-343" name="__codelineno-0-343"></a>            <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;limit&quot;</span><span class="p">,</span> <span class="s2">&quot;cursor&quot;</span><span class="p">,</span> <span class="s2">&quot;tags&quot;</span><span class="p">}</span>
-</span><span id="__span-0-344"><a id="__codelineno-0-344" name="__codelineno-0-344"></a>        <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
-</span><span id="__span-0-345"><a id="__codelineno-0-345" name="__codelineno-0-345"></a>    <span class="p">}</span>
+              <div class="language-python highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-346">346</a></span>
+<span class="normal"><a href="#__codelineno-0-347">347</a></span>
+<span class="normal"><a href="#__codelineno-0-348">348</a></span>
+<span class="normal"><a href="#__codelineno-0-349">349</a></span>
+<span class="normal"><a href="#__codelineno-0-350">350</a></span>
+<span class="normal"><a href="#__codelineno-0-351">351</a></span>
+<span class="normal"><a href="#__codelineno-0-352">352</a></span></pre></div></td><td class="code"><div><pre><span></span><code><span id="__span-0-346"><a id="__codelineno-0-346" name="__codelineno-0-346"></a><span class="k">def</span><span class="w"> </span><span class="nf">filters</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+</span><span id="__span-0-347"><a id="__codelineno-0-347" name="__codelineno-0-347"></a>    <span class="k">return</span> <span class="p">{</span>
+</span><span id="__span-0-348"><a id="__codelineno-0-348" name="__codelineno-0-348"></a>        <span class="bp">self</span><span class="o">.</span><span class="n">_filter_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span> <span class="n">v</span>
+</span><span id="__span-0-349"><a id="__codelineno-0-349" name="__codelineno-0-349"></a>        <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">model_dump</span><span class="p">(</span>
+</span><span id="__span-0-350"><a id="__codelineno-0-350" name="__codelineno-0-350"></a>            <span class="n">exclude_none</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;limit&quot;</span><span class="p">,</span> <span class="s2">&quot;cursor&quot;</span><span class="p">,</span> <span class="s2">&quot;tags&quot;</span><span class="p">}</span>
+</span><span id="__span-0-351"><a id="__codelineno-0-351" name="__codelineno-0-351"></a>        <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+</span><span id="__span-0-352"><a id="__codelineno-0-352" name="__codelineno-0-352"></a>    <span class="p">}</span>
 </span></code></pre></div></td></tr></table></div>
             </details>
     </div>
