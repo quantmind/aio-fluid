@@ -24,7 +24,8 @@ only needed for structured ones. The `pydanclick` dependency is gone, see
   validated by the model, booleans are `--name/--no-name` flags, a list of
   plain values is passed by repeating the option, and a required field can be
   given in `--params`. Invalid JSON in `--params` is reported as a usage error
-  ([task CLI reference](https://fluid.quantmind.com/reference/task_cli/)).
+  ([task CLI reference](https://fluid.quantmind.com/reference/task_cli/),
+  [#125](https://github.com/quantmind/aio-fluid/pull/125)).
 
 ## v2.10.1
 
