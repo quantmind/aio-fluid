@@ -62,11 +62,22 @@ Runs a registered task synchronously and prints the result table.
 python -m myapp exec <task-name> [OPTIONS]
 ```
 
-Each task exposes its params model fields as CLI options (via [pydanclick](https://github.com/felix-martel/pydanclick)):
+Each top level field of the task params model is a CLI option, named after the field with underscores turned into dashes:
 
 ```bash
 python -m myapp exec add --a 5 --b 3
 ```
+
+Values are written as they are, not as JSON, and validated by the params model:
+
+- strings, emails, decimals, dates, datetimes and secrets are plain strings, `--email luca@example.com`, `--dt 2026-01-01T10:00:00`
+- integers and floats are numbers, `--count 3`
+- booleans are flags, `--error` or `--no-error`
+- enums and literals accept one of their values, `--color green`
+- a list of plain values is passed by repeating the option, `--tag a --tag b`
+- structured values, such as a nested model or a dictionary, are passed as JSON
+
+Options left out are not sent, so the model defaults apply. A required field can be given either as an option or in `--params`.
 
 #### Passing parameters as JSON
 

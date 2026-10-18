@@ -2,6 +2,18 @@
 
 This page is the source of truth for aio-fluid release notes. Each section below maps to a tagged release on [GitHub](https://github.com/quantmind/aio-fluid/releases). When a new tag is pushed, the matching section is extracted by `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.11.0
+
+Task parameters are passed to the `exec` command as plain values, JSON is only needed for structured ones. The `pydanclick` dependency is gone, see **Breaking changes**.
+
+### Breaking changes
+
+- The `cli` extra no longer installs `pydanclick`, and the `fluid.utils.patch_pydanclick` module is removed.
+
+### Improvements and fixes
+
+- `exec` builds its options from the task params model directly: strings, emails, dates and other scalar fields are written as plain strings and validated by the model, booleans are `--name/--no-name` flags, a list of plain values is passed by repeating the option, and a required field can be given in `--params`. Invalid JSON in `--params` is reported as a usage error ([task CLI reference](https://fluid.quantmind.com/reference/task_cli/)).
+
 ## v2.10.1
 
 The task run history endpoint gets more flexible filters: several values per filter and a new priority filter.
