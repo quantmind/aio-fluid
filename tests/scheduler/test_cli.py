@@ -246,3 +246,14 @@ def test_cli_app_and_task_manager():
     cli = TaskManagerCLI(task_manager_app=task_manager_cli.get_task_manager_app)
     task_manager = cli.get_task_manager()
     assert task_manager
+
+
+def test_cli_exec_plain_values():
+    """Numbers and datetimes are passed as plain strings, not JSON."""
+    runner = CliRunner()
+    result = runner.invoke(task_manager_cli, ["exec", "add", "--a", "5", "--b", "3"])
+    assert result.exit_code == 0, result.output
+    result = runner.invoke(
+        task_manager_cli, ["exec", "datetime_task", "--dt", "2026-01-01T00:00:00"]
+    )
+    assert result.exit_code == 0, result.output

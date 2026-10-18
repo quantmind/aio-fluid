@@ -1,13 +1,11 @@
 from __future__ import annotations
 
 import asyncio
-import json
 from typing import TYPE_CHECKING, Any, Callable
 
 import click
 import uvicorn
 from fastapi import FastAPI
-from pydantic import BaseModel
 from rich.console import Console
 from rich.table import Table
 from typing_extensions import Annotated, Doc
@@ -15,8 +13,8 @@ from uvicorn.importer import import_from_string
 
 from fluid.utils import log as log_
 from fluid.utils.lazy import LazyGroup
-from fluid.utils.patch_pydanclick import from_pydantic
 
+from .cli_params import JSON, ModelOptions
 from .common import is_in_cpu_process
 from .errors import UnknownTaskError
 
@@ -103,20 +101,23 @@ class ExecuteTasks(click.Group):
         if task is None:
             raise click.ClickException(f"Task {cmd_name} not found")
 
+        options = ModelOptions(task.params_model)
+
+        @options
         @click.command(cmd_name, help=task.short_description)
         @click.option("--log", is_flag=True, help="Show logs")
         @click.option("--run-id", help="run id")
-        @click.option("--params", help="optional parameters as JSON string")
-        @from_pydantic(task.params_model)
-        def execute_task(log: bool, run_id: str, params: str, **extra: Any) -> None:
+        @click.option("--params", type=JSON, help="optional parameters as JSON string")
+        def execute_task(
+            log: bool, run_id: str, params: dict | None, **extra: Any
+        ) -> None:
             if log:
                 log_config = ctx_task_manager_cli(ctx).log_config
                 log_.config(**log_config)
-            kwargs = {}
-            for value in extra.values():
-                if isinstance(value, BaseModel):
-                    kwargs.update(value.model_dump())
-            kwargs.update(json.loads(params or "{}"))
+            command_ctx = click.get_current_context()
+            kwargs = options.collect(command_ctx, extra)
+            kwargs.update(params or {})
+            options.check_required(command_ctx, kwargs)
             if run_id:
                 kwargs.update(run_id=run_id)
             run = task_manager.execute_sync(cmd_name, **kwargs)
