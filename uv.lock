@@ -23,7 +23,6 @@ dependencies = [
 [package.optional-dependencies]
 cli = [
     { name = "click" },
-    { name = "pydanclick" },
     { name = "rich" },
 ]
 console = [
@@ -55,6 +54,7 @@ log = [
 [package.dev-dependencies]
 dev = [
     { name = "black" },
+    { name = "email-validator" },
     { name = "ipython" },
     { name = "isort" },
     { name = "mypy" },
@@ -90,7 +90,6 @@ requires-dist = [
     { name = "kubernetes-asyncio", marker = "extra == 'k8s'", specifier = ">=32.0.0" },
     { name = "prometheus-client", marker = "extra == 'http'", specifier = ">=0.21.0" },
     { name = "psycopg2-binary", marker = "extra == 'db'", specifier = ">=2.9.9" },
-    { name = "pydanclick", marker = "extra == 'cli'", specifier = ">=0.5.0" },
     { name = "pydantic", specifier = ">=2.12.5" },
     { name = "pydantic-settings", specifier = ">=2.7.0" },
     { name = "python-dateutil", marker = "extra == 'db'", specifier = ">=2.9.0" },
@@ -109,6 +108,7 @@ provides-extras = ["cli", "console", "db", "http", "k8s", "log"]
 [package.metadata.requires-dev]
 dev = [
     { name = "black", specifier = ">=26.1.0" },
+    { name = "email-validator", specifier = ">=2.2.0" },
     { name = "ipython", specifier = ">=9.10.0" },
     { name = "isort", specifier = ">=8.0.1" },
     { name = "mypy", specifier = ">=2.1.0" },
@@ -891,12 +891,34 @@ wheels = [
 ]
 
 [[package]]
+name = "dnspython"
+version = "2.9.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/ef/4a/50822184bd67cc6493f0fb6a880749158fcd31ab3fa07409acfd91f9fc85/dnspython-2.9.0.tar.gz", hash = "sha256:b44dc6b18f07a8b1c56676a19fbfdb5209415b046a9cece286baafa87ff3f7f1", size = 423560, upload-time = "2026-10-09T00:07:24.352Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/10/02/cdcc9b7c051786a103c3b09e1003a82fa0c66bcb91ffbdabcfbf7b4163b9/dnspython-2.9.0-py3-none-any.whl", hash = "sha256:9a4aedb833c3c1b49214d04d44d3032ab7a9135f7c1d29a549b4ff78fd82fda9", size = 354822, upload-time = "2026-10-09T00:07:22.622Z" },
+]
+
+[[package]]
 name = "durationpy"
 version = "0.10"
 source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/9d/a4/e44218c2b394e31a6dd0d6b095c4e1f32d0be54c2a4b250032d717647bab/durationpy-0.10.tar.gz", hash = "sha256:1fa6893409a6e739c9c72334fc65cca1f355dbdd93405d30f726deb5bde42fba", size = 3335, upload-time = "2025-05-17T13:52:37.26Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b0/0d/9feae160378a3553fa9a339b0e9c1a048e147a4127210e286ef18b730f03/durationpy-0.10-py3-none-any.whl", hash = "sha256:3b41e1b601234296b4fb368338fdcd3e13e0b4fb5b67345948f4f2bf9868b286", size = 3922, upload-time = "2025-05-17T13:52:36.463Z" },
+]
+
+[[package]]
+name = "email-validator"
+version = "2.3.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dnspython" },
+    { name = "idna" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f5/22/900cb125c76b7aaa450ce02fd727f452243f2e91a61af068b40adba60ea9/email_validator-2.3.0.tar.gz", hash = "sha256:9fc05c37f2f6cf439ff414f8fc46d917929974a82244c20eb10231ba60c54426", size = 51238, upload-time = "2025-08-26T13:09:06.831Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/de/15/545e2b6cf2e3be84bc1ed85613edd75b8aea69807a71c26f4ca6a9258e82/email_validator-2.3.0-py3-none-any.whl", hash = "sha256:80f13f623413e6b197ae73bb10bf4eb0908faf509ad8362c5edeb0be7fd450b4", size = 35604, upload-time = "2025-08-26T13:09:05.858Z" },
 ]
 
 [[package]]
@@ -2250,15 +2272,6 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/1b/7d/92392ff7815c21062bea51aa7b87d45576f649f16458d78b7cf94b9ab2e6/pycparser-3.0.tar.gz", hash = "sha256:600f49d217304a5902ac3c37e1281c9fe94e4d0489de643a9504c5cdfdfc6b29", size = 103492, upload-time = "2026-01-21T14:26:51.89Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0c/c3/44f3fbbfa403ea2a7c779186dc20772604442dde72947e7d01069cbe98e3/pycparser-3.0-py3-none-any.whl", hash = "sha256:b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992", size = 48172, upload-time = "2026-01-21T14:26:50.693Z" },
-]
-
-[[package]]
-name = "pydanclick"
-version = "0.5.1"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/4a/b5/4de7da87d181c8809e3be95a61256a9efa557030b097f50bb6ddeefcd126/pydanclick-0.5.1.tar.gz", hash = "sha256:ddbf2ec8ce3086b0e011bd1b7cd13474de7210d27e031a37c9cec4a76971d518", size = 20911, upload-time = "2025-02-26T07:39:21.603Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/99/45/a7e33af2da5d4396e974f33ed7ed406e2cc218427cf8fdbe01c9491e51f8/pydanclick-0.5.1-py3-none-any.whl", hash = "sha256:9ef7dd384f0e04c9db3908251db8f5fe7c05d52a8824c659778036cc671f416a", size = 22163, upload-time = "2025-02-26T07:39:19.926Z" },
 ]
 
 [[package]]
