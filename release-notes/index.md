@@ -12,7 +12,7 @@ Task parameters are passed to the `exec` command as plain values, JSON is only n
 
 ### Improvements and fixes
 
-- `exec` builds its options from the task params model directly: strings, emails, dates and other scalar fields are written as plain strings and validated by the model, booleans are `--name/--no-name` flags, a list of plain values is passed by repeating the option, and a required field can be given in `--params`. Invalid JSON in `--params` is reported as a usage error ([task CLI reference](https://fluid.quantmind.com/reference/task_cli/)).
+- `exec` builds its options from the task params model directly: strings, emails, dates and other scalar fields are written as plain strings and validated by the model, booleans are `--name/--no-name` flags, a list of plain values is passed by repeating the option, and a required field can be given in `--params`. Invalid JSON in `--params` is reported as a usage error ([task CLI reference](https://fluid.quantmind.com/reference/task_cli/), [#125](https://github.com/quantmind/aio-fluid/pull/125)).
 
 ## v2.10.1
 
