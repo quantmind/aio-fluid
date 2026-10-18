@@ -6,6 +6,18 @@ below maps to a tagged release on
 pushed, the matching section is extracted by
 `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.11.1
+
+A fix for CPU-bound tasks dispatched as Kubernetes Jobs.
+
+### Improvements and fixes
+
+- The job pod template no longer inherits the startup probe from the consumer
+  container, alongside the liveness and readiness probes already removed, so
+  a task job is not killed or held back by a probe meant for the long running
+  service ([K8s Jobs](https://fluid.quantmind.com/tutorials/task_k8s/),
+  [#126](https://github.com/quantmind/aio-fluid/pull/126)).
+
 ## v2.11.0
 
 Task parameters are passed to the `exec` command as plain values, JSON is
