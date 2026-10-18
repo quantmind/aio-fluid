@@ -100,6 +100,7 @@ def k8s_job_pod_template(
     container.env = env
     container.liveness_probe = None  # type: ignore[assignment]
     container.readiness_probe = None  # type: ignore[assignment]
+    container.startup_probe = None  # type: ignore[assignment]
     pod_spec.containers = [container]
     pod_spec.restart_policy = "Never"
     return pod_template
