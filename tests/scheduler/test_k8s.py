@@ -243,6 +243,20 @@ async def test_cpu_env_added_to_job_env() -> None:
     assert "TASK_MANAGER_SPAWN" in env_names
 
 
+async def test_probes_removed_from_job_container() -> None:
+    ctx = make_ctx()
+    patches, _, mock_batch = make_k8s_mocks(ctx, succeeded=1)
+
+    with patches[0], patches[1], patches[2], patches[3]:
+        await run_on_k8s_job(ctx)
+
+    job = mock_batch.create_namespaced_job.call_args.args[1]
+    container = job.spec.template.spec.containers[0]
+    assert container.liveness_probe is None
+    assert container.readiness_probe is None
+    assert container.startup_probe is None
+
+
 # ---------------------------------------------------------------------------
 # run_on_k8s_job — error cases
 # ---------------------------------------------------------------------------
