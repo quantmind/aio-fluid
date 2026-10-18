@@ -2,13 +2,15 @@ import json
 from datetime import datetime
 from decimal import Decimal
 from enum import IntEnum
-from typing import Any, Literal
+from typing import Any, Literal, NewType
 
 import click
 from click.testing import CliRunner
 from pydantic import BaseModel, EmailStr, Field, SecretStr
 
 from fluid.scheduler.cli_params import JSON, ModelOptions
+
+UserId = NewType("UserId", str)
 
 
 class Level(IntEnum):
@@ -44,6 +46,11 @@ class Collections(BaseModel):
     extra: dict[str, int] = Field(default_factory=dict)
     items: list[Inner] = Field(default_factory=list)
     key: int | str | None = None
+    either: Inner | int | None = None
+    pair: tuple[int, str] | None = None
+    anything: Any = None
+    user: UserId | None = None
+    default_inner: Inner = Inner(x=2)
 
 
 class Aliased(BaseModel):
@@ -53,6 +60,10 @@ class Aliased(BaseModel):
 class Reserved(BaseModel):
     run_id: str = ""
     log: bool = False
+
+
+class RequiredReserved(BaseModel):
+    run_id: str
 
 
 def command_for(model: type[BaseModel]) -> click.Command:
@@ -221,3 +232,37 @@ async def test_reserved_names_only_in_params():
     assert result.exit_code == 0, result.output
     data = json.loads(result.output.splitlines()[0])
     assert data == {"run_id": "abc", "log": True}
+
+
+async def test_structured_unions_and_tuples_as_json():
+    result = invoke(
+        Collections,
+        "--either",
+        '{"x": 3}',
+        "--pair",
+        '[1, "a"]',
+        "--anything",
+        "hi",
+        "--user",
+        "u1",
+    )
+    assert result.exit_code == 0, result.output
+    data = json.loads(result.output.splitlines()[0])
+    assert data["either"] == {"x": 3}
+    assert data["pair"] == [1, "a"]
+    assert data["anything"] == "hi"
+    assert data["user"] == "u1"
+
+
+async def test_model_default_in_help():
+    result = invoke(Collections, "--help")
+    assert result.exit_code == 0
+    assert '[default: {"x":2}]' in result.output
+
+
+async def test_required_reserved_name():
+    result = invoke(RequiredReserved)
+    assert result.exit_code == 2
+    assert "Missing parameter 'run_id', pass it with --params" in result.output
+    result = invoke(RequiredReserved, "--params", '{"run_id": "abc"}')
+    assert result.exit_code == 0, result.output

@@ -28,8 +28,6 @@ class JsonParamType(click.ParamType):
     def convert(
         self, value: Any, param: click.Parameter | None, ctx: click.Context | None
     ) -> Any:
-        if not isinstance(value, str):
-            return value
         try:
             return json.loads(value)
         except json.JSONDecodeError as e:
@@ -46,8 +44,6 @@ class ValueChoice(click.Choice):
     def convert(
         self, value: Any, param: click.Parameter | None, ctx: click.Context | None
     ) -> Any:
-        if not isinstance(value, str):
-            return value
         return self.values[super().convert(value, param, ctx)]
 
 
@@ -153,7 +149,7 @@ def _scalar_type(annotation: Any) -> click.ParamType | None:
         return None
     if get_origin(annotation) is not None:
         return None
-    # Any and other annotations which are not classes
+    # NewType and other annotations which are not classes
     return click.STRING
 
 
