@@ -6,6 +6,16 @@ below maps to a tagged release on
 pushed, the matching section is extracted by
 `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.12.1
+
+A packaging fix for the `db` extra.
+
+### Improvements and fixes
+
+- The `db` extra requires `python-dateutil >= 2.9.0` instead of `>= 3.0.0`,
+  so aio-fluid can be installed alongside packages that need dateutil 2.x,
+  such as aiobotocore.
+
 ## v2.12.0
 
 Pagination cursors can be signed, so a client cannot change them, and Python
