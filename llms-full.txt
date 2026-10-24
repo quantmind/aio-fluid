@@ -14575,6 +14575,14 @@ It fetches last-30-days downloads from the [pypistats.org](https://pypistats.org
 
 This page is the source of truth for aio-fluid release notes. Each section below maps to a tagged release on [GitHub](https://github.com/quantmind/aio-fluid/releases). When a new tag is pushed, the matching section is extracted by `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.12.1
+
+A packaging fix for the `db` extra.
+
+### Improvements and fixes
+
+- The `db` extra requires `python-dateutil >= 2.9.0` instead of `>= 3.0.0`, so aio-fluid can be installed alongside packages that need dateutil 2.x, such as aiobotocore.
+
 ## v2.12.0
 
 Pagination cursors can be signed, so a client cannot change them, and Python 3.15 is supported. The sync database engine now uses psycopg 3 and some filters that used to be ignored now raise, see **Breaking changes**.
