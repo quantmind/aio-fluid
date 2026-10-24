@@ -2,6 +2,29 @@
 
 This page is the source of truth for aio-fluid release notes. Each section below maps to a tagged release on [GitHub](https://github.com/quantmind/aio-fluid/releases). When a new tag is pushed, the matching section is extracted by `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.12.0
+
+Pagination cursors can be signed, so a client cannot change them, and Python 3.15 is supported. The sync database engine now uses psycopg 3 and some filters that used to be ignored now raise, see **Breaking changes**.
+
+### Breaking changes
+
+- The `db` extra installs `psycopg[binary]` (psycopg 3) instead of `psycopg2-binary`, and the sync engine uses the `postgresql+psycopg` driver. The minimum versions of `fastapi`, `sqlalchemy`, `asyncpg` and `kubernetes` are raised ([#128](https://github.com/quantmind/aio-fluid/pull/128)).
+- With a cursor, the `filters` passed to `Pagination.create` are now applied on top of the filters carried by the cursor, and win on the same key. Before, they were ignored ([pagination tutorial](https://fluid.quantmind.com/tutorials/db/#signing-the-cursor), [#127](https://github.com/quantmind/aio-fluid/pull/127)).
+- A CRUD filter with an unknown operator, or an operator other than `eq` on a JSON value, raises a `ValidationError` instead of being silently dropped. An invalid filter value is reported against its column rather than as an invalid cursor ([#128](https://github.com/quantmind/aio-fluid/pull/128)).
+
+### New features
+
+- The new `FLUID_PAGINATION_SECRET` setting signs every pagination cursor with an HMAC, and a cursor that is changed, unsigned or signed with another secret is rejected. A cursor limit outside 1 to `DEFAULT_PAGINATION_MAX_LIMIT` is replaced by that maximum ([pagination tutorial](https://fluid.quantmind.com/tutorials/db/#signing-the-cursor), [#127](https://github.com/quantmind/aio-fluid/pull/127)).
+- Python 3.15 is supported and tested in CI ([#128](https://github.com/quantmind/aio-fluid/pull/128)).
+
+### Improvements and fixes
+
+- A `QueueConsumer` cancelled while stopping consumes the cancellation in `get_message` and exits its loop cleanly, with `on_shutdown` called as usual ([workers tutorial](https://fluid.quantmind.com/tutorials/workers/#being-a-good-worker), [#128](https://github.com/quantmind/aio-fluid/pull/128)).
+- A crontab day of week range can end on 7 (Sunday), as in `1-7` ([#128](https://github.com/quantmind/aio-fluid/pull/128)).
+- The `create-schema` database command commits the new schema, and `create-ro-user` with a database name keeps the original connection settings ([#128](https://github.com/quantmind/aio-fluid/pull/128)).
+- Worker start errors show the worker name and state in the message, and a task run whose params cannot be serialized no longer fails at start ([#128](https://github.com/quantmind/aio-fluid/pull/128)).
+- The test suite reaches full coverage ([#128](https://github.com/quantmind/aio-fluid/pull/128)).
+
 ## v2.11.1
 
 A fix for CPU-bound tasks dispatched as Kubernetes Jobs.
