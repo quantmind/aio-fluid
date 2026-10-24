@@ -9,6 +9,7 @@ from httpx2 import ASGITransport, AsyncClient
 from sqlalchemy.exc import NoResultFound
 
 from examples import tasks
+from examples.db import get_db
 from fluid.scheduler import TaskPriority, TaskState
 from fluid.scheduler.consumer import TaskConsumer
 from fluid.scheduler.db import (
@@ -409,3 +410,16 @@ async def test_get_history_filter_by_params_invalid(cli_db: TaskClient) -> None:
         with pytest.raises(HttpResponseError) as exc:
             await get_history(cli_db, params=value)
         assert exc.value.status_code == 422
+
+
+async def test_register_in_cpu_process(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A cpu bound process does not register the db event handlers"""
+    monkeypatch.setenv("TASK_MANAGER_SPAWN", "true")
+    plugin = TaskDbPlugin(get_db())
+    task_manager = tasks.task_scheduler(plugins=[plugin])
+    assert get_db_plugin(task_manager) is plugin
+    task_run = task_manager.create_task_run("dummy").model_copy(
+        update=dict(state=TaskState.queued)
+    )
+    dispatcher = task_manager._async_dispatcher_worker.dispatcher
+    assert dispatcher.get_handlers(task_run) is None

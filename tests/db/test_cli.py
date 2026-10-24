@@ -171,6 +171,71 @@ def test_delete_rows(db: CrudDB):
     assert "removing" in result.output
 
 
+async def test_tables_in_database(db: CrudDB):
+    runner = CliRunner()
+    result = runner.invoke(cli, ["tables", "--db"])
+    assert result.exit_code == 0
+    assert "tasks" in result.output.split()
+
+
+async def test_create_schema_cli(db: CrudDB):
+    mig = db.migration()
+    with db.sync_engine.begin() as conn:
+        conn.execute(sa.schema.DropSchema("cli_schema", cascade=True, if_exists=True))
+    runner = CliRunner()
+    try:
+        result = runner.invoke(cli, ["create-schema", "cli_schema"])
+        assert result.exit_code == 0
+        assert "schema cli_schema created" in result.output
+        assert "cli_schema" in mig.schemas()
+    finally:
+        with db.sync_engine.begin() as conn:
+            conn.execute(
+                sa.schema.DropSchema("cli_schema", cascade=True, if_exists=True)
+            )
+
+
+async def test_create_ro_user_cli_other_database(db: CrudDB):
+    mig = db.migration()
+    name = "test_ro_other_db"
+    mig.db_drop(name)
+    assert mig.db_create(name)
+    try:
+        runner = CliRunner()
+        result = runner.invoke(
+            cli,
+            [
+                "create-ro-user",
+                "test_other_ro_user",
+                "secret",
+                "--role",
+                "test_other_ro_role",
+                "--dbname",
+                name,
+            ],
+        )
+        assert result.exit_code == 0, result.output
+    finally:
+        other = CrudDB.from_env(
+            dsn=db.engine.url.render_as_string(hide_password=False), db_name=name
+        )
+        other.migration().drop_role("test_other_ro_role")
+        mig.db_drop(name)
+        with db.sync_engine.begin() as conn:
+            conn.execute(sa.text("DROP USER IF EXISTS test_other_ro_user"))
+
+
+async def test_drop_role_cli_existing(db: CrudDB):
+    mig = db.migration()
+    mig.drop_role("test_cli_drop_role")
+    with db.sync_engine.begin() as conn:
+        conn.execute(sa.text("CREATE ROLE test_cli_drop_role"))
+    runner = CliRunner()
+    result = runner.invoke(cli, ["drop-role", "test_cli_drop_role"])
+    assert result.exit_code == 0
+    assert "role test_cli_drop_role dropped" in result.output
+
+
 def test_schemas_lists_non_system_schemas(db: CrudDB):
     mig = db.migration()
     with db.sync_engine.begin() as conn:

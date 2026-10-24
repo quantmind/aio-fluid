@@ -96,7 +96,7 @@ class WorkerTaskRunner:
 
     async def run(self, waiter: asyncio.Future) -> None:
         if self.worker.is_running():
-            raise WorkerStartError("worker %s already running", self.worker.worker_name)
+            raise WorkerStartError(f"worker {self.worker.worker_name} already running")
         self.worker._worker_state = WorkerState.RUNNING
         logger.info("%s started running", self.worker.worker_name)
         waiter.set_result(self)
@@ -250,7 +250,8 @@ class Worker(ABC):
         """
         if self.has_started():
             raise WorkerStartError(
-                "worker %s already started: %s", self.worker_name, self._worker_state
+                f"worker {self.worker_name} already started: "
+                f"{self._worker_state.name}"
             )
         else:
             self._worker_task_runner = await WorkerTaskRunner.start(self)
@@ -364,13 +365,24 @@ class QueueConsumer(Worker, MessageProducer[MessageType]):
         self._queue: asyncio.Queue[MessageType | None] = asyncio.Queue()
 
     async def get_message(self, timeout: float = 0.5) -> MessageType | None:
-        """Get the next message from the queue"""
+        """Get the next message from the queue
+
+        It returns None when no message arrives within the timeout, and when
+        the worker is cancelled while stopping. In the second case the
+        cancellation is consumed, so the worker can exit its run loop cleanly.
+        """
         try:
             async with asyncio.timeout(timeout):
                 return await self._queue.get()
         except asyncio.TimeoutError:
             return None
-        except (asyncio.CancelledError, RuntimeError):
+        except asyncio.CancelledError:
+            if not self.is_stopping():
+                raise
+            # the cancellation is consumed: clear it from the task
+            if task := asyncio.current_task():
+                task.uncancel()
+        except RuntimeError:
             if not self.is_stopping():
                 raise
         return None

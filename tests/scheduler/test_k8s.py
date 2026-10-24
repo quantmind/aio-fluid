@@ -243,6 +243,21 @@ async def test_cpu_env_added_to_job_env() -> None:
     assert "TASK_MANAGER_SPAWN" in env_names
 
 
+async def test_task_env_added_to_job_env() -> None:
+    ctx = make_ctx(env=[])
+    ctx.task.env = {"MY_TASK_VAR": "42"}
+    patches, _, mock_batch = make_k8s_mocks(ctx, succeeded=1)
+
+    with patches[0], patches[1], patches[2], patches[3]:
+        await run_on_k8s_job(ctx)
+
+    job = mock_batch.create_namespaced_job.call_args.args[1]
+    container = job.spec.template.spec.containers[0]
+    env = {e.name: e.value for e in container.env}
+    assert env["MY_TASK_VAR"] == "42"
+    assert env["TASK_MANAGER_SPAWN"] == "true"
+
+
 async def test_probes_removed_from_job_container() -> None:
     ctx = make_ctx()
     patches, _, mock_batch = make_k8s_mocks(ctx, succeeded=1)

@@ -179,7 +179,7 @@ def drop(ctx: click.Context, dbname: str, yes: bool) -> None:
 @click.pass_context
 def create_schema(ctx: click.Context, name: str) -> None:
     """Creates a new database schema"""
-    with get_db(ctx).sync_engine.connect() as conn:
+    with get_db(ctx).sync_engine.begin() as conn:
         conn.execute(text(f"create schema {name}"))
     click.echo(f"schema {name} created")
 
@@ -202,8 +202,7 @@ def create_ro_user(
     """Creates or updates a database user"""
     d = get_db(ctx)
     if dbname:
-        url = d.engine.url.set(database=dbname)
-        d = type(d).from_env(dsn=str(url))
+        d = type(d).from_env(dsn=d.dsn, db_name=dbname)
     mig = d.migration()
     mig.create_ro_user(username, password, role=role, schema=schema)
     click.echo(f"schema {username} created")
