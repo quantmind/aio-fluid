@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "ask": [
+      "Edit(/docs/release-notes.md)",
+      "Edit(/pyproject.toml)"
+    ]
+  }
+}
