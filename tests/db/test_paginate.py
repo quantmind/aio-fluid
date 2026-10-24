@@ -136,3 +136,52 @@ async def test_paginate_cursor_limit_capped() -> None:
             search_text="",
         ).encode()
         assert Pagination.create("created", cursor=cursor).limit == max_limit
+
+
+async def paginate_all(
+    db: CrudDB, *order_by: str, desc: bool, filters: dict
+) -> list[tuple]:
+    table = db.tables["tasks"]
+    pages = []
+    p = Pagination.create(*order_by, filters=filters, limit=2, desc=desc)
+    while True:
+        rows, cursor = await p.execute(db, table)
+        pages.append([(r.severity, r.id) for r in rows])
+        if not cursor:
+            break
+        p = Pagination.create(*order_by, cursor=cursor, desc=desc)
+    return [row for page in pages for row in page]
+
+
+@pytest.mark.parametrize("desc", [False, True])
+async def test_paginate_multiple_fields(db: CrudDB, desc: bool) -> None:
+    """Rows tied on the first field are split across pages without
+    repeating or missing any of them"""
+    table = db.tables["tasks"]
+    created_by = f"multi-{desc}"
+    data = [
+        dict(title=f"Multi{i}", severity=i % 3, created_by=created_by) for i in range(7)
+    ]
+    await db.db_insert(table, data)
+    filters = dict(created_by=created_by)
+    order_by = ("-severity", "-id") if desc else ("severity", "id")
+    expected = [
+        (r.severity, r.id)
+        for r in (await db.db_select(table, filters, order_by=order_by)).all()
+    ]
+    assert len(expected) == 7
+    rows = await paginate_all(db, "severity", "id", desc=desc, filters=filters)
+    assert rows == expected
+
+
+async def test_paginate_cursor_invalid_value(db: CrudDB) -> None:
+    cursor = Cursor(
+        entries=(CursorEntry("severity", "not-a-number"),),
+        limit=5,
+        filters={},
+        search_text="",
+    ).encode()
+    p = Pagination.create("severity", cursor=cursor)
+    with pytest.raises(ValidationError) as exc:
+        await p.execute(db, db.tables["tasks"])
+    assert exc.value.field == "cursor"

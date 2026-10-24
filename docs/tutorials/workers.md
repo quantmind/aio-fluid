@@ -24,6 +24,18 @@ To shut down a worker there are few possibilities.
 * Direct call to the async [Worker.shutdown][fluid.utils.worker.Worker.shutdown] method which will trigger the graceful shutdown and wait for the worker to finish its work.
 * Call the [Worker.gracefully_stop][fluid.utils.worker.Worker.gracefully_stop] method which will trigger the graceful shutdown. Importantly, this method does not wait for the worker to finish its work, ti simply transition from the [WorkerState.RUNNING][fluid.utils.worker.WorkerState.RUNNING] to [WorkerState.STOPPING][fluid.utils.worker.WorkerState.STOPPING] state. To wait for the worker exit one should call the async [Worker.wait_for_shutdown][fluid.utils.worker.Worker.wait_for_shutdown] method (as in the example above)
 
+### Being a Good Worker
+
+When a worker is asked to stop, it should stop. This is the design, and there is no reason for a worker to keep running once it has been asked to exit. A good worker:
+
+* checks [Worker.is_running][fluid.utils.worker.Worker.is_running] in its main loop and leaves the loop as soon as it returns `False`, as in the example above;
+* never blocks for long between those checks: every wait has a timeout short enough for the loop to notice the [WorkerState.STOPPING][fluid.utils.worker.WorkerState.STOPPING] state quickly;
+* releases its resources on the way out, in [Worker.run][fluid.utils.worker.Worker.run] itself or in [Worker.on_shutdown][fluid.utils.worker.Worker.on_shutdown].
+
+A worker that does not exit within its stopping grace period (the `stopping_grace_period` argument, or the `FLUID_STOPPING_GRACE_PERIOD` environment variable, 10 seconds by default) is cancelled. It then ends in the [WorkerState.FORCE_STOPPED][fluid.utils.worker.WorkerState.FORCE_STOPPED] state with exit code 1, its [Worker.on_shutdown][fluid.utils.worker.Worker.on_shutdown] is skipped, and a warning is logged. A forced shutdown is the sign of a worker that is not behaving.
+
+The workers shipped with `aio-fluid` are good workers. In particular, when a [QueueConsumer][fluid.utils.worker.QueueConsumer] is cancelled while stopping and waiting on its queue, [QueueConsumer.get_message][fluid.utils.worker.QueueConsumer.get_message] consumes the cancellation and returns `None`, so the consumer leaves its loop and exits cleanly, with [Worker.on_shutdown][fluid.utils.worker.Worker.on_shutdown] called as usual.
+
 ## Async Context Manager
 
 [Worker][fluid.utils.worker.Worker] implements the async context manager protocol. Entering the context calls [Worker.startup][fluid.utils.worker.Worker.startup] and exiting it calls [Worker.shutdown][fluid.utils.worker.Worker.shutdown], so the `async with` pattern is the most concise way to manage the full lifecycle:

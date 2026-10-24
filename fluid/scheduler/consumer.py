@@ -632,6 +632,7 @@ class TaskConsumer(TaskManager, Workers):
             try:
                 params = task_run.params.model_dump_json()
             except Exception:
+                params = "<params not serializable>"
                 task_run.logger.exception("%s - start - params exception", task_run.id)
             else:
                 task_run.logger.info("%s - %s - start", task_run.id, params)

@@ -1,4 +1,5 @@
-from datetime import datetime
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 import pytest
 
@@ -162,3 +163,51 @@ async def test_consecutive_runs() -> None:
     assert schedule(as_utc(datetime(2021, 2, 20, 8)), run) is None
     assert schedule(as_utc(datetime(2021, 2, 20, 8, 0, 1)), run) is None
     assert schedule(as_utc(datetime(2021, 2, 20, 8, 1, 0)), run) is None
+
+
+async def test_crontab_day_of_week_range() -> None:
+    # jan 3, 2011 is a monday, jan 7 a friday
+    validate = crontab(day_of_week="1-5", hour=0, minute=0)
+    for x in range(1, 32):
+        res = validate(as_utc(datetime(2011, 1, x)))
+        if datetime(2011, 1, x).weekday() < 5:
+            assert res
+        else:
+            assert res is None
+
+
+async def test_crontab_naive_timestamp() -> None:
+    with pytest.raises(ValueError, match="timezone"):
+        crontab()(datetime(2011, 1, 1))
+
+
+async def test_crontab_timezone_conversion() -> None:
+    rome = ZoneInfo("Europe/Rome")
+    validate = crontab(hour=9, minute=0, tz=rome)
+    # 9:00 in Rome is 8:00 UTC in winter
+    run = validate(datetime(2011, 1, 3, 8, 0, tzinfo=timezone.utc))
+    assert run
+    assert run.hour == 9
+    assert validate(datetime(2011, 1, 3, 9, 0, tzinfo=timezone.utc)) is None
+
+
+@pytest.mark.parametrize(
+    "day_of_week, valids",
+    [
+        # 2011-01-02 is a Sunday, so day x of the month is weekday (x - 2) % 7
+        ("5-7", {5, 6, 0}),
+        ("1-7", {0, 1, 2, 3, 4, 5, 6}),
+        ("0-7", {0, 1, 2, 3, 4, 5, 6}),
+        ("6-7", {6, 0}),
+    ],
+)
+async def test_crontab_day_of_week_range_ending_on_sunday(
+    day_of_week: str, valids: set[int]
+) -> None:
+    validate = crontab(day_of_week=day_of_week)
+    for x in range(2, 9):
+        res = validate(as_utc(datetime(2011, 1, x)))
+        if (x - 2) % 7 in valids:
+            assert res, f"day {x} should match {day_of_week}"
+        else:
+            assert res is None, f"day {x} should not match {day_of_week}"

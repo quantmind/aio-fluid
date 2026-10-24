@@ -113,3 +113,17 @@ async def test_terminate_is_noop_when_process_exited() -> None:
     await process.wait()
     await kernel.terminate(process)
     assert process.returncode == 0
+
+
+async def test_run_python_encoded_log() -> None:
+    """stdout is decoded by EncodedLog, stderr without a callback is discarded"""
+    logged: list[str] = []
+    result = kernel.EncodedLog(log=logged.append)
+    code = await kernel.run_python(
+        "-c",
+        "import sys; print('ciao'); sys.stderr.write('ignored')",
+        result_callback=result,
+    )
+    assert code == 0
+    assert result.data == ["ciao\n"]
+    assert logged == ["ciao\n"]

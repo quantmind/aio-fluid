@@ -8,6 +8,7 @@ from sqlalchemy.sql.expression import ColumnElement
 from typing_extensions import Annotated, Doc
 
 from fluid import settings
+from fluid.utils.errors import ValidationError
 
 from .crud import CrudDB, Row, Select, column_value_to_python
 from .cursor import Cursor, CursorEntry
@@ -186,7 +187,10 @@ class Pagination(NamedTuple):
                 self.order_by_fields, self.cursor.entries, strict=False
             ):
                 column = getattr(table.c, name)
-                values.append(column_value_to_python(column, entry.value))
+                try:
+                    values.append(column_value_to_python(column, entry.value))
+                except ValidationError as e:
+                    raise ValidationError("cursor", "invalid cursor") from e
                 columns.append(column)
             if self.desc:
                 if len(columns) == 1:

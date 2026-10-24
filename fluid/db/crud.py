@@ -399,7 +399,9 @@ class CrudDB(Database):
         if isinstance(column.type, JSONB) and isinstance(value, dict):
             if op == "eq":
                 return column.contains(value)
-            return None
+            raise ValidationError(
+                column.name, f"operator '{op}' not supported for JSON values"
+            )
 
         if multiple := isinstance(value, (list, tuple)):
             value = tuple(column_value_to_python(column, v) for v in value)
@@ -430,6 +432,7 @@ class CrudDB(Database):
                 return column < value
             elif op == "le":
                 return column <= value
+            raise ValidationError(column.name, f"unknown filter operator '{op}'")
 
 
 def column_value_to_python(column: Column, value: Any) -> Any:
@@ -444,7 +447,9 @@ def column_value_to_python(column: Column, value: Any) -> Any:
         else:
             return value
     except Exception as e:
-        raise ValidationError("cursor", "invalid cursor") from e
+        raise ValidationError(
+            column.name, f"invalid value for '{column.name}'", value=value
+        ) from e
 
 
 def check_upsert_records(table: Table, records: list[dict], key: Sequence[str]) -> None:

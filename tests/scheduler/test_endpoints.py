@@ -1,9 +1,11 @@
 import pytest
 
+from fluid.scheduler import TaskManager
+from fluid.scheduler.endpoints import get_task_manager, task_manager_fastapi
 from fluid.scheduler.models import TaskInfo, TaskState
 from fluid.utils.http_client import HttpResponseError
 from fluid.utils.waiter import wait_for
-from tests.scheduler.tasks import TaskClient
+from tests.scheduler.tasks import TaskClient, start_fastapi
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
 
@@ -128,3 +130,14 @@ async def test_delete_queue_by_priority(cli: TaskClient) -> None:
     data = await cli.delete(f"{cli.url}/tasks-queue/high")
     assert set(data.keys()) == {"high"}
     assert isinstance(data["high"], int)
+
+
+async def test_task_manager_not_a_worker() -> None:
+    """A plain TaskManager is started and stopped by the app events"""
+    task_manager = TaskManager()
+    app = task_manager_fastapi(task_manager)
+    assert get_task_manager(app) is task_manager
+    assert task_manager.on_startup in app.router.on_startup
+    assert task_manager.on_shutdown in app.router.on_shutdown
+    async with start_fastapi(app):
+        pass

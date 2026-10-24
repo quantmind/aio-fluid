@@ -1,17 +1,42 @@
+import asyncio
+import logging
+from typing import Any, Iterator
+
+import click
 import pytest
+import uvicorn
 from click.testing import CliRunner
+from fastapi import FastAPI
 from redis import Redis
 
+from examples import tasks
 from examples.cli import task_manager_cli
 from examples.tasks import Palette, PaletteParams
 from fluid import settings
-from fluid.scheduler.cli import TaskManagerCLI
+from fluid.scheduler.cli import DEFAULT_COMMANDS, TaskManagerCLI, ctx_app
 from fluid.scheduler.errors import TaskRunError
 
 
 @pytest.fixture(scope="module")
 def redis() -> Redis:
     return Redis.from_url(settings.BROKER_URL)
+
+
+@pytest.fixture
+def restore_logging() -> Iterator[None]:
+    """Commands which configure logging must not leak it to other tests"""
+    root = logging.getLogger()
+    handlers, level = root.handlers[:], root.level
+    yield
+    root.handlers[:] = handlers
+    root.setLevel(level)
+
+
+@click.command("app-title")
+@click.pass_context
+def app_title(ctx: click.Context) -> None:
+    """Print the title of the task manager app"""
+    click.echo(ctx_app(ctx).title)
 
 
 def test_cli():
@@ -257,3 +282,72 @@ def test_cli_exec_plain_values():
         task_manager_cli, ["exec", "datetime_task", "--dt", "2026-01-01T00:00:00"]
     )
     assert result.exit_code == 0, result.output
+
+
+async def test_cli_app_instance() -> None:
+    """A FastAPI app instance is used as it is"""
+    app = tasks.task_app()
+    cli = TaskManagerCLI(task_manager_app=app)
+    assert cli.get_task_manager_app() is app
+    assert cli.get_task_manager() is app.state.task_manager
+
+
+async def test_cli_app_without_task_manager() -> None:
+    cli = TaskManagerCLI(task_manager_app=FastAPI())
+    with pytest.raises(RuntimeError, match="task_manager"):
+        cli.get_task_manager()
+
+
+async def test_cli_ctx_app() -> None:
+    cli = TaskManagerCLI(
+        "examples.tasks:task_app", commands=(*DEFAULT_COMMANDS, app_title)
+    )
+    result = CliRunner().invoke(cli, ["app-title"])
+    assert result.exit_code == 0, result.output
+    assert result.output == "Task Manager API\n"
+
+
+async def test_cli_exec_unknown_task() -> None:
+    result = CliRunner().invoke(task_manager_cli, ["exec", "vdvdfvsdvdf"])
+    assert result.exit_code == 1
+    assert "Error: Task vdvdfvsdvdf not found" in result.output
+
+
+async def test_cli_exec_with_log(restore_logging: None) -> None:
+    result = await asyncio.to_thread(
+        CliRunner().invoke, task_manager_cli, ["exec", "ping", "--log"]
+    )
+    assert result.exit_code == 0, result.output
+    assert "Task Run" in result.output
+
+
+async def test_cli_exec_in_cpu_process(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A cpu bound process runs the task and prints nothing"""
+    monkeypatch.setenv("TASK_MANAGER_SPAWN", "true")
+    result = await asyncio.to_thread(
+        CliRunner().invoke, task_manager_cli, ["exec", "ping"]
+    )
+    assert result.exit_code == 0, result.output
+    assert result.output == ""
+
+
+async def test_cli_serve(
+    monkeypatch: pytest.MonkeyPatch, restore_logging: None
+) -> None:
+    calls: list[tuple[Any, dict]] = []
+
+    def fake_run(app: Any, **kwargs: Any) -> None:
+        calls.append((app, kwargs))
+
+    monkeypatch.setattr(uvicorn, "run", fake_run)
+    result = CliRunner().invoke(
+        task_manager_cli, ["serve", "--port", "9999", "--host", "127.0.0.1"]
+    )
+    assert result.exit_code == 0, result.output
+    assert len(calls) == 1
+    app, kwargs = calls[0]
+    assert app == task_manager_cli.task_manager_app
+    assert kwargs["port"] == 9999
+    assert kwargs["host"] == "127.0.0.1"
+    assert kwargs["reload"] is False
+    assert kwargs["log_config"]

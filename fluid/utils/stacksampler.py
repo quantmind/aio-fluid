@@ -11,12 +11,9 @@ from typing import AsyncIterator
 from fluid import settings
 
 from . import kernel
+from .errors import FlamegraphError
 
 logger = logging.getLogger(__name__)
-
-
-class FlamegraphError(RuntimeError):
-    pass
 
 
 @dataclass

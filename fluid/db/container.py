@@ -116,7 +116,7 @@ class Database:
         query = dict(url.query)
         if sslmode := query.pop("ssl", None):
             query["sslmode"] = sslmode
-        url = url.set(drivername="postgresql", query=query)
+        url = url.set(drivername="postgresql+psycopg", query=query)
         return create_engine(url)
 
     @asynccontextmanager

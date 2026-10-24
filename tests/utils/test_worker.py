@@ -4,7 +4,14 @@ from dataclasses import dataclass, field
 import pytest
 
 from fluid.utils.errors import WorkerStartError
-from fluid.utils.worker import QueueConsumerWorker, Worker, Workers, WorkerState
+from fluid.utils.worker import (
+    QueueConsumer,
+    QueueConsumerWorker,
+    Worker,
+    Workers,
+    WorkerState,
+    WorkerTaskRunner,
+)
 
 
 class NiceWorker(Worker):
@@ -108,3 +115,101 @@ async def test_workers() -> None:
     assert bad.is_running()
     await workers.wait_for_shutdown()
     assert workers.is_stopped()
+
+
+class BlockingConsumer(QueueConsumer[str]):
+    """A consumer which waits for messages with a long timeout."""
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.messages: list[str | None] = []
+
+    async def run(self):
+        while self.is_running():
+            self.messages.append(await self.get_message(timeout=30))
+
+
+async def test_run_worker_already_running() -> None:
+    worker = NiceWorker()
+    await worker.startup()
+    waiter = asyncio.get_event_loop().create_future()
+    with pytest.raises(WorkerStartError):
+        await WorkerTaskRunner(worker).run(waiter)
+    assert not waiter.done()
+    assert worker.is_running()
+    await worker.shutdown()
+    assert worker.worker_state is WorkerState.STOPPED
+
+
+async def test_queue_consumer_status() -> None:
+    consumer = BlockingConsumer()
+    consumer.send("a")
+    consumer.send("b")
+    assert await consumer.status() == {
+        "stopping": False,
+        "running": False,
+        "queue_size": 2,
+    }
+
+
+async def test_get_message_cancelled_when_not_stopping() -> None:
+    consumer = BlockingConsumer()
+    task = asyncio.create_task(consumer.get_message(timeout=30))
+    await asyncio.sleep(0)
+    task.cancel()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+
+
+async def test_get_message_cancelled_while_stopping() -> None:
+    """A consumer blocked on the queue exits when force cancelled on shutdown."""
+    consumer = BlockingConsumer(stopping_grace_period=0.1)
+    await consumer.startup()
+    consumer.send("hello")
+    await asyncio.sleep(0.05)
+    assert consumer.messages == ["hello"]
+    await consumer.shutdown()
+    # the cancellation is swallowed by get_message, so run exits normally
+    assert consumer.messages == ["hello", None]
+    assert consumer.is_stopped()
+
+
+async def test_worker_start_error_message() -> None:
+    worker = NiceWorker(name="nice-one")
+    await worker.startup()
+    try:
+        with pytest.raises(WorkerStartError) as exc:
+            await worker.startup()
+        assert str(exc.value) == "worker nice-one already started: RUNNING"
+        waiter = asyncio.get_event_loop().create_future()
+        with pytest.raises(WorkerStartError) as exc:
+            await WorkerTaskRunner(worker).run(waiter)
+        assert str(exc.value) == "worker nice-one already running"
+    finally:
+        await worker.shutdown()
+
+
+class CancellingConsumer(QueueConsumer[str]):
+    """Records the pending cancellations of its task after each message."""
+
+    def __init__(self, **kwargs) -> None:
+        super().__init__(**kwargs)
+        self.cancelling: list[int] = []
+
+    async def run(self):
+        task = asyncio.current_task()
+        assert task is not None
+        while self.is_running():
+            await self.get_message(timeout=30)
+            self.cancelling.append(task.cancelling())
+
+
+async def test_get_message_uncancels_on_forced_shutdown() -> None:
+    """A consumer stopped while waiting on its queue exits cleanly, with no
+    cancellation left pending on its task"""
+    consumer = CancellingConsumer(stopping_grace_period=0.1)
+    await consumer.startup()
+    await asyncio.sleep(0.05)
+    await consumer.shutdown()
+    assert consumer.cancelling == [0]
+    assert consumer.worker_state is WorkerState.STOPPED

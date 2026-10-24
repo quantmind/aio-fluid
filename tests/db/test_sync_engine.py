@@ -6,7 +6,7 @@ from fluid.db.container import Database
 def test_sync_engine_strips_asyncpg_driver() -> None:
     db = Database(dsn="postgresql+asyncpg://user:pass@localhost/mydb")
     engine = db.sync_engine
-    assert engine.url.drivername == "postgresql"
+    assert engine.url.drivername == "postgresql+psycopg"
 
 
 def test_sync_engine_converts_ssl_to_sslmode() -> None:
