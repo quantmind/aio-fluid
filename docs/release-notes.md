@@ -6,6 +6,31 @@ below maps to a tagged release on
 pushed, the matching section is extracted by
 `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.12.0
+
+A security fix for cursor pagination: a client could edit a cursor to remove
+the filters of the first page or to ask for an unbounded page. Cursors can now
+be signed, and callers that filter rows by owner must pass those filters on
+every page, see the
+[pagination tutorial](https://fluid.quantmind.com/tutorials/db/#signing-the-cursor).
+
+### New features
+
+- Pagination cursors are signed with an HMAC when `FLUID_PAGINATION_SECRET`
+  is set, and a cursor that does not match its signature is rejected. Without
+  the secret, cursors are not signed, as before.
+
+### Improvements and fixes
+
+- With a cursor, `Pagination.create` applies the `filters` it is given on top
+  of the cursor filters, winning on the same key. They were ignored before, so
+  only the filters stored in the cursor, which a client can change, were
+  applied.
+- A cursor limit below 1 or above `DEFAULT_PAGINATION_MAX_LIMIT` is replaced
+  by that maximum. A cursor with a limit of 0 used to return every row.
+- `Cursor.decode` rejects a cursor whose limit, filters or search text have
+  the wrong type.
+
 ## v2.11.1
 
 A fix for CPU-bound tasks dispatched as Kubernetes Jobs.

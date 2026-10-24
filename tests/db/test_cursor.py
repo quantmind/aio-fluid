@@ -65,6 +65,38 @@ def test_decode_wrong_field_count_raises() -> None:
         Cursor.decode(encoded, ("id", "created", "extra"))
 
 
+async def test_decode_wrong_types_raises() -> None:
+    for kwargs in (
+        dict(limit="10"),
+        dict(filters=["status"]),
+        dict(search_text=1),
+    ):
+        with pytest.raises(ValidationError):
+            Cursor.decode(make_cursor(**kwargs).encode(), FIELD_NAMES)
+
+
+async def test_signed_roundtrip() -> None:
+    cursor = make_cursor(filters={"org_id": "mine"})
+    encoded = cursor.encode(secret="secret")
+    assert encoded.startswith(cursor.encode() + ".")
+    decoded = Cursor.decode(encoded, FIELD_NAMES, secret="secret")
+    assert decoded == cursor
+
+
+async def test_signed_decode_rejects() -> None:
+    signed = make_cursor().encode(secret="secret")
+    payload, signature = signed.split(".")
+    forged = make_cursor(filters={}, limit=0).encode()
+    for cursor in (
+        make_cursor().encode(),
+        f"{forged}.{signature}",
+        f"{payload}.{signature[:-2]}",
+        make_cursor().encode(secret="other"),
+    ):
+        with pytest.raises(ValidationError):
+            Cursor.decode(cursor, FIELD_NAMES, secret="secret")
+
+
 def test_decode_empty_string_raises() -> None:
     with pytest.raises(ValidationError):
         Cursor.decode("", FIELD_NAMES)

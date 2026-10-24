@@ -68,6 +68,13 @@ class Settings(BaseSettings):
     # Pagination
     default_pagination_limit: int = 250
     default_pagination_max_limit: int = 500
+    pagination_secret: str = Field(
+        default="",
+        description=(
+            "Secret key signing pagination cursors, the same for every process "
+            "serving the same clients; cursors are not signed when empty"
+        ),
+    )
 
     # Console backdoor
     backdoor_port: int = 8087

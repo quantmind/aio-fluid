@@ -274,17 +274,29 @@ rows, cursor = await Pagination.create(
     desc=True,
 ).execute(db, articles)
 
-# next page — filters and limit are embedded in the cursor
+# next page, the limit and the filters of the first page are in the cursor
 if cursor:
     rows, cursor = await Pagination.create(
         "published_at",
         "id",
         cursor=cursor,
+        filters={"author": "alice"},
         desc=True,
     ).execute(db, articles)
 ```
 
-When `cursor` is provided, the `filters` and `limit` arguments are ignored — they are decoded from the cursor itself, ensuring consistent pages even if the caller changes them between requests.
+When `cursor` is provided, the `limit` argument is ignored: the limit is decoded from the cursor, along with the filters and the search text of the first page, so the pages stay consistent when a client sends the cursor alone.
+
+### Signing the cursor
+
+A cursor is base64 encoded JSON, so a client can decode it, change it and send it back. Set `FLUID_PAGINATION_SECRET` (the `pagination_secret` field of [Settings][fluid.settings.Settings]) and every cursor is signed with an HMAC of its content: a cursor that is changed, unsigned or signed with another secret is rejected with a [ValidationError][fluid.utils.errors.ValidationError]. Every process serving the same clients needs the same secret, otherwise a cursor issued by one is rejected by another. Changing the secret invalidates the cursors already issued, and the clients start again from the first page.
+
+Signed or not, two rules keep a cursor from reaching rows the caller must not see:
+
+- The `filters` passed to [create][fluid.db.Pagination.create] are applied on top of the filters in the cursor, and win over them on the same key. Pass every filter the caller enforces, the owner of the rows or a public flag for instance, on every request, not only on the first page.
+- A cursor limit below 1 or above `DEFAULT_PAGINATION_MAX_LIMIT` (500 by default) is replaced by that maximum, so a cursor cannot ask for an unbounded page.
+
+Without a secret these rules are the only protection: a filter that is only in the cursor can be removed by the client.
 
 ### The ordering must be unique
 
