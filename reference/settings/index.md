@@ -227,6 +227,15 @@ default_pagination_limit = 250
 default_pagination_max_limit = 500
 ```
 
+### pagination_secret
+
+```python
+pagination_secret = Field(
+    default="",
+    description="Secret key signing pagination cursors, the same for every process serving the same clients; cursors are not signed when empty",
+)
+```
+
 ### backdoor_port
 
 ```python

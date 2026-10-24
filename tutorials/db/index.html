@@ -1428,6 +1428,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#signing-the-cursor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signing the cursor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#the-ordering-must-be-unique" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2075,6 +2086,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#signing-the-cursor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signing the cursor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#the-ordering-must-be-unique" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2433,16 +2455,30 @@ It fetches one extra row beyond the requested limit to determine whether a next 
 </span><span id="__span-22-9"><a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a>    <span class="n">desc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
 </span><span id="__span-22-10"><a id="__codelineno-22-10" name="__codelineno-22-10" href="#__codelineno-22-10"></a><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">articles</span><span class="p">)</span>
 </span><span id="__span-22-11"><a id="__codelineno-22-11" name="__codelineno-22-11" href="#__codelineno-22-11"></a>
-</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a><span class="c1"># next page — filters and limit are embedded in the cursor</span>
+</span><span id="__span-22-12"><a id="__codelineno-22-12" name="__codelineno-22-12" href="#__codelineno-22-12"></a><span class="c1"># next page, the limit and the filters of the first page are in the cursor</span>
 </span><span id="__span-22-13"><a id="__codelineno-22-13" name="__codelineno-22-13" href="#__codelineno-22-13"></a><span class="k">if</span> <span class="n">cursor</span><span class="p">:</span>
 </span><span id="__span-22-14"><a id="__codelineno-22-14" name="__codelineno-22-14" href="#__codelineno-22-14"></a>    <span class="n">rows</span><span class="p">,</span> <span class="n">cursor</span> <span class="o">=</span> <span class="k">await</span> <span class="n">Pagination</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
 </span><span id="__span-22-15"><a id="__codelineno-22-15" name="__codelineno-22-15" href="#__codelineno-22-15"></a>        <span class="s2">&quot;published_at&quot;</span><span class="p">,</span>
 </span><span id="__span-22-16"><a id="__codelineno-22-16" name="__codelineno-22-16" href="#__codelineno-22-16"></a>        <span class="s2">&quot;id&quot;</span><span class="p">,</span>
 </span><span id="__span-22-17"><a id="__codelineno-22-17" name="__codelineno-22-17" href="#__codelineno-22-17"></a>        <span class="n">cursor</span><span class="o">=</span><span class="n">cursor</span><span class="p">,</span>
-</span><span id="__span-22-18"><a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a>        <span class="n">desc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-</span><span id="__span-22-19"><a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a>    <span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">articles</span><span class="p">)</span>
+</span><span id="__span-22-18"><a id="__codelineno-22-18" name="__codelineno-22-18" href="#__codelineno-22-18"></a>        <span class="n">filters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;author&quot;</span><span class="p">:</span> <span class="s2">&quot;alice&quot;</span><span class="p">},</span>
+</span><span id="__span-22-19"><a id="__codelineno-22-19" name="__codelineno-22-19" href="#__codelineno-22-19"></a>        <span class="n">desc</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+</span><span id="__span-22-20"><a id="__codelineno-22-20" name="__codelineno-22-20" href="#__codelineno-22-20"></a>    <span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="n">articles</span><span class="p">)</span>
 </span></code></pre></div>
-<p>When <code>cursor</code> is provided, the <code>filters</code> and <code>limit</code> arguments are ignored — they are decoded from the cursor itself, ensuring consistent pages even if the caller changes them between requests.</p>
+<p>When <code>cursor</code> is provided, the <code>limit</code> argument is ignored: the limit is decoded from the cursor, along with the filters and the search text of the first page, so the pages stay consistent when a client sends the cursor alone.</p>
+<h3 id="signing-the-cursor">Signing the cursor<a class="headerlink" href="#signing-the-cursor" title="Permanent link">&para;</a></h3>
+<p>A cursor is base64 encoded JSON, so a client can decode it, change it and send it back. Set <code>FLUID_PAGINATION_SECRET</code> (the <code>pagination_secret</code> field of <a class="autorefs autorefs-internal" title="            fluid.settings.Settings" href="../../reference/settings/#fluid.settings.Settings">Settings</a>) and every cursor is signed with an HMAC of its content: a cursor that is changed, unsigned or signed with another secret is rejected with a <a class="autorefs autorefs-internal" title="            fluid.utils.errors.ValidationError" href="../../reference/errors/#fluid.utils.errors.ValidationError">ValidationError</a>. Every process serving the same clients needs the same secret, otherwise a cursor issued by one is rejected by another. Changing the secret invalidates the cursors already issued, and the clients start again from the first page.</p>
+<p>Signed or not, two rules keep a cursor from reaching rows the caller must not see:</p>
+<ul>
+<li>The <code>filters</code> passed to <a class="autorefs autorefs-internal" title="            create
+
+
+  
+      classmethod
+  " href="../../reference/db_pagination/#fluid.db.Pagination.create">create</a> are applied on top of the filters in the cursor, and win over them on the same key. Pass every filter the caller enforces, the owner of the rows or a public flag for instance, on every request, not only on the first page.</li>
+<li>A cursor limit below 1 or above <code>DEFAULT_PAGINATION_MAX_LIMIT</code> (500 by default) is replaced by that maximum, so a cursor cannot ask for an unbounded page.</li>
+</ul>
+<p>Without a secret these rules are the only protection: a filter that is only in the cursor can be removed by the client.</p>
 <h3 id="the-ordering-must-be-unique">The ordering must be unique<a class="headerlink" href="#the-ordering-must-be-unique" title="Permanent link">&para;</a></h3>
 <p>The ordering fields must uniquely identify a row. The cursor encodes only the values of those fields for the first row of the next page, and the next query resumes from that position, so ties are ambiguous: rows sharing the same ordering values can appear on two consecutive pages, and rows can be skipped altogether, because the database is free to order tied rows differently between the two queries.</p>
 <p><code>published_at</code> alone is not unique — two articles can be published at the same instant — which is why the examples above order by <code>("published_at", "id")</code>. Appending the primary key makes the ordering total and the cursor unambiguous. The same rule applies to the ordering used with full-text search below.</p>

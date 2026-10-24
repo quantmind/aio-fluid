@@ -97,18 +97,20 @@ create(
 
 Factory method to create a Pagination instance, decoding the cursor if provided.
 
-If the cursor is provided, filters, limit and search are extracted from it, and the provided values for these parameters are ignored.
+If the cursor is provided, limit and search text are extracted from it, and the provided values for these parameters are ignored. A cursor limit outside 1 to settings.DEFAULT_PAGINATION_MAX_LIMIT is replaced by the maximum.
+
+Cursors are signed with settings.PAGINATION_SECRET when it is set, and a cursor that does not match the signature raises a ValidationError. Without a secret a client can change the cursor. Either way, with a cursor the provided filters are applied on top of the cursor filters and win over them on the same key, so pass every filter the caller must enforce, such as the owner of the rows, on every page.
 
 The `order_by_fields` must uniquely identify a row, otherwise pages can repeat or miss rows.
 
-| PARAMETER          | DESCRIPTION                                                                                       |
-| ------------------ | ------------------------------------------------------------------------------------------------- |
-| `*order_by_fields` | Fields to order results by **TYPE:** `str` **DEFAULT:** `()`                                      |
-| `cursor`           | Encoded pagination cursor from a previous response **TYPE:** `str` **DEFAULT:** `''`              |
-| `limit`            | Maximum number of results per page; defaults to settings.DEFAULT_PAGINATION_LIMIT **TYPE:** \`int |
-| `filters`          | Filters to apply to the query **TYPE:** \`dict[str, Any]                                          |
-| `search`           | Full-text search configuration **TYPE:** \`Search                                                 |
-| `desc`             | Order results in descending order **TYPE:** `bool` **DEFAULT:** `False`                           |
+| PARAMETER          | DESCRIPTION                                                                                                                       |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------- |
+| `*order_by_fields` | Fields to order results by **TYPE:** `str` **DEFAULT:** `()`                                                                      |
+| `cursor`           | Encoded pagination cursor from a previous response **TYPE:** `str` **DEFAULT:** `''`                                              |
+| `limit`            | Maximum number of results per page; defaults to settings.DEFAULT_PAGINATION_LIMIT **TYPE:** \`int                                 |
+| `filters`          | Filters to apply to the query; with a cursor they are applied on top of the filters the cursor carries **TYPE:** \`dict[str, Any] |
+| `search`           | Full-text search configuration **TYPE:** \`Search                                                                                 |
+| `desc`             | Order results in descending order **TYPE:** `bool` **DEFAULT:** `False`                                                           |
 
 Source code in `fluid/db/pagination.py`
 
@@ -130,7 +132,10 @@ def create(
     ] = None,
     filters: Annotated[
         dict[str, Any] | None,
-        Doc("Filters to apply to the query"),
+        Doc(
+            "Filters to apply to the query; with a cursor they are applied "
+            "on top of the filters the cursor carries"
+        ),
     ] = None,
     search: Annotated[
         Search | None,
@@ -144,16 +149,30 @@ def create(
     """Factory method to create a Pagination instance,
     decoding the cursor if provided.
 
-    If the cursor is provided, filters, limit and search are extracted from it,
-    and the provided values for these parameters are ignored.
+    If the cursor is provided, limit and search text are extracted from it,
+    and the provided values for these parameters are ignored. A cursor
+    limit outside 1 to settings.DEFAULT_PAGINATION_MAX_LIMIT is replaced
+    by the maximum.
+
+    Cursors are signed with settings.PAGINATION_SECRET when it is set, and
+    a cursor that does not match the signature raises a ValidationError.
+    Without a secret a client can change the cursor. Either way, with a
+    cursor the provided filters are applied on top of the cursor filters
+    and win over them on the same key, so pass every filter the caller
+    must enforce, such as the owner of the rows, on every page.
 
     The `order_by_fields` must uniquely identify a row, otherwise pages can
     repeat or miss rows.
     """
     if cursor:
-        decoded_cursor = Cursor.decode(cursor, order_by_fields)
+        decoded_cursor = Cursor.decode(
+            cursor, order_by_fields, secret=settings.PAGINATION_SECRET
+        )
+        max_limit = settings.DEFAULT_PAGINATION_MAX_LIMIT
         limit = decoded_cursor.limit
-        filters = decoded_cursor.filters
+        if limit < 1 or limit > max_limit:
+            limit = max_limit
+        filters = {**decoded_cursor.filters, **(filters or {})}
         if search:
             search = search._replace(search_text=decoded_cursor.search_text)
     else:
