@@ -985,7 +985,9 @@ def default_filter_column(
     if isinstance(column.type, JSONB) and isinstance(value, dict):
         if op == "eq":
             return column.contains(value)
-        return None
+        raise ValidationError(
+            column.name, f"operator '{op}' not supported for JSON values"
+        )
 
     if multiple := isinstance(value, (list, tuple)):
         value = tuple(column_value_to_python(column, v) for v in value)
@@ -1016,4 +1018,5 @@ def default_filter_column(
             return column < value
         elif op == "le":
             return column <= value
+        raise ValidationError(column.name, f"unknown filter operator '{op}'")
 ```

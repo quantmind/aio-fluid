@@ -1525,6 +1525,18 @@ To shut down a worker there are few possibilities.
 - Direct call to the async Worker.shutdown method which will trigger the graceful shutdown and wait for the worker to finish its work.
 - Call the Worker.gracefully_stop method which will trigger the graceful shutdown. Importantly, this method does not wait for the worker to finish its work, ti simply transition from the WorkerState.RUNNING to WorkerState.STOPPING state. To wait for the worker exit one should call the async Worker.wait_for_shutdown method (as in the example above)
 
+### Being a Good Worker
+
+When a worker is asked to stop, it should stop. This is the design, and there is no reason for a worker to keep running once it has been asked to exit. A good worker:
+
+- checks Worker.is_running in its main loop and leaves the loop as soon as it returns `False`, as in the example above;
+- never blocks for long between those checks: every wait has a timeout short enough for the loop to notice the WorkerState.STOPPING state quickly;
+- releases its resources on the way out, in Worker.run itself or in Worker.on_shutdown.
+
+A worker that does not exit within its stopping grace period (the `stopping_grace_period` argument, or the `FLUID_STOPPING_GRACE_PERIOD` environment variable, 10 seconds by default) is cancelled. It then ends in the WorkerState.FORCE_STOPPED state with exit code 1, its Worker.on_shutdown is skipped, and a warning is logged. A forced shutdown is the sign of a worker that is not behaving.
+
+The workers shipped with `aio-fluid` are good workers. In particular, when a QueueConsumer is cancelled while stopping and waiting on its queue, QueueConsumer.get_message consumes the cancellation and returns `None`, so the consumer leaves its loop and exits cleanly, with Worker.on_shutdown called as usual.
+
 ## Async Context Manager
 
 Worker implements the async context manager protocol. Entering the context calls Worker.startup and exiting it calls Worker.shutdown, so the `async with` pattern is the most concise way to manage the full lifecycle:
@@ -3379,7 +3391,9 @@ def default_filter_column(
     if isinstance(column.type, JSONB) and isinstance(value, dict):
         if op == "eq":
             return column.contains(value)
-        return None
+        raise ValidationError(
+            column.name, f"operator '{op}' not supported for JSON values"
+        )
 
     if multiple := isinstance(value, (list, tuple)):
         value = tuple(column_value_to_python(column, v) for v in value)
@@ -3410,6 +3424,7 @@ def default_filter_column(
             return column < value
         elif op == "le":
             return column <= value
+        raise ValidationError(column.name, f"unknown filter operator '{op}'")
 ```
 
 # DB Migration
@@ -12015,9 +12030,10 @@ def __init__(
                     if lhs not in acceptable or rhs not in acceptable:
                         raise ValueError("%s is not a valid input" % piece)
                     elif date_str == "w":
-                        lhs %= 7
-                        rhs %= 7
-                    settings.update(range(lhs, rhs + 1))
+                        # reduce after expanding, so 7 (Sunday) can end a range
+                        settings.update(d % 7 for d in range(lhs, rhs + 1))
+                    else:
+                        settings.update(range(lhs, rhs + 1))
                     continue
 
                 # Handle stuff like */3, */6.
@@ -12512,7 +12528,8 @@ async def startup(self) -> None:
     """
     if self.has_started():
         raise WorkerStartError(
-            "worker %s already started: %s", self.worker_name, self._worker_state
+            f"worker {self.worker_name} already started: "
+            f"{self._worker_state.name}"
         )
     else:
         self._worker_task_runner = await WorkerTaskRunner.start(self)
@@ -12860,7 +12877,8 @@ async def startup(self) -> None:
     """
     if self.has_started():
         raise WorkerStartError(
-            "worker %s already started: %s", self.worker_name, self._worker_state
+            f"worker {self.worker_name} already started: "
+            f"{self._worker_state.name}"
         )
     else:
         self._worker_task_runner = await WorkerTaskRunner.start(self)
@@ -13002,17 +13020,30 @@ get_message(timeout=0.5)
 
 Get the next message from the queue
 
+It returns None when no message arrives within the timeout, and when the worker is cancelled while stopping. In the second case the cancellation is consumed, so the worker can exit its run loop cleanly.
+
 Source code in `fluid/utils/worker.py`
 
 ```python
 async def get_message(self, timeout: float = 0.5) -> MessageType | None:
-    """Get the next message from the queue"""
+    """Get the next message from the queue
+
+    It returns None when no message arrives within the timeout, and when
+    the worker is cancelled while stopping. In the second case the
+    cancellation is consumed, so the worker can exit its run loop cleanly.
+    """
     try:
         async with asyncio.timeout(timeout):
             return await self._queue.get()
     except asyncio.TimeoutError:
         return None
-    except (asyncio.CancelledError, RuntimeError):
+    except asyncio.CancelledError:
+        if not self.is_stopping():
+            raise
+        # the cancellation is consumed: clear it from the task
+        if task := asyncio.current_task():
+            task.uncancel()
+    except RuntimeError:
         if not self.is_stopping():
             raise
     return None
@@ -13215,7 +13246,8 @@ async def startup(self) -> None:
     """
     if self.has_started():
         raise WorkerStartError(
-            "worker %s already started: %s", self.worker_name, self._worker_state
+            f"worker {self.worker_name} already started: "
+            f"{self._worker_state.name}"
         )
     else:
         self._worker_task_runner = await WorkerTaskRunner.start(self)
@@ -13579,7 +13611,8 @@ async def startup(self) -> None:
     """
     if self.has_started():
         raise WorkerStartError(
-            "worker %s already started: %s", self.worker_name, self._worker_state
+            f"worker {self.worker_name} already started: "
+            f"{self._worker_state.name}"
         )
     else:
         self._worker_task_runner = await WorkerTaskRunner.start(self)
@@ -13656,17 +13689,30 @@ get_message(timeout=0.5)
 
 Get the next message from the queue
 
+It returns None when no message arrives within the timeout, and when the worker is cancelled while stopping. In the second case the cancellation is consumed, so the worker can exit its run loop cleanly.
+
 Source code in `fluid/utils/worker.py`
 
 ```python
 async def get_message(self, timeout: float = 0.5) -> MessageType | None:
-    """Get the next message from the queue"""
+    """Get the next message from the queue
+
+    It returns None when no message arrives within the timeout, and when
+    the worker is cancelled while stopping. In the second case the
+    cancellation is consumed, so the worker can exit its run loop cleanly.
+    """
     try:
         async with asyncio.timeout(timeout):
             return await self._queue.get()
     except asyncio.TimeoutError:
         return None
-    except (asyncio.CancelledError, RuntimeError):
+    except asyncio.CancelledError:
+        if not self.is_stopping():
+            raise
+        # the cancellation is consumed: clear it from the task
+        if task := asyncio.current_task():
+            task.uncancel()
+    except RuntimeError:
         if not self.is_stopping():
             raise
     return None
@@ -13963,7 +14009,8 @@ async def startup(self) -> None:
     """
     if self.has_started():
         raise WorkerStartError(
-            "worker %s already started: %s", self.worker_name, self._worker_state
+            f"worker {self.worker_name} already started: "
+            f"{self._worker_state.name}"
         )
     else:
         self._worker_task_runner = await WorkerTaskRunner.start(self)
@@ -14040,17 +14087,30 @@ get_message(timeout=0.5)
 
 Get the next message from the queue
 
+It returns None when no message arrives within the timeout, and when the worker is cancelled while stopping. In the second case the cancellation is consumed, so the worker can exit its run loop cleanly.
+
 Source code in `fluid/utils/worker.py`
 
 ```python
 async def get_message(self, timeout: float = 0.5) -> MessageType | None:
-    """Get the next message from the queue"""
+    """Get the next message from the queue
+
+    It returns None when no message arrives within the timeout, and when
+    the worker is cancelled while stopping. In the second case the
+    cancellation is consumed, so the worker can exit its run loop cleanly.
+    """
     try:
         async with asyncio.timeout(timeout):
             return await self._queue.get()
     except asyncio.TimeoutError:
         return None
-    except (asyncio.CancelledError, RuntimeError):
+    except asyncio.CancelledError:
+        if not self.is_stopping():
+            raise
+        # the cancellation is consumed: clear it from the task
+        if task := asyncio.current_task():
+            task.uncancel()
+    except RuntimeError:
         if not self.is_stopping():
             raise
     return None
@@ -14383,7 +14443,8 @@ async def startup(self) -> None:
     """
     if self.has_started():
         raise WorkerStartError(
-            "worker %s already started: %s", self.worker_name, self._worker_state
+            f"worker {self.worker_name} already started: "
+            f"{self._worker_state.name}"
         )
     else:
         self._worker_task_runner = await WorkerTaskRunner.start(self)

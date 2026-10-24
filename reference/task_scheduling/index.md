@@ -182,9 +182,10 @@ def __init__(
                     if lhs not in acceptable or rhs not in acceptable:
                         raise ValueError("%s is not a valid input" % piece)
                     elif date_str == "w":
-                        lhs %= 7
-                        rhs %= 7
-                    settings.update(range(lhs, rhs + 1))
+                        # reduce after expanding, so 7 (Sunday) can end a range
+                        settings.update(d % 7 for d in range(lhs, rhs + 1))
+                    else:
+                        settings.update(range(lhs, rhs + 1))
                     continue
 
                 # Handle stuff like */3, */6.

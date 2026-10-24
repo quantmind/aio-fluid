@@ -1535,6 +1535,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#being-a-good-worker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Being a Good Worker
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1702,6 +1713,17 @@
     <span class="md-ellipsis">
       
         Shutdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#being-a-good-worker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Being a Good Worker
       
     </span>
   </a>
@@ -1889,6 +1911,53 @@ All workers implemented derive from the base abstract class <a class="autorefs a
       async
   " href="../../reference/workers/#fluid.utils.worker.Worker.wait_for_shutdown">Worker.wait_for_shutdown</a> method (as in the example above)</li>
 </ul>
+<h3 id="being-a-good-worker">Being a Good Worker<a class="headerlink" href="#being-a-good-worker" title="Permanent link">&para;</a></h3>
+<p>When a worker is asked to stop, it should stop. This is the design, and there is no reason for a worker to keep running once it has been asked to exit. A good worker:</p>
+<ul>
+<li>checks <a class="autorefs autorefs-internal" title="            is_running" href="../../reference/workers/#fluid.utils.worker.Worker.is_running">Worker.is_running</a> in its main loop and leaves the loop as soon as it returns <code>False</code>, as in the example above;</li>
+<li>never blocks for long between those checks: every wait has a timeout short enough for the loop to notice the <a class="autorefs autorefs-internal" title="            STOPPING
+
+
+  
+      class-attribute
+      instance-attribute
+  " href="../../reference/workers/#fluid.utils.worker.WorkerState.STOPPING">WorkerState.STOPPING</a> state quickly;</li>
+<li>releases its resources on the way out, in <a class="autorefs autorefs-internal" title="            run
+
+
+  
+      abstractmethod
+      async
+  " href="../../reference/workers/#fluid.utils.worker.Worker.run">Worker.run</a> itself or in <a class="autorefs autorefs-internal" title="            on_shutdown
+
+
+  
+      async
+  " href="../../reference/workers/#fluid.utils.worker.Worker.on_shutdown">Worker.on_shutdown</a>.</li>
+</ul>
+<p>A worker that does not exit within its stopping grace period (the <code>stopping_grace_period</code> argument, or the <code>FLUID_STOPPING_GRACE_PERIOD</code> environment variable, 10 seconds by default) is cancelled. It then ends in the <a class="autorefs autorefs-internal" title="            FORCE_STOPPED
+
+
+  
+      class-attribute
+      instance-attribute
+  " href="../../reference/workers/#fluid.utils.worker.WorkerState.FORCE_STOPPED">WorkerState.FORCE_STOPPED</a> state with exit code 1, its <a class="autorefs autorefs-internal" title="            on_shutdown
+
+
+  
+      async
+  " href="../../reference/workers/#fluid.utils.worker.Worker.on_shutdown">Worker.on_shutdown</a> is skipped, and a warning is logged. A forced shutdown is the sign of a worker that is not behaving.</p>
+<p>The workers shipped with <code>aio-fluid</code> are good workers. In particular, when a <a class="autorefs autorefs-internal" title="            fluid.utils.worker.QueueConsumer" href="../../reference/workers/#fluid.utils.worker.QueueConsumer">QueueConsumer</a> is cancelled while stopping and waiting on its queue, <a class="autorefs autorefs-internal" title="            get_message
+
+
+  
+      async
+  " href="../../reference/workers/#fluid.utils.worker.QueueConsumer.get_message">QueueConsumer.get_message</a> consumes the cancellation and returns <code>None</code>, so the consumer leaves its loop and exits cleanly, with <a class="autorefs autorefs-internal" title="            on_shutdown
+
+
+  
+      async
+  " href="../../reference/workers/#fluid.utils.worker.Worker.on_shutdown">Worker.on_shutdown</a> called as usual.</p>
 <h2 id="async-context-manager">Async Context Manager<a class="headerlink" href="#async-context-manager" title="Permanent link">&para;</a></h2>
 <p><a class="autorefs autorefs-internal" title="            fluid.utils.worker.Worker" href="../../reference/workers/#fluid.utils.worker.Worker">Worker</a> implements the async context manager protocol. Entering the context calls <a class="autorefs autorefs-internal" title="            startup
 
