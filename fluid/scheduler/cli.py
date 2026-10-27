@@ -108,8 +108,17 @@ class ExecuteTasks(click.Group):
         @click.option("--log", is_flag=True, help="Show logs")
         @click.option("--run-id", help="run id")
         @click.option("--params", type=JSON, help="optional parameters as JSON string")
+        @click.option(
+            "--params-from-broker",
+            is_flag=True,
+            help="Load the parameters stored in the broker for --run-id",
+        )
         def execute_task(
-            log: bool, run_id: str, params: dict | None, **extra: Any
+            log: bool,
+            run_id: str,
+            params: dict | None,
+            params_from_broker: bool,
+            **extra: Any,
         ) -> None:
             if log:
                 log_config = ctx_task_manager_cli(ctx).log_config
@@ -117,7 +126,15 @@ class ExecuteTasks(click.Group):
             command_ctx = click.get_current_context()
             kwargs = options.collect(command_ctx, extra)
             kwargs.update(params or {})
-            options.check_required(command_ctx, kwargs)
+            if params_from_broker:
+                if not run_id:
+                    raise click.UsageError(
+                        "--params-from-broker requires --run-id", command_ctx
+                    )
+                # required params are in the broker, the model validates them
+                kwargs.update(params_from_broker=True)
+            else:
+                options.check_required(command_ctx, kwargs)
             if run_id:
                 kwargs.update(run_id=run_id)
             run = task_manager.execute_sync(cmd_name, **kwargs)

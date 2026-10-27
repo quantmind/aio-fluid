@@ -2,6 +2,7 @@ from enum import Enum
 from typing import Any, Callable, Sequence, cast
 
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Path, Query, Request
+from fastapi.params import Depends as DependsParam
 from pydantic import BaseModel, Field
 from typing_extensions import Annotated, Doc
 
@@ -228,6 +229,14 @@ def task_manager_fastapi(
         Sequence[str | Enum] | None,
         Doc("Tags for the task manager routes."),
     ] = None,
+    dependencies: Annotated[
+        Sequence[DependsParam] | None,
+        Doc(
+            "Dependencies applied to every task manager route, plugin routes "
+            "included. Use them to protect the routes, for example with "
+            "authentication."
+        ),
+    ] = None,
     **kwargs: Annotated[
         Any,
         Doc("Additional keyword arguments for the FastAPI app if not provided"),
@@ -241,9 +250,17 @@ def task_manager_fastapi(
     app = app or FastAPI(**kwargs)
     if include_router:
         tags_ = tags if tags is not None else ["Tasks"]
-        app.include_router(get_router(task_manager), prefix=prefix, tags=list(tags_))
+        app.include_router(
+            get_router(task_manager),
+            prefix=prefix,
+            tags=list(tags_),
+            dependencies=dependencies,
+        )
+        # only pass dependencies when given, so plugins whose register_routes
+        # does not accept them keep working
+        extra = dict(dependencies=dependencies) if dependencies else {}
         for plugin in task_manager._plugins:
-            plugin.register_routes(app, prefix=prefix, tags=list(tags_))
+            plugin.register_routes(app, prefix=prefix, tags=list(tags_), **extra)
     app.state.task_manager = task_manager
     if isinstance(task_manager, Worker):
         app_workers(app).add_workers(task_manager)

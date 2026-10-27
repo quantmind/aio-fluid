@@ -3,12 +3,18 @@
 from __future__ import annotations
 
 import json
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 from pydantic import BaseModel, SecretStr
 
-from fluid.scheduler.cpubound import cpu_bound_command, exec_args, strip_serve
+from fluid.scheduler.cpubound import (
+    PARAMS_TTL_TOLERANCE,
+    cpu_bound_command,
+    exec_args,
+    store_params,
+    strip_serve,
+)
 
 pytestmark = pytest.mark.asyncio(loop_scope="function")
 
@@ -61,11 +67,24 @@ async def test_exec_args_carries_name_and_run_id() -> None:
     assert args[args.index("--run-id") + 1] == "run-99"
 
 
-async def test_exec_args_reveals_secret_params() -> None:
-    """The process executing the task re-validates the params"""
+async def test_exec_args_do_not_carry_params() -> None:
+    """Any user on the host can read the command line of a process"""
     args = exec_args(make_ctx(params=SecretParams(token=SecretStr("s3cret"))))
-    params = json.loads(args[args.index("--params") + 1])
-    assert params == {"token": "s3cret"}
+    assert "--params" not in args
+    assert "--params-from-broker" in args
+    assert not any("s3cret" in arg for arg in args)
+
+
+async def test_store_params_reveals_secret_params() -> None:
+    """The process executing the task re-validates the params"""
+    ctx = make_ctx(params=SecretParams(token=SecretStr("s3cret")))
+    ctx.task.timeout_seconds = 60
+    ctx.task_manager.broker.set_task_params = AsyncMock()
+    await store_params(ctx)
+    call = ctx.task_manager.broker.set_task_params.call_args
+    assert call.args[0] == ctx.id
+    assert json.loads(call.args[1]) == {"token": "s3cret"}
+    assert call.kwargs["ttl"] == 60 + PARAMS_TTL_TOLERANCE
 
 
 async def test_cpu_bound_command_derives_from_entry_point(

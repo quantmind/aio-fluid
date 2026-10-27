@@ -3,10 +3,11 @@ from __future__ import annotations
 import json
 from datetime import datetime
 from enum import Enum
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Sequence
 
 import sqlalchemy as sa
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Query
+from fastapi.params import Depends as DependsParam
 from pydantic import BaseModel, BeforeValidator, Field, model_validator
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.exc import NoResultFound
@@ -128,10 +129,14 @@ class TaskDbPlugin(TaskManagerPlugin):
             list[str | Enum] | None,
             Doc("The tags for the routes."),
         ] = None,
+        dependencies: Annotated[
+            Sequence[DependsParam] | None,
+            Doc("Dependencies applied to every route, such as authentication."),
+        ] = None,
     ) -> None:
         """Register routes with the FastAPI app"""
         prefix = self.route_prefix or f"{prefix}-history"
-        app.include_router(router, prefix=prefix, tags=tags)
+        app.include_router(router, prefix=prefix, tags=tags, dependencies=dependencies)
 
     async def get_history(
         self,

@@ -70,6 +70,8 @@ def make_ctx(
     ctx._deployment = deployment
     ctx._cfg = cfg
     ctx.task_manager.broker.get_task_aborted = AsyncMock(return_value=None)
+    ctx.task_manager.broker.set_task_params = AsyncMock()
+    ctx.task_manager.broker.pop_task_params = AsyncMock(return_value=None)
     return ctx
 
 
@@ -185,19 +187,36 @@ async def test_serve_options_stripped_from_command() -> None:
     assert container.command == ["python", "-m", "myapp"]
 
 
-async def test_secret_params_revealed_in_job_args() -> None:
-    """Params are re-validated by the job, so secrets must survive the trip"""
+async def test_params_stored_in_broker_not_in_job_args() -> None:
+    """The job spec is readable by anyone with access to the namespace, so
+    params travel through the broker, secrets revealed for re-validation"""
     ctx = make_ctx(params=SecretParams(token=SecretStr("s3cret")))
     patches, _, mock_batch = make_k8s_mocks(ctx, succeeded=1)
 
     with patches[0], patches[1], patches[2], patches[3]:
         await run_on_k8s_job(ctx)
 
-    call_kwargs = mock_batch.create_namespaced_job.call_args
-    job = call_kwargs.args[1]
+    job = mock_batch.create_namespaced_job.call_args.args[1]
     container = job.spec.template.spec.containers[0]
-    params = json.loads(container.args[container.args.index("--params") + 1])
-    assert params == {"token": "s3cret"}
+    assert "--params" not in container.args
+    assert "--params-from-broker" in container.args
+    assert not any("s3cret" in arg for arg in container.args)
+    broker = ctx.task_manager.broker
+    run_id, data = broker.set_task_params.call_args.args
+    assert run_id == ctx.id
+    assert json.loads(data) == {"token": "s3cret"}
+    broker.pop_task_params.assert_awaited_once_with(ctx.id)
+
+
+async def test_params_removed_when_job_fails() -> None:
+    ctx = make_ctx()
+    patches, _, _ = make_k8s_mocks(ctx, succeeded=0, failed=1)
+
+    with patches[0], patches[1], patches[2], patches[3]:
+        with pytest.raises(TaskRunError):
+            await run_on_k8s_job(ctx)
+
+    ctx.task_manager.broker.pop_task_params.assert_awaited_once_with(ctx.id)
 
 
 async def test_command_without_serve_unchanged() -> None:

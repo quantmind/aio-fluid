@@ -23,7 +23,7 @@ The Job pod template is derived from the **task consumer deployment**. The imple
 | Field | Value in the Job |
 |---|---|
 | `command` | Same as the deployment, but any trailing `serve` token is removed |
-| `args` | `exec <task-name> --log --run-id <id> --params <json>` |
+| `args` | `exec <task-name> --log --run-id <id> --params-from-broker`: the params are stored in the broker, not in the Job spec |
 | `env` | Inherited from the deployment, then `TASK_MANAGER_SPAWN=true` appended, then any task-level `env` vars appended (see [Injecting environment variables](#injecting-environment-variables)) |
 | `resources` | Inherited from the deployment unless overridden via [`K8sConfig.resources`](#configuration) |
 | `liveness_probe` | Cleared — probes are not meaningful for Job pods and would prematurely kill long-running tasks |

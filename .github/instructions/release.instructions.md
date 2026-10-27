@@ -1,10 +1,13 @@
 # Release Instructions
 
 Releases are driven by `v*` git tags. Pushing a tag triggers
-`.github/workflows/release.yml`, which runs the test suite, publishes the
-package to PyPI (`make publish`), then extracts the matching `## vX.Y.Z`
-section from `docs/release-notes.md` and publishes it as the GitHub Release
-body (re-runs update the existing release instead of failing).
+`.github/workflows/release.yml`, which runs the test suite in a job with no
+access to secrets, then, in a separate job, extracts the matching `## vX.Y.Z`
+section from `docs/release-notes.md` (failing before anything is published
+when it is missing), builds and publishes the package to PyPI, and publishes
+the section as the GitHub Release body (re-runs update the existing release
+instead of failing). The package is uploaded with PyPI trusted publishing
+from the `pypi` GitHub environment, there is no PyPI token secret.
 
 ## Cutting a release
 

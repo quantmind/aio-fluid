@@ -8,7 +8,7 @@ from kubernetes_asyncio.client.api_client import ApiClient
 from slugify import slugify
 
 from .common import cpu_env
-from .cpubound import exec_args, strip_serve
+from .cpubound import exec_args, remove_params, store_params, strip_serve
 from .errors import TaskAbortedError, TaskRunError
 
 if TYPE_CHECKING:
@@ -55,21 +55,26 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
                 template=pod_template,
             ),
         )
-        response = await batch.create_namespaced_job(k8s_config.namespace, job)
-        ctx.logger.info(f"Job created. status={response.status}")
-        while True:
-            job_status = await batch.read_namespaced_job_status(
-                name=job_name,
-                namespace=k8s_config.namespace,
-            )
-            if job_status.status.succeeded:
-                ctx.logger.info(f"status={job_status.status}")
-                if reason := await ctx.task_manager.broker.get_task_aborted(ctx.id):
-                    raise TaskAbortedError(reason)
-                break
-            if job_status.status.failed is not None:
-                raise TaskRunError(f"K8s task failed status {job_status.status}")
-            await asyncio.sleep(k8s_config.sleep)
+        await store_params(ctx)
+        try:
+            response = await batch.create_namespaced_job(k8s_config.namespace, job)
+            ctx.logger.info(f"Job created. status={response.status}")
+            while True:
+                job_status = await batch.read_namespaced_job_status(
+                    name=job_name,
+                    namespace=k8s_config.namespace,
+                )
+                if job_status.status.succeeded:
+                    ctx.logger.info(f"status={job_status.status}")
+                    broker = ctx.task_manager.broker
+                    if reason := await broker.get_task_aborted(ctx.id):
+                        raise TaskAbortedError(reason)
+                    break
+                if job_status.status.failed is not None:
+                    raise TaskRunError(f"K8s task failed status {job_status.status}")
+                await asyncio.sleep(k8s_config.sleep)
+        finally:
+            await remove_params(ctx)
 
 
 def k8s_job_pod_template(

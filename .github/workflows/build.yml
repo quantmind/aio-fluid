@@ -7,6 +7,9 @@ on:
     branches:
       - '**'
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,6 +17,7 @@ jobs:
     env:
       PYTHON_ENV: ci
       FLUID_FLAMEGRAPH_EXECUTABLE: "./flamegraph.pl"
+      UV_LOCKED: "1"
     strategy:
       matrix:
         python-version: ["3.12", "3.13", "3.14", "3.15"]
@@ -27,22 +31,26 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test_db
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
 
     steps:
       - name: checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Start Redis
-        uses: supercharge/redis-github-action@1.2.0
+      - name: install uv
+        uses: astral-sh/setup-uv@v10.3.2
         with:
-          redis-version: 7
+          version: "0.13.6"
       - name: Install dependencies
-        run: make install
+        run: uv sync --locked --all-extras --all-groups
       - name: Install flamegraph
         env:
           FG_PATH: "."
@@ -55,7 +63,7 @@ jobs:
         run: make test
       - name: upload coverage
         if: matrix.python-version == '3.14'
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./build/coverage.xml
@@ -65,20 +73,28 @@ jobs:
     if: ${{ github.ref == 'refs/heads/main' }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: write
+    env:
+      UV_LOCKED: "1"
     concurrency:
       group: docs-publish
       cancel-in-progress: false
     steps:
       - name: checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: "3.14"
+      - name: install uv
+        uses: astral-sh/setup-uv@v10.3.2
+        with:
+          version: "0.13.6"
       - name: Install dependencies
-        run: make install
+        run: uv sync --locked --all-extras --all-groups
       - name: fetch gh-pages
         run: git fetch origin gh-pages:gh-pages
       - name: publish-docs

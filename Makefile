@@ -2,6 +2,10 @@
 help:
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/\\$$//' | sed -e 's/##//'
 
+.PHONY: ci-versions
+ci-versions:		## update GitHub Actions and uv versions in the CI workflows
+	@uv run python scripts/ci_versions.py --write
+
 .PHONY: clean
 clean:			## remove python cache files
 	find . -name '__pycache__' | xargs rm -rf
@@ -48,7 +52,7 @@ outdated:		## Show outdated packages
 
 .PHONY: publish
 publish:		## release to pypi
-	@uv build && uv publish --token $(PYPI_TOKEN)
+	@uv build && uv publish
 
 .PHONY: readme
 readme:			## generate readme.md

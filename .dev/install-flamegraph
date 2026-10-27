@@ -2,6 +2,14 @@
 set -e
 
 INSTALLATION_PATH=${FG_PATH:-/usr/bin}
+# pinned commit and checksum: the tests execute this script
+FG_COMMIT=41fee1f99f9276008b7cd112fca19dc3ea84ac32
+FG_SHA256=088f82e6848a4f12a56e1e8e8170ee6761fccf12e5615cd64630f6b087c99ea7
+FG_FILE=${INSTALLATION_PATH}/flamegraph.pl
 
-wget -nv https://raw.githubusercontent.com/brendangregg/FlameGraph/master/flamegraph.pl -O ${INSTALLATION_PATH}/flamegraph.pl
-chmod +x ${INSTALLATION_PATH}/flamegraph.pl
+wget -nv https://raw.githubusercontent.com/brendangregg/FlameGraph/${FG_COMMIT}/flamegraph.pl -O ${FG_FILE}
+if ! echo "${FG_SHA256}  ${FG_FILE}" | sha256sum -c -; then
+    rm -f ${FG_FILE}
+    exit 1
+fi
+chmod +x ${FG_FILE}
