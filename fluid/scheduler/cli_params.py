@@ -14,7 +14,7 @@ from pydantic_core import PydanticUndefined
 C = TypeVar("C", bound=click.Command)
 
 # names of the options exec defines itself
-RESERVED_NAMES = frozenset(("log", "run_id", "params"))
+RESERVED_NAMES = frozenset(("log", "run_id", "params", "params_from_broker"))
 _UNION_TYPES = {Union, types.UnionType}
 _SEQUENCE_TYPES = {list, set, frozenset, tuple}
 _GIVEN = {ParameterSource.COMMANDLINE, ParameterSource.ENVIRONMENT}

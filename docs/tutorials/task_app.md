@@ -74,6 +74,29 @@ GET /tasks
 GET /tasks?tags=fast&tags=slow
 ```
 
+### Protecting the Routes
+
+The task routes are not authenticated: anyone who reaches them can queue any
+task with any parameters, clear the queues and enable or disable tasks. Expose
+them on a private network only, or protect them with the `dependencies`
+argument of [task_manager_fastapi][fluid.scheduler.task_manager_fastapi]. The
+dependencies apply to every task manager route, the routes mounted by
+[plugins](#plugins) included:
+
+```python
+from fastapi import Depends, Header, HTTPException
+
+from fluid.scheduler import task_manager_fastapi
+
+
+def check_token(x_api_key: str = Header()) -> None:
+    if x_api_key != expected_api_key():
+        raise HTTPException(status_code=401, detail="unauthorized")
+
+
+app = task_manager_fastapi(consumer, dependencies=[Depends(check_token)])
+```
+
 
 ## Task App Command Line
 

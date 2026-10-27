@@ -1,6 +1,10 @@
 import pytest
+from fastapi import Depends, HTTPException
+from httpx2 import ASGITransport, AsyncClient
 
+from fluid.db import CrudDB
 from fluid.scheduler import TaskManager
+from fluid.scheduler.db import TaskDbPlugin
 from fluid.scheduler.endpoints import get_task_manager, task_manager_fastapi
 from fluid.scheduler.models import TaskInfo, TaskState
 from fluid.utils.http_client import HttpResponseError
@@ -141,3 +145,23 @@ async def test_task_manager_not_a_worker() -> None:
     assert task_manager.on_shutdown in app.router.on_shutdown
     async with start_fastapi(app):
         pass
+
+
+def deny() -> None:
+    raise HTTPException(status_code=401, detail="unauthorized")
+
+
+async def test_dependencies_protect_all_routes() -> None:
+    """Dependencies reach the task routes and the plugin routes"""
+    task_manager = TaskManager().with_plugin(
+        TaskDbPlugin(CrudDB(dsn="postgresql+asyncpg://u@localhost/unused"))
+    )
+    app = task_manager_fastapi(task_manager, dependencies=[Depends(deny)])
+    async with AsyncClient(
+        transport=ASGITransport(app=app), base_url="http://test"
+    ) as client:
+        for path in ("/tasks", "/tasks-status", "/tasks-history", "/tasks-history/1"):
+            response = await client.get(path)
+            assert response.status_code == 401, path
+        response = await client.delete("/tasks-queue")
+        assert response.status_code == 401

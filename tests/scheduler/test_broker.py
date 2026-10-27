@@ -42,3 +42,10 @@ async def test_manager_statuses_without_managers() -> None:
         assert set(statuses.queues.values()) == {0}
     finally:
         await broker.close()
+
+
+async def test_task_params_read_once(task_scheduler: TaskScheduler) -> None:
+    broker = task_scheduler.broker
+    await broker.set_task_params("params-run", '{"a": 1}', ttl=60)
+    assert await broker.pop_task_params("params-run") == '{"a": 1}'
+    assert await broker.pop_task_params("params-run") is None

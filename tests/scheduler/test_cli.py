@@ -15,6 +15,7 @@ from examples.tasks import Palette, PaletteParams
 from fluid import settings
 from fluid.scheduler.cli import DEFAULT_COMMANDS, TaskManagerCLI, ctx_app
 from fluid.scheduler.errors import TaskRunError
+from tests.scheduler.tasks import redis_broker
 
 
 @pytest.fixture(scope="module")
@@ -351,3 +352,36 @@ async def test_cli_serve(
     assert kwargs["host"] == "127.0.0.1"
     assert kwargs["reload"] is False
     assert kwargs["log_config"]
+
+
+def test_cli_exec_params_from_broker(redis: Redis) -> None:
+    """A cpu bound process reads its params from the broker, once"""
+    broker = redis_broker(task_manager_cli.get_task_manager())
+    key = broker.task_params_key("from-broker-1")
+    redis.set(key, '{"error": true}', ex=60)
+    runner = CliRunner()
+    result = runner.invoke(
+        task_manager_cli,
+        ["exec", "fast", "--run-id", "from-broker-1", "--params-from-broker"],
+    )
+    # the stored params make the task fail, the model default would not
+    assert result.exit_code == 1
+    assert isinstance(result.exception, RuntimeError)
+    assert redis.get(key) is None
+
+
+def test_cli_exec_params_from_broker_missing() -> None:
+    runner = CliRunner()
+    result = runner.invoke(
+        task_manager_cli,
+        ["exec", "fast", "--run-id", "not-stored", "--params-from-broker"],
+    )
+    assert result.exit_code == 1
+    assert "no params stored for task run 'not-stored'" in str(result.exception)
+
+
+def test_cli_exec_params_from_broker_requires_run_id() -> None:
+    runner = CliRunner()
+    result = runner.invoke(task_manager_cli, ["exec", "fast", "--params-from-broker"])
+    assert result.exit_code == 2
+    assert "--params-from-broker requires --run-id" in result.output

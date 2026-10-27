@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import heapq
+import json
 import logging
 from contextlib import AsyncExitStack
 from functools import partial
@@ -241,6 +242,14 @@ class TaskManager:
         priority: Annotated[
             TaskPriority | None, Doc("Override the default task priority if provided")
         ] = None,
+        params_from_broker: Annotated[
+            bool,
+            Doc(
+                "Load the params stored in the broker for `run_id`, the ones "
+                "given as keyword arguments are applied on top of them. This is "
+                "how a cpu bound task receives its params from the consumer."
+            ),
+        ] = False,
         **params: Annotated[
             Any,
             Doc(
@@ -261,6 +270,7 @@ class TaskManager:
                 task,
                 run_id=run_id,
                 priority=priority,
+                params_from_broker=params_from_broker,
                 **params,
             )
         )
@@ -431,9 +441,21 @@ class TaskManager:
         plugin.register(self)
         return self
 
-    async def _execute_and_exit(self, task: Task | str, **params: Any) -> TaskRun:
+    async def _execute_and_exit(
+        self,
+        task: Task | str,
+        *,
+        run_id: str = "",
+        params_from_broker: bool = False,
+        **params: Any,
+    ) -> TaskRun:
         async with self:
-            return await self.execute(task, in_process=True, **params)
+            if params_from_broker:
+                data = await self.broker.pop_task_params(run_id) if run_id else None
+                if data is None:
+                    raise TaskError(f"no params stored for task run '{run_id}'")
+                params = {**json.loads(data), **params}
+            return await self.execute(task, run_id=run_id, in_process=True, **params)
 
     async def _queue_task_run(self, task_run: TaskRun) -> TaskRun:
         self.dispatcher.dispatch(task_run)

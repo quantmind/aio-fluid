@@ -127,3 +127,39 @@ async def test_run_python_encoded_log() -> None:
     assert code == 0
     assert result.data == ["ciao\n"]
     assert logged == ["ciao\n"]
+
+
+async def test_failing_callback_keeps_draining() -> None:
+    """A callback which raises must not stop the pipe being read, otherwise
+    the process blocks once the pipe buffer is full"""
+    calls = []
+
+    def fail(data: bytes) -> None:
+        calls.append(data)
+        raise ValueError("bad callback")
+
+    code = await asyncio.wait_for(
+        kernel.run(
+            sys.executable,
+            "-c",
+            "import sys; [print('x' * 1000) for _ in range(1000)]",
+            result_callback=fail,
+            stream_output=True,
+        ),
+        10,
+    )
+    assert code == 0
+    assert len(calls) == 1000
+
+
+async def test_utf8_decoder_split_character() -> None:
+    data = "é€".encode("utf-8")
+    decoder = kernel.Utf8Decoder()
+    text = "".join(decoder.decode(data[i : i + 1]) for i in range(len(data)))
+    assert text == "é€"
+
+
+async def test_encoded_log_replaces_invalid_bytes() -> None:
+    log = kernel.EncodedLog(lambda msg: None)
+    log(b"ok \xff\n")
+    assert log.data == ["ok �\n"]

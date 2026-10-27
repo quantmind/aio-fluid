@@ -29,12 +29,16 @@ class RemoteLog:
 
     def __init__(self, out: Any) -> None:
         self.out = out
+        self._decoder = kernel.Utf8Decoder()
 
     def __call__(self, data: bytes) -> None:
-        self.out.write(data.decode("utf-8"))
+        self.out.write(self._decoder.decode(data))
 
 
 SERVE_COMMAND = "serve"
+PARAMS_TTL_TOLERANCE = 300
+"""Seconds the stored params outlive the task timeout, covering the time a
+process or a kubernetes job pod takes to start"""
 
 
 def strip_serve(command: Sequence[str]) -> list[str]:
@@ -54,18 +58,30 @@ def strip_serve(command: Sequence[str]) -> list[str]:
 def exec_args(ctx: TaskRun) -> list[str]:
     """Build the `exec` arguments which run a single task run to completion.
 
+    The params are not part of the arguments, which any user on the host (or
+    anyone who can read the kubernetes job) can see. They are stored in the
+    broker by [store_params][fluid.scheduler.cpubound.store_params] and read
+    back by the process executing the task.
+    """
+    return ["exec", ctx.name, "--log", "--run-id", ctx.id, "--params-from-broker"]
+
+
+async def store_params(ctx: TaskRun) -> None:
+    """Store the params of a task run for the process executing it.
+
     Params are serialised with secret values revealed because the process
     executing the task re-validates them.
     """
-    return [
-        "exec",
-        ctx.name,
-        "--log",
-        "--run-id",
+    await ctx.task_manager.broker.set_task_params(
         ctx.id,
-        "--params",
         to_json(params_dump(ctx.params)).decode(),
-    ]
+        ttl=ctx.task.timeout_seconds + PARAMS_TTL_TOLERANCE,
+    )
+
+
+async def remove_params(ctx: TaskRun) -> None:
+    """Remove the stored params of a task run the process did not read"""
+    await ctx.task_manager.broker.pop_task_params(ctx.id)
 
 
 def cpu_bound_command(ctx: TaskRun) -> list[str]:
@@ -84,15 +100,19 @@ async def run_in_subprocess(ctx: TaskRun) -> None:
     env.update(cpu_env())
     env.update(ctx.task.env)
     executable, *args = cpu_bound_command(ctx)
-    result = await kernel.run(
-        executable,
-        *args,
-        result_callback=RemoteLog(sys.stdout),
-        error_callback=RemoteLog(sys.stderr),
-        env=env,
-        stream_output=True,
-        stream_error=True,
-    )
+    await store_params(ctx)
+    try:
+        result = await kernel.run(
+            executable,
+            *args,
+            result_callback=RemoteLog(sys.stdout),
+            error_callback=RemoteLog(sys.stderr),
+            env=env,
+            stream_output=True,
+            stream_error=True,
+        )
+    finally:
+        await remove_params(ctx)
     if reason := await ctx.task_manager.broker.get_task_aborted(ctx.id):
         raise TaskAbortedError(reason)
     if result:

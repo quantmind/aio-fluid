@@ -1,8 +1,11 @@
 import asyncio
+import codecs
+import logging
 import sys
 from typing import Any, Callable, Dict, Optional
 
 KernelCallback = Callable[[bytes], None]
+logger = logging.getLogger(__name__)
 READ_LIMIT = 2**16  # 64 KiB
 TERMINATE_GRACE_PERIOD = 5.0
 """Seconds to wait for a terminated process before killing it"""
@@ -100,23 +103,42 @@ async def _read_stream(
             chunk = await _read_line(stream)
         else:
             chunk = await stream.read()
-        if chunk:
-            cb(chunk)
-        else:
+        if not chunk:
             break
+        try:
+            cb(chunk)
+        except Exception:
+            # keep draining the pipe, a reader which stops would leave the
+            # process blocked on a full pipe until it times out
+            logger.exception("subprocess output callback failed")
 
 
 def noop(data: bytes) -> None:
     pass
 
 
+class Utf8Decoder:
+    """Decode a stream of bytes chunks as utf-8.
+
+    A character split across two chunks is decoded once both have arrived,
+    and invalid bytes are replaced rather than raising.
+    """
+
+    def __init__(self) -> None:
+        self._decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+
+    def decode(self, data: bytes) -> str:
+        return self._decoder.decode(data)
+
+
 class EncodedLog:
     def __init__(self, log: Callable[[str], Any] = sys.stdout.write) -> None:
         self.log = log
         self.data: list[str] = []
+        self._decoder = Utf8Decoder()
 
     def __call__(self, data: bytes) -> None:
-        msg = data.decode("utf-8")
+        msg = self._decoder.decode(data)
         self.data.append(msg)
         self.log(msg)
 

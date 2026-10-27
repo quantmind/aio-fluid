@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import abc
 from enum import Enum
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Sequence
 
 from fastapi import FastAPI
+from fastapi.params import Depends
 from typing_extensions import Annotated, Doc
 
 if TYPE_CHECKING:
@@ -31,6 +32,10 @@ class TaskManagerPlugin(abc.ABC):
         tags: Annotated[
             list[str | Enum] | None,
             Doc("The tags for the routes."),
+        ] = None,
+        dependencies: Annotated[
+            Sequence[Depends] | None,
+            Doc("Dependencies applied to every route, such as authentication."),
         ] = None,
     ) -> None:
         """Register routes with the FastAPI app"""

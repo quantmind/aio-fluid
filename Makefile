@@ -48,7 +48,7 @@ outdated:		## Show outdated packages
 
 .PHONY: publish
 publish:		## release to pypi
-	@uv build && uv publish --token $(PYPI_TOKEN)
+	@uv build && uv publish
 
 .PHONY: readme
 readme:			## generate readme.md

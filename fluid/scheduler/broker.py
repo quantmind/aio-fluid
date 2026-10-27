@@ -124,6 +124,19 @@ class TaskBroker(ABC):
         """Return the abort reason for a task run, or None if not aborted"""
 
     @abstractmethod
+    async def set_task_params(self, run_id: str, data: str, ttl: int) -> None:
+        """Store the JSON params of a task run executed in another process
+
+        They are read by
+        [pop_task_params][fluid.scheduler.TaskBroker.pop_task_params] and
+        expire after `ttl` seconds when never read.
+        """
+
+    @abstractmethod
+    async def pop_task_params(self, run_id: str) -> str | None:
+        """Return and remove the stored JSON params of a task run, if any"""
+
+    @abstractmethod
     async def close(self) -> None:
         """Close the broker on shutdown"""
 
@@ -354,6 +367,16 @@ class RedisTaskBroker(TaskBroker):
 
     async def get_task_aborted(self, run_id: str) -> str | None:
         value = await self.redis_cli.get(self.task_aborted_key(run_id))
+        return value.decode() if value else None
+
+    def task_params_key(self, run_id: str) -> str:
+        return f"{self.prefix}-params-{run_id}"
+
+    async def set_task_params(self, run_id: str, data: str, ttl: int) -> None:
+        await self.redis_cli.set(self.task_params_key(run_id), data, ex=ttl)
+
+    async def pop_task_params(self, run_id: str) -> str | None:
+        value = await self.redis_cli.getdel(self.task_params_key(run_id))
         return value.decode() if value else None
 
     async def close(self) -> None:

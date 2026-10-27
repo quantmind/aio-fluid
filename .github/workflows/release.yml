@@ -1,9 +1,14 @@
 name: release
 
-# Triggered by `v*` tags (push one with `make release`). Runs the test suite,
-# publishes the package to PyPI, then extracts the matching section from
-# docs/release-notes.md and publishes it as the GitHub Release body. Re-runs
-# idempotently update an existing release rather than failing.
+# Triggered by `v*` tags (push one with `make release`). The test job runs the
+# test suite without access to any secret. The publish job then extracts the
+# matching section from docs/release-notes.md, publishes the package to PyPI
+# and publishes the notes as the GitHub Release body. Re-runs idempotently
+# update an existing release rather than failing.
+#
+# The package is published with PyPI trusted publishing: PyPI accepts a short
+# lived OIDC token issued to the publish job of this workflow, running in the
+# `pypi` environment, so no PyPI secret is stored in the repository.
 
 on:
   push:
@@ -11,18 +16,16 @@ on:
       - "v*"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  release:
+  test:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
       PYTHON_ENV: ci
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      PYPI_TOKEN: ${{ secrets.PYPI_TOKEN }}
       FLUID_FLAMEGRAPH_EXECUTABLE: "./flamegraph.pl"
+      UV_LOCKED: "1"
 
     services:
       postgres:
@@ -33,22 +36,27 @@ jobs:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
           POSTGRES_DB: test_db
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
 
     steps:
       - name: checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: "3.14"
-      - name: Start Redis
-        uses: supercharge/redis-github-action@1.2.0
+      - name: install uv
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
         with:
-          redis-version: 7
+          version: "0.13.5"
       - name: Install dependencies
-        run: make install
+        run: uv sync --locked --all-extras --all-groups
       - name: Install flamegraph
         env:
           FG_PATH: "."
@@ -59,8 +67,28 @@ jobs:
         run: make docs
       - name: tests
         run: make test
-      - name: publish to PyPI
-        run: make publish
+
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: pypi
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - name: checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.14"
+      - name: install uv
+        uses: astral-sh/setup-uv@07a047e608db84b3d8c06cd9a7c7dcc9c355c18e # v10.3.2
+        with:
+          version: "0.13.5"
       - name: Extract release notes
         run: |
           TAG="${GITHUB_REF_NAME}"
@@ -75,7 +103,13 @@ jobs:
           fi
           echo "--- extracted notes for ${TAG} ---"
           cat /tmp/notes.md
+      - name: build package
+        run: uv build
+      - name: publish to PyPI
+        run: uv publish --trusted-publishing always
       - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG="${GITHUB_REF_NAME}"
           if gh release view "$TAG" >/dev/null 2>&1; then
