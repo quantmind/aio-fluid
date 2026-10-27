@@ -797,6 +797,24 @@ GET /tasks
 GET /tasks?tags=fast&tags=slow
 ```
 
+### Protecting the Routes
+
+The task routes are not authenticated: anyone who reaches them can queue any task with any parameters, clear the queues and enable or disable tasks. Expose them on a private network only, or protect them with the `dependencies` argument of task_manager_fastapi. The dependencies apply to every task manager route, the routes mounted by [plugins](#plugins) included:
+
+```python
+from fastapi import Depends, Header, HTTPException
+
+from fluid.scheduler import task_manager_fastapi
+
+
+def check_token(x_api_key: str = Header()) -> None:
+    if x_api_key != expected_api_key():
+        raise HTTPException(status_code=401, detail="unauthorized")
+
+
+app = task_manager_fastapi(consumer, dependencies=[Depends(check_token)])
+```
+
 ## Task App Command Line
 
 The TaskConsumer or TaskScheduler can be run with the command line tool to allow for an even richer API.
@@ -1197,7 +1215,7 @@ The Job pod template is derived from the **task consumer deployment**. The imple
 | Field             | Value in the Job                                                                                                                                                                          |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `command`         | Same as the deployment, but any trailing `serve` token is removed                                                                                                                         |
-| `args`            | `exec <task-name> --log --run-id <id> --params <json>`                                                                                                                                    |
+| `args`            | `exec <task-name> --log --run-id <id> --params-from-broker`: the params are stored in the broker, not in the Job spec                                                                     |
 | `env`             | Inherited from the deployment, then `TASK_MANAGER_SPAWN=true` appended, then any task-level `env` vars appended (see [Injecting environment variables](#injecting-environment-variables)) |
 | `resources`       | Inherited from the deployment unless overridden via [`K8sConfig.resources`](#configuration)                                                                                               |
 | `liveness_probe`  | Cleared — probes are not meaningful for Job pods and would prematurely kill long-running tasks                                                                                            |
@@ -7185,6 +7203,45 @@ async def get_task_aborted(self, run_id: str) -> str | None:
     """Return the abort reason for a task run, or None if not aborted"""
 ```
 
+### set_task_params
+
+```python
+set_task_params(run_id, data, ttl)
+```
+
+Store the JSON params of a task run executed in another process
+
+They are read by pop_task_params and expire after `ttl` seconds when never read.
+
+Source code in `fluid/scheduler/broker.py`
+
+```python
+@abstractmethod
+async def set_task_params(self, run_id: str, data: str, ttl: int) -> None:
+    """Store the JSON params of a task run executed in another process
+
+    They are read by
+    [pop_task_params][fluid.scheduler.TaskBroker.pop_task_params] and
+    expire after `ttl` seconds when never read.
+    """
+```
+
+### pop_task_params
+
+```python
+pop_task_params(run_id)
+```
+
+Return and remove the stored JSON params of a task run, if any
+
+Source code in `fluid/scheduler/broker.py`
+
+```python
+@abstractmethod
+async def pop_task_params(self, run_id: str) -> str | None:
+    """Return and remove the stored JSON params of a task run, if any"""
+```
+
 ### close
 
 ```python
@@ -7447,6 +7504,10 @@ Enable structured logging output during execution:
 ```bash
 python -m myapp exec add --log --params '{"a": 1, "b": 2}'
 ```
+
+#### `--params-from-broker`
+
+Load the parameters the task consumer stored in the broker for `--run-id`. This is how a [CPU bound task](https://fluid.quantmind.com/tutorials/tasks/#cpu-bound-tasks) receives its parameters: the consumer stores them before starting the process, or the Kubernetes Job, and the process reads and removes them. They are kept off the command line because any user on the host, or anyone who can read the Job, can see it. Parameters given as options or with `--params` are applied on top.
 
 ## API reference
 
@@ -8173,19 +8234,27 @@ async def execute(
 ### execute_sync
 
 ```python
-execute_sync(task, *, run_id='', priority=None, **params)
+execute_sync(
+    task,
+    *,
+    run_id="",
+    priority=None,
+    params_from_broker=False,
+    **params
+)
 ```
 
 Execute a task synchronously
 
 This method is a blocking method that should be used in a synchronous context. It runs the task to completion in this process, a cpu bound one included: it is what the `exec` command of the task manager client calls, and that command is the one a cpu bound task is executed by.
 
-| PARAMETER  | DESCRIPTION                                                                                                       |
-| ---------- | ----------------------------------------------------------------------------------------------------------------- |
-| `task`     | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                |
-| `run_id`   | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`            |
-| `priority` | Override the default task priority if provided **TYPE:** \`TaskPriority                                           |
-| `**params` | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}` |
+| PARAMETER            | DESCRIPTION                                                                                                                                                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `task`               | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                                                                                                                         |
+| `run_id`             | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`                                                                                                                     |
+| `priority`           | Override the default task priority if provided **TYPE:** \`TaskPriority                                                                                                                                                    |
+| `params_from_broker` | Load the params stored in the broker for run_id, the ones given as keyword arguments are applied on top of them. This is how a cpu bound task receives its params from the consumer. **TYPE:** `bool` **DEFAULT:** `False` |
+| `**params`           | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}`                                                                                                          |
 
 Source code in `fluid/scheduler/consumer.py`
 
@@ -8207,6 +8276,14 @@ def execute_sync(
     priority: Annotated[
         TaskPriority | None, Doc("Override the default task priority if provided")
     ] = None,
+    params_from_broker: Annotated[
+        bool,
+        Doc(
+            "Load the params stored in the broker for `run_id`, the ones "
+            "given as keyword arguments are applied on top of them. This is "
+            "how a cpu bound task receives its params from the consumer."
+        ),
+    ] = False,
     **params: Annotated[
         Any,
         Doc(
@@ -8227,6 +8304,7 @@ def execute_sync(
             task,
             run_id=run_id,
             priority=priority,
+            params_from_broker=params_from_broker,
             **params,
         )
     )
@@ -8929,19 +9007,27 @@ async def execute(
 ### execute_sync
 
 ```python
-execute_sync(task, *, run_id='', priority=None, **params)
+execute_sync(
+    task,
+    *,
+    run_id="",
+    priority=None,
+    params_from_broker=False,
+    **params
+)
 ```
 
 Execute a task synchronously
 
 This method is a blocking method that should be used in a synchronous context. It runs the task to completion in this process, a cpu bound one included: it is what the `exec` command of the task manager client calls, and that command is the one a cpu bound task is executed by.
 
-| PARAMETER  | DESCRIPTION                                                                                                       |
-| ---------- | ----------------------------------------------------------------------------------------------------------------- |
-| `task`     | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                |
-| `run_id`   | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`            |
-| `priority` | Override the default task priority if provided **TYPE:** \`TaskPriority                                           |
-| `**params` | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}` |
+| PARAMETER            | DESCRIPTION                                                                                                                                                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `task`               | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                                                                                                                         |
+| `run_id`             | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`                                                                                                                     |
+| `priority`           | Override the default task priority if provided **TYPE:** \`TaskPriority                                                                                                                                                    |
+| `params_from_broker` | Load the params stored in the broker for run_id, the ones given as keyword arguments are applied on top of them. This is how a cpu bound task receives its params from the consumer. **TYPE:** `bool` **DEFAULT:** `False` |
+| `**params`           | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}`                                                                                                          |
 
 Source code in `fluid/scheduler/consumer.py`
 
@@ -8963,6 +9049,14 @@ def execute_sync(
     priority: Annotated[
         TaskPriority | None, Doc("Override the default task priority if provided")
     ] = None,
+    params_from_broker: Annotated[
+        bool,
+        Doc(
+            "Load the params stored in the broker for `run_id`, the ones "
+            "given as keyword arguments are applied on top of them. This is "
+            "how a cpu bound task receives its params from the consumer."
+        ),
+    ] = False,
     **params: Annotated[
         Any,
         Doc(
@@ -8983,6 +9077,7 @@ def execute_sync(
             task,
             run_id=run_id,
             priority=priority,
+            params_from_broker=params_from_broker,
             **params,
         )
     )
@@ -9541,6 +9636,7 @@ task_manager_fastapi(
     include_router=True,
     prefix="/tasks",
     tags=None,
+    dependencies=None,
     **kwargs
 )
 ```
@@ -9549,14 +9645,15 @@ Setup the FastAPI app and add the task manager to the state
 
 If the task manager is a Worker, it is also added to the app workers to be started with the app.
 
-| PARAMETER        | DESCRIPTION                                                                                         |
-| ---------------- | --------------------------------------------------------------------------------------------------- |
-| `task_manager`   | A TaskManager, TaskConsumer or TaskScheduler instance **TYPE:** `TaskManager`                       |
-| `app`            | FastAPI app instance. If not provided, a new instance is created. **TYPE:** \`FastAPI               |
-| `include_router` | Whether to include the task manager router in the FastAPI app. **TYPE:** `bool` **DEFAULT:** `True` |
-| `prefix`         | Prefix for the task manager routes. **TYPE:** `str` **DEFAULT:** `'/tasks'`                         |
-| `tags`           | Tags for the task manager routes. **TYPE:** \`Sequence\[str                                         |
-| `**kwargs`       | Additional keyword arguments for the FastAPI app if not provided **TYPE:** `Any` **DEFAULT:** `{}`  |
+| PARAMETER        | DESCRIPTION                                                                                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `task_manager`   | A TaskManager, TaskConsumer or TaskScheduler instance **TYPE:** `TaskManager`                                                                                            |
+| `app`            | FastAPI app instance. If not provided, a new instance is created. **TYPE:** \`FastAPI                                                                                    |
+| `include_router` | Whether to include the task manager router in the FastAPI app. **TYPE:** `bool` **DEFAULT:** `True`                                                                      |
+| `prefix`         | Prefix for the task manager routes. **TYPE:** `str` **DEFAULT:** `'/tasks'`                                                                                              |
+| `tags`           | Tags for the task manager routes. **TYPE:** \`Sequence\[str                                                                                                              |
+| `dependencies`   | Dependencies applied to every task manager route, plugin routes included. Use them to protect the routes, for example with authentication. **TYPE:** \`Sequence[Depends] |
+| `**kwargs`       | Additional keyword arguments for the FastAPI app if not provided **TYPE:** `Any` **DEFAULT:** `{}`                                                                       |
 
 Source code in `fluid/scheduler/endpoints.py`
 
@@ -9589,6 +9686,14 @@ def task_manager_fastapi(
         Sequence[str | Enum] | None,
         Doc("Tags for the task manager routes."),
     ] = None,
+    dependencies: Annotated[
+        Sequence[DependsParam] | None,
+        Doc(
+            "Dependencies applied to every task manager route, plugin routes "
+            "included. Use them to protect the routes, for example with "
+            "authentication."
+        ),
+    ] = None,
     **kwargs: Annotated[
         Any,
         Doc("Additional keyword arguments for the FastAPI app if not provided"),
@@ -9602,9 +9707,17 @@ def task_manager_fastapi(
     app = app or FastAPI(**kwargs)
     if include_router:
         tags_ = tags if tags is not None else ["Tasks"]
-        app.include_router(get_router(task_manager), prefix=prefix, tags=list(tags_))
+        app.include_router(
+            get_router(task_manager),
+            prefix=prefix,
+            tags=list(tags_),
+            dependencies=dependencies,
+        )
+        # only pass dependencies when given, so plugins whose register_routes
+        # does not accept them keep working
+        extra = dict(dependencies=dependencies) if dependencies else {}
         for plugin in task_manager._plugins:
-            plugin.register_routes(app, prefix=prefix, tags=list(tags_))
+            plugin.register_routes(app, prefix=prefix, tags=list(tags_), **extra)
     app.state.task_manager = task_manager
     if isinstance(task_manager, Worker):
         app_workers(app).add_workers(task_manager)
@@ -9710,16 +9823,19 @@ def register(self, task_manager: TaskManager) -> None:
 ### register_routes
 
 ```python
-register_routes(app, prefix='/tasks', tags=None)
+register_routes(
+    app, prefix="/tasks", tags=None, dependencies=None
+)
 ```
 
 Register routes with the FastAPI app
 
-| PARAMETER | DESCRIPTION                                                            |
-| --------- | ---------------------------------------------------------------------- |
-| `app`     | FastAPI app instance. **TYPE:** `FastAPI`                              |
-| `prefix`  | The URL prefix for the routes. **TYPE:** `str` **DEFAULT:** `'/tasks'` |
-| `tags`    | The tags for the routes. **TYPE:** \`list\[str                         |
+| PARAMETER      | DESCRIPTION                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| `app`          | FastAPI app instance. **TYPE:** `FastAPI`                                                  |
+| `prefix`       | The URL prefix for the routes. **TYPE:** `str` **DEFAULT:** `'/tasks'`                     |
+| `tags`         | The tags for the routes. **TYPE:** \`list\[str                                             |
+| `dependencies` | Dependencies applied to every route, such as authentication. **TYPE:** \`Sequence[Depends] |
 
 Source code in `fluid/scheduler/plugin.py`
 
@@ -9737,6 +9853,10 @@ def register_routes(  # noqa: B027
     tags: Annotated[
         list[str | Enum] | None,
         Doc("The tags for the routes."),
+    ] = None,
+    dependencies: Annotated[
+        Sequence[Depends] | None,
+        Doc("Dependencies applied to every route, such as authentication."),
     ] = None,
 ) -> None:
     """Register routes with the FastAPI app"""
@@ -9887,16 +10007,19 @@ def register(self, task_manager: TaskManager) -> None:
 ### register_routes
 
 ```python
-register_routes(app, prefix='/tasks', tags=None)
+register_routes(
+    app, prefix="/tasks", tags=None, dependencies=None
+)
 ```
 
 Register routes with the FastAPI app
 
-| PARAMETER | DESCRIPTION                                                            |
-| --------- | ---------------------------------------------------------------------- |
-| `app`     | FastAPI app instance. **TYPE:** `FastAPI`                              |
-| `prefix`  | The URL prefix for the routes. **TYPE:** `str` **DEFAULT:** `'/tasks'` |
-| `tags`    | The tags for the routes. **TYPE:** \`list\[str                         |
+| PARAMETER      | DESCRIPTION                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| `app`          | FastAPI app instance. **TYPE:** `FastAPI`                                                  |
+| `prefix`       | The URL prefix for the routes. **TYPE:** `str` **DEFAULT:** `'/tasks'`                     |
+| `tags`         | The tags for the routes. **TYPE:** \`list\[str                                             |
+| `dependencies` | Dependencies applied to every route, such as authentication. **TYPE:** \`Sequence[Depends] |
 
 Source code in `fluid/scheduler/db.py`
 
@@ -9915,10 +10038,14 @@ def register_routes(
         list[str | Enum] | None,
         Doc("The tags for the routes."),
     ] = None,
+    dependencies: Annotated[
+        Sequence[DependsParam] | None,
+        Doc("Dependencies applied to every route, such as authentication."),
+    ] = None,
 ) -> None:
     """Register routes with the FastAPI app"""
     prefix = self.route_prefix or f"{prefix}-history"
-    app.include_router(router, prefix=prefix, tags=tags)
+    app.include_router(router, prefix=prefix, tags=tags, dependencies=dependencies)
 ```
 
 ### get_history
@@ -11438,19 +11565,27 @@ async def execute(
 ### execute_sync
 
 ```python
-execute_sync(task, *, run_id='', priority=None, **params)
+execute_sync(
+    task,
+    *,
+    run_id="",
+    priority=None,
+    params_from_broker=False,
+    **params
+)
 ```
 
 Execute a task synchronously
 
 This method is a blocking method that should be used in a synchronous context. It runs the task to completion in this process, a cpu bound one included: it is what the `exec` command of the task manager client calls, and that command is the one a cpu bound task is executed by.
 
-| PARAMETER  | DESCRIPTION                                                                                                       |
-| ---------- | ----------------------------------------------------------------------------------------------------------------- |
-| `task`     | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                |
-| `run_id`   | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`            |
-| `priority` | Override the default task priority if provided **TYPE:** \`TaskPriority                                           |
-| `**params` | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}` |
+| PARAMETER            | DESCRIPTION                                                                                                                                                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `task`               | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                                                                                                                         |
+| `run_id`             | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`                                                                                                                     |
+| `priority`           | Override the default task priority if provided **TYPE:** \`TaskPriority                                                                                                                                                    |
+| `params_from_broker` | Load the params stored in the broker for run_id, the ones given as keyword arguments are applied on top of them. This is how a cpu bound task receives its params from the consumer. **TYPE:** `bool` **DEFAULT:** `False` |
+| `**params`           | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}`                                                                                                          |
 
 Source code in `fluid/scheduler/consumer.py`
 
@@ -11472,6 +11607,14 @@ def execute_sync(
     priority: Annotated[
         TaskPriority | None, Doc("Override the default task priority if provided")
     ] = None,
+    params_from_broker: Annotated[
+        bool,
+        Doc(
+            "Load the params stored in the broker for `run_id`, the ones "
+            "given as keyword arguments are applied on top of them. This is "
+            "how a cpu bound task receives its params from the consumer."
+        ),
+    ] = False,
     **params: Annotated[
         Any,
         Doc(
@@ -11492,6 +11635,7 @@ def execute_sync(
             task,
             run_id=run_id,
             priority=priority,
+            params_from_broker=params_from_broker,
             **params,
         )
     )

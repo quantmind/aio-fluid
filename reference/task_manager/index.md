@@ -317,19 +317,27 @@ async def execute(
 ### execute_sync
 
 ```python
-execute_sync(task, *, run_id='', priority=None, **params)
+execute_sync(
+    task,
+    *,
+    run_id="",
+    priority=None,
+    params_from_broker=False,
+    **params
+)
 ```
 
 Execute a task synchronously
 
 This method is a blocking method that should be used in a synchronous context. It runs the task to completion in this process, a cpu bound one included: it is what the `exec` command of the task manager client calls, and that command is the one a cpu bound task is executed by.
 
-| PARAMETER  | DESCRIPTION                                                                                                       |
-| ---------- | ----------------------------------------------------------------------------------------------------------------- |
-| `task`     | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                |
-| `run_id`   | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`            |
-| `priority` | Override the default task priority if provided **TYPE:** \`TaskPriority                                           |
-| `**params` | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}` |
+| PARAMETER            | DESCRIPTION                                                                                                                                                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `task`               | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                                                                                                                         |
+| `run_id`             | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`                                                                                                                     |
+| `priority`           | Override the default task priority if provided **TYPE:** \`TaskPriority                                                                                                                                                    |
+| `params_from_broker` | Load the params stored in the broker for run_id, the ones given as keyword arguments are applied on top of them. This is how a cpu bound task receives its params from the consumer. **TYPE:** `bool` **DEFAULT:** `False` |
+| `**params`           | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}`                                                                                                          |
 
 Source code in `fluid/scheduler/consumer.py`
 
@@ -351,6 +359,14 @@ def execute_sync(
     priority: Annotated[
         TaskPriority | None, Doc("Override the default task priority if provided")
     ] = None,
+    params_from_broker: Annotated[
+        bool,
+        Doc(
+            "Load the params stored in the broker for `run_id`, the ones "
+            "given as keyword arguments are applied on top of them. This is "
+            "how a cpu bound task receives its params from the consumer."
+        ),
+    ] = False,
     **params: Annotated[
         Any,
         Doc(
@@ -371,6 +387,7 @@ def execute_sync(
             task,
             run_id=run_id,
             priority=priority,
+            params_from_broker=params_from_broker,
             **params,
         )
     )
@@ -929,6 +946,7 @@ task_manager_fastapi(
     include_router=True,
     prefix="/tasks",
     tags=None,
+    dependencies=None,
     **kwargs
 )
 ```
@@ -937,14 +955,15 @@ Setup the FastAPI app and add the task manager to the state
 
 If the task manager is a Worker, it is also added to the app workers to be started with the app.
 
-| PARAMETER        | DESCRIPTION                                                                                         |
-| ---------------- | --------------------------------------------------------------------------------------------------- |
-| `task_manager`   | A TaskManager, TaskConsumer or TaskScheduler instance **TYPE:** `TaskManager`                       |
-| `app`            | FastAPI app instance. If not provided, a new instance is created. **TYPE:** \`FastAPI               |
-| `include_router` | Whether to include the task manager router in the FastAPI app. **TYPE:** `bool` **DEFAULT:** `True` |
-| `prefix`         | Prefix for the task manager routes. **TYPE:** `str` **DEFAULT:** `'/tasks'`                         |
-| `tags`           | Tags for the task manager routes. **TYPE:** \`Sequence\[str                                         |
-| `**kwargs`       | Additional keyword arguments for the FastAPI app if not provided **TYPE:** `Any` **DEFAULT:** `{}`  |
+| PARAMETER        | DESCRIPTION                                                                                                                                                              |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `task_manager`   | A TaskManager, TaskConsumer or TaskScheduler instance **TYPE:** `TaskManager`                                                                                            |
+| `app`            | FastAPI app instance. If not provided, a new instance is created. **TYPE:** \`FastAPI                                                                                    |
+| `include_router` | Whether to include the task manager router in the FastAPI app. **TYPE:** `bool` **DEFAULT:** `True`                                                                      |
+| `prefix`         | Prefix for the task manager routes. **TYPE:** `str` **DEFAULT:** `'/tasks'`                                                                                              |
+| `tags`           | Tags for the task manager routes. **TYPE:** \`Sequence\[str                                                                                                              |
+| `dependencies`   | Dependencies applied to every task manager route, plugin routes included. Use them to protect the routes, for example with authentication. **TYPE:** \`Sequence[Depends] |
+| `**kwargs`       | Additional keyword arguments for the FastAPI app if not provided **TYPE:** `Any` **DEFAULT:** `{}`                                                                       |
 
 Source code in `fluid/scheduler/endpoints.py`
 
@@ -977,6 +996,14 @@ def task_manager_fastapi(
         Sequence[str | Enum] | None,
         Doc("Tags for the task manager routes."),
     ] = None,
+    dependencies: Annotated[
+        Sequence[DependsParam] | None,
+        Doc(
+            "Dependencies applied to every task manager route, plugin routes "
+            "included. Use them to protect the routes, for example with "
+            "authentication."
+        ),
+    ] = None,
     **kwargs: Annotated[
         Any,
         Doc("Additional keyword arguments for the FastAPI app if not provided"),
@@ -990,9 +1017,17 @@ def task_manager_fastapi(
     app = app or FastAPI(**kwargs)
     if include_router:
         tags_ = tags if tags is not None else ["Tasks"]
-        app.include_router(get_router(task_manager), prefix=prefix, tags=list(tags_))
+        app.include_router(
+            get_router(task_manager),
+            prefix=prefix,
+            tags=list(tags_),
+            dependencies=dependencies,
+        )
+        # only pass dependencies when given, so plugins whose register_routes
+        # does not accept them keep working
+        extra = dict(dependencies=dependencies) if dependencies else {}
         for plugin in task_manager._plugins:
-            plugin.register_routes(app, prefix=prefix, tags=list(tags_))
+            plugin.register_routes(app, prefix=prefix, tags=list(tags_), **extra)
     app.state.task_manager = task_manager
     if isinstance(task_manager, Worker):
         app_workers(app).add_workers(task_manager)

@@ -38,16 +38,19 @@ def register(self, task_manager: TaskManager) -> None:
 ### register_routes
 
 ```python
-register_routes(app, prefix='/tasks', tags=None)
+register_routes(
+    app, prefix="/tasks", tags=None, dependencies=None
+)
 ```
 
 Register routes with the FastAPI app
 
-| PARAMETER | DESCRIPTION                                                            |
-| --------- | ---------------------------------------------------------------------- |
-| `app`     | FastAPI app instance. **TYPE:** `FastAPI`                              |
-| `prefix`  | The URL prefix for the routes. **TYPE:** `str` **DEFAULT:** `'/tasks'` |
-| `tags`    | The tags for the routes. **TYPE:** \`list\[str                         |
+| PARAMETER      | DESCRIPTION                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| `app`          | FastAPI app instance. **TYPE:** `FastAPI`                                                  |
+| `prefix`       | The URL prefix for the routes. **TYPE:** `str` **DEFAULT:** `'/tasks'`                     |
+| `tags`         | The tags for the routes. **TYPE:** \`list\[str                                             |
+| `dependencies` | Dependencies applied to every route, such as authentication. **TYPE:** \`Sequence[Depends] |
 
 Source code in `fluid/scheduler/plugin.py`
 
@@ -65,6 +68,10 @@ def register_routes(  # noqa: B027
     tags: Annotated[
         list[str | Enum] | None,
         Doc("The tags for the routes."),
+    ] = None,
+    dependencies: Annotated[
+        Sequence[Depends] | None,
+        Doc("Dependencies applied to every route, such as authentication."),
     ] = None,
 ) -> None:
     """Register routes with the FastAPI app"""
@@ -215,16 +222,19 @@ def register(self, task_manager: TaskManager) -> None:
 ### register_routes
 
 ```python
-register_routes(app, prefix='/tasks', tags=None)
+register_routes(
+    app, prefix="/tasks", tags=None, dependencies=None
+)
 ```
 
 Register routes with the FastAPI app
 
-| PARAMETER | DESCRIPTION                                                            |
-| --------- | ---------------------------------------------------------------------- |
-| `app`     | FastAPI app instance. **TYPE:** `FastAPI`                              |
-| `prefix`  | The URL prefix for the routes. **TYPE:** `str` **DEFAULT:** `'/tasks'` |
-| `tags`    | The tags for the routes. **TYPE:** \`list\[str                         |
+| PARAMETER      | DESCRIPTION                                                                                |
+| -------------- | ------------------------------------------------------------------------------------------ |
+| `app`          | FastAPI app instance. **TYPE:** `FastAPI`                                                  |
+| `prefix`       | The URL prefix for the routes. **TYPE:** `str` **DEFAULT:** `'/tasks'`                     |
+| `tags`         | The tags for the routes. **TYPE:** \`list\[str                                             |
+| `dependencies` | Dependencies applied to every route, such as authentication. **TYPE:** \`Sequence[Depends] |
 
 Source code in `fluid/scheduler/db.py`
 
@@ -243,10 +253,14 @@ def register_routes(
         list[str | Enum] | None,
         Doc("The tags for the routes."),
     ] = None,
+    dependencies: Annotated[
+        Sequence[DependsParam] | None,
+        Doc("Dependencies applied to every route, such as authentication."),
+    ] = None,
 ) -> None:
     """Register routes with the FastAPI app"""
     prefix = self.route_prefix or f"{prefix}-history"
-    app.include_router(router, prefix=prefix, tags=tags)
+    app.include_router(router, prefix=prefix, tags=tags, dependencies=dependencies)
 ```
 
 ### get_history

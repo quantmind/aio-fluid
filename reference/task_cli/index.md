@@ -110,6 +110,10 @@ Enable structured logging output during execution:
 python -m myapp exec add --log --params '{"a": 1, "b": 2}'
 ```
 
+#### `--params-from-broker`
+
+Load the parameters the task consumer stored in the broker for `--run-id`. This is how a [CPU bound task](https://fluid.quantmind.com/tutorials/tasks/#cpu-bound-tasks) receives its parameters: the consumer stores them before starting the process, or the Kubernetes Job, and the process reads and removes them. They are kept off the command line because any user on the host, or anyone who can read the Job, can see it. Parameters given as options or with `--params` are applied on top.
+
 ## API reference
 
 ## fluid.scheduler.cli.TaskManagerCLI

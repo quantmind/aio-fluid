@@ -573,19 +573,27 @@ async def execute(
 ### execute_sync
 
 ```python
-execute_sync(task, *, run_id='', priority=None, **params)
+execute_sync(
+    task,
+    *,
+    run_id="",
+    priority=None,
+    params_from_broker=False,
+    **params
+)
 ```
 
 Execute a task synchronously
 
 This method is a blocking method that should be used in a synchronous context. It runs the task to completion in this process, a cpu bound one included: it is what the `exec` command of the task manager client calls, and that command is the one a cpu bound task is executed by.
 
-| PARAMETER  | DESCRIPTION                                                                                                       |
-| ---------- | ----------------------------------------------------------------------------------------------------------------- |
-| `task`     | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                |
-| `run_id`   | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`            |
-| `priority` | Override the default task priority if provided **TYPE:** \`TaskPriority                                           |
-| `**params` | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}` |
+| PARAMETER            | DESCRIPTION                                                                                                                                                                                                                |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `task`               | The task or task name, if a task name it must be registered with the task manager. **TYPE:** \`str                                                                                                                         |
+| `run_id`             | Unique ID for the task run. If not provided a new UUID is generated. **TYPE:** `str` **DEFAULT:** `''`                                                                                                                     |
+| `priority`           | Override the default task priority if provided **TYPE:** \`TaskPriority                                                                                                                                                    |
+| `params_from_broker` | Load the params stored in the broker for run_id, the ones given as keyword arguments are applied on top of them. This is how a cpu bound task receives its params from the consumer. **TYPE:** `bool` **DEFAULT:** `False` |
+| `**params`           | The optional parameters for the task run. They must match the task params model **TYPE:** `Any` **DEFAULT:** `{}`                                                                                                          |
 
 Source code in `fluid/scheduler/consumer.py`
 
@@ -607,6 +615,14 @@ def execute_sync(
     priority: Annotated[
         TaskPriority | None, Doc("Override the default task priority if provided")
     ] = None,
+    params_from_broker: Annotated[
+        bool,
+        Doc(
+            "Load the params stored in the broker for `run_id`, the ones "
+            "given as keyword arguments are applied on top of them. This is "
+            "how a cpu bound task receives its params from the consumer."
+        ),
+    ] = False,
     **params: Annotated[
         Any,
         Doc(
@@ -627,6 +643,7 @@ def execute_sync(
             task,
             run_id=run_id,
             priority=priority,
+            params_from_broker=params_from_broker,
             **params,
         )
     )

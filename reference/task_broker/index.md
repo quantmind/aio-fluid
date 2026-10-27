@@ -270,6 +270,45 @@ async def get_task_aborted(self, run_id: str) -> str | None:
     """Return the abort reason for a task run, or None if not aborted"""
 ```
 
+### set_task_params
+
+```python
+set_task_params(run_id, data, ttl)
+```
+
+Store the JSON params of a task run executed in another process
+
+They are read by pop_task_params and expire after `ttl` seconds when never read.
+
+Source code in `fluid/scheduler/broker.py`
+
+```python
+@abstractmethod
+async def set_task_params(self, run_id: str, data: str, ttl: int) -> None:
+    """Store the JSON params of a task run executed in another process
+
+    They are read by
+    [pop_task_params][fluid.scheduler.TaskBroker.pop_task_params] and
+    expire after `ttl` seconds when never read.
+    """
+```
+
+### pop_task_params
+
+```python
+pop_task_params(run_id)
+```
+
+Return and remove the stored JSON params of a task run, if any
+
+Source code in `fluid/scheduler/broker.py`
+
+```python
+@abstractmethod
+async def pop_task_params(self, run_id: str) -> str | None:
+    """Return and remove the stored JSON params of a task run, if any"""
+```
+
 ### close
 
 ```python
