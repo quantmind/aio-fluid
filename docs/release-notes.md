@@ -6,6 +6,21 @@ below maps to a tagged release on
 pushed, the matching section is extracted by
 `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.13.0
+
+Pagination cursors carry the ordering they were built with, so a listing
+can offer more than one sort order, see **Breaking changes**.
+
+### Breaking changes
+
+- A pagination cursor carries its ordering fields and direction, and with a
+  cursor `Pagination.create` uses them in place of the ones it is given, as it
+  already does for the limit and the search text. Cursors issued by earlier
+  versions are rejected, and clients start again from the first page
+  ([pagination tutorial](https://fluid.quantmind.com/tutorials/db/#pagination)).
+- `Cursor.decode` no longer takes the field names, it reads them from the
+  cursor.
+
 ## v2.12.1
 
 A packaging fix for the `db` extra.

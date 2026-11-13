@@ -287,6 +287,8 @@ if cursor:
 
 When `cursor` is provided, the `limit` argument is ignored: the limit is decoded from the cursor, along with the filters and the search text of the first page, so the pages stay consistent when a client sends the cursor alone.
 
+The ordering travels in the cursor too: its fields and direction replace the ones passed to [create][fluid.db.Pagination.create], so a client can send the cursor alone and the next page follows the ordering of the first one.
+
 ### Signing the cursor
 
 A cursor is base64 encoded JSON, so a client can decode it, change it and send it back. Set `FLUID_PAGINATION_SECRET` (the `pagination_secret` field of [Settings][fluid.settings.Settings]) and every cursor is signed with an HMAC of its content: a cursor that is changed, unsigned or signed with another secret is rejected with a [ValidationError][fluid.utils.errors.ValidationError]. Every process serving the same clients needs the same secret, otherwise a cursor issued by one is rejected by another. Changing the secret invalidates the cursors already issued, and the clients start again from the first page.
