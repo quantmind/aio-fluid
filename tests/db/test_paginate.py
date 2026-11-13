@@ -126,6 +126,26 @@ async def test_paginate_signed_cursor(
         Pagination.create("created", cursor=unsigned)
 
 
+async def test_paginate_cursor_keeps_ordering(db: CrudDB) -> None:
+    """The next page follows the ordering in the cursor"""
+    table = db.tables["tasks"]
+    created = utcnow()
+    data = [
+        dict(title=f"Order{i}", created=created + timedelta(days=i)) for i in range(3)
+    ]
+    await db.db_insert(table, data)
+    search = Search(("title",), "Order")
+    p = Pagination.create("created", "id", limit=2, search=search, desc=True)
+    rows, cursor = await p.execute(db, table)
+    assert [r.title for r in rows] == ["Order2", "Order1"]
+    p = Pagination.create("title", cursor=cursor, search=search)
+    assert p.order_by_fields == ("created", "id")
+    assert p.desc is True
+    rows, cursor = await p.execute(db, table)
+    assert [r.title for r in rows] == ["Order0"]
+    assert not cursor
+
+
 async def test_paginate_cursor_limit_capped() -> None:
     max_limit = settings.DEFAULT_PAGINATION_MAX_LIMIT
     for limit in (0, -1, max_limit + 1):

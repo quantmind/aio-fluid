@@ -80,7 +80,10 @@ class Pagination(NamedTuple):
         decoding the cursor if provided.
 
         If the cursor is provided, limit and search text are extracted from it,
-        and the provided values for these parameters are ignored. A cursor
+        and the provided values for these parameters are ignored. The same
+        applies to the ordering: the cursor carries the ordering fields and the
+        direction it was built with, and they replace `order_by_fields` and
+        `desc`. A cursor
         limit outside 1 to settings.DEFAULT_PAGINATION_MAX_LIMIT is replaced
         by the maximum.
 
@@ -95,9 +98,9 @@ class Pagination(NamedTuple):
         repeat or miss rows.
         """
         if cursor:
-            decoded_cursor = Cursor.decode(
-                cursor, order_by_fields, secret=settings.PAGINATION_SECRET
-            )
+            decoded_cursor = Cursor.decode(cursor, secret=settings.PAGINATION_SECRET)
+            order_by_fields = decoded_cursor.field_names
+            desc = decoded_cursor.desc
             max_limit = settings.DEFAULT_PAGINATION_MAX_LIMIT
             limit = decoded_cursor.limit
             if limit < 1 or limit > max_limit:
@@ -214,4 +217,5 @@ class Pagination(NamedTuple):
             limit=self.limit,
             filters=self.filters,
             search_text=self.search.search_text if self.search else "",
+            desc=self.desc,
         ).encode(secret=settings.PAGINATION_SECRET)
