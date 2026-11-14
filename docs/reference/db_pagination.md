@@ -11,10 +11,13 @@ pip install aio-fluid[db]
 It can be imported from `fluid.db`:
 
 ```python
-from fluid.db import Pagination, Search
+from fluid.db import OrderBy, Pagination, Search
 ```
 
 ::: fluid.db.Pagination
+
+
+::: fluid.db.OrderBy
 
 
 ::: fluid.db.Search

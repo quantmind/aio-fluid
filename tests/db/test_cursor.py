@@ -2,14 +2,15 @@ import base64
 
 import pytest
 
-from fluid.db.cursor import Cursor, CursorEntry
+from fluid.db.cursor import Cursor
 from fluid.utils import json2
 from fluid.utils.errors import ValidationError
 
 
 def make_cursor(**kwargs) -> Cursor:
     defaults: dict = dict(
-        entries=(CursorEntry("id", 1), CursorEntry("created", "2024-01-01")),
+        sort_by="created",
+        values=("2024-01-01", 1),
         limit=10,
         filters={},
         search_text="",
@@ -27,7 +28,8 @@ def test_encode_decode_roundtrip() -> None:
     cursor = make_cursor()
     encoded = cursor.encode()
     decoded = Cursor.decode(encoded)
-    assert decoded.entries == cursor.entries
+    assert decoded.sort_by == cursor.sort_by
+    assert decoded.values == cursor.values
     assert decoded.limit == cursor.limit
     assert decoded.filters == cursor.filters
     assert decoded.search_text == cursor.search_text
@@ -59,7 +61,7 @@ def test_decode_invalid_json_raises() -> None:
 def test_decode_ordering() -> None:
     cursor = make_cursor(desc=True)
     decoded = Cursor.decode(cursor.encode())
-    assert decoded.field_names == ("id", "created")
+    assert decoded.sort_by == "created"
     assert decoded.desc is True
 
 
@@ -72,11 +74,13 @@ def test_decode_bad_ordering_raises() -> None:
     for payload in (
         # the format before the ordering was stored
         ([1, "2024-01-01"], 10, {}, ""),
-        # a field name for every value
-        ([1, "2024-01-01"], 10, {}, "", ["id"], False),
-        ([1], 10, {}, "", [1], False),
-        ([], 10, {}, "", [], False),
-        ([1], 10, {}, "", ["id"], "yes"),
+        # the sort field must be a non empty string
+        ([1], 10, {}, "", ["id"], False),
+        ([1], 10, {}, "", 1, False),
+        ([1], 10, {}, "", "", False),
+        # at least one value
+        ([], 10, {}, "", "id", False),
+        ([1], 10, {}, "", "id", "yes"),
     ):
         with pytest.raises(ValidationError):
             Cursor.decode(raw_cursor(*payload))
