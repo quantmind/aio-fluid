@@ -22,6 +22,17 @@ from the `pypi` GitHub environment, there is no PyPI token secret.
      docs site;
    - do not put backticks (code spans) inside link text — write
      `[task decorator](url)`, not `` [`@task`](url) ``.
+
+   Keep the notes compact:
+   - open with one short sentence on the theme of the release;
+   - group entries under `### Breaking changes`, `### New features` and
+     `### Improvements and fixes`, omitting empty groups;
+   - one bullet per change, one sentence where possible, stating what changed
+     and not how it was implemented, ending with the PR link
+     (`[#NN](https://github.com/quantmind/aio-fluid/pull/NN)`);
+   - never break a line inside a bullet point or a paragraph: a new line only
+     starts a new bullet, paragraph or heading;
+   - end with a `[Full changelog](https://github.com/quantmind/aio-fluid/compare/vPREV...vX.Y.Z)` link.
 3. Commit and push to `main`; let the `build` workflow pass.
 4. Run `make release` — it reads the version from `pyproject.toml`, asks for
    confirmation, then creates and pushes the `vX.Y.Z` tag. The `release`
