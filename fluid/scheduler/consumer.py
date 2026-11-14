@@ -25,6 +25,7 @@ from .common import is_in_cpu_process
 from .errors import (
     CpuBoundEntryPointError,
     TaskAbortedError,
+    TaskDecodeError,
     TaskError,
     TaskParamsError,
     TaskRunError,
@@ -637,6 +638,9 @@ class TaskConsumer(TaskManager, Workers):
                 worker_name,
                 exc,
             )
+            return
+        except TaskDecodeError as exc:
+            logger.error("%s dropped a message - %s", worker_name, exc)
             return
         except TaskParamsError as exc:
             task_run = exc.task_run

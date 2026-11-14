@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:  # pragma: no cover
     from .models import TaskRun
 
+MAX_PAYLOAD_PREVIEW = 200
+
 
 class TaskError(RuntimeError):
     """Base class for all task scheduler errors."""
@@ -28,6 +30,20 @@ class TaskParamsError(TaskError):
     def __init__(self, task_run: TaskRun, message: str) -> None:
         super().__init__(message)
         self.task_run = task_run
+
+
+class TaskDecodeError(TaskError):
+    """Raised when a message consumed from the broker is not a valid task run.
+
+    Invalid JSON, a missing key or a task run field which fails validation
+    raise it. The consumer logs the error, with the start of the message,
+    and moves on to the next message.
+    """
+
+    def __init__(self, payload: str | bytes, reason: Exception) -> None:
+        preview = payload[:MAX_PAYLOAD_PREVIEW]
+        super().__init__(f"invalid task run message {preview!r}: {reason}")
+        self.payload = payload
 
 
 class TaskRunError(TaskError):
