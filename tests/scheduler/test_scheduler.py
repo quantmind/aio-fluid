@@ -13,7 +13,11 @@ from fluid.scheduler import (
     TaskScheduler,
     TaskState,
 )
-from fluid.scheduler.errors import CpuBoundEntryPointError, UnknownTaskError
+from fluid.scheduler.errors import (
+    CpuBoundEntryPointError,
+    TaskDecodeError,
+    UnknownTaskError,
+)
 from fluid.scheduler.models import TaskRunWaiter
 from fluid.utils.stacksampler import Sampler
 from fluid.utils.waiter import wait_for
@@ -255,6 +259,48 @@ async def test_invalid_params_failure(task_scheduler: TaskScheduler) -> None:
     # the consumer is still processing tasks
     ok = await task_scheduler.queue_and_wait("fast", sleep=0, timeout=5)
     assert ok.state == TaskState.success
+
+
+def malformed_messages(task_run: TaskRun) -> list[str]:
+    data = json.loads(task_run.model_dump_json())
+    missing_task = {k: v for k, v in data.items() if k != "task"}
+    missing_params = {k: v for k, v in data.items() if k != "params"}
+    return [
+        "not json",
+        json.dumps([1, 2]),
+        json.dumps(missing_task),
+        json.dumps(missing_params),
+        json.dumps({**data, "params": [1]}),
+        json.dumps({**data, "priority": "unknown"}),
+        # invalid params and an invalid field
+        json.dumps({**data, "params": {"sleep": "x"}, "priority": "unknown"}),
+    ]
+
+
+async def test_decode_malformed_message(task_scheduler: TaskScheduler) -> None:
+    broker = redis_broker(task_scheduler)
+    task_run = task_scheduler.create_task_run("fast", sleep=0.1)
+    for message in malformed_messages(task_run):
+        with pytest.raises(TaskDecodeError) as exc:
+            broker._decode_task_run(task_scheduler, message)
+        assert exc.value.payload == message
+    long = "x" * 1000
+    with pytest.raises(TaskDecodeError) as exc:
+        broker._decode_task_run(task_scheduler, long)
+    assert len(str(exc.value)) < 500
+
+
+async def test_malformed_message_consumer_survives(
+    task_scheduler: TaskScheduler,
+) -> None:
+    """Malformed messages are dropped, the consumer keeps processing tasks"""
+    broker = redis_broker(task_scheduler)
+    task_run = task_scheduler.create_task_run("fast", sleep=0.1)
+    queue = broker.task_queue_name(task_run.priority)
+    await broker.redis_cli.lpush(queue, *malformed_messages(task_run))
+    ok = await task_scheduler.queue_and_wait("fast", sleep=0, timeout=5)
+    assert ok.state == TaskState.success
+    assert await broker.redis_cli.llen(queue) == 0
 
 
 @pytest.mark.skipif(

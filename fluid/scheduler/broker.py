@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import time
 from abc import ABC, abstractmethod
 from functools import cached_property
 from typing import TYPE_CHECKING, Any, Iterable
@@ -15,7 +16,7 @@ from yarl import URL
 from fluid import settings
 from fluid.utils.redis import FluidRedis
 
-from .errors import TaskParamsError, UnknownTaskError
+from .errors import TaskDecodeError, TaskParamsError, UnknownTaskError
 from .models import TP, Task, TaskInfo, TaskInfoUpdate, TaskPriority, TaskRun
 
 if TYPE_CHECKING:  # pragma: no cover
@@ -237,17 +238,14 @@ class RedisTaskBroker(TaskBroker):
         """name of the key containing the task info"""
         return f"{self.prefix}-tasks-{name}"
 
-    def task_run_key(self, task_name: str, run_id: str) -> str:
-        """Name of the key tracking a single in-flight task run.
+    def task_runs_key(self, task_name: str) -> str:
+        """Name of the sorted set tracking the in-flight runs of a task.
 
-        Each running task run is represented by an individual key with a TTL
-        so that orphaned runs (e.g. from a task manager that died before the
-        run completed) are automatically cleaned up by Redis.
-
-        Pass ``"*"`` as ``run_id`` to obtain a match pattern for all in-flight
-        task run keys of the given task.
+        The members are the run ids and the scores the times, in seconds since
+        the epoch, after which the runs are considered orphaned, for instance
+        by a task manager that died before the run completed.
         """
-        return f"{self.prefix}-task-run-{task_name}-{run_id}"
+        return f"{self.prefix}-task-runs-{task_name}"
 
     def task_queue_name(self, priority: TaskPriority) -> str:
         return f"{self.prefix}-queue-{priority}"
@@ -330,33 +328,32 @@ class RedisTaskBroker(TaskBroker):
     async def add_task_run(self, task_run: TaskRun) -> None:
         """Add a task run to the broker.
 
-        Each task run is stored as an individual key with a TTL slightly
-        greater than the task's `timeout_seconds`, so that runs orphaned by
-        a crashed task manager are cleaned up automatically. The tolerance
-        scales with the timeout (capped at 10s, floored at 1s) so short tasks
-        are reclaimed faster.
+        The run is added to the sorted set of the in-flight runs of its task,
+        with an expiry slightly greater than the task's `timeout_seconds`, so
+        that runs orphaned by a crashed task manager stop being counted. The
+        tolerance scales with the timeout (capped at 10s, floored at 1s) so
+        short tasks are reclaimed faster. The set expires with its latest run,
+        so nothing is left behind once a task stops running.
         """
         timeout_seconds = task_run.task.timeout_seconds
-        tol = min(10, max(1, int(0.5 * timeout_seconds)))
-        await self.redis_cli.set(
-            self.task_run_key(task_run.name, task_run.id),
-            task_run.id,
-            ex=timeout_seconds + tol,
-        )
+        ttl = timeout_seconds + min(10, max(1, int(0.5 * timeout_seconds)))
+        key = self.task_runs_key(task_run.name)
+        pipe = self.redis_cli.pipeline()
+        pipe.zadd(key, {task_run.id: time.time() + ttl})
+        pipe.expire(key, ttl)
+        await pipe.execute()
 
     async def remove_task_run(self, task_run: TaskRun) -> None:
         """Remove a task run from the broker"""
-        await self.redis_cli.delete(
-            self.task_run_key(task_run.name, task_run.id),
-        )
+        await self.redis_cli.zrem(self.task_runs_key(task_run.name), task_run.id)
 
     async def current_task_runs(self, task_name: str) -> int:
-        count = 0
-        async for _ in self.redis_cli.scan_iter(
-            match=self.task_run_key(task_name, "*"),
-            count=100,
-        ):
-            count += 1
+        """The number of in-flight runs of a task, dropping the expired ones"""
+        key = self.task_runs_key(task_name)
+        pipe = self.redis_cli.pipeline()
+        pipe.zremrangebyscore(key, "-inf", time.time())
+        pipe.zcard(key)
+        _, count = await pipe.execute()
         return count
 
     def task_aborted_key(self, run_id: str) -> str:
@@ -389,29 +386,40 @@ class RedisTaskBroker(TaskBroker):
                 self.task_queue_names,
                 timeout=1,
             ):
-                data = json.loads(redis_data[1])
-                task = self.task_from_registry(data["task"])
-                try:
-                    params = task.params_model(**data["params"])
-                except ValidationError as exc:
-                    # create the params without validation so the task run can
-                    # be constructed and marked as failed by the consumer
-                    data.update(
-                        task=task,
-                        params=task.params_model.model_construct(**data["params"]),
-                        task_manager=task_manager,
-                    )
-                    raise TaskParamsError(
-                        TaskRun(**data),
-                        f"invalid params for task '{task.name}': {exc}",
-                    ) from exc
+                return self._decode_task_run(task_manager, redis_data[1])
+        return None
+
+    def _decode_task_run(
+        self, task_manager: TaskManager, payload: str | bytes
+    ) -> TaskRun:
+        # json and pydantic validation errors are ValueErrors, a missing key a
+        # KeyError and a value of the wrong shape a TypeError
+        try:
+            data = json.loads(payload)
+            task = self.task_from_registry(data["task"])
+            params_data = data["params"]
+            try:
+                params = task.params_model(**params_data)
+            except ValidationError as exc:
+                # create the params without validation so the task run can
+                # be constructed and marked as failed by the consumer
                 data.update(
                     task=task,
-                    params=params,
+                    params=task.params_model.model_construct(**params_data),
                     task_manager=task_manager,
                 )
-                return TaskRun(**data)
-        return None
+                raise TaskParamsError(
+                    TaskRun(**data),
+                    f"invalid params for task '{task.name}': {exc}",
+                ) from exc
+            data.update(
+                task=task,
+                params=params,
+                task_manager=task_manager,
+            )
+            return TaskRun(**data)
+        except (ValueError, KeyError, TypeError) as exc:
+            raise TaskDecodeError(payload, exc) from exc
 
     async def queue_task(self, task_run: TaskRun) -> None:
         await self.redis_cli.lpush(

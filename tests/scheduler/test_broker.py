@@ -1,9 +1,12 @@
+import time
+
 import pytest
 from yarl import URL
 
 from fluid import settings
 from fluid.scheduler import TaskScheduler
 from fluid.scheduler.broker import RedisTaskBroker, TaskBroker
+from tests.scheduler.tasks import redis_broker
 
 pytestmark = pytest.mark.asyncio(loop_scope="module")
 
@@ -42,6 +45,25 @@ async def test_manager_statuses_without_managers() -> None:
         assert set(statuses.queues.values()) == {0}
     finally:
         await broker.close()
+
+
+async def test_current_task_runs(task_scheduler: TaskScheduler) -> None:
+    broker = redis_broker(task_scheduler)
+    task_run = task_scheduler.create_task_run("dummy")
+    key = broker.task_runs_key("dummy")
+    assert await broker.current_task_runs("dummy") == 0
+    await broker.add_task_run(task_run)
+    assert await broker.current_task_runs("dummy") == 1
+    # the set expires with its latest run
+    timeout = task_run.task.timeout_seconds
+    assert 0 < await broker.redis_cli.ttl(key) <= timeout + 10
+    # a run orphaned by a crashed task manager is dropped once expired
+    await broker.redis_cli.zadd(key, {"orphan": time.time() - 1})
+    assert await broker.current_task_runs("dummy") == 1
+    assert await broker.redis_cli.zscore(key, "orphan") is None
+    await broker.remove_task_run(task_run)
+    assert await broker.current_task_runs("dummy") == 0
+    assert not await broker.redis_cli.exists(key)
 
 
 async def test_task_params_read_once(task_scheduler: TaskScheduler) -> None:
