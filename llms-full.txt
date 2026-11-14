@@ -5049,6 +5049,33 @@ def __init__(self, task_run: TaskRun, message: str) -> None:
 task_run = task_run
 ```
 
+## fluid.scheduler.errors.TaskDecodeError
+
+```python
+TaskDecodeError(payload, reason)
+```
+
+Bases: `TaskError`
+
+Raised when a message consumed from the broker is not a valid task run.
+
+Invalid JSON, a missing key or a task run field which fails validation raise it. The consumer logs the error, with the start of the message, and moves on to the next message.
+
+Source code in `fluid/scheduler/errors.py`
+
+```python
+def __init__(self, payload: str | bytes, reason: Exception) -> None:
+    preview = payload[:MAX_PAYLOAD_PREVIEW]
+    super().__init__(f"invalid task run message {preview!r}: {reason}")
+    self.payload = payload
+```
+
+### payload
+
+```python
+payload = payload
+```
+
 ## fluid.scheduler.errors.TaskRunError
 
 Bases: `TaskError`
