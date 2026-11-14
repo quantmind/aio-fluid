@@ -2,6 +2,33 @@
 
 This page is the source of truth for aio-fluid release notes. Each section below maps to a tagged release on [GitHub](https://github.com/quantmind/aio-fluid/releases). When a new tag is pushed, the matching section is extracted by `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.13.0
+
+Hardening of the task queue and of pagination, with client side sorting of paginated listings.
+
+### Breaking changes
+
+- Custom brokers must implement the new `TaskBroker.set_task_params` and `pop_task_params` methods ([#142](https://github.com/quantmind/aio-fluid/pull/142)).
+- `Pagination.create` takes an `OrderBy`, the old field names and `desc` arguments are deprecated ([sorting](https://fluid.quantmind.com/tutorials/db/#sorting), [#143](https://github.com/quantmind/aio-fluid/pull/143)).
+- Pagination cursors store a single sort field, so cursors from earlier versions are rejected and `CursorEntry` is removed ([#143](https://github.com/quantmind/aio-fluid/pull/143)).
+- The pagination limit is capped at `DEFAULT_PAGINATION_MAX_LIMIT` and a negative limit raises a `ValidationError` ([#143](https://github.com/quantmind/aio-fluid/pull/143)).
+
+### New features
+
+- `task_manager_fastapi` takes `dependencies` to protect every task route, plugin routes included ([protecting the routes](https://fluid.quantmind.com/tutorials/task_app/#protecting-the-routes), [#142](https://github.com/quantmind/aio-fluid/pull/142)).
+- `Pagination.create` takes a `sort_by` field, prefixed by `-` for descending order ([sorting](https://fluid.quantmind.com/tutorials/db/#sorting), [#143](https://github.com/quantmind/aio-fluid/pull/143)).
+
+### Improvements and fixes
+
+- Cpu bound task params are passed through the broker instead of the command line ([#142](https://github.com/quantmind/aio-fluid/pull/142)).
+- Subprocess output split inside a utf-8 character no longer raises ([#142](https://github.com/quantmind/aio-fluid/pull/142)).
+- A malformed queue message is logged and dropped instead of restarting the consumer ([#144](https://github.com/quantmind/aio-fluid/pull/144)).
+- Checking `max_concurrency` no longer scans the whole Redis keyspace, and may be briefly exceeded during a rolling deploy ([#144](https://github.com/quantmind/aio-fluid/pull/144)).
+- The task history API orders runs by `queued` and `id`, so pages no longer repeat or skip runs ([#143](https://github.com/quantmind/aio-fluid/pull/143)).
+- PyPI publishing uses trusted publishing, with tests run without access to secrets ([#142](https://github.com/quantmind/aio-fluid/pull/142)).
+
+[Full changelog](https://github.com/quantmind/aio-fluid/compare/v2.12.1...v2.13.0)
+
 ## v2.12.1
 
 A packaging fix for the `db` extra.
