@@ -10,6 +10,7 @@ from sqlalchemy.exc import NoResultFound
 
 from examples import tasks
 from examples.db import get_db
+from fluid import settings
 from fluid.scheduler import TaskPriority, TaskState
 from fluid.scheduler.consumer import TaskConsumer
 from fluid.scheduler.db import (
@@ -409,6 +410,13 @@ async def test_get_history_filter_by_params_invalid(cli_db: TaskClient) -> None:
     for value in ("not-json", json.dumps("a string"), json.dumps([1, 2])):
         with pytest.raises(HttpResponseError) as exc:
             await get_history(cli_db, params=value)
+        assert exc.value.status_code == 422
+
+
+async def test_get_history_limit_out_of_range(cli_db: TaskClient) -> None:
+    for limit in (0, settings.DEFAULT_PAGINATION_MAX_LIMIT + 1):
+        with pytest.raises(HttpResponseError) as exc:
+            await get_history(cli_db, limit=limit)
         assert exc.value.status_code == 422
 
 

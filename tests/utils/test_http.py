@@ -26,22 +26,26 @@ def client_class(request: pytest.FixtureRequest) -> Callable[..., HttpClient]:
 async def _request_or_skip(coro: Awaitable[Any]) -> Any:
     """Await an httpbin.org request, skipping the test when it is unavailable.
 
-    httpbin.org is an external service, so transient gateway errors (>= 502)
-    and transport/timeout failures skip rather than fail the suite. This covers
-    both ways a gateway error surfaces: raised (no callback) or returned as the
-    response object (``callback=True``).
+    httpbin.org is an external service, so transient gateway errors (>= 502),
+    rate limiting (429) and transport/timeout failures skip rather than fail
+    the suite. This covers both ways such an error surfaces: raised (no
+    callback) or returned as the response object (``callback=True``).
     """
     try:
         result = await coro
     except HttpResponseError as exc:
-        if exc.status_code >= 502:
+        if _unavailable(exc.status_code):
             pytest.skip(f"httpbin.org unavailable ({exc.status_code})")
         raise
     except (httpx.HTTPError, aiohttp.ClientError, OSError) as exc:
         pytest.skip(f"httpbin.org unreachable: {exc!r}")
-    if isinstance(result, HttpResponse) and result.status_code >= 502:
+    if isinstance(result, HttpResponse) and _unavailable(result.status_code):
         pytest.skip(f"httpbin.org unavailable ({result.status_code})")
     return result
+
+
+def _unavailable(status_code: int) -> bool:
+    return status_code == 429 or status_code >= 502
 
 
 def _mock_response(

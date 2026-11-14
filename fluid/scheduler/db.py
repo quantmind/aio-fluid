@@ -13,8 +13,9 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.exc import NoResultFound
 from typing_extensions import Annotated, Doc
 
+from fluid import settings
 from fluid.db.crud import CrudDB
-from fluid.db.pagination import Pagination
+from fluid.db.pagination import OrderBy, Pagination
 from fluid.utils.dispatcher import Event
 
 from .common import is_in_cpu_process
@@ -159,11 +160,10 @@ class TaskDbPlugin(TaskManagerPlugin):
                 names &= set(filters["name"])
             filters["name"] = list(names)
         pagination = Pagination.create(
-            "queued",
+            OrderBy(("queued",), unique_fields=("id",), desc=True),
             filters=filters,
             limit=q.limit,
             cursor=q.cursor,
-            desc=True,
         )
         rows, cursor = await pagination.execute(self.db, table)
         return TaskRunHistoryPage(
@@ -333,7 +333,11 @@ class TaskHistoryQuery(BaseModel):
 
     limit: Annotated[
         int | None,
-        Query(description="Maximum number of results to return", ge=1),
+        Query(
+            description="Maximum number of results to return",
+            ge=1,
+            le=settings.DEFAULT_PAGINATION_MAX_LIMIT,
+        ),
         Doc("Maximum number of results to return when provided"),
     ] = None
     cursor: Annotated[
