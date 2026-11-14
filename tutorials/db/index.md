@@ -245,29 +245,39 @@ n = await db.db_count(articles, {"author": "alice"})
 Pagination implements cursor-based pagination on top of CrudDB. It fetches one extra row beyond the requested limit to determine whether a next page exists, then encodes a cursor that the client returns with the next request.
 
 ```python
-from fluid.db import Pagination
+from fluid.db import OrderBy, Pagination
+
+order_by = OrderBy(("published_at", "title"), unique_fields=("id",), desc=True)
 
 # first page
 rows, cursor = await Pagination.create(
-    "published_at",
-    "id",
+    order_by,
     limit=20,
     filters={"author": "alice"},
-    desc=True,
 ).execute(db, articles)
 
 # next page, the limit and the filters of the first page are in the cursor
 if cursor:
     rows, cursor = await Pagination.create(
-        "published_at",
-        "id",
+        order_by,
         cursor=cursor,
         filters={"author": "alice"},
-        desc=True,
     ).execute(db, articles)
 ```
 
 When `cursor` is provided, the `limit` argument is ignored: the limit is decoded from the cursor, along with the filters and the search text of the first page, so the pages stay consistent when a client sends the cursor alone.
+
+### Sorting
+
+An OrderBy lists the fields a listing can be sorted by, the unique fields that break the ties and the default direction. Without a `sort_by`, a page is sorted by the first field in the default direction. A client picks another field with `sort_by`, prefixed by `-` for descending order:
+
+```python
+rows, cursor = await Pagination.create(order_by, sort_by="-title").execute(db, articles)
+```
+
+The rows are sorted by the sort field followed by the unique fields, all in the same direction, so the example orders by `("title", "id")` descending. A `sort_by` which is not one of the fields of the OrderBy raises a ValidationError, unique fields included.
+
+The cursor carries the sort field and the direction, and they replace the `sort_by` passed with it, so a client can send the cursor alone and the next page follows the ordering of the first one. A cursor whose sort field is not one of the fields of the OrderBy is rejected with a ValidationError.
 
 ### Signing the cursor
 
@@ -278,13 +288,15 @@ Signed or not, two rules keep a cursor from reaching rows the caller must not se
 - The `filters` passed to create are applied on top of the filters in the cursor, and win over them on the same key. Pass every filter the caller enforces, the owner of the rows or a public flag for instance, on every request, not only on the first page.
 - A cursor limit below 1 or above `DEFAULT_PAGINATION_MAX_LIMIT` (500 by default) is replaced by that maximum, so a cursor cannot ask for an unbounded page.
 
+Without a cursor the same maximum applies: a `limit` above `DEFAULT_PAGINATION_MAX_LIMIT` is replaced by it, and a negative `limit` raises a ValidationError. Every page has a `LIMIT`, there is no way to ask for all the rows at once.
+
 Without a secret these rules are the only protection: a filter that is only in the cursor can be removed by the client.
 
 ### The ordering must be unique
 
-The ordering fields must uniquely identify a row. The cursor encodes only the values of those fields for the first row of the next page, and the next query resumes from that position, so ties are ambiguous: rows sharing the same ordering values can appear on two consecutive pages, and rows can be skipped altogether, because the database is free to order tied rows differently between the two queries.
+Each sort field together with the unique fields must uniquely identify a row. The cursor encodes only the values of those fields for the first row of the next page, and the next query resumes from that position, so ties are ambiguous: rows sharing the same ordering values can appear on two consecutive pages, and rows can be skipped altogether, because the database is free to order tied rows differently between the two queries.
 
-`published_at` alone is not unique — two articles can be published at the same instant — which is why the examples above order by `("published_at", "id")`. Appending the primary key makes the ordering total and the cursor unambiguous. The same rule applies to the ordering used with full-text search below.
+`published_at` alone is not unique, since two articles can be published at the same instant, which is why the examples above set `unique_fields=("id",)`. Appending the primary key makes the ordering total and the cursor unambiguous, whichever field the client sorts by. The same rule applies to the ordering used with full-text search below.
 
 ### Full-text search
 
@@ -295,22 +307,19 @@ from fluid.db import Pagination
 from fluid.db.pagination import Search
 
 rows, cursor = await Pagination.create(
-    "published_at",
-    "id",
+    order_by,
     limit=20,
     search=Search(search_fields=("title", "author"), search_text="fluid"),
-    desc=True,
 ).execute(db, articles)
 ```
 
 ### Selecting columns
 
-By default every column of the table is selected. Pass `columns` to execute to select only some of them, for instance to leave out large columns a listing does not show. The cursor is built from the ordering fields of the last row, so the columns must include them:
+By default every column of the table is selected. Pass `columns` to execute to select only some of them, for instance to leave out large columns a listing does not show. The cursor is built from the sort field and the unique fields of the last row, so the columns must include them:
 
 ```python
 rows, cursor = await Pagination.create(
-    "published_at",
-    "id",
+    order_by,
     limit=20,
 ).execute(
     db,

@@ -299,11 +299,10 @@ async def get_history(
             names &= set(filters["name"])
         filters["name"] = list(names)
     pagination = Pagination.create(
-        "queued",
+        OrderBy(("queued",), unique_fields=("id",), desc=True),
         filters=filters,
         limit=q.limit,
         cursor=q.cursor,
-        desc=True,
     )
     rows, cursor = await pagination.execute(self.db, table)
     return TaskRunHistoryPage(
