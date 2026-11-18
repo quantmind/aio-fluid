@@ -17,7 +17,7 @@ if TYPE_CHECKING:
 
 def get_job_name(ctx: TaskRun) -> str:
     short_task_id = ctx.id[:7]
-    job_name = slugify(f"task-{ctx.name}-{short_task_id}")[:63]
+    job_name = slugify(f"task-{ctx.name}-{short_task_id}")[:63].rstrip("-")
     return job_name
 
 
@@ -73,6 +73,17 @@ async def run_on_k8s_job(ctx: TaskRun) -> None:
                 if job_status.status.failed is not None:
                     raise TaskRunError(f"K8s task failed status {job_status.status}")
                 await asyncio.sleep(k8s_config.sleep)
+        except asyncio.CancelledError:
+            try:
+                await batch.delete_namespaced_job(
+                    name=job_name,
+                    namespace=k8s_config.namespace,
+                    propagation_policy="Background",
+                )
+                ctx.logger.info("Job %s deleted, task run cancelled", job_name)
+            except client.ApiException as exc:
+                ctx.logger.warning("Job %s not deleted: %s", job_name, exc.reason)
+            raise
         finally:
             await remove_params(ctx)
 

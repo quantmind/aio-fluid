@@ -126,6 +126,20 @@ def test_cli_exec_params_json_overrides_model_defaults():
     assert isinstance(result.exception, RuntimeError)
 
 
+def test_cli_exec_failure_is_logged(caplog: pytest.LogCaptureFixture):
+    """A task that fails in `exec` is logged with its traceback, then raised"""
+    runner = CliRunner()
+    with caplog.at_level(logging.ERROR):
+        result = runner.invoke(
+            task_manager_cli, ["exec", "fast", "--params", '{"error": true}']
+        )
+    assert result.exit_code == 1
+    records = [r for r in caplog.records if r.name == tasks.fast.logger.name]
+    assert [r.getMessage() for r in records] == ["critical exception while executing"]
+    assert records[0].exc_info
+    assert isinstance(records[0].exc_info[1], RuntimeError)
+
+
 def test_cli_exec_cpu_bound_runs_in_process():
     """`exec` runs a cpu bound task rather than spawning one for it.
 
