@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import json
 from contextlib import asynccontextmanager
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -125,6 +126,15 @@ async def test_get_job_name_max_length() -> None:
     assert len(get_job_name(ctx)) <= 63
 
 
+async def test_get_job_name_no_trailing_dash() -> None:
+    ctx = MagicMock()
+    # "task-" plus 57 characters puts the dash before the id at position 63
+    ctx.name = "a" * 57
+    ctx.id = "abc1234xyz"
+    name = get_job_name(ctx)
+    assert name == "task-" + "a" * 57
+
+
 # ---------------------------------------------------------------------------
 # run_on_k8s_job — happy path
 # ---------------------------------------------------------------------------
@@ -143,6 +153,26 @@ async def test_run_on_k8s_job_success() -> None:
     )
     mock_batch.create_namespaced_job.assert_awaited_once()
     mock_batch.read_namespaced_job_status.assert_awaited()
+    mock_batch.delete_namespaced_job.assert_not_awaited()
+
+
+async def test_cancelled_run_deletes_job() -> None:
+    ctx = make_ctx()
+    patches, _, mock_batch = make_k8s_mocks(ctx, succeeded=0)
+
+    with patches[0], patches[1], patches[2], patches[3]:
+        run = asyncio.create_task(run_on_k8s_job(ctx))
+        while not mock_batch.read_namespaced_job_status.await_count:
+            await asyncio.sleep(0)
+        run.cancel()
+        with pytest.raises(asyncio.CancelledError):
+            await run
+
+    mock_batch.delete_namespaced_job.assert_awaited_once_with(
+        name=get_job_name(ctx),
+        namespace=ctx._cfg.namespace,
+        propagation_policy="Background",
+    )
 
 
 async def test_job_args_contain_task_name_and_run_id() -> None:
