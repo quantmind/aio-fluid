@@ -141,7 +141,7 @@ class ExecuteTasks(click.Group):
                 run = task_manager.execute_sync(cmd_name, **kwargs)
             except Exception:
                 task.logger.exception("critical exception while executing")
-                raise
+                command_ctx.exit(1)
             if is_in_cpu_process():
                 return
             console = Console()

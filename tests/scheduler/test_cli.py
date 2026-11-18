@@ -123,11 +123,10 @@ def test_cli_exec_params_json_overrides_model_defaults():
     # If the bug were present, the model default error=False would overwrite
     # the JSON value and the task would succeed (exit_code=0).
     assert result.exit_code == 1
-    assert isinstance(result.exception, RuntimeError)
 
 
 def test_cli_exec_failure_is_logged(caplog: pytest.LogCaptureFixture):
-    """A task that fails in `exec` is logged with its traceback, then raised"""
+    """A task that fails in `exec` is logged with its traceback, then exits 1"""
     runner = CliRunner()
     with caplog.at_level(logging.ERROR):
         result = runner.invoke(
@@ -140,21 +139,26 @@ def test_cli_exec_failure_is_logged(caplog: pytest.LogCaptureFixture):
     assert isinstance(records[0].exc_info[1], RuntimeError)
 
 
-def test_cli_exec_cpu_bound_runs_in_process():
+def test_cli_exec_cpu_bound_runs_in_process(caplog: pytest.LogCaptureFixture):
     """`exec` runs a cpu bound task rather than spawning one for it.
 
     It is the command a cpu bound task is executed by, so spawning would
-    recurse. The error the task raises reaches the caller as itself; a spawned
+    recurse. The error the task raises is logged as itself; a spawned
     process would report the exit code as a TaskRunError instead.
     """
     runner = CliRunner()
-    result = runner.invoke(
-        task_manager_cli, ["exec", "cpu_bound", "--params", '{"error": true}']
-    )
+    with caplog.at_level(logging.ERROR):
+        result = runner.invoke(
+            task_manager_cli, ["exec", "cpu_bound", "--params", '{"error": true}']
+        )
     assert result.exit_code == 1
-    assert isinstance(result.exception, RuntimeError)
-    assert not isinstance(result.exception, TaskRunError)
-    assert str(result.exception) == "deliberate cpu bound error"
+    records = [r for r in caplog.records if r.exc_info]
+    assert len(records) == 1
+    assert records[0].exc_info
+    exc = records[0].exc_info[1]
+    assert isinstance(exc, RuntimeError)
+    assert not isinstance(exc, TaskRunError)
+    assert str(exc) == "deliberate cpu bound error"
 
 
 def test_cli_enable():
@@ -368,30 +372,40 @@ async def test_cli_serve(
     assert kwargs["log_config"]
 
 
-def test_cli_exec_params_from_broker(redis: Redis) -> None:
+def test_cli_exec_params_from_broker(
+    redis: Redis, caplog: pytest.LogCaptureFixture
+) -> None:
     """A cpu bound process reads its params from the broker, once"""
     broker = redis_broker(task_manager_cli.get_task_manager())
     key = broker.task_params_key("from-broker-1")
     redis.set(key, '{"error": true}', ex=60)
     runner = CliRunner()
-    result = runner.invoke(
-        task_manager_cli,
-        ["exec", "fast", "--run-id", "from-broker-1", "--params-from-broker"],
-    )
+    with caplog.at_level(logging.ERROR):
+        result = runner.invoke(
+            task_manager_cli,
+            ["exec", "fast", "--run-id", "from-broker-1", "--params-from-broker"],
+        )
     # the stored params make the task fail, the model default would not
     assert result.exit_code == 1
-    assert isinstance(result.exception, RuntimeError)
+    records = [r for r in caplog.records if r.exc_info]
+    assert len(records) == 1
+    assert records[0].exc_info
+    assert isinstance(records[0].exc_info[1], RuntimeError)
     assert redis.get(key) is None
 
 
-def test_cli_exec_params_from_broker_missing() -> None:
+def test_cli_exec_params_from_broker_missing(caplog: pytest.LogCaptureFixture) -> None:
     runner = CliRunner()
-    result = runner.invoke(
-        task_manager_cli,
-        ["exec", "fast", "--run-id", "not-stored", "--params-from-broker"],
-    )
+    with caplog.at_level(logging.ERROR):
+        result = runner.invoke(
+            task_manager_cli,
+            ["exec", "fast", "--run-id", "not-stored", "--params-from-broker"],
+        )
     assert result.exit_code == 1
-    assert "no params stored for task run 'not-stored'" in str(result.exception)
+    records = [r for r in caplog.records if r.exc_info]
+    assert len(records) == 1
+    assert records[0].exc_info
+    assert "no params stored for task run 'not-stored'" in str(records[0].exc_info[1])
 
 
 def test_cli_exec_params_from_broker_requires_run_id() -> None:
