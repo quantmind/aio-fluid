@@ -6,6 +6,19 @@ below maps to a tagged release on
 pushed, the matching section is extracted by
 `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.13.1
+
+Fixes for cpu bound tasks running as Kubernetes Jobs.
+
+### Improvements and fixes
+
+- Kubernetes Job names no longer end with a hyphen when the task name is truncated, which Kubernetes rejected ([#145](https://github.com/quantmind/aio-fluid/pull/145)).
+- Cancelling a task run that executes as a Kubernetes Job deletes the Job ([#145](https://github.com/quantmind/aio-fluid/pull/145)).
+- An exception raised while executing a task from the command line is logged and exits with status 1 ([#145](https://github.com/quantmind/aio-fluid/pull/145)).
+- The example migration environments no longer disable existing loggers ([#145](https://github.com/quantmind/aio-fluid/pull/145)).
+
+[Full changelog](https://github.com/quantmind/aio-fluid/compare/v2.13.0...v2.13.1)
+
 ## v2.13.0
 
 Hardening of the task queue and of pagination, with client side sorting of paginated listings.
