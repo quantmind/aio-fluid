@@ -32,6 +32,7 @@ Complete API reference for all public classes, functions, and parameters in Aio 
 
 - [Event Dispatchers](dispatchers.md) — `Dispatcher` and `AsyncDispatcher` for decoupled event handling.
 - [HTTP Client](http_client.md) — unified async HTTP client wrappers for `aiohttp` and `httpx`.
+- [Kernel](kernel.md), `kernel.run` for running an external program in a subprocess without blocking the event loop.
 - [Errors](errors.md) — error hierarchies for utilities and the task scheduler.
 - [Settings](settings.md), environment variables configuring the task consumer, broker, database and HTTP client.
 - [Utils](utils.md) — miscellaneous helpers.

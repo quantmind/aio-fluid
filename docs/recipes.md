@@ -103,6 +103,25 @@ The same declaration runs as a subprocess locally and as a Kubernetes Job
 in-cluster. See [CPU bound tasks](tutorials/tasks.md#cpu-bound-tasks) and
 [K8s Jobs](tutorials/task_k8s.md).
 
+## Run a command line tool
+
+```python
+from fluid.utils import kernel
+
+
+@task(timeout_seconds=300)
+async def compress(ctx: TaskRun[Compress]) -> None:
+    code = await kernel.run("gzip", "--keep", ctx.params.path)
+    if code:
+        raise RuntimeError(f"gzip exited with code {code}")
+```
+
+[kernel.run][fluid.utils.kernel.run] awaits the program without blocking the
+event loop, returns its exit code rather than raising, and terminates it when
+the task times out. Output goes to `result_callback` and `error_callback`,
+stdin is `/dev/null` unless `input` is given. The task is IO bound, do not mark
+it `cpu_bound`. See [Run a Command Line Tool](tutorials/task_command.md).
+
 ## Shared resources
 
 ```python
@@ -181,6 +200,9 @@ Adds a `/tasks-history` API backed by Postgres. Requires the `db` extra. See
   with its own dependencies. Pass state through the database or the broker.
 * **Blocking calls in a normal task.** Anything CPU heavy or blocking freezes the
   event loop for every other task in the process. Mark it `cpu_bound=True`.
+* **`subprocess.run` in a task.** It blocks the event loop until the program
+  exits. Use [kernel.run][fluid.utils.kernel.run], and check the exit code it
+  returns. Its `env` replaces the environment, merge `os.environ` into it.
 * **Forgetting to register a task on the producer.** Queueing by name requires
   the task in the registry, and a consumer receiving a run for a task it does not
   know logs an unknown task error.

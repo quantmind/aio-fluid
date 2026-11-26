@@ -16,6 +16,7 @@ nav:
   - reference/dispatchers.md
   - reference/errors.md
   - reference/http_client.md
+  - reference/kernel.md
   - reference/settings.md
   - reference/task.md
   - reference/task_broker.md
@@ -36,6 +37,7 @@ nav:
   - tutorials/dispatchers.md
   - tutorials/task_app.md
   - tutorials/task_broker.md
+  - tutorials/task_command.md
   - tutorials/task_deps.md
   - tutorials/task_fastapi.md
   - tutorials/task_k8s.md
@@ -97,6 +99,7 @@ plugins:
       - tutorials/task_fastapi.md: Add your own routes to the task manager app and inject the same dependencies.
       - tutorials/task_retry.md: Retry on failure and when rate limited by concurrency limits.
       - tutorials/task_k8s.md: Dispatch CPU bound tasks as Kubernetes Jobs.
+      - tutorials/task_command.md: Run a command line tool from a task without blocking the event loop.
       - tutorials/task_broker.md: Replace the default Redis broker.
       - tutorials/workers.md: The async worker lifecycle the task queue is built on.
       - tutorials/db.md: Async Postgres CRUD and migrations.

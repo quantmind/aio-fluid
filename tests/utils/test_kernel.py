@@ -152,6 +152,62 @@ async def test_failing_callback_keeps_draining() -> None:
     assert len(calls) == 1000
 
 
+async def test_stdin_is_closed_without_input() -> None:
+    """A process reading stdin sees an end of file rather than blocking"""
+    result = kernel.CollectBytes()
+    code = await asyncio.wait_for(
+        kernel.run_python(
+            "-c",
+            "import sys; print(repr(sys.stdin.read()))",
+            result_callback=result,
+        ),
+        10,
+    )
+    assert code == 0
+    assert result.data == b"''\n"
+
+
+async def test_input_is_written_to_stdin() -> None:
+    result = kernel.CollectBytes()
+    code = await asyncio.wait_for(
+        kernel.run_python(
+            "-c",
+            "import sys; sys.stdout.write(sys.stdin.read().upper())",
+            result_callback=result,
+            input=b"ciao\n",
+        ),
+        10,
+    )
+    assert code == 0
+    assert result.data == b"CIAO\n"
+
+
+async def test_large_input_does_not_deadlock() -> None:
+    """The process echoes its input, filling stdout while stdin is written"""
+    data = b"x" * (2**20)
+    result = kernel.CollectBytes()
+    code = await asyncio.wait_for(
+        kernel.run_python(
+            "-c",
+            "import shutil, sys;"
+            "shutil.copyfileobj(sys.stdin.buffer, sys.stdout.buffer)",
+            result_callback=result,
+            input=data,
+        ),
+        10,
+    )
+    assert code == 0
+    assert result.data == data
+
+
+async def test_input_ignored_by_process() -> None:
+    """A process exiting without reading its input is not an error"""
+    code = await asyncio.wait_for(
+        kernel.run_python("-c", "pass", input=b"x" * (2**20)), 10
+    )
+    assert code == 0
+
+
 async def test_utf8_decoder_split_character() -> None:
     data = "é€".encode("utf-8")
     decoder = kernel.Utf8Decoder()
