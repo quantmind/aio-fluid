@@ -16,6 +16,7 @@ Step-by-step guides for using Aio Fluid in your backend applications. See the [h
 - [Extending the FastAPI App](task_fastapi.md), add your own routes to the task manager app and inject the same dependencies into them.
 - [Task Retries](task_retry.md) — automatically retry tasks on failure or when rate-limited by concurrency.
 - [K8s Jobs](task_k8s.md) — dispatch CPU-bound tasks as Kubernetes Jobs instead of local subprocesses.
+- [Run a Command Line Tool](task_command.md), call `gzip`, `pg_dump` or any other program from a task without blocking the event loop.
 
 ## Database
 
