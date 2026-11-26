@@ -240,6 +240,21 @@ async def crunch(ctx: TaskRun) -> None:
 
 The same declaration runs as a subprocess locally and as a Kubernetes Job in-cluster. See [CPU bound tasks](https://fluid.quantmind.com/tutorials/tasks/#cpu-bound-tasks) and [K8s Jobs](https://fluid.quantmind.com/tutorials/task_k8s/index.md).
 
+## Run a command line tool
+
+```python
+from fluid.utils import kernel
+
+
+@task(timeout_seconds=300)
+async def compress(ctx: TaskRun[Compress]) -> None:
+    code = await kernel.run("gzip", "--keep", ctx.params.path)
+    if code:
+        raise RuntimeError(f"gzip exited with code {code}")
+```
+
+kernel.run awaits the program without blocking the event loop, returns its exit code rather than raising, and terminates it when the task times out. Output goes to `result_callback` and `error_callback`, stdin is `/dev/null` unless `input` is given. The task is IO bound, do not mark it `cpu_bound`. See [Run a Command Line Tool](https://fluid.quantmind.com/tutorials/task_command/index.md).
+
 ## Shared resources
 
 ```python
@@ -297,6 +312,7 @@ Adds a `/tasks-history` API backed by Postgres. Requires the `db` extra. See [Pl
 - **Expecting a consumer to fire schedules.** Only a TaskScheduler watches the clock.
 - **Sharing state in memory with a CPU bound task.** It runs in another process with its own dependencies. Pass state through the database or the broker.
 - **Blocking calls in a normal task.** Anything CPU heavy or blocking freezes the event loop for every other task in the process. Mark it `cpu_bound=True`.
+- **`subprocess.run` in a task.** It blocks the event loop until the program exits. Use kernel.run, and check the exit code it returns. Its `env` replaces the environment, merge `os.environ` into it.
 - **Forgetting to register a task on the producer.** Queueing by name requires the task in the registry, and a consumer receiving a run for a task it does not know logs an unknown task error.
 
 # Use with AI agents
@@ -1393,6 +1409,101 @@ roleRef:
 
 The `tasks-consumer-sa` ServiceAccount should be used by the consumer/scheduler deployment.
 
+# Run a Command Line Tool
+
+A task often has to call a program that is not Python: `gzip`, `pg_dump`, `ffmpeg`, a vendor CLI. Calling it with `subprocess.run` blocks the event loop, and every other task in the process stops until it returns. kernel.run runs the program in a subprocess and awaits it, so the loop stays free.
+
+## A Task Calling a Tool
+
+This task compresses a file with `gzip`, sends every line the tool writes to the task logger, and fails the run when the tool exits with an error:
+
+```python
+from logging import Logger
+
+from pydantic import BaseModel
+
+from fluid.scheduler import TaskRun, TaskScheduler, task
+from fluid.utils import kernel
+
+
+class Compress(BaseModel):
+    path: str
+
+
+class LogLines:
+    """Send each line a process writes to a logger"""
+
+    def __init__(self, logger: Logger) -> None:
+        self.logger = logger
+        self.decoder = kernel.Utf8Decoder()
+
+    def __call__(self, data: bytes) -> None:
+        self.logger.info(self.decoder.decode(data).rstrip())
+
+
+@task(timeout_seconds=300)
+async def compress(ctx: TaskRun[Compress]) -> None:
+    """Compress a file with gzip, keeping the original"""
+    log = LogLines(ctx.logger)
+    code = await kernel.run(
+        "gzip",
+        "--keep",
+        "--force",
+        "--verbose",
+        ctx.params.path,
+        result_callback=log,
+        error_callback=log,
+        stream_output=True,
+        stream_error=True,
+    )
+    if code:
+        raise RuntimeError(f"gzip exited with code {code}")
+
+
+def task_scheduler() -> TaskScheduler:
+    scheduler = TaskScheduler()
+    scheduler.register_from_dict(globals())
+    return scheduler
+```
+
+A few things to notice:
+
+- The arguments are passed as a list, no shell is involved, so a path with spaces or quotes in it is passed as it is and cannot inject a command.
+- run returns the exit code, it does not raise. Check it and raise yourself, so the TaskRun ends in the failure state and a RetryPolicy can retry it.
+- The task is not `cpu_bound`. The work already happens in another process, the task only waits for it, which is IO bound.
+
+## Collecting the Output
+
+Output reaches the callbacks as bytes, `result_callback` for stdout and `error_callback` for stderr. Without a callback the output is read and discarded, so the process never blocks on a full pipe.
+
+With `stream_output=True` the callback is called once per line, as the lines arrive, which suits logging progress. Without it the callback is called once, with the whole of stdout, when the process closes it, which suits parsing:
+
+```python
+result = kernel.CollectBytes()
+code = await kernel.run("git", "rev-parse", "HEAD", result_callback=result)
+commit = result.data.decode().strip()
+```
+
+CollectBytes keeps the output in memory, EncodedLog decodes it and passes it to a log function. Decode with Utf8Decoder rather than `bytes.decode`, a character can be split across two chunks.
+
+## Input and Environment
+
+Stdin is `/dev/null` unless you pass `input`, so a tool which reads stdin, or prompts, sees an end of file instead of waiting forever. Pass `input` to feed it:
+
+```python
+await kernel.run("psql", "--file", "-", input=sql.encode())
+```
+
+`env` **replaces** the environment rather than extending it. Merge it with the current one when the tool needs `PATH`, `HOME` or credentials:
+
+```python
+await kernel.run("aws", "s3", "ls", env={**os.environ, "AWS_REGION": "eu-west-1"})
+```
+
+## Timeouts
+
+When the task times out, the coroutine awaiting run is cancelled and the process is terminated with a SIGTERM, then killed with a SIGKILL if it is still running after `terminate_grace_period` seconds. A tool cannot outlive the task that started it, so set `timeout_seconds` on the @task decorator to the longest the tool should take.
+
 # Task Broker
 
 A TaskBroker is responsible for queuing task runs and storing task information. A subclass has to implement every abstract method below, grouped here by the concern each one serves.
@@ -2012,6 +2123,7 @@ Complete API reference for all public classes, functions, and parameters in Aio 
 
 - [Event Dispatchers](https://fluid.quantmind.com/reference/dispatchers/index.md) — `Dispatcher` and `AsyncDispatcher` for decoupled event handling.
 - [HTTP Client](https://fluid.quantmind.com/reference/http_client/index.md) — unified async HTTP client wrappers for `aiohttp` and `httpx`.
+- [Kernel](https://fluid.quantmind.com/reference/kernel/index.md), `kernel.run` for running an external program in a subprocess without blocking the event loop.
 - [Errors](https://fluid.quantmind.com/reference/errors/index.md) — error hierarchies for utilities and the task scheduler.
 - [Settings](https://fluid.quantmind.com/reference/settings/index.md), environment variables configuring the task consumer, broker, database and HTTP client.
 - [Utils](https://fluid.quantmind.com/reference/utils/index.md) — miscellaneous helpers.
@@ -6156,6 +6268,289 @@ async def response_data(cls, response: HttpResponse) -> ResponseType:
         return await response.text()
     return await response.bytes()
 ```
+
+# Kernel
+
+Run an external program from async code without blocking the event loop. It is what runs [CPU bound tasks](https://fluid.quantmind.com/tutorials/tasks/#cpu-bound-tasks) in a subprocess, and it is available for running any command line tool from a task. See [Run a Command Line Tool](https://fluid.quantmind.com/tutorials/task_command/index.md) for a walkthrough.
+
+```python
+from fluid.utils import kernel
+
+code = await kernel.run("gzip", "--keep", "data.csv")
+```
+
+## fluid.utils.kernel.run
+
+```python
+run(
+    executable,
+    *args,
+    result_callback=None,
+    error_callback=None,
+    env=None,
+    stream_output=False,
+    stream_error=False,
+    terminate_grace_period=TERMINATE_GRACE_PERIOD,
+    input=None
+)
+```
+
+Run an executable in a subprocess and wait for it to finish.
+
+It returns the exit code of the process, negative when it was stopped by a signal. A non zero code is not raised as an error, check it.
+
+The process is terminated when this coroutine is cancelled, which is what happens when the caller times out, so the process cannot outlive the code waiting for it.
+
+| PARAMETER                | DESCRIPTION                                                                                                                                                                                                                                                     |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `executable`             | The program to run, a path or a name looked up in PATH. **TYPE:** `str`                                                                                                                                                                                         |
+| `*args`                  | Arguments passed to the program, no shell is involved. **TYPE:** `str` **DEFAULT:** `()`                                                                                                                                                                        |
+| `result_callback`        | Called with the bytes of stdout, discarded when not given. **TYPE:** `Optional[KernelCallback]` **DEFAULT:** `None`                                                                                                                                             |
+| `error_callback`         | Called with the bytes of stderr, discarded when not given. **TYPE:** `Optional[KernelCallback]` **DEFAULT:** `None`                                                                                                                                             |
+| `env`                    | Environment of the process. It replaces the environment of the current process rather than extending it, pass {\*\*os.environ, ...} to extend it. When not given the current environment is inherited. **TYPE:** `Optional[Dict[str, str]]` **DEFAULT:** `None` |
+| `stream_output`          | Call result_callback once per line as it arrives. When false it is called once, with the whole of stdout, after the process closes it. **TYPE:** `bool` **DEFAULT:** `False`                                                                                    |
+| `stream_error`           | The same as stream_output, for stderr and error_callback. **TYPE:** `bool` **DEFAULT:** `False`                                                                                                                                                                 |
+| `terminate_grace_period` | Seconds to wait after a SIGTERM before sending a SIGKILL, when the run is cancelled. **TYPE:** `float` **DEFAULT:** `TERMINATE_GRACE_PERIOD`                                                                                                                    |
+| `input`                  | Bytes written to the stdin of the process, which is closed once they are written. When not given stdin is /dev/null, so a process reading it sees an end of file rather than waiting forever. **TYPE:** `Optional[bytes]` **DEFAULT:** `None`                   |
+
+Source code in `fluid/utils/kernel.py`
+
+```python
+async def run(
+    executable: Annotated[
+        str,
+        Doc("The program to run, a path or a name looked up in `PATH`."),
+    ],
+    *args: Annotated[
+        str,
+        Doc("Arguments passed to the program, no shell is involved."),
+    ],
+    result_callback: Annotated[
+        Optional[KernelCallback],
+        Doc("Called with the bytes of stdout, discarded when not given."),
+    ] = None,
+    error_callback: Annotated[
+        Optional[KernelCallback],
+        Doc("Called with the bytes of stderr, discarded when not given."),
+    ] = None,
+    env: Annotated[
+        Optional[Dict[str, str]],
+        Doc(
+            "Environment of the process. It replaces the environment of the "
+            "current process rather than extending it, pass "
+            "`{**os.environ, ...}` to extend it. "
+            "When not given the current environment is inherited."
+        ),
+    ] = None,
+    stream_output: Annotated[
+        bool,
+        Doc(
+            "Call `result_callback` once per line as it arrives. When false it "
+            "is called once, with the whole of stdout, after the process "
+            "closes it."
+        ),
+    ] = False,
+    stream_error: Annotated[
+        bool,
+        Doc("The same as `stream_output`, for stderr and `error_callback`."),
+    ] = False,
+    terminate_grace_period: Annotated[
+        float,
+        Doc(
+            "Seconds to wait after a SIGTERM before sending a SIGKILL, when the "
+            "run is cancelled."
+        ),
+    ] = TERMINATE_GRACE_PERIOD,
+    input: Annotated[  # noqa: A002, the name subprocess.run uses
+        Optional[bytes],
+        Doc(
+            "Bytes written to the stdin of the process, which is closed once "
+            "they are written. When not given stdin is `/dev/null`, so a "
+            "process reading it sees an end of file rather than waiting forever."
+        ),
+    ] = None,
+) -> int:
+    """Run an executable in a subprocess and wait for it to finish.
+
+    It returns the exit code of the process, negative when it was stopped by a
+    signal. A non zero code is not raised as an error, check it.
+
+    The process is terminated when this coroutine is cancelled, which is what
+    happens when the caller times out, so the process cannot outlive the code
+    waiting for it.
+    """
+    process = await asyncio.create_subprocess_exec(
+        executable,
+        *args,
+        stdin=asyncio.subprocess.DEVNULL if input is None else asyncio.subprocess.PIPE,
+        stdout=asyncio.subprocess.PIPE,
+        stderr=asyncio.subprocess.PIPE,
+        limit=READ_LIMIT,
+        env=env,
+    )
+    if not process.stdout or not process.stderr:
+        raise RuntimeError("Failed to create subprocess")
+    tasks = [
+        asyncio.create_task(
+            _read_stream(process.stdout, stream_output, result_callback or noop)
+        ),
+        asyncio.create_task(
+            _read_stream(process.stderr, stream_error, error_callback or noop)
+        ),
+    ]
+    if input is not None and process.stdin:
+        # written concurrently with the reads, a process filling its stdout
+        # before it reads all of its input would otherwise deadlock
+        tasks.append(asyncio.create_task(_write_stdin(process.stdin, input)))
+    try:
+        await asyncio.wait(tasks)
+        return await process.wait()
+    finally:
+        for task in tasks:
+            task.cancel()
+        await terminate(process, terminate_grace_period)
+```
+
+## fluid.utils.kernel.run_python
+
+```python
+run_python(*args, **kwargs)
+```
+
+Run the current python interpreter in a subprocess.
+
+A shortcut for run with `sys.executable` as the executable, it accepts the same keyword arguments.
+
+Source code in `fluid/utils/kernel.py`
+
+```python
+async def run_python(*args: str, **kwargs: Any) -> int:
+    """Run the current python interpreter in a subprocess.
+
+    A shortcut for [run][fluid.utils.kernel.run] with `sys.executable` as the
+    executable, it accepts the same keyword arguments.
+    """
+    return await run(sys.executable, *args, **kwargs)
+```
+
+## fluid.utils.kernel.terminate
+
+```python
+terminate(process, grace_period=TERMINATE_GRACE_PERIOD)
+```
+
+Terminate a process unless it has already exited.
+
+It sends a SIGTERM first and escalates to a SIGKILL when the process is still running after the grace period.
+
+Source code in `fluid/utils/kernel.py`
+
+```python
+async def terminate(
+    process: asyncio.subprocess.Process,
+    grace_period: float = TERMINATE_GRACE_PERIOD,
+) -> None:
+    """Terminate a process unless it has already exited.
+
+    It sends a SIGTERM first and escalates to a SIGKILL when the process is
+    still running after the grace period.
+    """
+    if process.returncode is not None:
+        return
+    process.terminate()
+    try:
+        await asyncio.wait_for(asyncio.shield(process.wait()), grace_period)
+    except asyncio.TimeoutError:
+        process.kill()
+        await asyncio.shield(process.wait())
+```
+
+## fluid.utils.kernel.KernelCallback
+
+```python
+KernelCallback = Callable[[bytes], None]
+```
+
+A callback receiving a chunk of the output of a process
+
+## fluid.utils.kernel.CollectBytes
+
+A callback collecting the output in `data`
+
+### data
+
+```python
+data = b''
+```
+
+## fluid.utils.kernel.EncodedLog
+
+```python
+EncodedLog(log=write)
+```
+
+A callback decoding the output as utf-8 and passing it to a log function.
+
+The decoded text is also kept in `data`.
+
+Source code in `fluid/utils/kernel.py`
+
+```python
+def __init__(self, log: Callable[[str], Any] = sys.stdout.write) -> None:
+    self.log = log
+    self.data: list[str] = []
+    self._decoder = Utf8Decoder()
+```
+
+### log
+
+```python
+log = log
+```
+
+### data
+
+```python
+data = []
+```
+
+## fluid.utils.kernel.Utf8Decoder
+
+```python
+Utf8Decoder()
+```
+
+Decode a stream of bytes chunks as utf-8.
+
+A character split across two chunks is decoded once both have arrived, and invalid bytes are replaced rather than raising.
+
+Source code in `fluid/utils/kernel.py`
+
+```python
+def __init__(self) -> None:
+    self._decoder = codecs.getincrementaldecoder("utf-8")(errors="replace")
+```
+
+### decode
+
+```python
+decode(data)
+```
+
+Source code in `fluid/utils/kernel.py`
+
+```python
+def decode(self, data: bytes) -> str:
+    return self._decoder.decode(data)
+```
+
+## fluid.utils.kernel.TERMINATE_GRACE_PERIOD
+
+```python
+TERMINATE_GRACE_PERIOD = 5.0
+```
+
+Seconds to wait for a terminated process before killing it
 
 # Settings
 

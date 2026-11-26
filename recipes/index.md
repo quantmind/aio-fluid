@@ -90,6 +90,21 @@ async def crunch(ctx: TaskRun) -> None:
 
 The same declaration runs as a subprocess locally and as a Kubernetes Job in-cluster. See [CPU bound tasks](https://fluid.quantmind.com/tutorials/tasks/#cpu-bound-tasks) and [K8s Jobs](https://fluid.quantmind.com/tutorials/task_k8s/index.md).
 
+## Run a command line tool
+
+```python
+from fluid.utils import kernel
+
+
+@task(timeout_seconds=300)
+async def compress(ctx: TaskRun[Compress]) -> None:
+    code = await kernel.run("gzip", "--keep", ctx.params.path)
+    if code:
+        raise RuntimeError(f"gzip exited with code {code}")
+```
+
+kernel.run awaits the program without blocking the event loop, returns its exit code rather than raising, and terminates it when the task times out. Output goes to `result_callback` and `error_callback`, stdin is `/dev/null` unless `input` is given. The task is IO bound, do not mark it `cpu_bound`. See [Run a Command Line Tool](https://fluid.quantmind.com/tutorials/task_command/index.md).
+
 ## Shared resources
 
 ```python
@@ -147,4 +162,5 @@ Adds a `/tasks-history` API backed by Postgres. Requires the `db` extra. See [Pl
 - **Expecting a consumer to fire schedules.** Only a TaskScheduler watches the clock.
 - **Sharing state in memory with a CPU bound task.** It runs in another process with its own dependencies. Pass state through the database or the broker.
 - **Blocking calls in a normal task.** Anything CPU heavy or blocking freezes the event loop for every other task in the process. Mark it `cpu_bound=True`.
+- **`subprocess.run` in a task.** It blocks the event loop until the program exits. Use kernel.run, and check the exit code it returns. Its `env` replaces the environment, merge `os.environ` into it.
 - **Forgetting to register a task on the producer.** Queueing by name requires the task in the registry, and a consumer receiving a run for a task it does not know logs an unknown task error.

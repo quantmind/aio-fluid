@@ -446,6 +446,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#run-a-command-line-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run a command line tool
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#shared-resources" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -519,6 +530,8 @@
       
         
           
+        
+      
         
       
         
@@ -825,6 +838,34 @@
     
   
     HTTP Client
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../reference/kernel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Kernel
   
 
     
@@ -1272,6 +1313,8 @@
       
         
       
+        
+      
     
     
     
@@ -1420,6 +1463,34 @@
     
   
     Task Broker
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorials/task_command/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Run a Command Line Tool
   
 
     
@@ -1810,6 +1881,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#run-a-command-line-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Run a command line tool
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#shared-resources" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1987,41 +2069,61 @@ with CPU bound tasks. See <a href="../tutorials/task_app/">Task Queue App</a>.</
 <p>The same declaration runs as a subprocess locally and as a Kubernetes Job
 in-cluster. See <a href="../tutorials/tasks/#cpu-bound-tasks">CPU bound tasks</a> and
 <a href="../tutorials/task_k8s/">K8s Jobs</a>.</p>
+<h2 id="run-a-command-line-tool">Run a command line tool<a class="headerlink" href="#run-a-command-line-tool" title="Permanent link">&para;</a></h2>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kn">from</span><span class="w"> </span><span class="nn">fluid.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">kernel</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="nd">@task</span><span class="p">(</span><span class="n">timeout_seconds</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">compress</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">[</span><span class="n">Compress</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">code</span> <span class="o">=</span> <span class="k">await</span> <span class="n">kernel</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="s2">&quot;gzip&quot;</span><span class="p">,</span> <span class="s2">&quot;--keep&quot;</span><span class="p">,</span> <span class="n">ctx</span><span class="o">.</span><span class="n">params</span><span class="o">.</span><span class="n">path</span><span class="p">)</span>
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>    <span class="k">if</span> <span class="n">code</span><span class="p">:</span>
+</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;gzip exited with code </span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</span></code></pre></div>
+<p><a class="autorefs autorefs-internal" title="            fluid.utils.kernel.run
+
+
+  
+      async
+  " href="../reference/kernel/#fluid.utils.kernel.run">kernel.run</a> awaits the program without blocking the
+event loop, returns its exit code rather than raising, and terminates it when
+the task times out. Output goes to <code>result_callback</code> and <code>error_callback</code>,
+stdin is <code>/dev/null</code> unless <code>input</code> is given. The task is IO bound, do not mark
+it <code>cpu_bound</code>. See <a href="../tutorials/task_command/">Run a Command Line Tool</a>.</p>
 <h2 id="shared-resources">Shared resources<a class="headerlink" href="#shared-resources" title="Permanent link">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nd">@dataclass</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Deps</span><span class="p">:</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="n">http_client</span><span class="p">:</span> <span class="n">HttpxClient</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">HttpxClient</span><span class="p">)</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>
-</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="n">deps</span> <span class="o">=</span> <span class="n">Deps</span><span class="p">()</span>
-</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="n">scheduler</span> <span class="o">=</span> <span class="n">TaskScheduler</span><span class="p">(</span><span class="n">deps</span><span class="o">=</span><span class="n">deps</span><span class="p">)</span>
-</span><span id="__span-7-8"><a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="n">scheduler</span><span class="o">.</span><span class="n">add_async_context_manager</span><span class="p">(</span><span class="n">deps</span><span class="o">.</span><span class="n">http_client</span><span class="p">)</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nd">@dataclass</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="k">class</span><span class="w"> </span><span class="nc">Deps</span><span class="p">:</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">http_client</span><span class="p">:</span> <span class="n">HttpxClient</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">HttpxClient</span><span class="p">)</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="n">deps</span> <span class="o">=</span> <span class="n">Deps</span><span class="p">()</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="n">scheduler</span> <span class="o">=</span> <span class="n">TaskScheduler</span><span class="p">(</span><span class="n">deps</span><span class="o">=</span><span class="n">deps</span><span class="p">)</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="n">scheduler</span><span class="o">.</span><span class="n">add_async_context_manager</span><span class="p">(</span><span class="n">deps</span><span class="o">.</span><span class="n">http_client</span><span class="p">)</span>
 </span></code></pre></div>
 <p>Anything registered with
 <a class="autorefs autorefs-internal" title="            add_async_context_manager" href="../reference/task_manager/#fluid.scheduler.TaskManager.add_async_context_manager">add_async_context_manager</a>
 is opened on startup and closed on shutdown. See
 <a href="../tutorials/task_deps/">Task Dependencies</a>.</p>
 <h2 id="retries-limits-and-timeouts">Retries, limits and timeouts<a class="headerlink" href="#retries-limits-and-timeouts" title="Permanent link">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nd">@task</span><span class="p">(</span>
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>    <span class="n">timeout_seconds</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="n">max_concurrency</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>    <span class="n">retry</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mf">2.0</span><span class="p">),</span>
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="n">rate_limit_retry</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mf">5.0</span><span class="p">),</span>
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="p">)</span>
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nd">@task</span><span class="p">(</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>    <span class="n">timeout_seconds</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>    <span class="n">max_concurrency</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="n">retry</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mf">2.0</span><span class="p">,</span> <span class="n">backoff</span><span class="o">=</span><span class="mf">2.0</span><span class="p">),</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="n">rate_limit_retry</span><span class="o">=</span><span class="n">RetryPolicy</span><span class="p">(</span><span class="n">max_attempts</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mf">5.0</span><span class="p">),</span>
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">)</span>
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">fetch</span><span class="p">(</span><span class="n">ctx</span><span class="p">:</span> <span class="n">TaskRun</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span> <span class="o">...</span>
 </span></code></pre></div>
 <p><code>timeout_seconds</code> defaults to 60. <code>max_concurrency=0</code> means no limit. See
 <a href="../tutorials/task_retry/">Task Retries</a>.</p>
 <h2 id="queue-work">Queue work<a class="headerlink" href="#queue-work" title="Permanent link">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">await</span> <span class="n">task_manager</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;greet&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;luca&quot;</span><span class="p">)</span>   <span class="c1"># from anywhere</span>
-</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;next_step&quot;</span><span class="p">,</span> <span class="n">data_id</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>         <span class="c1"># from inside a task, records the chain</span>
-</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="n">run</span> <span class="o">=</span> <span class="k">await</span> <span class="n">consumer</span><span class="o">.</span><span class="n">queue_and_wait</span><span class="p">(</span><span class="s2">&quot;greet&quot;</span><span class="p">)</span>     <span class="c1"># queue and await the result</span>
-</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">run</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task_manager</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;greet&quot;</span><span class="p">)</span>        <span class="c1"># run inline, skipping the queue</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">await</span> <span class="n">task_manager</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;greet&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;luca&quot;</span><span class="p">)</span>   <span class="c1"># from anywhere</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="k">await</span> <span class="n">ctx</span><span class="o">.</span><span class="n">queue</span><span class="p">(</span><span class="s2">&quot;next_step&quot;</span><span class="p">,</span> <span class="n">data_id</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>         <span class="c1"># from inside a task, records the chain</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="n">run</span> <span class="o">=</span> <span class="k">await</span> <span class="n">consumer</span><span class="o">.</span><span class="n">queue_and_wait</span><span class="p">(</span><span class="s2">&quot;greet&quot;</span><span class="p">)</span>     <span class="c1"># queue and await the result</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="n">run</span> <span class="o">=</span> <span class="k">await</span> <span class="n">task_manager</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="s2">&quot;greet&quot;</span><span class="p">)</span>        <span class="c1"># run inline, skipping the queue</span>
 </span></code></pre></div>
 <p>Prefer chaining with <code>ctx.queue</code> over waiting. See
 <a href="../tutorials/tasks/#chaining-tasks">Chaining tasks</a>.</p>
 <h2 id="persist-run-history">Persist run history<a class="headerlink" href="#persist-run-history" title="Permanent link">&para;</a></h2>
-<div class="language-python highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="n">task_manager</span><span class="o">.</span><span class="n">with_plugin</span><span class="p">(</span><span class="n">TaskDbPlugin</span><span class="p">(</span><span class="n">CrudDB</span><span class="o">.</span><span class="n">from_env</span><span class="p">()))</span>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="n">task_manager</span><span class="o">.</span><span class="n">with_plugin</span><span class="p">(</span><span class="n">TaskDbPlugin</span><span class="p">(</span><span class="n">CrudDB</span><span class="o">.</span><span class="n">from_env</span><span class="p">()))</span>
 </span></code></pre></div>
 <p>Adds a <code>/tasks-history</code> API backed by Postgres. Requires the <code>db</code> extra. See
 <a href="../tutorials/task_app/#plugins">Plugins</a>.</p>
@@ -2049,6 +2151,14 @@ is opened on startup and closed on shutdown. See
   with its own dependencies. Pass state through the database or the broker.</li>
 <li><strong>Blocking calls in a normal task.</strong> Anything CPU heavy or blocking freezes the
   event loop for every other task in the process. Mark it <code>cpu_bound=True</code>.</li>
+<li><strong><code>subprocess.run</code> in a task.</strong> It blocks the event loop until the program
+  exits. Use <a class="autorefs autorefs-internal" title="            fluid.utils.kernel.run
+
+
+  
+      async
+  " href="../reference/kernel/#fluid.utils.kernel.run">kernel.run</a>, and check the exit code it
+  returns. Its <code>env</code> replaces the environment, merge <code>os.environ</code> into it.</li>
 <li><strong>Forgetting to register a task on the producer.</strong> Queueing by name requires
   the task in the registry, and a consumer receiving a run for a task it does not
   know logs an unknown task error.</li>

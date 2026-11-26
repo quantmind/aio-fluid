@@ -17,6 +17,7 @@ An async task queue for Python backend services. Tasks are async functions decla
 - [Extending the FastAPI App](https://fluid.quantmind.com/tutorials/task_fastapi/index.md): Add your own routes to the task manager app and inject the same dependencies.
 - [Task Retries](https://fluid.quantmind.com/tutorials/task_retry/index.md): Retry on failure and when rate limited by concurrency limits.
 - [K8s Jobs](https://fluid.quantmind.com/tutorials/task_k8s/index.md): Dispatch CPU bound tasks as Kubernetes Jobs.
+- [Run a Command Line Tool](https://fluid.quantmind.com/tutorials/task_command/index.md): Run a command line tool from a task without blocking the event loop.
 - [Task Broker](https://fluid.quantmind.com/tutorials/task_broker/index.md): Replace the default Redis broker.
 - [Workers](https://fluid.quantmind.com/tutorials/workers/index.md): The async worker lifecycle the task queue is built on.
 - [Async Database](https://fluid.quantmind.com/tutorials/db/index.md): Async Postgres CRUD and migrations.
@@ -33,6 +34,7 @@ An async task queue for Python backend services. Tasks are async functions decla
 - [Event Dispatchers](https://fluid.quantmind.com/reference/dispatchers/index.md)
 - [Errors](https://fluid.quantmind.com/reference/errors/index.md)
 - [HTTP Client](https://fluid.quantmind.com/reference/http_client/index.md)
+- [Kernel](https://fluid.quantmind.com/reference/kernel/index.md)
 - [Settings](https://fluid.quantmind.com/reference/settings/index.md)
 - [Task](https://fluid.quantmind.com/reference/task/index.md)
 - [Task Broker](https://fluid.quantmind.com/reference/task_broker/index.md)
