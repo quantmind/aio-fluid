@@ -201,6 +201,25 @@ async def test_search_query(db: CrudDB) -> None:
     assert len(all_rows2) >= 2
 
 
+async def test_search_query_escapes_wildcards(db: CrudDB) -> None:
+    table = db.tables["tasks"]
+    titles = ("Wild 50% off", "Wild 500 off", "Wild a_b", "Wild axb", "Wild a/b")
+    for title in titles:
+        await db.db_insert(table, dict(title=title))
+
+    async def search(text: str) -> set[str]:
+        sql = db.search_query(table, table.select(), ("title",), text)
+        async with db.ensure_connection() as conn:
+            rows = (await conn.execute(sql)).fetchall()
+        return {r.title for r in rows if r.title in titles}
+
+    assert await search("50%") == {"Wild 50% off"}
+    assert await search("a_b") == {"Wild a_b"}
+    assert await search("a/b") == {"Wild a/b"}
+    assert await search("%") == {"Wild 50% off"}
+    assert await search("WILD A_B") == {"Wild a_b"}
+
+
 async def test_pool_pre_ping(db: CrudDB) -> None:
     # fill the pool, then drop every other pooled connection server side, as
     # a restart would
