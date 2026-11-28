@@ -6,6 +6,23 @@ below maps to a tagged release on
 pushed, the matching section is extracted by
 `.github/workflows/release.yml` and published as the GitHub Release body.
 
+## v2.14.0
+
+Safer subprocesses and fixes to sorting and searching database rows.
+
+### New features
+
+- `kernel.run` takes `input`, bytes written to the stdin of the process ([run a command line tool](https://fluid.quantmind.com/tutorials/task_command/), [#146](https://github.com/quantmind/aio-fluid/pull/146)).
+
+### Improvements and fixes
+
+- `kernel.run` connects stdin to `/dev/null` when no `input` is given, so a process reading it no longer hangs ([#146](https://github.com/quantmind/aio-fluid/pull/146)).
+- Sorting by a nullable column puts NULL values last in both directions, and pagination cursors resume across them ([sorting](https://fluid.quantmind.com/tutorials/db/#sorting), [#147](https://github.com/quantmind/aio-fluid/pull/147)).
+- `CrudDB.search_query` matches the search text literally, escaping the `%` and `_` wildcards ([#149](https://github.com/quantmind/aio-fluid/pull/149)).
+- New reference page for the kernel utilities ([kernel](https://fluid.quantmind.com/reference/kernel/), [#146](https://github.com/quantmind/aio-fluid/pull/146)).
+
+[Full changelog](https://github.com/quantmind/aio-fluid/compare/v2.13.1...v2.14.0)
+
 ## v2.13.1
 
 Fixes for cpu bound tasks running as Kubernetes Jobs.
