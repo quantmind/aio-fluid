@@ -388,10 +388,16 @@ class CrudDB(Database):
         ],
         search: Annotated[str, Doc("Search text; empty string is a no-op")],
     ) -> Select:
-        """Apply a case-insensitive substring search across the given columns"""
+        """Apply a case-insensitive substring search across the given columns
+
+        The search text is matched literally: the `%` and `_` LIKE wildcards
+        are escaped.
+        """
         if search and search_fields:
             columns = [getattr(table.c, col) for col in search_fields]
-            return sql_query.where(or_(*(col.ilike(f"%{search}%") for col in columns)))
+            return sql_query.where(
+                or_(*(col.icontains(search, autoescape=True) for col in columns))
+            )
         return sql_query
 
     def default_filter_column(
