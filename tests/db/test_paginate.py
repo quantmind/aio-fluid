@@ -404,3 +404,25 @@ async def test_paginate_numeric_nulls_last(db: CrudDB, desc: bool) -> None:
         None,
         None,
     ]
+
+
+async def test_paginate_nulls_last_without_unique_fields(db: CrudDB) -> None:
+    """A cursor resuming from a NULL value with no unique fields moves on to
+    the NULL rows"""
+    table = db.tables["tasks"]
+    filters = dict(created_by="nulls-no-unique")
+    await db.db_insert(
+        table,
+        [
+            dict(title="NoUnique0", severity=None, **filters),
+            dict(title="NoUnique1", severity=1, **filters),
+        ],
+    )
+    p = Pagination.create(BY_SEVERITY, filters=filters, limit=1)
+    rows, cursor = await p.execute(db, table)
+    assert [r.severity for r in rows] == [1]
+    assert cursor
+    p = Pagination.create(BY_SEVERITY, cursor=cursor)
+    rows, cursor = await p.execute(db, table)
+    assert [r.title for r in rows] == ["NoUnique0"]
+    assert not cursor
