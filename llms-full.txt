@@ -1958,6 +1958,8 @@ rows, cursor = await Pagination.create(order_by, sort_by="-title").execute(db, a
 
 The rows are sorted by the sort field followed by the unique fields, all in the same direction, so the example orders by `("title", "id")` descending. A `sort_by` which is not one of the fields of the OrderBy raises a ValidationError, unique fields included.
 
+A nullable sort field puts its NULL values last, in both directions, and the cursor resumes across them: the rows with a value come first, followed by the NULL rows ordered by the unique fields. The same holds for `order_by` in db_select. Postgres puts NULL values first in a descending order by default, so a descending sort on a nullable column cannot use a plain index on it; create the index with `NULLS LAST` when that matters.
+
 The cursor carries the sort field and the direction, and they replace the `sort_by` passed with it, so a client can send the cursor alone and the next page follows the ordering of the first one. A cursor whose sort field is not one of the fields of the OrderBy is rejected with a ValidationError.
 
 ### Signing the cursor
@@ -3426,7 +3428,9 @@ def order_by_query(
 order_by_columns(table, order_by)
 ```
 
-Return a list of SQLAlchemy column expressions for the given order_by fields
+Return a list of SQLAlchemy column expressions for the given order_by fields.
+
+A nullable column puts its NULL values last, in both directions. Unknown fields are skipped.
 
 | PARAMETER  | DESCRIPTION                                                                          |
 | ---------- | ------------------------------------------------------------------------------------ |
@@ -3443,19 +3447,21 @@ def order_by_columns(
         tuple[str, ...],
         Doc("Column names to order by; prefix with '-' for descending"),
     ],
-) -> list[Column]:
+) -> list[ColumnElement]:
     """Return a list of SQLAlchemy column expressions for the given
-    order_by fields"""
-    columns = []
+    order_by fields.
+
+    A nullable column puts its NULL values last, in both directions.
+    Unknown fields are skipped.
+    """
+    columns: list[ColumnElement] = []
     for name in order_by:
-        if name.startswith("-"):
-            order_by_column = getattr(table.c, name[1:], None)
-            if order_by_column is not None:
-                columns.append(order_by_column.desc())
-        else:
-            order_by_column = getattr(table.c, name, None)
-            if order_by_column is not None:
-                columns.append(order_by_column)
+        desc = name.startswith("-")
+        column = getattr(table.c, name[1:] if desc else name, None)
+        if column is None:
+            continue
+        ordered = column.desc() if desc else column
+        columns.append(nulls_last(ordered) if is_nullable(column) else ordered)
     return columns
 ```
 

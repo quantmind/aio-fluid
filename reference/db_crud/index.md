@@ -881,7 +881,9 @@ def order_by_query(
 order_by_columns(table, order_by)
 ```
 
-Return a list of SQLAlchemy column expressions for the given order_by fields
+Return a list of SQLAlchemy column expressions for the given order_by fields.
+
+A nullable column puts its NULL values last, in both directions. Unknown fields are skipped.
 
 | PARAMETER  | DESCRIPTION                                                                          |
 | ---------- | ------------------------------------------------------------------------------------ |
@@ -898,19 +900,21 @@ def order_by_columns(
         tuple[str, ...],
         Doc("Column names to order by; prefix with '-' for descending"),
     ],
-) -> list[Column]:
+) -> list[ColumnElement]:
     """Return a list of SQLAlchemy column expressions for the given
-    order_by fields"""
-    columns = []
+    order_by fields.
+
+    A nullable column puts its NULL values last, in both directions.
+    Unknown fields are skipped.
+    """
+    columns: list[ColumnElement] = []
     for name in order_by:
-        if name.startswith("-"):
-            order_by_column = getattr(table.c, name[1:], None)
-            if order_by_column is not None:
-                columns.append(order_by_column.desc())
-        else:
-            order_by_column = getattr(table.c, name, None)
-            if order_by_column is not None:
-                columns.append(order_by_column)
+        desc = name.startswith("-")
+        column = getattr(table.c, name[1:] if desc else name, None)
+        if column is None:
+            continue
+        ordered = column.desc() if desc else column
+        columns.append(nulls_last(ordered) if is_nullable(column) else ordered)
     return columns
 ```
 
