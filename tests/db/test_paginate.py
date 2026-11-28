@@ -1,5 +1,6 @@
 import warnings
 from datetime import timedelta
+from decimal import Decimal
 
 import pytest
 
@@ -295,13 +296,15 @@ async def test_paginate_limit_bounds_query(db: CrudDB) -> None:
     assert query._limit == max_limit + 1
 
 
-async def paginate_all(db: CrudDB, order_by: OrderBy, filters: dict) -> list[tuple]:
+async def paginate_all(
+    db: CrudDB, order_by: OrderBy, filters: dict, field: str = "severity"
+) -> list[tuple]:
     table = db.tables["tasks"]
     pages = []
     p = Pagination.create(order_by, filters=filters, limit=2)
     while True:
         rows, cursor = await p.execute(db, table)
-        pages.append([(r.severity, r.id) for r in rows])
+        pages.append([(getattr(r, field), r.id) for r in rows])
         if not cursor:
             break
         p = Pagination.create(order_by, cursor=cursor)
@@ -343,3 +346,83 @@ async def test_paginate_cursor_invalid_value(db: CrudDB) -> None:
     with pytest.raises(ValidationError) as exc:
         await p.execute(db, db.tables["tasks"])
     assert exc.value.field == "cursor"
+
+
+@pytest.mark.parametrize("desc", [False, True])
+async def test_paginate_nulls_last(db: CrudDB, desc: bool) -> None:
+    """A nullable sort field puts its NULL rows last in both directions, and
+    the cursor resumes both into the NULL rows and among them"""
+    table = db.tables["tasks"]
+    created_by = f"nulls-{desc}"
+    severities = [2, None, 0, None, 1, 2, None]
+    await db.db_insert(
+        table,
+        [
+            dict(title=f"Nulls{i}", severity=severity, created_by=created_by)
+            for i, severity in enumerate(severities)
+        ],
+    )
+    filters = dict(created_by=created_by)
+    order_by = ("-severity", "-id") if desc else ("severity", "id")
+    expected = [
+        (r.severity, r.id)
+        for r in (await db.db_select(table, filters, order_by=order_by)).all()
+    ]
+    assert [severity for severity, _ in expected] == [
+        *sorted((s for s in severities if s is not None), reverse=desc),
+        None,
+        None,
+        None,
+    ]
+    rows = await paginate_all(
+        db, OrderBy(("severity",), unique_fields=("id",), desc=desc), filters
+    )
+    assert rows == expected
+
+
+@pytest.mark.parametrize("desc", [False, True])
+async def test_paginate_numeric_nulls_last(db: CrudDB, desc: bool) -> None:
+    """A numeric sort field resumes from the decimal the cursor carries"""
+    table = db.tables["tasks"]
+    created_by = f"numeric-nulls-{desc}"
+    points = [Decimal("1.5"), None, Decimal("0.25"), Decimal("3"), None]
+    await db.db_insert(
+        table,
+        [
+            dict(title=f"Points{i}", story_points=value, created_by=created_by)
+            for i, value in enumerate(points)
+        ],
+    )
+    rows = await paginate_all(
+        db,
+        OrderBy(("story_points",), unique_fields=("id",), desc=desc),
+        dict(created_by=created_by),
+        field="story_points",
+    )
+    assert [value for value, _ in rows] == [
+        *sorted((p for p in points if p is not None), reverse=desc),
+        None,
+        None,
+    ]
+
+
+async def test_paginate_nulls_last_without_unique_fields(db: CrudDB) -> None:
+    """A cursor resuming from a NULL value with no unique fields moves on to
+    the NULL rows"""
+    table = db.tables["tasks"]
+    filters = dict(created_by="nulls-no-unique")
+    await db.db_insert(
+        table,
+        [
+            dict(title="NoUnique0", severity=None, **filters),
+            dict(title="NoUnique1", severity=1, **filters),
+        ],
+    )
+    p = Pagination.create(BY_SEVERITY, filters=filters, limit=1)
+    rows, cursor = await p.execute(db, table)
+    assert [r.severity for r in rows] == [1]
+    assert cursor
+    p = Pagination.create(BY_SEVERITY, cursor=cursor)
+    rows, cursor = await p.execute(db, table)
+    assert [r.title for r in rows] == ["NoUnique0"]
+    assert not cursor

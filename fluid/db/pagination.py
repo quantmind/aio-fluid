@@ -4,14 +4,14 @@ import warnings
 from typing import Any, NamedTuple, Self, Sequence, cast
 
 from sqlalchemy.ext.asyncio import AsyncConnection
-from sqlalchemy.sql import FromClause, select, tuple_
+from sqlalchemy.sql import FromClause, and_, or_, select, tuple_
 from sqlalchemy.sql.expression import ColumnElement
 from typing_extensions import Annotated, Doc
 
 from fluid import settings
 from fluid.utils.errors import ValidationError
 
-from .crud import CrudDB, Row, Select, column_value_to_python
+from .crud import CrudDB, Row, Select, column_value_to_python, is_nullable
 from .cursor import Cursor
 
 
@@ -282,29 +282,42 @@ class Pagination(NamedTuple):
         return sql_query.order_by(*columns).limit(self.limit + 1)
 
     def _start_clause(self, table: FromClause) -> ColumnElement[bool] | None:
-        if self.cursor:
-            columns = []
-            values = []
-            for name, value in zip(
-                self.order_by_fields, self.cursor.values, strict=True
-            ):
-                column = getattr(table.c, name)
+        if not self.cursor:
+            return None
+        columns = []
+        values = []
+        for name, value in zip(self.order_by_fields, self.cursor.values, strict=True):
+            column = getattr(table.c, name)
+            if value is not None:
                 try:
-                    values.append(column_value_to_python(column, value))
+                    value = column_value_to_python(column, value)
                 except ValidationError as e:
                     raise ValidationError("cursor", "invalid cursor") from e
-                columns.append(column)
-            if self.desc:
-                if len(columns) == 1:
-                    return columns[0] <= values[0]
-                else:
-                    return tuple_(*columns) <= values
-            else:
-                if len(columns) == 1:
-                    return columns[0] >= values[0]
-                else:
-                    return tuple_(*columns) >= values
-        return None
+            columns.append(column)
+            values.append(value)
+        sort_column = columns[0]
+        if values[0] is None:
+            # the NULL rows come last, so the next page is among them,
+            # ordered by the unique fields
+            is_null = sort_column.is_(None)
+            if len(columns) == 1:
+                return is_null
+            return and_(is_null, self._after(columns[1:], values[1:]))
+        after = self._after(columns, values)
+        if is_nullable(sort_column):
+            # a comparison with NULL is never true, and the NULL rows follow
+            # every row with a value
+            return or_(after, sort_column.is_(None))
+        return after
+
+    def _after(
+        self, columns: list[ColumnElement], values: list[Any]
+    ) -> ColumnElement[bool]:
+        """The rows from the cursor values onwards, in the page direction"""
+        if len(columns) == 1:
+            return columns[0] <= values[0] if self.desc else columns[0] >= values[0]
+        row = tuple_(*columns)
+        return row <= values if self.desc else row >= values
 
     def _encode_cursor(self, row: Row) -> str:
         return Cursor(
