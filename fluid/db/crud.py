@@ -1,8 +1,19 @@
 from datetime import date, datetime
+from decimal import Decimal
 from typing import Any, Sequence, Set, TypeAlias, cast
 
 from dateutil.parser import parse as parse_date
-from sqlalchemy import Column, Table, all_, any_, bindparam, func, insert, select
+from sqlalchemy import (
+    Column,
+    Table,
+    all_,
+    any_,
+    bindparam,
+    func,
+    insert,
+    nulls_last,
+    select,
+)
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.engine.cursor import CursorResult
@@ -349,19 +360,21 @@ class CrudDB(Database):
             tuple[str, ...],
             Doc("Column names to order by; prefix with '-' for descending"),
         ],
-    ) -> list[Column]:
+    ) -> list[ColumnElement]:
         """Return a list of SQLAlchemy column expressions for the given
-        order_by fields"""
-        columns = []
+        order_by fields.
+
+        A nullable column puts its NULL values last, in both directions.
+        Unknown fields are skipped.
+        """
+        columns: list[ColumnElement] = []
         for name in order_by:
-            if name.startswith("-"):
-                order_by_column = getattr(table.c, name[1:], None)
-                if order_by_column is not None:
-                    columns.append(order_by_column.desc())
-            else:
-                order_by_column = getattr(table.c, name, None)
-                if order_by_column is not None:
-                    columns.append(order_by_column)
+            desc = name.startswith("-")
+            column = getattr(table.c, name[1:] if desc else name, None)
+            if column is None:
+                continue
+            ordered = column.desc() if desc else column
+            columns.append(nulls_last(ordered) if is_nullable(column) else ordered)
         return columns
 
     def search_query(
@@ -435,6 +448,12 @@ class CrudDB(Database):
             raise ValidationError(column.name, f"unknown filter operator '{op}'")
 
 
+def is_nullable(column: ColumnElement) -> bool:
+    """Whether a column can hold NULL values; an expression which is not a
+    table column is assumed to"""
+    return getattr(column, "nullable", True)
+
+
 def column_value_to_python(column: Column, value: Any) -> Any:
     py_type = column.type.python_type
     try:
@@ -444,6 +463,8 @@ def column_value_to_python(column: Column, value: Any) -> Any:
             return parse_date(value).date() if isinstance(value, str) else value
         elif py_type is int:
             return int(value)
+        elif py_type is Decimal:
+            return Decimal(value)
         else:
             return value
     except Exception as e:

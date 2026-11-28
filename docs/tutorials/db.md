@@ -295,6 +295,8 @@ rows, cursor = await Pagination.create(order_by, sort_by="-title").execute(db, a
 
 The rows are sorted by the sort field followed by the unique fields, all in the same direction, so the example orders by `("title", "id")` descending. A `sort_by` which is not one of the fields of the [OrderBy][fluid.db.OrderBy] raises a [ValidationError][fluid.utils.errors.ValidationError], unique fields included.
 
+A nullable sort field puts its NULL values last, in both directions, and the cursor resumes across them: the rows with a value come first, followed by the NULL rows ordered by the unique fields. The same holds for `order_by` in [db_select][fluid.db.CrudDB.db_select]. Postgres puts NULL values first in a descending order by default, so a descending sort on a nullable column cannot use a plain index on it; create the index with `NULLS LAST` when that matters.
+
 The cursor carries the sort field and the direction, and they replace the `sort_by` passed with it, so a client can send the cursor alone and the next page follows the ordering of the first one. A cursor whose sort field is not one of the fields of the [OrderBy][fluid.db.OrderBy] is rejected with a [ValidationError][fluid.utils.errors.ValidationError].
 
 ### Signing the cursor
